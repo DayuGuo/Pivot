@@ -4,7 +4,7 @@ from uuid import uuid4
 
 import pytest
 from fastapi import HTTPException
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from apps.api.publishing import actions, main
@@ -358,8 +358,21 @@ def test_concurrent_duplicate_commands_use_real_connections():
             actor = Actor(user, membership, new_session(user)[1])
             return execute_command(db, actor, PROMPT, request_id, MockModelProvider())
 
-    with ThreadPoolExecutor(max_workers=4) as workers:
-        results = list(workers.map(run, range(4)))
+    try:
+        with ThreadPoolExecutor(max_workers=4) as workers:
+            results = list(workers.map(run, range(4)))
+    finally:
+        # Revoke only the grant created by this test, retaining manuscripts/audit
+        # evidence. A shared demo account must not acquire ambiguous journals.
+        with Session(engine) as cleanup:
+            cleanup.execute(
+                delete(Membership).where(
+                    Membership.user_id == synthetic_author.id,
+                    Membership.journal_id == journal_id,
+                )
+            )
+            cleanup.commit()
+
     assert all(result == results[0] for result in results)
     with Session(engine) as db:
         assert journal_count(db, Manuscript, journal_id) == 1

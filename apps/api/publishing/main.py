@@ -19,6 +19,7 @@ from .conversations import (
     owned_conversation,
 )
 from .db import get_db
+from .domain.api import router as publishing_router
 from .editorial_chat import router as editorial_chat_router
 from .editorial_demo import router as editorial_demo_router
 from .mail_accounts import router as mail_router
@@ -31,6 +32,7 @@ from .serialization import manuscript_json, message_json, user_json
 # The original intake slice stays Mock. Workbench live configuration is independent.
 provider = MockModelProvider()
 app = FastAPI(title="Publishing OS", version="0.1.0")
+app.include_router(publishing_router)
 app.include_router(mail_router)
 app.include_router(editorial_demo_router)
 app.include_router(editorial_chat_router)
@@ -127,7 +129,10 @@ def login(body: LoginInput, response: Response, db: Session = Depends(get_db)):
     # Resolve role with the same policy used for restored sessions.
     from .models import Membership
 
-    membership = db.scalar(select(Membership).where(Membership.user_id == user.id))
+    memberships = db.scalars(select(Membership).where(Membership.user_id == user.id).limit(2)).all()
+    if len(memberships) > 1:
+        raise HTTPException(409, "账号关联多个工作期刊，请先配置明确的工作期刊")
+    membership = memberships[0] if memberships else None
     if not membership:
         raise HTTPException(403, "没有期刊访问权限")
     actor = Actor(user, membership, session)
@@ -174,7 +179,9 @@ def workspace(
     db: Session = Depends(get_db),
 ):
     journal = db.get(Journal, actor.journal_id)
-    query = select(Manuscript).where(Manuscript.journal_id == actor.journal_id)
+    query = select(Manuscript).where(
+        Manuscript.journal_id == actor.journal_id, Manuscript.workflow_kind == "legacy"
+    )
     if actor.role == "author":
         query = query.where(Manuscript.author_id == actor.user.id)
     elif actor.role not in EDITOR_ROLES:
@@ -203,7 +210,10 @@ def workspace(
     if actor.role in EDITOR_ROLES:
         events = db.scalars(
             select(AuditEvent)
-            .where(AuditEvent.journal_id == actor.journal_id)
+            .where(
+                AuditEvent.journal_id == actor.journal_id,
+                ~AuditEvent.action.startswith("publishing."),
+            )
             .order_by(AuditEvent.created_at.desc())
             .limit(100)
         ).all()

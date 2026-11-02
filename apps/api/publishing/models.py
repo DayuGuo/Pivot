@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from sqlalchemy import JSON, DateTime, ForeignKey, String, Text, UniqueConstraint
+from sqlalchemy import JSON, CheckConstraint, DateTime, ForeignKey, String, Text, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -50,11 +50,20 @@ class LoginSession(Base):
 
 class Manuscript(Base):
     __tablename__ = "manuscripts"
+    __table_args__ = (
+        UniqueConstraint("id", "journal_id", name="uq_manuscript_id_journal"),
+        CheckConstraint(
+            "workflow_kind IN ('legacy','publishing')", name="ck_manuscript_workflow_kind"
+        ),
+    )
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
     journal_id: Mapped[str] = mapped_column(ForeignKey("journals.id"))
     author_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
-    editor_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
-    title: Mapped[str] = mapped_column(String(240))
+    editor_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
+    workflow_kind: Mapped[str] = mapped_column(
+        String(20), default="legacy", server_default="legacy"
+    )
+    title: Mapped[str] = mapped_column(String(500))
     status: Mapped[str] = mapped_column(String(30), default="draft")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
 

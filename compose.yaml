@@ -30,6 +30,8 @@ services:
       EDITORIAL_MODEL_PROVIDER: ${EDITORIAL_MODEL_PROVIDER:-mock}
       EDITORIAL_MODEL_LIVE_ENABLED: ${EDITORIAL_MODEL_LIVE_ENABLED:-false}
       DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      PUBLISHING_STORAGE_DIR: /data/publishing-files
+    volumes: ["publishing_files:/data/publishing-files"]
     ports: ["127.0.0.1:8100:8100"]
     depends_on:
       db: {condition: service_healthy}
@@ -54,3 +56,4 @@ services:
       retries: 30
 volumes:
   publishing_db:
+  publishing_files:

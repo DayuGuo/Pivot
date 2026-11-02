@@ -12,7 +12,7 @@ def require_editor(actor: Actor) -> None:
 
 
 def can_view_manuscript(actor: Actor, manuscript: Manuscript) -> bool:
-    if actor.journal_id != manuscript.journal_id:
+    if manuscript.workflow_kind != "legacy" or actor.journal_id != manuscript.journal_id:
         return False
     return actor.role in EDITOR_ROLES or (
         actor.role == "author" and manuscript.author_id == actor.user.id

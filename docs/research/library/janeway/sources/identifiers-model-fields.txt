@@ -1,0 +1,36 @@
+# Janeway v1.8.4 / e24b23bd112ff7ca08097620d8a31041a25f9d26
+# src/identifiers/models.py
+# Copyright Birkbeck, University of London; AGPL v3. See LICENSE.
+# Static excerpts: field declarations and Meta only; upstream code was NOT executed.
+
+
+# upstream class line 258
+class Identifier(models.Model):
+    # upstream line 259
+    id_type = models.CharField(max_length=300, choices=identifier_choices)
+    # upstream line 260
+    identifier = models.CharField(max_length=300)
+    # upstream line 261
+    enabled = models.BooleanField(default=True)
+    # upstream line 262
+    article = models.ForeignKey("submission.Article", on_delete=models.CASCADE)
+
+
+# upstream class line 288
+class BrokenDOI(models.Model):
+    # upstream line 289
+    article = models.ForeignKey(
+            "submission.Article",
+            on_delete=models.CASCADE,
+        )
+    # upstream line 293
+    identifier = models.ForeignKey(
+            Identifier,
+            on_delete=models.CASCADE,
+        )
+    # upstream line 297
+    checked = models.DateTimeField()
+    # upstream line 298
+    resolves_to = models.URLField()
+    # upstream line 299
+    expected_to_resolve_to = models.URLField()

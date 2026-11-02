@@ -1,0 +1,106 @@
+# Janeway v1.8.4 / e24b23bd112ff7ca08097620d8a31041a25f9d26
+# src/copyediting/models.py
+# Copyright Birkbeck, University of London; AGPL v3. See LICENSE.
+# Static excerpts: field declarations and Meta only; upstream code was NOT executed.
+
+
+# upstream class line 39
+class CopyeditAssignment(models.Model):
+    # upstream line 40
+    article = models.ForeignKey(
+            "submission.Article",
+            on_delete=models.CASCADE,
+        )
+    # upstream line 44
+    copyeditor = models.ForeignKey(
+            "core.Account", related_name="copyeditor", null=True, on_delete=models.SET_NULL
+        )
+    # upstream line 47
+    editor = models.ForeignKey(
+            "core.Account", related_name="cp_editor", null=True, on_delete=models.SET_NULL
+        )
+    # upstream line 51
+    assigned = models.DateTimeField(default=timezone.now)
+    # upstream line 52
+    notified = models.BooleanField(default=False)
+    # upstream line 53
+    due = models.DateField(default=timezone.now)
+    # upstream line 55
+    editor_note = models.TextField(
+            blank=True, null=True, verbose_name="Note for the Copyeditor"
+        )
+    # upstream line 58
+    copyeditor_note = models.TextField(
+            blank=True, null=True, verbose_name="Note for the Editor"
+        )
+    # upstream line 62
+    decision = models.CharField(
+            max_length=20, choices=copyeditor_decisions(), null=True, blank=True
+        )
+    # upstream line 65
+    date_decided = models.DateTimeField(null=True, blank=True)
+    # upstream line 67
+    files_for_copyediting = models.ManyToManyField(
+            "core.File", related_name="files_for_copyediting"
+        )
+    # upstream line 70
+    copyeditor_files = models.ManyToManyField(
+            "core.File",
+            blank=True,
+            related_name="copyeditor_files",
+        )
+    # upstream line 75
+    copyeditor_completed = models.DateTimeField(blank=True, null=True)
+    # upstream line 77
+    copyedit_reopened = models.DateTimeField(blank=True, null=True)
+    # upstream line 78
+    copyedit_reopened_complete = models.DateTimeField(
+            blank=True, null=True, help_text="The date a reopen was complete"
+        )
+    # upstream line 81
+    copyedit_accepted = models.DateTimeField(blank=True, null=True)
+    # upstream line 83
+    copyedit_acknowledged = models.BooleanField(default=False)
+    class Meta:
+            ordering = ("assigned",)
+
+
+# upstream class line 212
+class AuthorReview(models.Model):
+    # upstream line 213
+    author = models.ForeignKey(
+            "core.Account",
+            on_delete=models.CASCADE,
+        )
+    # upstream line 217
+    assignment = models.ForeignKey(
+            CopyeditAssignment,
+            on_delete=models.CASCADE,
+        )
+    # upstream line 222
+    assigned = models.DateTimeField(default=timezone.now)
+    # upstream line 223
+    notified = models.BooleanField(default=False)
+    # upstream line 225
+    decision = models.CharField(
+            max_length=20,
+            choices=author_decisions(),
+            null=True,
+            blank=True,
+            help_text="Select a decision that reflects your actions. If you've uploaded a new "
+            "version of the file, select Corrections Required, if you're happy with the "
+            "copyedit, select Accept.",
+            verbose_name="Your Decision",
+        )
+    # upstream line 235
+    date_decided = models.DateTimeField(null=True, blank=True)
+    # upstream line 236
+    author_note = models.TextField(
+            null=True, blank=True, verbose_name="Note to the Editor"
+        )
+    # upstream line 240
+    files_updated = models.ManyToManyField(
+            "core.File",
+            verbose_name="files_updated",
+            blank=True,
+        )

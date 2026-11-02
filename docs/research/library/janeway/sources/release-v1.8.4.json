@@ -1,0 +1,11 @@
+{
+  "tag_name": "v1.8.4",
+  "name": "v1.8.4 Pegasus",
+  "published_at": "2026-10-27T11:49:16Z",
+  "prerelease": false,
+  "draft": false,
+  "html_url": "https://github.com/openlibhums/janeway/releases/tag/v1.8.4",
+  "body": "Security release. All 1.8.x installs should upgrade.\r\n\r\n- Tightens access checks on editorial workflow views and article downloads.\r\n\r\n**Full Changelog**: https://github.com/openlibhums/janeway/compare/v1.8.3...v1.8.4",
+  "commit": "e24b23bd112ff7ca08097620d8a31041a25f9d26",
+  "canonical_repository": "openlibhums/janeway"
+}

@@ -1,0 +1,37 @@
+{
+  "date": "2026-11-02",
+  "passed": true,
+  "checks": {
+    "manifest_sources": 39,
+    "matched_sha256": 39,
+    "parsed_json_artifacts": 12,
+    "inventory_tables": 59,
+    "inventory_field_declarations": 412,
+    "inventory_source_references_valid": true,
+    "own_analysis_files_present": true
+  },
+  "failures": [],
+  "verified_versions": {
+    "version": "3.5.0-6",
+    "tag": "3_5_0-6",
+    "commit": "0f2de4ff3f399a65dbe5c24c035529c0ff9bc976",
+    "official_download_page": "https://pkp.sfu.ca/software/ojs/download/",
+    "official_release_date": "2026-11-01",
+    "pkp_lib_commit": "c4c0aa8c5293254ad253544aea230b1b607d5249",
+    "pin_evidence": "git ls-tree HEAD lib/pkp on OJS tag"
+  },
+  "limits": [
+    "Static PHP/source analysis only, not a live introspected OJS SQL schema",
+    "No upstream PHP/SQL executed, no OJS database installed",
+    "No application/static regression suite run by research helper; parent integrates/retests",
+    "Documentation license unresolved; own short Chinese notes retained rather than full guide copies"
+  ],
+  "telemetry": {
+    "executor": "native Codex research subagent",
+    "success": true,
+    "tokens": null,
+    "api_cost": null,
+    "elapsed_seconds": null,
+    "model_configuration_changed": false
+  }
+}

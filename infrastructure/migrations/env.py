@@ -3,6 +3,8 @@ from sqlalchemy import create_engine, pool
 
 from apps.api.publishing import editorial_chat, editorial_demo  # noqa: F401
 from apps.api.publishing.db import DATABASE_URL
+from apps.api.publishing.domain import checks as publishing_checks  # noqa: F401
+from apps.api.publishing.domain import models as publishing_models  # noqa: F401
 from apps.api.publishing.models import Base
 
 if context.is_offline_mode():

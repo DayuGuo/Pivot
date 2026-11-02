@@ -1,0 +1,37 @@
+Janeway official documentation — Birkbeck, University of London / Open Library of Humanities
+Source: https://janeway.systems/pages/support/about/index.html
+Retrieved: 2026-11-02
+License: CC BY 4.0 — http://creativecommons.org/licenses/by/4.0/
+HTML main-text extraction; navigation, images and formatting omitted. Content wording unmodified.
+Version: current unversioned website; NOT asserted to be v1.8.4-specific.
+
+
+
+Home
+
+Documentation
+
+About
+
+About
+
+About page
+
+The Janeway documentation is maintained by the core team at the Open Library of Humanities.
+
+Contributions
+
+Contributions section
+
+We welcome contributions ranging from small edits to full pages. To get started, see our style guide and a contribution guide.
+
+The documentation styleguide
+
+Contributing to the documentation
+
+For developers
+
+For developers section
+
+Developer docs are maintained separately, alongside the Janeway source code. See the legacy developer documentation on ReadTheDocs for installation and configuration instructions, or check out the newer set of developer guides in plain Markdown on GitHub.
+

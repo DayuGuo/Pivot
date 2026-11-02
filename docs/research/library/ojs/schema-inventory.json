@@ -1,0 +1,4558 @@
+{
+  "scope": "Selected install-migration creates only; later Schema::table additions/dynamic context FK need source review. Not an executable or fully resolved schema.",
+  "tables": [
+    {
+      "table": "journals",
+      "source": "ojs:classes/migration/install/JournalsMigration.php",
+      "source_line": 28,
+      "fields": [
+        {
+          "column": "journal_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('journal_id')->autoIncrement();",
+          "source_line": 30
+        },
+        {
+          "column": "path",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('path', 32);",
+          "source_line": 31
+        },
+        {
+          "column": "seq",
+          "type": "float",
+          "nullable_explicit": false,
+          "definition": "$table->float('seq')->default(0)->comment('Used to order lists of journals');",
+          "source_line": 32
+        },
+        {
+          "column": "primary_locale",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('primary_locale', 28);",
+          "source_line": 33
+        },
+        {
+          "column": "enabled",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('enabled')->default(1)->comment('Controls whether or not the journal is considered \"live\" and will appear on the website. (Note that disabled journals may still be accessible, but only if the user knows the URL.)');",
+          "source_line": 34
+        },
+        {
+          "column": "current_issue_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('current_issue_id')->nullable()->default(null);",
+          "source_line": 36
+        }
+      ],
+      "foreign_keys_declared_inside_create": [],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['path'], 'journals_path');",
+          "source_line": 35
+        }
+      ]
+    },
+    {
+      "table": "journal_settings",
+      "source": "ojs:classes/migration/install/JournalsMigration.php",
+      "source_line": 40,
+      "fields": [
+        {
+          "column": "journal_setting_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('journal_setting_id');",
+          "source_line": 42
+        },
+        {
+          "column": "journal_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('journal_id');",
+          "source_line": 44
+        },
+        {
+          "column": "locale",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('locale', 28)->default('');",
+          "source_line": 48
+        },
+        {
+          "column": "setting_name",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('setting_name', 255);",
+          "source_line": 49
+        },
+        {
+          "column": "setting_value",
+          "type": "mediumText",
+          "nullable_explicit": true,
+          "definition": "$table->mediumText('setting_value')->nullable();",
+          "source_line": 50
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('journal_id', 'journal_settings_journal_id')->references('journal_id')->on('journals')->onDelete('cascade');",
+          "source_line": 45
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['journal_id'], 'journal_settings_journal_id');",
+          "source_line": 46
+        },
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['journal_id', 'locale', 'setting_name'], 'journal_settings_unique');",
+          "source_line": 52
+        }
+      ]
+    },
+    {
+      "table": "sections",
+      "source": "ojs:classes/migration/install/OJSMigration.php",
+      "source_line": 29,
+      "fields": [
+        {
+          "column": "section_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('section_id')->autoIncrement();",
+          "source_line": 31
+        },
+        {
+          "column": "journal_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('journal_id');",
+          "source_line": 33
+        },
+        {
+          "column": "review_form_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('review_form_id')->nullable();",
+          "source_line": 37
+        },
+        {
+          "column": "seq",
+          "type": "float",
+          "nullable_explicit": false,
+          "definition": "$table->float('seq')->default(0);",
+          "source_line": 41
+        },
+        {
+          "column": "editor_restricted",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('editor_restricted')->default(0);",
+          "source_line": 42
+        },
+        {
+          "column": "meta_indexed",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('meta_indexed')->default(0);",
+          "source_line": 43
+        },
+        {
+          "column": "meta_reviewed",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('meta_reviewed')->default(1);",
+          "source_line": 44
+        },
+        {
+          "column": "abstracts_not_required",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('abstracts_not_required')->default(0);",
+          "source_line": 45
+        },
+        {
+          "column": "hide_title",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('hide_title')->default(0);",
+          "source_line": 46
+        },
+        {
+          "column": "hide_author",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('hide_author')->default(0);",
+          "source_line": 47
+        },
+        {
+          "column": "is_inactive",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('is_inactive')->default(0);",
+          "source_line": 48
+        },
+        {
+          "column": "abstract_word_count",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('abstract_word_count')->nullable();",
+          "source_line": 49
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('journal_id', 'sections_journal_id')->references('journal_id')->on('journals')->onDelete('cascade');",
+          "source_line": 34
+        },
+        {
+          "definition": "$table->foreign('review_form_id', 'sections_review_form_id')->references('review_form_id')->on('review_forms')->onDelete('set null');",
+          "source_line": 38
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['journal_id'], 'sections_journal_id');",
+          "source_line": 35
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['review_form_id'], 'sections_review_form_id');",
+          "source_line": 39
+        }
+      ]
+    },
+    {
+      "table": "section_settings",
+      "source": "ojs:classes/migration/install/OJSMigration.php",
+      "source_line": 53,
+      "fields": [
+        {
+          "column": "section_setting_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('section_setting_id');",
+          "source_line": 55
+        },
+        {
+          "column": "section_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('section_id');",
+          "source_line": 57
+        },
+        {
+          "column": "locale",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('locale', 28)->default('');",
+          "source_line": 61
+        },
+        {
+          "column": "setting_name",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('setting_name', 255);",
+          "source_line": 62
+        },
+        {
+          "column": "setting_value",
+          "type": "mediumText",
+          "nullable_explicit": true,
+          "definition": "$table->mediumText('setting_value')->nullable();",
+          "source_line": 63
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('section_id', 'section_settings_section_id')->references('section_id')->on('sections')->onDelete('cascade');",
+          "source_line": 58
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['section_id'], 'section_settings_section_id');",
+          "source_line": 59
+        },
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['section_id', 'locale', 'setting_name'], 'section_settings_unique');",
+          "source_line": 65
+        }
+      ]
+    },
+    {
+      "table": "issues",
+      "source": "ojs:classes/migration/install/OJSMigration.php",
+      "source_line": 69,
+      "fields": [
+        {
+          "column": "issue_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('issue_id')->autoIncrement();",
+          "source_line": 71
+        },
+        {
+          "column": "journal_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('journal_id');",
+          "source_line": 73
+        },
+        {
+          "column": "volume",
+          "type": "smallInteger",
+          "nullable_explicit": true,
+          "definition": "$table->smallInteger('volume')->nullable();",
+          "source_line": 77
+        },
+        {
+          "column": "number",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('number', 40)->nullable();",
+          "source_line": 78
+        },
+        {
+          "column": "year",
+          "type": "smallInteger",
+          "nullable_explicit": true,
+          "definition": "$table->smallInteger('year')->nullable();",
+          "source_line": 79
+        },
+        {
+          "column": "published",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('published')->default(0);",
+          "source_line": 80
+        },
+        {
+          "column": "date_published",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('date_published')->nullable();",
+          "source_line": 81
+        },
+        {
+          "column": "date_notified",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('date_notified')->nullable();",
+          "source_line": 82
+        },
+        {
+          "column": "last_modified",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('last_modified')->nullable();",
+          "source_line": 83
+        },
+        {
+          "column": "access_status",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('access_status')->default(1);",
+          "source_line": 84
+        },
+        {
+          "column": "open_access_date",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('open_access_date')->nullable();",
+          "source_line": 85
+        },
+        {
+          "column": "show_volume",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('show_volume')->default(0);",
+          "source_line": 86
+        },
+        {
+          "column": "show_number",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('show_number')->default(0);",
+          "source_line": 87
+        },
+        {
+          "column": "show_year",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('show_year')->default(0);",
+          "source_line": 88
+        },
+        {
+          "column": "show_title",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('show_title')->default(0);",
+          "source_line": 89
+        },
+        {
+          "column": "style_file_name",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('style_file_name', 90)->nullable();",
+          "source_line": 90
+        },
+        {
+          "column": "original_style_file_name",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('original_style_file_name', 255)->nullable();",
+          "source_line": 91
+        },
+        {
+          "column": "url_path",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('url_path', 64)->nullable();",
+          "source_line": 92
+        },
+        {
+          "column": "doi_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('doi_id')->nullable();",
+          "source_line": 94
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('journal_id', 'issues_journal_id')->references('journal_id')->on('journals')->onDelete('cascade');",
+          "source_line": 74
+        },
+        {
+          "definition": "$table->foreign('doi_id')->references('doi_id')->on('dois')->nullOnDelete();",
+          "source_line": 95
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['journal_id'], 'issues_journal_id');",
+          "source_line": 75
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['doi_id'], 'issues_doi_id');",
+          "source_line": 96
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['url_path'], 'issues_url_path');",
+          "source_line": 98
+        }
+      ]
+    },
+    {
+      "table": "issue_settings",
+      "source": "ojs:classes/migration/install/OJSMigration.php",
+      "source_line": 102,
+      "fields": [
+        {
+          "column": "issue_setting_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('issue_setting_id');",
+          "source_line": 104
+        },
+        {
+          "column": "issue_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('issue_id');",
+          "source_line": 106
+        },
+        {
+          "column": "locale",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('locale', 28)->default('');",
+          "source_line": 110
+        },
+        {
+          "column": "setting_name",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('setting_name', 255);",
+          "source_line": 111
+        },
+        {
+          "column": "setting_value",
+          "type": "mediumText",
+          "nullable_explicit": true,
+          "definition": "$table->mediumText('setting_value')->nullable();",
+          "source_line": 112
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('issue_id', 'issue_settings_issue_id')->references('issue_id')->on('issues')->onDelete('cascade');",
+          "source_line": 107
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['issue_id'], 'issue_settings_issue_id');",
+          "source_line": 108
+        },
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['issue_id', 'locale', 'setting_name'], 'issue_settings_unique');",
+          "source_line": 114
+        }
+      ]
+    },
+    {
+      "table": "issue_files",
+      "source": "ojs:classes/migration/install/OJSMigration.php",
+      "source_line": 124,
+      "fields": [
+        {
+          "column": "file_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('file_id')->autoIncrement();",
+          "source_line": 126
+        },
+        {
+          "column": "issue_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('issue_id');",
+          "source_line": 128
+        },
+        {
+          "column": "file_name",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('file_name', 90);",
+          "source_line": 132
+        },
+        {
+          "column": "file_type",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('file_type', 255);",
+          "source_line": 133
+        },
+        {
+          "column": "file_size",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('file_size');",
+          "source_line": 134
+        },
+        {
+          "column": "content_type",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('content_type');",
+          "source_line": 135
+        },
+        {
+          "column": "original_file_name",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('original_file_name', 127)->nullable();",
+          "source_line": 136
+        },
+        {
+          "column": "date_uploaded",
+          "type": "datetime",
+          "nullable_explicit": false,
+          "definition": "$table->datetime('date_uploaded');",
+          "source_line": 137
+        },
+        {
+          "column": "date_modified",
+          "type": "datetime",
+          "nullable_explicit": false,
+          "definition": "$table->datetime('date_modified');",
+          "source_line": 138
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('issue_id', 'issue_files_issue_id')->references('issue_id')->on('issues')->onDelete('cascade');",
+          "source_line": 129
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['issue_id'], 'issue_files_issue_id');",
+          "source_line": 130
+        }
+      ]
+    },
+    {
+      "table": "issue_galleys",
+      "source": "ojs:classes/migration/install/OJSMigration.php",
+      "source_line": 142,
+      "fields": [
+        {
+          "column": "galley_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('galley_id')->autoIncrement();",
+          "source_line": 144
+        },
+        {
+          "column": "locale",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('locale', 28)->nullable();",
+          "source_line": 146
+        },
+        {
+          "column": "issue_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('issue_id');",
+          "source_line": 148
+        },
+        {
+          "column": "file_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('file_id');",
+          "source_line": 152
+        },
+        {
+          "column": "label",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('label', 255)->nullable();",
+          "source_line": 156
+        },
+        {
+          "column": "seq",
+          "type": "float",
+          "nullable_explicit": false,
+          "definition": "$table->float('seq')->default(0);",
+          "source_line": 157
+        },
+        {
+          "column": "url_path",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('url_path', 64)->nullable();",
+          "source_line": 158
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('issue_id', 'issue_galleys_issue_id')->references('issue_id')->on('issues')->onDelete('cascade');",
+          "source_line": 149
+        },
+        {
+          "definition": "$table->foreign('file_id', 'issue_galleys_file_id')->references('file_id')->on('issue_files')->onDelete('cascade');",
+          "source_line": 153
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['issue_id'], 'issue_galleys_issue_id');",
+          "source_line": 150
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['file_id'], 'issue_galleys_file_id');",
+          "source_line": 154
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['url_path'], 'issue_galleys_url_path');",
+          "source_line": 160
+        }
+      ]
+    },
+    {
+      "table": "issue_galley_settings",
+      "source": "ojs:classes/migration/install/OJSMigration.php",
+      "source_line": 164,
+      "fields": [
+        {
+          "column": "issue_galley_setting_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('issue_galley_setting_id');",
+          "source_line": 166
+        },
+        {
+          "column": "galley_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('galley_id');",
+          "source_line": 168
+        },
+        {
+          "column": "locale",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('locale', 28)->default('');",
+          "source_line": 172
+        },
+        {
+          "column": "setting_name",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('setting_name', 255);",
+          "source_line": 173
+        },
+        {
+          "column": "setting_value",
+          "type": "mediumText",
+          "nullable_explicit": true,
+          "definition": "$table->mediumText('setting_value')->nullable();",
+          "source_line": 174
+        },
+        {
+          "column": "setting_type",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('setting_type', 6)->comment('(bool|int|float|string|object)');",
+          "source_line": 175
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('galley_id', 'issue_galleys_settings_galley_id')->references('galley_id')->on('issue_galleys')->onDelete('cascade');",
+          "source_line": 169
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['galley_id'], 'issue_galley_settings_galley_id');",
+          "source_line": 170
+        },
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['galley_id', 'locale', 'setting_name'], 'issue_galley_settings_unique');",
+          "source_line": 177
+        }
+      ]
+    },
+    {
+      "table": "custom_issue_orders",
+      "source": "ojs:classes/migration/install/OJSMigration.php",
+      "source_line": 180,
+      "fields": [
+        {
+          "column": "custom_issue_order_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('custom_issue_order_id');",
+          "source_line": 182
+        },
+        {
+          "column": "issue_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('issue_id');",
+          "source_line": 184
+        },
+        {
+          "column": "journal_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('journal_id');",
+          "source_line": 188
+        },
+        {
+          "column": "seq",
+          "type": "float",
+          "nullable_explicit": false,
+          "definition": "$table->float('seq')->default(0);",
+          "source_line": 192
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('issue_id', 'custom_issue_orders_issue_id')->references('issue_id')->on('issues')->onDelete('cascade');",
+          "source_line": 185
+        },
+        {
+          "definition": "$table->foreign('journal_id', 'custom_issue_orders_journal_id')->references('journal_id')->on('journals')->onDelete('cascade');",
+          "source_line": 189
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['issue_id'], 'custom_issue_orders_issue_id');",
+          "source_line": 186
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['journal_id'], 'custom_issue_orders_journal_id');",
+          "source_line": 190
+        },
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['issue_id'], 'custom_issue_orders_unique');",
+          "source_line": 194
+        }
+      ]
+    },
+    {
+      "table": "custom_section_orders",
+      "source": "ojs:classes/migration/install/OJSMigration.php",
+      "source_line": 197,
+      "fields": [
+        {
+          "column": "custom_section_order_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('custom_section_order_id');",
+          "source_line": 199
+        },
+        {
+          "column": "issue_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('issue_id');",
+          "source_line": 201
+        },
+        {
+          "column": "section_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('section_id');",
+          "source_line": 205
+        },
+        {
+          "column": "seq",
+          "type": "float",
+          "nullable_explicit": false,
+          "definition": "$table->float('seq')->default(0);",
+          "source_line": 209
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('issue_id', 'custom_section_orders_issue_id')->references('issue_id')->on('issues')->onDelete('cascade');",
+          "source_line": 202
+        },
+        {
+          "definition": "$table->foreign('section_id', 'custom_section_orders_section_id')->references('section_id')->on('sections')->onDelete('cascade');",
+          "source_line": 206
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['issue_id'], 'custom_section_orders_issue_id');",
+          "source_line": 203
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['section_id'], 'custom_section_orders_section_id');",
+          "source_line": 207
+        },
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['issue_id', 'section_id'], 'custom_section_orders_unique');",
+          "source_line": 211
+        }
+      ]
+    },
+    {
+      "table": "publications",
+      "source": "ojs:classes/migration/install/OJSMigration.php",
+      "source_line": 215,
+      "fields": [
+        {
+          "column": "publication_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('publication_id')->autoIncrement();",
+          "source_line": 217
+        },
+        {
+          "column": "access_status",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('access_status')->default(0)->nullable();",
+          "source_line": 219
+        },
+        {
+          "column": "date_published",
+          "type": "date",
+          "nullable_explicit": true,
+          "definition": "$table->date('date_published')->nullable();",
+          "source_line": 220
+        },
+        {
+          "column": "last_modified",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('last_modified')->nullable();",
+          "source_line": 221
+        },
+        {
+          "column": "primary_contact_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('primary_contact_id')->nullable();",
+          "source_line": 223
+        },
+        {
+          "column": "section_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('section_id')->nullable();",
+          "source_line": 227
+        },
+        {
+          "column": "seq",
+          "type": "float",
+          "nullable_explicit": false,
+          "definition": "$table->float('seq')->default(0);",
+          "source_line": 231
+        },
+        {
+          "column": "submission_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('submission_id');",
+          "source_line": 233
+        },
+        {
+          "column": "status",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('status')->default(1);",
+          "source_line": 237
+        },
+        {
+          "column": "url_path",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('url_path', 64)->nullable();",
+          "source_line": 238
+        },
+        {
+          "column": "version",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('version')->nullable();",
+          "source_line": 239
+        },
+        {
+          "column": "doi_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('doi_id')->nullable();",
+          "source_line": 241
+        },
+        {
+          "column": "issue_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('issue_id')->nullable();",
+          "source_line": 245
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('primary_contact_id', 'publications_primary_contact_id')->references('author_id')->on('authors')->onDelete('set null');",
+          "source_line": 224
+        },
+        {
+          "definition": "$table->foreign('section_id', 'publications_section_id')->references('section_id')->on('sections')->onDelete('set null');",
+          "source_line": 228
+        },
+        {
+          "definition": "$table->foreign('submission_id', 'publications_submission_id')->references('submission_id')->on('submissions')->onDelete('cascade');",
+          "source_line": 234
+        },
+        {
+          "definition": "$table->foreign('doi_id')->references('doi_id')->on('dois')->nullOnDelete();",
+          "source_line": 242
+        },
+        {
+          "definition": "$table->foreign('issue_id')->references('issue_id')->on('issues')->nullOnDelete();",
+          "source_line": 246
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['primary_contact_id'], 'publications_primary_contact_id');",
+          "source_line": 225
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['section_id'], 'publications_section_id');",
+          "source_line": 229
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['submission_id'], 'publications_submission_id');",
+          "source_line": 235
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['doi_id'], 'publications_doi_id');",
+          "source_line": 243
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['issue_id'], 'publications_issue_id_index');",
+          "source_line": 247
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['url_path'], 'publications_url_path');",
+          "source_line": 249
+        }
+      ]
+    },
+    {
+      "table": "publication_galleys",
+      "source": "ojs:classes/migration/install/OJSMigration.php",
+      "source_line": 266,
+      "fields": [
+        {
+          "column": "galley_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('galley_id')->autoIncrement();",
+          "source_line": 268
+        },
+        {
+          "column": "locale",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('locale', 28)->nullable();",
+          "source_line": 269
+        },
+        {
+          "column": "publication_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('publication_id');",
+          "source_line": 271
+        },
+        {
+          "column": "label",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('label', 255)->nullable();",
+          "source_line": 275
+        },
+        {
+          "column": "submission_file_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('submission_file_id')->unsigned()->nullable();",
+          "source_line": 277
+        },
+        {
+          "column": "seq",
+          "type": "float",
+          "nullable_explicit": false,
+          "definition": "$table->float('seq')->default(0);",
+          "source_line": 281
+        },
+        {
+          "column": "remote_url",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('remote_url', 2047)->nullable();",
+          "source_line": 282
+        },
+        {
+          "column": "is_approved",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('is_approved')->default(0);",
+          "source_line": 283
+        },
+        {
+          "column": "url_path",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('url_path', 64)->nullable();",
+          "source_line": 284
+        },
+        {
+          "column": "doi_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('doi_id')->nullable();",
+          "source_line": 286
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('publication_id', 'publication_galleys_publication_id')->references('publication_id')->on('publications')->onDelete('cascade');",
+          "source_line": 272
+        },
+        {
+          "definition": "$table->foreign('submission_file_id')->references('submission_file_id')->on('submission_files');",
+          "source_line": 278
+        },
+        {
+          "definition": "$table->foreign('doi_id')->references('doi_id')->on('dois')->nullOnDelete();",
+          "source_line": 287
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['publication_id'], 'publication_galleys_publication_id');",
+          "source_line": 273
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['submission_file_id'], 'publication_galleys_submission_file_id');",
+          "source_line": 279
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['doi_id'], 'publication_galleys_doi_id');",
+          "source_line": 288
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['url_path'], 'publication_galleys_url_path');",
+          "source_line": 290
+        }
+      ]
+    },
+    {
+      "table": "publication_galley_settings",
+      "source": "ojs:classes/migration/install/OJSMigration.php",
+      "source_line": 294,
+      "fields": [
+        {
+          "column": "publication_galley_setting_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('publication_galley_setting_id');",
+          "source_line": 296
+        },
+        {
+          "column": "galley_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('galley_id');",
+          "source_line": 298
+        },
+        {
+          "column": "locale",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('locale', 28)->default('');",
+          "source_line": 302
+        },
+        {
+          "column": "setting_name",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('setting_name', 255);",
+          "source_line": 303
+        },
+        {
+          "column": "setting_value",
+          "type": "mediumText",
+          "nullable_explicit": true,
+          "definition": "$table->mediumText('setting_value')->nullable();",
+          "source_line": 304
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('galley_id', 'publication_galley_settings_galley_id')->references('galley_id')->on('publication_galleys')->onDelete('cascade');",
+          "source_line": 299
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['galley_id'], 'publication_galley_settings_galley_id');",
+          "source_line": 300
+        },
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['galley_id', 'locale', 'setting_name'], 'publication_galley_settings_unique');",
+          "source_line": 306
+        }
+      ]
+    },
+    {
+      "table": "subscription_types",
+      "source": "ojs:classes/migration/install/OJSMigration.php",
+      "source_line": 317,
+      "fields": [
+        {
+          "column": "type_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('type_id')->autoIncrement();",
+          "source_line": 319
+        },
+        {
+          "column": "journal_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('journal_id');",
+          "source_line": 321
+        },
+        {
+          "column": "cost",
+          "type": "decimal",
+          "nullable_explicit": false,
+          "definition": "$table->decimal('cost', 8, 2)->unsigned();",
+          "source_line": 325
+        },
+        {
+          "column": "currency_code_alpha",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('currency_code_alpha', 3);",
+          "source_line": 326
+        },
+        {
+          "column": "duration",
+          "type": "smallInteger",
+          "nullable_explicit": true,
+          "definition": "$table->smallInteger('duration')->nullable();",
+          "source_line": 327
+        },
+        {
+          "column": "format",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('format');",
+          "source_line": 328
+        },
+        {
+          "column": "institutional",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('institutional')->default(0);",
+          "source_line": 329
+        },
+        {
+          "column": "membership",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('membership')->default(0);",
+          "source_line": 330
+        },
+        {
+          "column": "disable_public_display",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('disable_public_display');",
+          "source_line": 331
+        },
+        {
+          "column": "seq",
+          "type": "float",
+          "nullable_explicit": false,
+          "definition": "$table->float('seq');",
+          "source_line": 332
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('journal_id', 'subscription_types_journal_id')->references('journal_id')->on('journals')->onDelete('cascade');",
+          "source_line": 322
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['journal_id'], 'subscription_types_journal_id');",
+          "source_line": 323
+        }
+      ]
+    },
+    {
+      "table": "subscription_type_settings",
+      "source": "ojs:classes/migration/install/OJSMigration.php",
+      "source_line": 336,
+      "fields": [
+        {
+          "column": "subscription_type_setting_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('subscription_type_setting_id');",
+          "source_line": 338
+        },
+        {
+          "column": "type_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('type_id');",
+          "source_line": 340
+        },
+        {
+          "column": "locale",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('locale', 28)->default('');",
+          "source_line": 344
+        },
+        {
+          "column": "setting_name",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('setting_name', 255);",
+          "source_line": 345
+        },
+        {
+          "column": "setting_value",
+          "type": "mediumText",
+          "nullable_explicit": true,
+          "definition": "$table->mediumText('setting_value')->nullable();",
+          "source_line": 346
+        },
+        {
+          "column": "setting_type",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('setting_type', 6);",
+          "source_line": 347
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('type_id', 'subscription_type_settings_type_id')->references('type_id')->on('subscription_types')->onDelete('cascade');",
+          "source_line": 341
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['type_id'], 'subscription_type_settings_type_id');",
+          "source_line": 342
+        },
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['type_id', 'locale', 'setting_name'], 'subscription_type_settings_unique');",
+          "source_line": 349
+        }
+      ]
+    },
+    {
+      "table": "subscriptions",
+      "source": "ojs:classes/migration/install/OJSMigration.php",
+      "source_line": 353,
+      "fields": [
+        {
+          "column": "subscription_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('subscription_id')->autoIncrement();",
+          "source_line": 355
+        },
+        {
+          "column": "journal_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('journal_id');",
+          "source_line": 357
+        },
+        {
+          "column": "user_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('user_id');",
+          "source_line": 361
+        },
+        {
+          "column": "type_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('type_id');",
+          "source_line": 365
+        },
+        {
+          "column": "date_start",
+          "type": "date",
+          "nullable_explicit": true,
+          "definition": "$table->date('date_start')->nullable();",
+          "source_line": 369
+        },
+        {
+          "column": "date_end",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('date_end')->nullable();",
+          "source_line": 370
+        },
+        {
+          "column": "status",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('status')->default(1);",
+          "source_line": 371
+        },
+        {
+          "column": "membership",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('membership', 40)->nullable();",
+          "source_line": 372
+        },
+        {
+          "column": "reference_number",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('reference_number', 40)->nullable();",
+          "source_line": 373
+        },
+        {
+          "column": "notes",
+          "type": "text",
+          "nullable_explicit": true,
+          "definition": "$table->text('notes')->nullable();",
+          "source_line": 374
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('journal_id', 'subscriptions_journal_id')->references('journal_id')->on('journals')->onDelete('cascade');",
+          "source_line": 358
+        },
+        {
+          "definition": "$table->foreign('user_id', 'subscriptions_user_id')->references('user_id')->on('users')->onDelete('cascade');",
+          "source_line": 362
+        },
+        {
+          "definition": "$table->foreign('type_id', 'subscriptions_type_id')->references('type_id')->on('subscription_types')->onDelete('cascade');",
+          "source_line": 366
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['journal_id'], 'subscriptions_journal_id');",
+          "source_line": 359
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['user_id'], 'subscriptions_user_id');",
+          "source_line": 363
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['type_id'], 'subscriptions_type_id');",
+          "source_line": 367
+        }
+      ]
+    },
+    {
+      "table": "institutional_subscriptions",
+      "source": "ojs:classes/migration/install/OJSMigration.php",
+      "source_line": 378,
+      "fields": [
+        {
+          "column": "institutional_subscription_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('institutional_subscription_id')->autoIncrement();",
+          "source_line": 380
+        },
+        {
+          "column": "subscription_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('subscription_id');",
+          "source_line": 382
+        },
+        {
+          "column": "institution_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('institution_id');",
+          "source_line": 386
+        },
+        {
+          "column": "mailing_address",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('mailing_address', 255)->nullable();",
+          "source_line": 390
+        },
+        {
+          "column": "domain",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('domain', 255)->nullable();",
+          "source_line": 391
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('subscription_id', 'institutional_subscriptions_subscription_id')->references('subscription_id')->on('subscriptions')->onDelete('cascade');",
+          "source_line": 383
+        },
+        {
+          "definition": "$table->foreign('institution_id')->references('institution_id')->on('institutions')->onDelete('cascade');",
+          "source_line": 387
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['subscription_id'], 'institutional_subscriptions_subscription_id');",
+          "source_line": 384
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['institution_id'], 'institutional_subscriptions_institution_id');",
+          "source_line": 388
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['domain'], 'institutional_subscriptions_domain');",
+          "source_line": 393
+        }
+      ]
+    },
+    {
+      "table": "queued_payments",
+      "source": "ojs:classes/migration/install/OJSMigration.php",
+      "source_line": 397,
+      "fields": [
+        {
+          "column": "queued_payment_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('queued_payment_id')->autoIncrement();",
+          "source_line": 399
+        },
+        {
+          "column": "date_created",
+          "type": "datetime",
+          "nullable_explicit": false,
+          "definition": "$table->datetime('date_created');",
+          "source_line": 400
+        },
+        {
+          "column": "date_modified",
+          "type": "datetime",
+          "nullable_explicit": false,
+          "definition": "$table->datetime('date_modified');",
+          "source_line": 401
+        },
+        {
+          "column": "expiry_date",
+          "type": "date",
+          "nullable_explicit": true,
+          "definition": "$table->date('expiry_date')->nullable();",
+          "source_line": 402
+        },
+        {
+          "column": "payment_data",
+          "type": "text",
+          "nullable_explicit": true,
+          "definition": "$table->text('payment_data')->nullable();",
+          "source_line": 403
+        }
+      ],
+      "foreign_keys_declared_inside_create": [],
+      "indexes_declared_inside_create": []
+    },
+    {
+      "table": "completed_payments",
+      "source": "ojs:classes/migration/install/OJSMigration.php",
+      "source_line": 407,
+      "fields": [
+        {
+          "column": "completed_payment_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('completed_payment_id')->autoIncrement();",
+          "source_line": 409
+        },
+        {
+          "column": "timestamp",
+          "type": "datetime",
+          "nullable_explicit": false,
+          "definition": "$table->datetime('timestamp');",
+          "source_line": 410
+        },
+        {
+          "column": "payment_type",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('payment_type');",
+          "source_line": 411
+        },
+        {
+          "column": "context_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('context_id');",
+          "source_line": 413
+        },
+        {
+          "column": "user_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('user_id')->nullable();",
+          "source_line": 417
+        },
+        {
+          "column": "assoc_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('assoc_id')->nullable();",
+          "source_line": 421
+        },
+        {
+          "column": "amount",
+          "type": "decimal",
+          "nullable_explicit": false,
+          "definition": "$table->decimal('amount', 8, 2)->unsigned();",
+          "source_line": 422
+        },
+        {
+          "column": "currency_code_alpha",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('currency_code_alpha', 3)->nullable();",
+          "source_line": 423
+        },
+        {
+          "column": "payment_method_plugin_name",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('payment_method_plugin_name', 80)->nullable();",
+          "source_line": 424
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('context_id', 'completed_payments_context_id')->references('journal_id')->on('journals')->onDelete('cascade');",
+          "source_line": 414
+        },
+        {
+          "definition": "$table->foreign('user_id', 'completed_payments_user_id')->references('user_id')->on('users')->onDelete('set null');",
+          "source_line": 418
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['context_id'], 'completed_payments_context_id');",
+          "source_line": 415
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['user_id'], 'completed_payments_user_id');",
+          "source_line": 419
+        }
+      ]
+    },
+    {
+      "table": "submissions",
+      "source": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+      "source_line": 32,
+      "fields": [
+        {
+          "column": "submission_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('submission_id')->autoIncrement();",
+          "source_line": 34
+        },
+        {
+          "column": "context_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('context_id');",
+          "source_line": 36
+        },
+        {
+          "column": "current_publication_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('current_publication_id')->nullable();",
+          "source_line": 42
+        },
+        {
+          "column": "date_last_activity",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('date_last_activity')->nullable();",
+          "source_line": 44
+        },
+        {
+          "column": "date_submitted",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('date_submitted')->nullable();",
+          "source_line": 45
+        },
+        {
+          "column": "last_modified",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('last_modified')->nullable();",
+          "source_line": 46
+        },
+        {
+          "column": "stage_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('stage_id')->default($this->defaultStageId);",
+          "source_line": 47
+        },
+        {
+          "column": "locale",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('locale', 28)->nullable();",
+          "source_line": 48
+        },
+        {
+          "column": "status",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('status')->default(PKPSubmission::STATUS_QUEUED);",
+          "source_line": 50
+        },
+        {
+          "column": "submission_progress",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('submission_progress', 50)->default('start');",
+          "source_line": 52
+        },
+        {
+          "column": "work_type",
+          "type": "smallInteger",
+          "nullable_explicit": true,
+          "definition": "$table->smallInteger('work_type')->default(0)->nullable();",
+          "source_line": 54
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('context_id', 'submissions_context_id')->references($contextDao->primaryKeyColumn)->on($contextDao->tableName)->onDelete('cascade');",
+          "source_line": 38
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['context_id'], 'submissions_context_id');",
+          "source_line": 39
+        }
+      ]
+    },
+    {
+      "table": "submission_settings",
+      "source": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+      "source_line": 62,
+      "fields": [
+        {
+          "column": "submission_setting_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('submission_setting_id');",
+          "source_line": 64
+        },
+        {
+          "column": "submission_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('submission_id');",
+          "source_line": 65
+        },
+        {
+          "column": "locale",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('locale', 28)->default('');",
+          "source_line": 69
+        },
+        {
+          "column": "setting_name",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('setting_name', 255);",
+          "source_line": 70
+        },
+        {
+          "column": "setting_value",
+          "type": "mediumText",
+          "nullable_explicit": true,
+          "definition": "$table->mediumText('setting_value')->nullable();",
+          "source_line": 71
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('submission_id')->references('submission_id')->on('submissions')->onDelete('cascade');",
+          "source_line": 66
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['submission_id'], 'submission_settings_submission_id');",
+          "source_line": 67
+        },
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['submission_id', 'locale', 'setting_name'], 'submission_settings_unique');",
+          "source_line": 73
+        }
+      ]
+    },
+    {
+      "table": "publication_settings",
+      "source": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+      "source_line": 77,
+      "fields": [
+        {
+          "column": "publication_setting_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('publication_setting_id');",
+          "source_line": 79
+        },
+        {
+          "column": "publication_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('publication_id');",
+          "source_line": 82
+        },
+        {
+          "column": "locale",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('locale', 28)->default('');",
+          "source_line": 84
+        },
+        {
+          "column": "setting_name",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('setting_name', 255);",
+          "source_line": 85
+        },
+        {
+          "column": "setting_value",
+          "type": "mediumText",
+          "nullable_explicit": true,
+          "definition": "$table->mediumText('setting_value')->nullable();",
+          "source_line": 86
+        }
+      ],
+      "foreign_keys_declared_inside_create": [],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['publication_id', 'locale', 'setting_name'], 'publication_settings_unique');",
+          "source_line": 88
+        }
+      ]
+    },
+    {
+      "table": "authors",
+      "source": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+      "source_line": 99,
+      "fields": [
+        {
+          "column": "author_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('author_id')->autoIncrement();",
+          "source_line": 101
+        },
+        {
+          "column": "email",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('email', 90);",
+          "source_line": 102
+        },
+        {
+          "column": "include_in_browse",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('include_in_browse')->default(1);",
+          "source_line": 103
+        },
+        {
+          "column": "publication_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('publication_id');",
+          "source_line": 106
+        },
+        {
+          "column": "seq",
+          "type": "float",
+          "nullable_explicit": false,
+          "definition": "$table->float('seq')->default(0);",
+          "source_line": 108
+        },
+        {
+          "column": "user_group_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('user_group_id')->nullable();",
+          "source_line": 110
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('user_group_id')->references('user_group_id')->on('user_groups')->onDelete('cascade');",
+          "source_line": 111
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['user_group_id'], 'authors_user_group_id');",
+          "source_line": 112
+        }
+      ]
+    },
+    {
+      "table": "author_settings",
+      "source": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+      "source_line": 116,
+      "fields": [
+        {
+          "column": "author_setting_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('author_setting_id');",
+          "source_line": 118
+        },
+        {
+          "column": "author_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('author_id');",
+          "source_line": 119
+        },
+        {
+          "column": "locale",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('locale', 28)->default('');",
+          "source_line": 123
+        },
+        {
+          "column": "setting_name",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('setting_name', 255);",
+          "source_line": 124
+        },
+        {
+          "column": "setting_value",
+          "type": "mediumText",
+          "nullable_explicit": true,
+          "definition": "$table->mediumText('setting_value')->nullable();",
+          "source_line": 125
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('author_id', 'author_settings_author_id')->references('author_id')->on('authors')->onDelete('cascade');",
+          "source_line": 120
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['author_id'], 'author_settings_author_id');",
+          "source_line": 121
+        },
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['author_id', 'locale', 'setting_name'], 'author_settings_unique');",
+          "source_line": 127
+        }
+      ]
+    },
+    {
+      "table": "edit_decisions",
+      "source": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+      "source_line": 131,
+      "fields": [
+        {
+          "column": "edit_decision_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('edit_decision_id')->autoIncrement();",
+          "source_line": 133
+        },
+        {
+          "column": "submission_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('submission_id');",
+          "source_line": 135
+        },
+        {
+          "column": "review_round_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('review_round_id')->nullable();",
+          "source_line": 140
+        },
+        {
+          "column": "stage_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('stage_id')->nullable();",
+          "source_line": 142
+        },
+        {
+          "column": "round",
+          "type": "smallInteger",
+          "nullable_explicit": true,
+          "definition": "$table->smallInteger('round')->nullable();",
+          "source_line": 143
+        },
+        {
+          "column": "editor_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('editor_id');",
+          "source_line": 145
+        },
+        {
+          "column": "decision",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('decision')->comment('A numeric constant indicating the decision that was taken. Possible values are listed in the Decision class.');",
+          "source_line": 149
+        },
+        {
+          "column": "date_decided",
+          "type": "datetime",
+          "nullable_explicit": false,
+          "definition": "$table->datetime('date_decided');",
+          "source_line": 150
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('submission_id', 'edit_decisions_submission_id')->references('submission_id')->on('submissions')->onDelete('cascade');",
+          "source_line": 136
+        },
+        {
+          "definition": "$table->foreign('editor_id', 'edit_decisions_editor_id')->references('user_id')->on('users')->onDelete('cascade');",
+          "source_line": 146
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['submission_id'], 'edit_decisions_submission_id');",
+          "source_line": 137
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['editor_id'], 'edit_decisions_editor_id');",
+          "source_line": 147
+        }
+      ]
+    },
+    {
+      "table": "submission_comments",
+      "source": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+      "source_line": 154,
+      "fields": [
+        {
+          "column": "comment_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('comment_id')->autoIncrement();",
+          "source_line": 156
+        },
+        {
+          "column": "comment_type",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('comment_type')->nullable();",
+          "source_line": 157
+        },
+        {
+          "column": "role_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('role_id');",
+          "source_line": 158
+        },
+        {
+          "column": "submission_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('submission_id');",
+          "source_line": 160
+        },
+        {
+          "column": "assoc_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('assoc_id');",
+          "source_line": 164
+        },
+        {
+          "column": "author_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('author_id');",
+          "source_line": 166
+        },
+        {
+          "column": "comment_title",
+          "type": "text",
+          "nullable_explicit": false,
+          "definition": "$table->text('comment_title');",
+          "source_line": 170
+        },
+        {
+          "column": "comments",
+          "type": "text",
+          "nullable_explicit": true,
+          "definition": "$table->text('comments')->nullable();",
+          "source_line": 171
+        },
+        {
+          "column": "date_posted",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('date_posted')->nullable();",
+          "source_line": 172
+        },
+        {
+          "column": "date_modified",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('date_modified')->nullable();",
+          "source_line": 173
+        },
+        {
+          "column": "viewable",
+          "type": "smallInteger",
+          "nullable_explicit": true,
+          "definition": "$table->smallInteger('viewable')->nullable();",
+          "source_line": 174
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('submission_id', 'submission_comments_submission_id')->references('submission_id')->on('submissions')->onDelete('cascade');",
+          "source_line": 161
+        },
+        {
+          "definition": "$table->foreign('author_id')->references('user_id')->on('users')->onDelete('cascade');",
+          "source_line": 167
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['submission_id'], 'submission_comments_submission_id');",
+          "source_line": 162
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['author_id'], 'submission_comments_author_id');",
+          "source_line": 168
+        }
+      ]
+    },
+    {
+      "table": "subeditor_submission_group",
+      "source": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+      "source_line": 178,
+      "fields": [
+        {
+          "column": "subeditor_submission_group_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('subeditor_submission_group_id');",
+          "source_line": 180
+        },
+        {
+          "column": "context_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('context_id');",
+          "source_line": 181
+        },
+        {
+          "column": "assoc_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('assoc_id');",
+          "source_line": 186
+        },
+        {
+          "column": "assoc_type",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('assoc_type');",
+          "source_line": 187
+        },
+        {
+          "column": "user_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('user_id');",
+          "source_line": 189
+        },
+        {
+          "column": "user_group_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('user_group_id');",
+          "source_line": 193
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('context_id', 'section_editors_context_id')->references($contextDao->primaryKeyColumn)->on($contextDao->tableName)->onDelete('cascade');",
+          "source_line": 183
+        },
+        {
+          "definition": "$table->foreign('user_id', 'subeditor_submission_group_user_id')->references('user_id')->on('users')->onDelete('cascade');",
+          "source_line": 190
+        },
+        {
+          "definition": "$table->foreign('user_group_id')->references('user_group_id')->on('user_groups')->onDelete('cascade');",
+          "source_line": 194
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['context_id'], 'subeditor_submission_group_context_id');",
+          "source_line": 184
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['user_id'], 'subeditor_submission_group_user_id');",
+          "source_line": 191
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['user_group_id'], 'subeditor_submission_group_user_group_id');",
+          "source_line": 195
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['assoc_id', 'assoc_type'], 'subeditor_submission_group_assoc_id');",
+          "source_line": 197
+        },
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['context_id', 'assoc_id', 'assoc_type', 'user_id', 'user_group_id'], 'section_editors_unique');",
+          "source_line": 198
+        }
+      ]
+    },
+    {
+      "table": "queries",
+      "source": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+      "source_line": 202,
+      "fields": [
+        {
+          "column": "query_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('query_id')->autoIncrement();",
+          "source_line": 204
+        },
+        {
+          "column": "assoc_type",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('assoc_type');",
+          "source_line": 205
+        },
+        {
+          "column": "assoc_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('assoc_id');",
+          "source_line": 206
+        },
+        {
+          "column": "stage_id",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('stage_id');",
+          "source_line": 207
+        },
+        {
+          "column": "seq",
+          "type": "float",
+          "nullable_explicit": false,
+          "definition": "$table->float('seq')->default(0);",
+          "source_line": 208
+        },
+        {
+          "column": "date_posted",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('date_posted')->nullable();",
+          "source_line": 209
+        },
+        {
+          "column": "date_modified",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('date_modified')->nullable();",
+          "source_line": 210
+        },
+        {
+          "column": "closed",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('closed')->default(0);",
+          "source_line": 211
+        }
+      ],
+      "foreign_keys_declared_inside_create": [],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['assoc_type', 'assoc_id'], 'queries_assoc_id');",
+          "source_line": 212
+        }
+      ]
+    },
+    {
+      "table": "query_participants",
+      "source": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+      "source_line": 216,
+      "fields": [
+        {
+          "column": "query_participant_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('query_participant_id');",
+          "source_line": 218
+        },
+        {
+          "column": "query_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('query_id');",
+          "source_line": 219
+        },
+        {
+          "column": "user_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('user_id');",
+          "source_line": 223
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('query_id')->references('query_id')->on('queries')->onDelete('cascade');",
+          "source_line": 220
+        },
+        {
+          "definition": "$table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');",
+          "source_line": 224
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['query_id'], 'query_participants_query_id');",
+          "source_line": 221
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['user_id'], 'query_participants_user_id');",
+          "source_line": 225
+        },
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['query_id', 'user_id'], 'query_participants_unique');",
+          "source_line": 227
+        }
+      ]
+    },
+    {
+      "table": "submission_search_keyword_list",
+      "source": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+      "source_line": 231,
+      "fields": [
+        {
+          "column": "keyword_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('keyword_id')->autoIncrement();",
+          "source_line": 233
+        },
+        {
+          "column": "keyword_text",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('keyword_text', 60);",
+          "source_line": 234
+        }
+      ],
+      "foreign_keys_declared_inside_create": [],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['keyword_text'], 'submission_search_keyword_text');",
+          "source_line": 235
+        }
+      ]
+    },
+    {
+      "table": "submission_search_objects",
+      "source": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+      "source_line": 239,
+      "fields": [
+        {
+          "column": "object_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('object_id')->autoIncrement();",
+          "source_line": 241
+        },
+        {
+          "column": "submission_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('submission_id');",
+          "source_line": 243
+        },
+        {
+          "column": "type",
+          "type": "integer",
+          "nullable_explicit": false,
+          "definition": "$table->integer('type')->comment('Type of item. E.g., abstract, fulltext, etc.');",
+          "source_line": 247
+        },
+        {
+          "column": "assoc_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('assoc_id')->comment('Optional ID of an associated record (e.g., a file_id)')->nullable();",
+          "source_line": 248
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('submission_id', 'submission_search_object_submission')->references('submission_id')->on('submissions')->onDelete('cascade');",
+          "source_line": 244
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['submission_id'], 'submission_search_objects_submission_id');",
+          "source_line": 245
+        }
+      ]
+    },
+    {
+      "table": "submission_search_object_keywords",
+      "source": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+      "source_line": 252,
+      "fields": [
+        {
+          "column": "submission_search_object_keyword_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('submission_search_object_keyword_id');",
+          "source_line": 254
+        },
+        {
+          "column": "object_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('object_id');",
+          "source_line": 255
+        },
+        {
+          "column": "keyword_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('keyword_id');",
+          "source_line": 259
+        },
+        {
+          "column": "pos",
+          "type": "integer",
+          "nullable_explicit": false,
+          "definition": "$table->integer('pos')->comment('Word position of the keyword in the object.');",
+          "source_line": 263
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('object_id')->references('object_id')->on('submission_search_objects')->onDelete('cascade');",
+          "source_line": 256
+        },
+        {
+          "definition": "$table->foreign('keyword_id', 'submission_search_object_keywords_keyword_id')->references('keyword_id')->on('submission_search_keyword_list')->onDelete('cascade');",
+          "source_line": 260
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['object_id'], 'submission_search_object_keywords_object_id');",
+          "source_line": 257
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['keyword_id'], 'submission_search_object_keywords_keyword_id');",
+          "source_line": 261
+        },
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['object_id', 'pos'], 'submission_search_object_keywords_unique');",
+          "source_line": 265
+        }
+      ]
+    },
+    {
+      "table": "review_rounds",
+      "source": "pkp-lib:classes/migration/install/ReviewsMigration.php",
+      "source_line": 28,
+      "fields": [
+        {
+          "column": "review_round_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('review_round_id')->autoIncrement();",
+          "source_line": 30
+        },
+        {
+          "column": "submission_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('submission_id');",
+          "source_line": 32
+        },
+        {
+          "column": "stage_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('stage_id')->nullable();",
+          "source_line": 36
+        },
+        {
+          "column": "round",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('round');",
+          "source_line": 37
+        },
+        {
+          "column": "review_revision",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('review_revision')->nullable();",
+          "source_line": 38
+        },
+        {
+          "column": "status",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('status')->nullable();",
+          "source_line": 39
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('submission_id')->references('submission_id')->on('submissions');",
+          "source_line": 33
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['submission_id'], 'review_rounds_submission_id');",
+          "source_line": 34
+        },
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['submission_id', 'stage_id', 'round'], 'review_rounds_submission_id_stage_id_round_pkey');",
+          "source_line": 40
+        }
+      ]
+    },
+    {
+      "table": "review_assignments",
+      "source": "pkp-lib:classes/migration/install/ReviewsMigration.php",
+      "source_line": 48,
+      "fields": [
+        {
+          "column": "review_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('review_id')->autoIncrement();",
+          "source_line": 50
+        },
+        {
+          "column": "submission_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('submission_id');",
+          "source_line": 52
+        },
+        {
+          "column": "reviewer_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('reviewer_id');",
+          "source_line": 56
+        },
+        {
+          "column": "competing_interests",
+          "type": "text",
+          "nullable_explicit": true,
+          "definition": "$table->text('competing_interests')->nullable();",
+          "source_line": 60
+        },
+        {
+          "column": "recommendation",
+          "type": "smallInteger",
+          "nullable_explicit": true,
+          "definition": "$table->smallInteger('recommendation')->nullable();",
+          "source_line": 61
+        },
+        {
+          "column": "date_assigned",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('date_assigned')->nullable();",
+          "source_line": 62
+        },
+        {
+          "column": "date_notified",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('date_notified')->nullable();",
+          "source_line": 63
+        },
+        {
+          "column": "date_confirmed",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('date_confirmed')->nullable();",
+          "source_line": 64
+        },
+        {
+          "column": "date_completed",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('date_completed')->nullable();",
+          "source_line": 65
+        },
+        {
+          "column": "date_considered",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('date_considered')->nullable();",
+          "source_line": 66
+        },
+        {
+          "column": "date_acknowledged",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('date_acknowledged')->nullable();",
+          "source_line": 67
+        },
+        {
+          "column": "date_due",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('date_due')->nullable();",
+          "source_line": 68
+        },
+        {
+          "column": "date_response_due",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('date_response_due')->nullable();",
+          "source_line": 69
+        },
+        {
+          "column": "last_modified",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('last_modified')->nullable();",
+          "source_line": 70
+        },
+        {
+          "column": "reminder_was_automatic",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('reminder_was_automatic')->default(0);",
+          "source_line": 71
+        },
+        {
+          "column": "declined",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('declined')->default(0);",
+          "source_line": 72
+        },
+        {
+          "column": "cancelled",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('cancelled')->default(0);",
+          "source_line": 73
+        },
+        {
+          "column": "date_cancelled",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('date_cancelled')->nullable();",
+          "source_line": 74
+        },
+        {
+          "column": "date_rated",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('date_rated')->nullable();",
+          "source_line": 75
+        },
+        {
+          "column": "date_reminded",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('date_reminded')->nullable();",
+          "source_line": 76
+        },
+        {
+          "column": "quality",
+          "type": "smallInteger",
+          "nullable_explicit": true,
+          "definition": "$table->smallInteger('quality')->nullable();",
+          "source_line": 77
+        },
+        {
+          "column": "review_round_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('review_round_id');",
+          "source_line": 79
+        },
+        {
+          "column": "stage_id",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('stage_id');",
+          "source_line": 83
+        },
+        {
+          "column": "review_method",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('review_method')->default(\\PKP\\submission\\reviewAssignment\\ReviewAssignment::SUBMISSION_REVIEW_METHOD_ANONYMOUS);",
+          "source_line": 85
+        },
+        {
+          "column": "round",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('round')->default(1);",
+          "source_line": 87
+        },
+        {
+          "column": "step",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('step')->default(1);",
+          "source_line": 88
+        },
+        {
+          "column": "review_form_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('review_form_id')->nullable();",
+          "source_line": 90
+        },
+        {
+          "column": "considered",
+          "type": "smallInteger",
+          "nullable_explicit": true,
+          "definition": "$table->smallInteger('considered')->nullable();",
+          "source_line": 94
+        },
+        {
+          "column": "request_resent",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('request_resent')->default(0);",
+          "source_line": 95
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('submission_id')->references('submission_id')->on('submissions');",
+          "source_line": 53
+        },
+        {
+          "definition": "$table->foreign('reviewer_id')->references('user_id')->on('users');",
+          "source_line": 57
+        },
+        {
+          "definition": "$table->foreign('review_round_id')->references('review_round_id')->on('review_rounds');",
+          "source_line": 80
+        },
+        {
+          "definition": "$table->foreign('review_form_id')->references('review_form_id')->on('review_forms');",
+          "source_line": 91
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['submission_id'], 'review_assignments_submission_id');",
+          "source_line": 54
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['reviewer_id'], 'review_assignments_reviewer_id');",
+          "source_line": 58
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['review_round_id', 'reviewer_id'], 'review_assignment_reviewer_round');",
+          "source_line": 81
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['review_form_id'], 'review_assignments_form_id');",
+          "source_line": 92
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['reviewer_id', 'review_id'], 'review_assignments_reviewer_review');",
+          "source_line": 101
+        }
+      ]
+    },
+    {
+      "table": "review_form_responses",
+      "source": "pkp-lib:classes/migration/install/ReviewsMigration.php",
+      "source_line": 106,
+      "fields": [
+        {
+          "column": "review_form_response_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('review_form_response_id');",
+          "source_line": 108
+        },
+        {
+          "column": "review_form_element_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('review_form_element_id');",
+          "source_line": 109
+        },
+        {
+          "column": "review_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('review_id');",
+          "source_line": 113
+        },
+        {
+          "column": "response_type",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('response_type', 6)->nullable();",
+          "source_line": 117
+        },
+        {
+          "column": "response_value",
+          "type": "text",
+          "nullable_explicit": true,
+          "definition": "$table->text('response_value')->nullable();",
+          "source_line": 118
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('review_form_element_id')->references('review_form_element_id')->on('review_form_elements')->onDelete('cascade');",
+          "source_line": 110
+        },
+        {
+          "definition": "$table->foreign('review_id')->references('review_id')->on('review_assignments')->onDelete('cascade');",
+          "source_line": 114
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['review_form_element_id'], 'review_form_responses_review_form_element_id');",
+          "source_line": 111
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['review_id'], 'review_form_responses_review_id');",
+          "source_line": 115
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['review_form_element_id', 'review_id'], 'review_form_responses_unique');",
+          "source_line": 120
+        }
+      ]
+    },
+    {
+      "table": "review_round_files",
+      "source": "pkp-lib:classes/migration/install/ReviewsMigration.php",
+      "source_line": 125,
+      "fields": [
+        {
+          "column": "review_round_file_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('review_round_file_id');",
+          "source_line": 127
+        },
+        {
+          "column": "submission_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('submission_id');",
+          "source_line": 129
+        },
+        {
+          "column": "review_round_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('review_round_id');",
+          "source_line": 133
+        },
+        {
+          "column": "stage_id",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('stage_id');",
+          "source_line": 137
+        },
+        {
+          "column": "submission_file_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('submission_file_id')->nullable(false)->unsigned();",
+          "source_line": 139
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('submission_id')->references('submission_id')->on('submissions')->onDelete('cascade');",
+          "source_line": 130
+        },
+        {
+          "definition": "$table->foreign('review_round_id')->references('review_round_id')->on('review_rounds')->onDelete('cascade');",
+          "source_line": 134
+        },
+        {
+          "definition": "$table->foreign('submission_file_id')->references('submission_file_id')->on('submission_files')->onDelete('cascade');",
+          "source_line": 140
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['submission_id'], 'review_round_files_submission_id');",
+          "source_line": 131
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['review_round_id'], 'review_round_files_review_round_id');",
+          "source_line": 135
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['submission_file_id'], 'review_round_files_submission_file_id');",
+          "source_line": 141
+        },
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['submission_id', 'review_round_id', 'submission_file_id'], 'review_round_files_unique');",
+          "source_line": 143
+        }
+      ]
+    },
+    {
+      "table": "review_files",
+      "source": "pkp-lib:classes/migration/install/ReviewsMigration.php",
+      "source_line": 147,
+      "fields": [
+        {
+          "column": "review_file_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('review_file_id');",
+          "source_line": 149
+        },
+        {
+          "column": "review_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('review_id');",
+          "source_line": 151
+        },
+        {
+          "column": "submission_file_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('submission_file_id')->nullable(false)->unsigned();",
+          "source_line": 155
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('review_id')->references('review_id')->on('review_assignments')->onDelete('cascade');",
+          "source_line": 152
+        },
+        {
+          "definition": "$table->foreign('submission_file_id')->references('submission_file_id')->on('submission_files')->onDelete('cascade');",
+          "source_line": 156
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['review_id'], 'review_files_review_id');",
+          "source_line": 153
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['submission_file_id'], 'review_files_submission_file_id');",
+          "source_line": 157
+        },
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['review_id', 'submission_file_id'], 'review_files_unique');",
+          "source_line": 159
+        }
+      ]
+    },
+    {
+      "table": "submission_files",
+      "source": "pkp-lib:classes/migration/install/SubmissionFilesMigration.php",
+      "source_line": 27,
+      "fields": [
+        {
+          "column": "submission_file_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('submission_file_id');",
+          "source_line": 29
+        },
+        {
+          "column": "submission_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('submission_id');",
+          "source_line": 31
+        },
+        {
+          "column": "file_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('file_id')->nullable(false)->unsigned();",
+          "source_line": 35
+        },
+        {
+          "column": "source_submission_file_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('source_submission_file_id')->unsigned()->nullable();",
+          "source_line": 40
+        },
+        {
+          "column": "genre_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('genre_id')->nullable();",
+          "source_line": 42
+        },
+        {
+          "column": "file_stage",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('file_stage');",
+          "source_line": 46
+        },
+        {
+          "column": "direct_sales_price",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('direct_sales_price', 255)->nullable();",
+          "source_line": 47
+        },
+        {
+          "column": "sales_type",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('sales_type', 255)->nullable();",
+          "source_line": 48
+        },
+        {
+          "column": "viewable",
+          "type": "smallInteger",
+          "nullable_explicit": true,
+          "definition": "$table->smallInteger('viewable')->nullable();",
+          "source_line": 49
+        },
+        {
+          "column": "created_at",
+          "type": "datetime",
+          "nullable_explicit": false,
+          "definition": "$table->datetime('created_at');",
+          "source_line": 50
+        },
+        {
+          "column": "updated_at",
+          "type": "datetime",
+          "nullable_explicit": false,
+          "definition": "$table->datetime('updated_at');",
+          "source_line": 51
+        },
+        {
+          "column": "uploader_user_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('uploader_user_id')->nullable();",
+          "source_line": 53
+        },
+        {
+          "column": "assoc_type",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('assoc_type')->nullable();",
+          "source_line": 57
+        },
+        {
+          "column": "assoc_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('assoc_id')->nullable();",
+          "source_line": 58
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('submission_id', 'submission_files_submission_id')->references('submission_id')->on('submissions')->onDelete('cascade');",
+          "source_line": 32
+        },
+        {
+          "definition": "$table->foreign('file_id')->references('file_id')->on('files')->onDelete('cascade');",
+          "source_line": 36
+        },
+        {
+          "definition": "$table->foreign('genre_id')->references('genre_id')->on('genres')->onDelete('set null');",
+          "source_line": 43
+        },
+        {
+          "definition": "$table->foreign('uploader_user_id')->references('user_id')->on('users')->onDelete('set null');",
+          "source_line": 54
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['submission_id'], 'submission_files_submission_id');",
+          "source_line": 33
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['file_id'], 'submission_files_file_id');",
+          "source_line": 37
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['genre_id'], 'submission_files_genre_id');",
+          "source_line": 44
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['uploader_user_id'], 'submission_files_uploader_user_id');",
+          "source_line": 55
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['file_stage', 'assoc_type', 'assoc_id'], 'submission_files_stage_assoc');",
+          "source_line": 61
+        }
+      ]
+    },
+    {
+      "table": "submission_file_settings",
+      "source": "pkp-lib:classes/migration/install/SubmissionFilesMigration.php",
+      "source_line": 68,
+      "fields": [
+        {
+          "column": "submission_file_setting_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('submission_file_setting_id');",
+          "source_line": 70
+        },
+        {
+          "column": "submission_file_id",
+          "type": "foreignId",
+          "nullable_explicit": false,
+          "definition": "$table->foreignId('submission_file_id');",
+          "source_line": 71
+        },
+        {
+          "column": "locale",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('locale', 28)->default('');",
+          "source_line": 75
+        },
+        {
+          "column": "setting_name",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('setting_name', 255);",
+          "source_line": 76
+        },
+        {
+          "column": "setting_value",
+          "type": "mediumText",
+          "nullable_explicit": true,
+          "definition": "$table->mediumText('setting_value')->nullable();",
+          "source_line": 77
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('submission_file_id')->references('submission_file_id')->on('submission_files')->onDelete('cascade');",
+          "source_line": 72
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['submission_file_id'], 'submission_file_settings_submission_file_id');",
+          "source_line": 73
+        },
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['submission_file_id', 'locale', 'setting_name'], 'submission_file_settings_unique');",
+          "source_line": 79
+        }
+      ]
+    },
+    {
+      "table": "submission_file_revisions",
+      "source": "pkp-lib:classes/migration/install/SubmissionFilesMigration.php",
+      "source_line": 83,
+      "fields": [
+        {
+          "column": "revision_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('revision_id');",
+          "source_line": 85
+        },
+        {
+          "column": "submission_file_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('submission_file_id')->unsigned();",
+          "source_line": 87
+        },
+        {
+          "column": "file_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('file_id')->unsigned();",
+          "source_line": 91
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('submission_file_id')->references('submission_file_id')->on('submission_files')->onDelete('cascade');",
+          "source_line": 88
+        },
+        {
+          "definition": "$table->foreign('file_id')->references('file_id')->on('files')->onDelete('cascade');",
+          "source_line": 92
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['submission_file_id'], 'submission_file_revisions_submission_file_id');",
+          "source_line": 89
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['file_id'], 'submission_file_revisions_file_id');",
+          "source_line": 93
+        }
+      ]
+    },
+    {
+      "table": "files",
+      "source": "pkp-lib:classes/migration/install/FilesMigration.php",
+      "source_line": 27,
+      "fields": [
+        {
+          "column": "file_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('file_id');",
+          "source_line": 29
+        },
+        {
+          "column": "path",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('path', 255);",
+          "source_line": 30
+        },
+        {
+          "column": "mimetype",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('mimetype', 255);",
+          "source_line": 31
+        }
+      ],
+      "foreign_keys_declared_inside_create": [],
+      "indexes_declared_inside_create": []
+    },
+    {
+      "table": "user_groups",
+      "source": "pkp-lib:classes/migration/install/RolesAndUserGroupsMigration.php",
+      "source_line": 28,
+      "fields": [
+        {
+          "column": "user_group_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('user_group_id')->autoIncrement();",
+          "source_line": 30
+        },
+        {
+          "column": "context_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('context_id')->nullable();",
+          "source_line": 31
+        },
+        {
+          "column": "role_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('role_id');",
+          "source_line": 34
+        },
+        {
+          "column": "is_default",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('is_default')->default(0);",
+          "source_line": 35
+        },
+        {
+          "column": "show_title",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('show_title')->default(1);",
+          "source_line": 36
+        },
+        {
+          "column": "permit_self_registration",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('permit_self_registration')->default(0);",
+          "source_line": 37
+        },
+        {
+          "column": "permit_metadata_edit",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('permit_metadata_edit')->default(0);",
+          "source_line": 38
+        },
+        {
+          "column": "permit_settings",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('permit_settings')->default(0);",
+          "source_line": 39
+        },
+        {
+          "column": "masthead",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('masthead')->default(0);",
+          "source_line": 40
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('context_id', 'user_groups_context_id')->references(Application::getContextDAO()->primaryKeyColumn)->on(Application::getContextDAO()->tableName)->onDelete('cascade');",
+          "source_line": 32
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['context_id'], 'user_groups_context_id');",
+          "source_line": 33
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['user_group_id'], 'user_groups_user_group_id');",
+          "source_line": 41
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['role_id'], 'user_groups_role_id');",
+          "source_line": 42
+        }
+      ]
+    },
+    {
+      "table": "user_group_settings",
+      "source": "pkp-lib:classes/migration/install/RolesAndUserGroupsMigration.php",
+      "source_line": 45,
+      "fields": [
+        {
+          "column": "user_group_setting_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('user_group_setting_id');",
+          "source_line": 47
+        },
+        {
+          "column": "user_group_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('user_group_id');",
+          "source_line": 48
+        },
+        {
+          "column": "locale",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('locale', 28)->default('');",
+          "source_line": 49
+        },
+        {
+          "column": "setting_name",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('setting_name', 255);",
+          "source_line": 50
+        },
+        {
+          "column": "setting_value",
+          "type": "mediumText",
+          "nullable_explicit": true,
+          "definition": "$table->mediumText('setting_value')->nullable();",
+          "source_line": 51
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('user_group_id')->references('user_group_id')->on('user_groups')->onDelete('cascade');",
+          "source_line": 54
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['user_group_id', 'locale', 'setting_name'], 'user_group_settings_unique');",
+          "source_line": 53
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['user_group_id'], 'user_group_settings_user_group_id');",
+          "source_line": 55
+        }
+      ]
+    },
+    {
+      "table": "user_user_groups",
+      "source": "pkp-lib:classes/migration/install/RolesAndUserGroupsMigration.php",
+      "source_line": 58,
+      "fields": [
+        {
+          "column": "user_user_group_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('user_user_group_id');",
+          "source_line": 60
+        },
+        {
+          "column": "user_group_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('user_group_id');",
+          "source_line": 61
+        },
+        {
+          "column": "user_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('user_id');",
+          "source_line": 65
+        },
+        {
+          "column": "date_start",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('date_start')->nullable();",
+          "source_line": 69
+        },
+        {
+          "column": "date_end",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('date_end')->nullable();",
+          "source_line": 70
+        },
+        {
+          "column": "masthead",
+          "type": "smallInteger",
+          "nullable_explicit": true,
+          "definition": "$table->smallInteger('masthead')->nullable();",
+          "source_line": 71
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('user_group_id')->references('user_group_id')->on('user_groups')->onDelete('cascade');",
+          "source_line": 62
+        },
+        {
+          "definition": "$table->foreign('user_id', 'user_user_groups_user_id')->references('user_id')->on('users')->onDelete('cascade');",
+          "source_line": 66
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['user_group_id'], 'user_user_groups_user_group_id');",
+          "source_line": 63
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['user_id'], 'user_user_groups_user_id');",
+          "source_line": 67
+        }
+      ]
+    },
+    {
+      "table": "user_group_stage",
+      "source": "pkp-lib:classes/migration/install/RolesAndUserGroupsMigration.php",
+      "source_line": 74,
+      "fields": [
+        {
+          "column": "user_group_stage_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('user_group_stage_id');",
+          "source_line": 76
+        },
+        {
+          "column": "context_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('context_id');",
+          "source_line": 77
+        },
+        {
+          "column": "user_group_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('user_group_id');",
+          "source_line": 82
+        },
+        {
+          "column": "stage_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('stage_id');",
+          "source_line": 86
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('context_id', 'user_group_stage_context_id')->references($contextDao->primaryKeyColumn)->on($contextDao->tableName)->onDelete('cascade');",
+          "source_line": 79
+        },
+        {
+          "definition": "$table->foreign('user_group_id', 'user_group_stage_user_group_id')->references('user_group_id')->on('user_groups')->onDelete('cascade');",
+          "source_line": 83
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['context_id'], 'user_group_stage_context_id');",
+          "source_line": 80
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['user_group_id'], 'user_group_stage_user_group_id');",
+          "source_line": 84
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['stage_id'], 'user_group_stage_stage_id');",
+          "source_line": 87
+        },
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['context_id', 'user_group_id', 'stage_id'], 'user_group_stage_unique');",
+          "source_line": 89
+        }
+      ]
+    },
+    {
+      "table": "stage_assignments",
+      "source": "pkp-lib:classes/migration/install/RolesAndUserGroupsMigration.php",
+      "source_line": 92,
+      "fields": [
+        {
+          "column": "stage_assignment_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('stage_assignment_id')->autoIncrement();",
+          "source_line": 94
+        },
+        {
+          "column": "submission_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('submission_id');",
+          "source_line": 97
+        },
+        {
+          "column": "user_group_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('user_group_id');",
+          "source_line": 99
+        },
+        {
+          "column": "user_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('user_id');",
+          "source_line": 103
+        },
+        {
+          "column": "date_assigned",
+          "type": "datetime",
+          "nullable_explicit": false,
+          "definition": "$table->datetime('date_assigned');",
+          "source_line": 107
+        },
+        {
+          "column": "recommend_only",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('recommend_only')->default(0);",
+          "source_line": 108
+        },
+        {
+          "column": "can_change_metadata",
+          "type": "smallInteger",
+          "nullable_explicit": false,
+          "definition": "$table->smallInteger('can_change_metadata')->default(0);",
+          "source_line": 109
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('user_group_id', 'stage_assignments_user_group_id')->references('user_group_id')->on('user_groups')->onDelete('cascade');",
+          "source_line": 100
+        },
+        {
+          "definition": "$table->foreign('user_id', 'stage_assignments_user_id')->references('user_id')->on('users')->onDelete('cascade');",
+          "source_line": 104
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['user_group_id'], 'stage_assignments_user_group_id');",
+          "source_line": 101
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['user_id'], 'stage_assignments_user_id');",
+          "source_line": 105
+        },
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['submission_id', 'user_group_id', 'user_id'], 'stage_assignment');",
+          "source_line": 111
+        }
+      ]
+    },
+    {
+      "table": "author_affiliations",
+      "source": "pkp-lib:classes/migration/install/AffiliationsMigration.php",
+      "source_line": 28,
+      "fields": [
+        {
+          "column": "author_affiliation_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('author_affiliation_id')->autoIncrement();",
+          "source_line": 30
+        },
+        {
+          "column": "author_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('author_id');",
+          "source_line": 31
+        },
+        {
+          "column": "ror",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('ror')->nullable();",
+          "source_line": 32
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('author_id')->references('author_id')->on('authors')->cascadeOnDelete();",
+          "source_line": 35
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['ror'], 'author_affiliations_ror');",
+          "source_line": 34
+        }
+      ]
+    },
+    {
+      "table": "author_affiliation_settings",
+      "source": "pkp-lib:classes/migration/install/AffiliationsMigration.php",
+      "source_line": 38,
+      "fields": [
+        {
+          "column": "author_affiliation_setting_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('author_affiliation_setting_id');",
+          "source_line": 40
+        },
+        {
+          "column": "author_affiliation_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('author_affiliation_id');",
+          "source_line": 41
+        },
+        {
+          "column": "locale",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('locale', 28)->default('');",
+          "source_line": 42
+        },
+        {
+          "column": "setting_name",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('setting_name', 255);",
+          "source_line": 43
+        },
+        {
+          "column": "setting_value",
+          "type": "mediumText",
+          "nullable_explicit": true,
+          "definition": "$table->mediumText('setting_value')->nullable();",
+          "source_line": 44
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('author_affiliation_id') ->references('author_affiliation_id')->on('author_affiliations')->cascadeOnDelete();",
+          "source_line": 46
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['author_affiliation_id', 'locale', 'setting_name'], 'author_affiliation_settings_unique');",
+          "source_line": 48
+        }
+      ]
+    },
+    {
+      "table": "review_forms",
+      "source": "pkp-lib:classes/migration/install/ReviewFormsMigration.php",
+      "source_line": 29,
+      "fields": [
+        {
+          "column": "review_form_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('review_form_id')->autoIncrement();",
+          "source_line": 31
+        },
+        {
+          "column": "assoc_type",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('assoc_type');",
+          "source_line": 32
+        },
+        {
+          "column": "assoc_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('assoc_id');",
+          "source_line": 33
+        },
+        {
+          "column": "seq",
+          "type": "float",
+          "nullable_explicit": true,
+          "definition": "$table->float('seq')->nullable();",
+          "source_line": 34
+        },
+        {
+          "column": "is_active",
+          "type": "smallInteger",
+          "nullable_explicit": true,
+          "definition": "$table->smallInteger('is_active')->nullable();",
+          "source_line": 35
+        }
+      ],
+      "foreign_keys_declared_inside_create": [],
+      "indexes_declared_inside_create": []
+    },
+    {
+      "table": "review_form_settings",
+      "source": "pkp-lib:classes/migration/install/ReviewFormsMigration.php",
+      "source_line": 41,
+      "fields": [
+        {
+          "column": "review_form_setting_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('review_form_setting_id');",
+          "source_line": 43
+        },
+        {
+          "column": "review_form_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('review_form_id');",
+          "source_line": 44
+        },
+        {
+          "column": "locale",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('locale', 28)->default('');",
+          "source_line": 48
+        },
+        {
+          "column": "setting_name",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('setting_name', 255);",
+          "source_line": 49
+        },
+        {
+          "column": "setting_value",
+          "type": "mediumText",
+          "nullable_explicit": true,
+          "definition": "$table->mediumText('setting_value')->nullable();",
+          "source_line": 50
+        },
+        {
+          "column": "setting_type",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('setting_type', 6);",
+          "source_line": 51
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('review_form_id', 'review_form_settings_review_form_id')->references('review_form_id')->on('review_forms')->onDelete('cascade');",
+          "source_line": 45
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['review_form_id'], 'review_form_settings_review_form_id');",
+          "source_line": 46
+        },
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['review_form_id', 'locale', 'setting_name'], 'review_form_settings_unique');",
+          "source_line": 53
+        }
+      ]
+    },
+    {
+      "table": "review_form_elements",
+      "source": "pkp-lib:classes/migration/install/ReviewFormsMigration.php",
+      "source_line": 59,
+      "fields": [
+        {
+          "column": "review_form_element_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('review_form_element_id')->autoIncrement();",
+          "source_line": 61
+        },
+        {
+          "column": "review_form_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('review_form_id');",
+          "source_line": 63
+        },
+        {
+          "column": "seq",
+          "type": "float",
+          "nullable_explicit": true,
+          "definition": "$table->float('seq')->nullable();",
+          "source_line": 67
+        },
+        {
+          "column": "element_type",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('element_type')->nullable();",
+          "source_line": 68
+        },
+        {
+          "column": "required",
+          "type": "smallInteger",
+          "nullable_explicit": true,
+          "definition": "$table->smallInteger('required')->nullable();",
+          "source_line": 69
+        },
+        {
+          "column": "included",
+          "type": "smallInteger",
+          "nullable_explicit": true,
+          "definition": "$table->smallInteger('included')->nullable();",
+          "source_line": 70
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('review_form_id', 'review_form_elements_review_form_id')->references('review_form_id')->on('review_forms')->onDelete('cascade');",
+          "source_line": 64
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['review_form_id'], 'review_form_elements_review_form_id');",
+          "source_line": 65
+        }
+      ]
+    },
+    {
+      "table": "review_form_element_settings",
+      "source": "pkp-lib:classes/migration/install/ReviewFormsMigration.php",
+      "source_line": 76,
+      "fields": [
+        {
+          "column": "review_form_element_setting_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('review_form_element_setting_id');",
+          "source_line": 78
+        },
+        {
+          "column": "review_form_element_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('review_form_element_id');",
+          "source_line": 79
+        },
+        {
+          "column": "locale",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('locale', 28)->default('');",
+          "source_line": 83
+        },
+        {
+          "column": "setting_name",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('setting_name', 255);",
+          "source_line": 84
+        },
+        {
+          "column": "setting_value",
+          "type": "mediumText",
+          "nullable_explicit": true,
+          "definition": "$table->mediumText('setting_value')->nullable();",
+          "source_line": 85
+        },
+        {
+          "column": "setting_type",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('setting_type', 6);",
+          "source_line": 86
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('review_form_element_id', 'review_form_element_settings_review_form_element_id')->references('review_form_element_id')->on('review_form_elements')->onDelete('cascade');",
+          "source_line": 80
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['review_form_element_id'], 'review_form_element_settings_review_form_element_id');",
+          "source_line": 81
+        },
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['review_form_element_id', 'locale', 'setting_name'], 'review_form_element_settings_unique');",
+          "source_line": 88
+        }
+      ]
+    },
+    {
+      "table": "review_assignment_settings",
+      "source": "pkp-lib:classes/migration/install/ReviewAssignmentSettings.php",
+      "source_line": 28,
+      "fields": [
+        {
+          "column": "review_assignment_settings_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('review_assignment_settings_id')->primary()->comment('Primary key.');",
+          "source_line": 29
+        },
+        {
+          "column": "review_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('review_id')->comment('Foreign key referencing record in review_assignments table');",
+          "source_line": 30
+        },
+        {
+          "column": "locale",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('locale', 28)->nullable()->comment('Locale key.');",
+          "source_line": 31
+        },
+        {
+          "column": "setting_name",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('setting_name', 255)->comment('Name of settings record.');",
+          "source_line": 32
+        },
+        {
+          "column": "setting_value",
+          "type": "mediumText",
+          "nullable_explicit": true,
+          "definition": "$table->mediumText('setting_value')->nullable()->comment('Settings value.');",
+          "source_line": 33
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('review_id')->references('review_id')->on('review_assignments')->onDelete('cascade')->onUpdate('cascade');",
+          "source_line": 36
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['review_id', 'locale', 'setting_name'], 'review_assignment_settings_unique');",
+          "source_line": 35
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['review_id'], 'review_assignment_settings_review_id');",
+          "source_line": 37
+        }
+      ]
+    },
+    {
+      "table": "invitations",
+      "source": "pkp-lib:classes/migration/install/InvitationsMigration.php",
+      "source_line": 27,
+      "fields": [
+        {
+          "column": "invitation_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('invitation_id')->autoIncrement();",
+          "source_line": 29
+        },
+        {
+          "column": "key_hash",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('key_hash', 255)->nullable();",
+          "source_line": 30
+        },
+        {
+          "column": "type",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('type', 255);",
+          "source_line": 31
+        },
+        {
+          "column": "user_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('user_id')->nullable();",
+          "source_line": 33
+        },
+        {
+          "column": "inviter_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('inviter_id')->nullable();",
+          "source_line": 34
+        },
+        {
+          "column": "expiry_date",
+          "type": "datetime",
+          "nullable_explicit": true,
+          "definition": "$table->datetime('expiry_date')->nullable();",
+          "source_line": 40
+        },
+        {
+          "column": "payload",
+          "type": "json",
+          "nullable_explicit": true,
+          "definition": "$table->json('payload')->nullable();",
+          "source_line": 41
+        },
+        {
+          "column": "status",
+          "type": "enum",
+          "nullable_explicit": false,
+          "definition": "$table->enum( 'status', [ 'INITIALIZED', 'PENDING', 'ACCEPTED', 'DECLINED', 'CANCELLED', ] );",
+          "source_line": 43
+        },
+        {
+          "column": "email",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('email')->nullable()->comment('When present, the email address of the invitation recipient;",
+          "source_line": 54
+        },
+        {
+          "column": "context_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('context_id')->nullable();",
+          "source_line": 56
+        },
+        {
+          "column": "(timestamps helper)",
+          "type": "timestamps",
+          "nullable_explicit": false,
+          "definition": "$table->timestamps();",
+          "source_line": 64
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');",
+          "source_line": 35
+        },
+        {
+          "definition": "$table->foreign('inviter_id')->references('user_id')->on('users')->onDelete('cascade');",
+          "source_line": 37
+        },
+        {
+          "definition": "$table->foreign('context_id', 'invitations_context_id') ->references($contextDao->primaryKeyColumn) ->on($contextDao->tableName) ->onDelete('cascade');",
+          "source_line": 59
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['user_id'], 'invitations_user_id');",
+          "source_line": 36
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['inviter_id'], 'invitations_inviter_id');",
+          "source_line": 38
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['status', 'context_id', 'user_id', 'type']);",
+          "source_line": 69
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['expiry_date']);",
+          "source_line": 72
+        }
+      ]
+    },
+    {
+      "table": "event_log",
+      "source": "pkp-lib:classes/migration/install/LogMigration.php",
+      "source_line": 28,
+      "fields": [
+        {
+          "column": "log_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('log_id')->autoIncrement();",
+          "source_line": 30
+        },
+        {
+          "column": "assoc_type",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('assoc_type');",
+          "source_line": 31
+        },
+        {
+          "column": "assoc_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('assoc_id');",
+          "source_line": 32
+        },
+        {
+          "column": "user_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('user_id')->nullable()->comment('NULL if it\\'s system or automated event');",
+          "source_line": 34
+        },
+        {
+          "column": "date_logged",
+          "type": "datetime",
+          "nullable_explicit": false,
+          "definition": "$table->datetime('date_logged');",
+          "source_line": 38
+        },
+        {
+          "column": "event_type",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('event_type')->nullable();",
+          "source_line": 39
+        },
+        {
+          "column": "message",
+          "type": "text",
+          "nullable_explicit": true,
+          "definition": "$table->text('message')->nullable();",
+          "source_line": 40
+        },
+        {
+          "column": "is_translated",
+          "type": "boolean",
+          "nullable_explicit": true,
+          "definition": "$table->boolean('is_translated')->nullable();",
+          "source_line": 41
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');",
+          "source_line": 35
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['user_id'], 'event_log_user_id');",
+          "source_line": 36
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['assoc_type', 'assoc_id'], 'event_log_assoc');",
+          "source_line": 42
+        }
+      ]
+    },
+    {
+      "table": "event_log_settings",
+      "source": "pkp-lib:classes/migration/install/LogMigration.php",
+      "source_line": 45,
+      "fields": [
+        {
+          "column": "event_log_setting_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('event_log_setting_id');",
+          "source_line": 47
+        },
+        {
+          "column": "log_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('log_id');",
+          "source_line": 48
+        },
+        {
+          "column": "locale",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('locale', 28)->default('');",
+          "source_line": 52
+        },
+        {
+          "column": "setting_name",
+          "type": "string",
+          "nullable_explicit": false,
+          "definition": "$table->string('setting_name', 255);",
+          "source_line": 53
+        },
+        {
+          "column": "setting_value",
+          "type": "mediumText",
+          "nullable_explicit": true,
+          "definition": "$table->mediumText('setting_value')->nullable();",
+          "source_line": 54
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('log_id', 'event_log_settings_log_id')->references('log_id')->on('event_log')->onDelete('cascade');",
+          "source_line": 49
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['log_id'], 'event_log_settings_log_id');",
+          "source_line": 50
+        },
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['log_id', 'setting_name', 'locale'], 'event_log_settings_unique');",
+          "source_line": 55
+        }
+      ]
+    },
+    {
+      "table": "email_log",
+      "source": "pkp-lib:classes/migration/install/LogMigration.php",
+      "source_line": 66,
+      "fields": [
+        {
+          "column": "log_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('log_id')->autoIncrement();",
+          "source_line": 68
+        },
+        {
+          "column": "assoc_type",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('assoc_type');",
+          "source_line": 69
+        },
+        {
+          "column": "assoc_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('assoc_id');",
+          "source_line": 70
+        },
+        {
+          "column": "sender_id",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('sender_id')->nullable();",
+          "source_line": 72
+        },
+        {
+          "column": "date_sent",
+          "type": "datetime",
+          "nullable_explicit": false,
+          "definition": "$table->datetime('date_sent');",
+          "source_line": 76
+        },
+        {
+          "column": "event_type",
+          "type": "bigInteger",
+          "nullable_explicit": true,
+          "definition": "$table->bigInteger('event_type')->nullable();",
+          "source_line": 77
+        },
+        {
+          "column": "from_address",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('from_address', 255)->nullable();",
+          "source_line": 78
+        },
+        {
+          "column": "recipients",
+          "type": "text",
+          "nullable_explicit": true,
+          "definition": "$table->text('recipients')->nullable();",
+          "source_line": 79
+        },
+        {
+          "column": "cc_recipients",
+          "type": "text",
+          "nullable_explicit": true,
+          "definition": "$table->text('cc_recipients')->nullable();",
+          "source_line": 80
+        },
+        {
+          "column": "bcc_recipients",
+          "type": "text",
+          "nullable_explicit": true,
+          "definition": "$table->text('bcc_recipients')->nullable();",
+          "source_line": 81
+        },
+        {
+          "column": "subject",
+          "type": "string",
+          "nullable_explicit": true,
+          "definition": "$table->string('subject', 255)->nullable();",
+          "source_line": 83
+        },
+        {
+          "column": "body",
+          "type": "text",
+          "nullable_explicit": true,
+          "definition": "$table->text('body')->nullable();",
+          "source_line": 84
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('sender_id')->references('user_id')->on('users')->onDelete('set null');",
+          "source_line": 73
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['sender_id'], 'email_log_sender_id');",
+          "source_line": 74
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['assoc_type', 'assoc_id'], 'email_log_assoc');",
+          "source_line": 85
+        }
+      ]
+    },
+    {
+      "table": "email_log_users",
+      "source": "pkp-lib:classes/migration/install/LogMigration.php",
+      "source_line": 89,
+      "fields": [
+        {
+          "column": "email_log_user_id",
+          "type": "bigIncrements",
+          "nullable_explicit": false,
+          "definition": "$table->bigIncrements('email_log_user_id');",
+          "source_line": 91
+        },
+        {
+          "column": "email_log_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('email_log_id');",
+          "source_line": 93
+        },
+        {
+          "column": "user_id",
+          "type": "bigInteger",
+          "nullable_explicit": false,
+          "definition": "$table->bigInteger('user_id');",
+          "source_line": 97
+        }
+      ],
+      "foreign_keys_declared_inside_create": [
+        {
+          "definition": "$table->foreign('email_log_id')->references('log_id')->on('email_log')->onDelete('cascade');",
+          "source_line": 94
+        },
+        {
+          "definition": "$table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');",
+          "source_line": 98
+        }
+      ],
+      "indexes_declared_inside_create": [
+        {
+          "kind": "index",
+          "definition": "$table->index(['email_log_id'], 'email_log_users_email_log_id');",
+          "source_line": 95
+        },
+        {
+          "kind": "index",
+          "definition": "$table->index(['user_id'], 'email_log_users_user_id');",
+          "source_line": 99
+        },
+        {
+          "kind": "unique",
+          "definition": "$table->unique(['email_log_id', 'user_id'], 'email_log_user_id');",
+          "source_line": 101
+        }
+      ]
+    }
+  ]
+}

@@ -2,6 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 mkdir -p artifacts
+.venv/bin/python scripts/check-research-library.py
 .venv/bin/python scripts/check-boundaries.py
 .venv/bin/ruff check apps/api packages tests/api tests/mail_adapters evals infrastructure/migrations scripts/start-live-model.py scripts/smoke-live-model.py scripts/accept-live-model.py
 .venv/bin/ruff format --check apps/api packages tests/api tests/mail_adapters evals infrastructure/migrations scripts/start-live-model.py scripts/smoke-live-model.py scripts/accept-live-model.py

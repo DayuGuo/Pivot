@@ -1,0 +1,717 @@
+{
+  "date": "2026-11-02",
+  "baseline_commit": "354c930aca91634a6c1f0bb000a9415ac0226880",
+  "method": "read-only static source inspection; no network, database access, tests or runtime mutation",
+  "sources": [
+    {
+      "path": "apps/api/publishing/models.py",
+      "sha256": "83ad535d18265af8f210f6b1842c39825e2f8782ffe5f5e9f84543ba98f731aa",
+      "bytes": 6854,
+      "purpose": "current implementation primary source",
+      "definitions": [
+        {
+          "name": "uid",
+          "line": 8,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "now",
+          "line": 12,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "Base",
+          "line": 16,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "Journal",
+          "line": 20,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "User",
+          "line": 26,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "Membership",
+          "line": 34,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "LoginSession",
+          "line": 43,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "Manuscript",
+          "line": 51,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "EditorialTask",
+          "line": 62,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "Conversation",
+          "line": 72,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "Message",
+          "line": 82,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "CommandReceipt",
+          "line": 94,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "AuditEvent",
+          "line": 104,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "EmailDraft",
+          "line": 115,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "EmailApproval",
+          "line": 124,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "MailAccount",
+          "line": 134,
+          "kind": "ClassDef"
+        }
+      ]
+    },
+    {
+      "path": "apps/api/publishing/main.py",
+      "sha256": "6aae7c1176a69f82dfef7cf44787bb70b9947a4526a6d3ee1ef5bc73d971e4d3",
+      "bytes": 9737,
+      "purpose": "current implementation primary source",
+      "definitions": [
+        {
+          "name": "LoginInput",
+          "line": 40,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "CommandInput",
+          "line": 46,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "ConversationInput",
+          "line": 53,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "safe_validation_error",
+          "line": 59,
+          "kind": "AsyncFunctionDef"
+        },
+        {
+          "name": "browser_boundary",
+          "line": 71,
+          "kind": "AsyncFunctionDef"
+        },
+        {
+          "name": "health",
+          "line": 86,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "login",
+          "line": 98,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "me",
+          "line": 151,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "logout",
+          "line": 156,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "workspace",
+          "line": 171,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "manuscript_detail",
+          "line": 232,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "command",
+          "line": 242,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "new_conversation",
+          "line": 266,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "path": "apps/api/publishing/security.py",
+      "sha256": "6485d02b08e3ac20c5ec9b4187f52b41f7ca6a7331e7d2ed194bb8a4931e253b",
+      "bytes": 2224,
+      "purpose": "current implementation primary source",
+      "definitions": [
+        {
+          "name": "hash_password",
+          "line": 15,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "check_password",
+          "line": 21,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "token_digest",
+          "line": 27,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "Actor",
+          "line": 32,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "get_actor",
+          "line": 46,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "new_session",
+          "line": 62,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "path": "apps/api/publishing/policy.py",
+      "sha256": "07a9e6ede87ee01881ac0bf8773a5d0a5a1b7efb88c5d5cd785071bcc1e1cc6f",
+      "bytes": 583,
+      "purpose": "current implementation primary source",
+      "definitions": [
+        {
+          "name": "require_editor",
+          "line": 9,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "can_view_manuscript",
+          "line": 14,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "path": "apps/api/publishing/workflow.py",
+      "sha256": "7b345ad8959ad6c1fc32169fc9ea7fe0bfce5096d123571f3d88248817ccf7c6",
+      "bytes": 952,
+      "purpose": "current implementation primary source",
+      "definitions": [
+        {
+          "name": "transition",
+          "line": 12,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "path": "apps/api/publishing/actions.py",
+      "sha256": "caf1dfb22758af5e54bc32928ff4d5e8803bd764ee7d926a4548312b4e8ae9f8",
+      "bytes": 2244,
+      "purpose": "current implementation primary source",
+      "definitions": [
+        {
+          "name": "create_and_assign",
+          "line": 16,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "path": "apps/api/publishing/runtime.py",
+      "sha256": "55f36ddbbec4c1f8e9b0295c8cec9b9344db76b5c8940e2f039dee37eb8bed52",
+      "bytes": 4036,
+      "purpose": "current implementation primary source",
+      "definitions": [
+        {
+          "name": "execute_command",
+          "line": 18,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "path": "apps/api/publishing/editorial_demo.py",
+      "sha256": "d57206db3ed59e3abd851ea84b2d68003b700a6533bd94fb18c4a42699aa0e97",
+      "bytes": 12966,
+      "purpose": "current implementation primary source",
+      "definitions": [
+        {
+          "name": "DemoWorkspaceState",
+          "line": 31,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "DemoSavedViews",
+          "line": 43,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "TypedInput",
+          "line": 60,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "Invitation",
+          "line": 64,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "Decision",
+          "line": 85,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "Reading",
+          "line": 90,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "AIResult",
+          "line": 96,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "CaseState",
+          "line": 104,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "StatePatch",
+          "line": 116,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "PatchInput",
+          "line": 134,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "ViewState",
+          "line": 139,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "ViewsInput",
+          "line": 149,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "editor",
+          "line": 153,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "case_record",
+          "line": 159,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "default_state",
+          "line": 166,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "lock_workspace",
+          "line": 181,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "state_query",
+          "line": 188,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "views_query",
+          "line": 196,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "dataset",
+          "line": 204,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "validated_state",
+          "line": 221,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "save_state",
+          "line": 266,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "save_views",
+          "line": 305,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "original_file",
+          "line": 329,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "path": "apps/api/publishing/editorial_chat.py",
+      "sha256": "a1392672c407d8e659e7a42571ab1e48a730b713243377835f9b8af3390fdfc0",
+      "bytes": 26752,
+      "purpose": "current implementation primary source",
+      "definitions": [
+        {
+          "name": "EditorialChatTurn",
+          "line": 47,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "ChatContext",
+          "line": 62,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "ChatInput",
+          "line": 72,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "Anchor",
+          "line": 85,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "ChatReference",
+          "line": 93,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "Navigate",
+          "line": 99,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "Filter",
+          "line": 106,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "ChatMessage",
+          "line": 113,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "ChatTurn",
+          "line": 125,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "ChatHistory",
+          "line": 132,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "owned_turns",
+          "line": 137,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "validate_context",
+          "line": 144,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "scoped_cases",
+          "line": 151,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "current_state",
+          "line": 168,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "navigation",
+          "line": 173,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "citation",
+          "line": 177,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "validate_outputs",
+          "line": 195,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "prepare_invitation",
+          "line": 221,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "task_filter",
+          "line": 293,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "mock_reply",
+          "line": 312,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "model_status",
+          "line": 550,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "history",
+          "line": 565,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "chat",
+          "line": 578,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "path": "apps/api/publishing/editorial_agent.py",
+      "sha256": "2d2d1f344b38a26e94973912da00bf44339af3c0e4d543451aa8a09669af089f",
+      "bytes": 24747,
+      "purpose": "current implementation primary source",
+      "definitions": [
+        {
+          "name": "Inspect",
+          "line": 36,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "ListTasks",
+          "line": 43,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "OpenMaterial",
+          "line": 51,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "PrepareInvitation",
+          "line": 56,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "OpenDecision",
+          "line": 63,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "Respond",
+          "line": 68,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "AgentResult",
+          "line": 120,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "ToolGateway",
+          "line": 130,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "prompt_messages",
+          "line": 384,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_agent",
+          "line": 442,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "path": "apps/api/publishing/email_gateway.py",
+      "sha256": "389432e7689953c34cc244ee60f23fbac6e18f8fa2eeac6dff4e8cbd0dc6d1cd",
+      "bytes": 4993,
+      "purpose": "current implementation primary source",
+      "definitions": [
+        {
+          "name": "digest_snapshot",
+          "line": 17,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "validate_snapshot",
+          "line": 24,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "create_draft",
+          "line": 54,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "lock_draft",
+          "line": 76,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "approve_draft",
+          "line": 89,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "revise_draft",
+          "line": 113,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "send_email",
+          "line": 131,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "path": "apps/api/publishing/serialization.py",
+      "sha256": "105a31cf2edfe99037682885553a6af598194cdd125b784ea0407519fe9d3780",
+      "bytes": 1217,
+      "purpose": "current implementation primary source",
+      "definitions": [
+        {
+          "name": "user_json",
+          "line": 8,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "manuscript_json",
+          "line": 17,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "message_json",
+          "line": 32,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "path": "apps/web/components/editorial/types.ts",
+      "sha256": "6190ba43bc791e25384f2fa2023dfaa4a5f8d3bd00eaabd991409224d2021c16",
+      "bytes": 2462,
+      "purpose": "current implementation primary source"
+    },
+    {
+      "path": "apps/web/app/workbench/page.tsx",
+      "sha256": "8a20ffc7db800edb44cf48e8b3d6b3cb2dd0d293afdfe3d87efd9a500fd36454",
+      "bytes": 27160,
+      "purpose": "current implementation primary source"
+    },
+    {
+      "path": "specs/003-editorial-workflow-and-assisted-intake.md",
+      "sha256": "ff754deadf1d1fc03500676b695c7e7db087701f5a6b557f6e33db1926b5c9a8",
+      "bytes": 24447,
+      "purpose": "current implementation primary source"
+    },
+    {
+      "path": "infrastructure/migrations/versions/0002_audit_guards.py",
+      "sha256": "1461403391101cdff9b887b4ed0e590f0128295e5dacb9cd1b57d763239affff",
+      "bytes": 1810,
+      "purpose": "current implementation primary source",
+      "definitions": [
+        {
+          "name": "upgrade",
+          "line": 15,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "downgrade",
+          "line": 40,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "path": "infrastructure/migrations/versions/c81b8c41b016_editorial_demo_workspace.py",
+      "sha256": "d21eb8ec1b320aadac7274562ad1f634299ac0c5e4652370f2f02aac0fb9fcaf",
+      "bytes": 1570,
+      "purpose": "current implementation primary source",
+      "definitions": [
+        {
+          "name": "upgrade",
+          "line": 17,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "downgrade",
+          "line": 40,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "path": "infrastructure/migrations/versions/e7b24c91a603_contextual_editorial_chat.py",
+      "sha256": "cb6f0cc30ea8285d2b04cf9cd5877c0234afe4570f86a895f2818ed55fb09271",
+      "bytes": 1266,
+      "purpose": "current implementation primary source",
+      "definitions": [
+        {
+          "name": "upgrade",
+          "line": 17,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "downgrade",
+          "line": 36,
+          "kind": "FunctionDef"
+        }
+      ]
+    }
+  ],
+  "telemetry": {
+    "executor": "native Codex assessment subagent",
+    "tokens": null,
+    "api_cost": null,
+    "elapsed_seconds": null,
+    "live_provider_calls": 0
+  },
+  "limitations": [
+    "Parent may make later changes; fingerprints delimit inspected source",
+    "No new validation executed; baseline322/23 count is cited from existing PROGRESS evidence",
+    "Upstream OJS/Janeway evidence is in sibling research folders, not claimed by this assessment"
+  ]
+}

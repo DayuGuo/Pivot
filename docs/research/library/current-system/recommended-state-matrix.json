@@ -1,0 +1,127 @@
+{
+  "status": "recommendation_not_implemented",
+  "date": "2026-11-02",
+  "source_basis": [
+    "specs/003-editorial-workflow-and-assisted-intake.md",
+    "new_goal_objective",
+    "current source gap assessment"
+  ],
+  "stages": [
+    {
+      "step_key": "author_intake",
+      "responsible": "author",
+      "human_only_confirmation": "confirm_submission",
+      "next": "submission_precheck"
+    },
+    {
+      "step_key": "submission_precheck",
+      "responsible": "assigned_editorial_staff",
+      "human_only_confirmation": "confirm_completeness",
+      "next": "similarity_review"
+    },
+    {
+      "step_key": "similarity_review",
+      "responsible": "assigned_editorial_staff",
+      "human_only_confirmation": "confirm_manual_similarity_evidence",
+      "next": "material_screen"
+    },
+    {
+      "step_key": "material_screen",
+      "responsible": "assigned_editorial_staff",
+      "human_only_confirmation": "confirm_review_materials",
+      "next": "chief_scope_screen"
+    },
+    {
+      "step_key": "chief_scope_screen",
+      "responsible": "authorized_chief_without_author_conflict",
+      "human_only_confirmation": "confirm_scope",
+      "next": "assign_handling_editor"
+    },
+    {
+      "step_key": "assign_handling_editor",
+      "responsible": "authorized_chief_without_author_conflict",
+      "human_only_confirmation": "confirm_assignment",
+      "next": "editor_quality_screen"
+    },
+    {
+      "step_key": "editor_quality_screen",
+      "responsible": "assigned_handling_editor",
+      "human_only_confirmation": "confirm_send_for_review",
+      "next": "reviewer_selection"
+    },
+    {
+      "step_key": "reviewer_selection",
+      "responsible": "assigned_handling_editor",
+      "human_only_confirmation": "confirm_in_app_invitation",
+      "next": "invitation_response"
+    },
+    {
+      "step_key": "invitation_response",
+      "responsible": "invited_reviewer",
+      "human_only_confirmation": "confirm_response_and_conflict",
+      "next": "peer_review"
+    },
+    {
+      "step_key": "peer_review",
+      "responsible": "accepted_assigned_reviewer",
+      "human_only_confirmation": "confirm_report_submission",
+      "next": "editor_recommendation"
+    },
+    {
+      "step_key": "editor_recommendation",
+      "responsible": "assigned_handling_editor",
+      "human_only_confirmation": "confirm_recommendation",
+      "next": "chief_decision"
+    },
+    {
+      "step_key": "chief_decision",
+      "responsible": "authorized_decider_without_author_conflict",
+      "human_only_confirmation": "confirm_decision",
+      "next": "decision_outcome_branch"
+    },
+    {
+      "step_key": "author_revision",
+      "responsible": "authorized_author",
+      "human_only_confirmation": "confirm_revision_submission",
+      "next": "revision_recheck"
+    },
+    {
+      "step_key": "revision_recheck",
+      "responsible": "assigned_handling_editor",
+      "human_only_confirmation": "confirm_recheck",
+      "next": "chief_decision_or_new_review_round"
+    },
+    {
+      "step_key": "production_prepare",
+      "responsible": "assigned_production_staff",
+      "human_only_confirmation": "confirm_production_package",
+      "next": "author_proof"
+    },
+    {
+      "step_key": "author_proof",
+      "responsible": "authorized_author",
+      "human_only_confirmation": "confirm_proof",
+      "next": "production_final_review"
+    },
+    {
+      "step_key": "production_final_review",
+      "responsible": "authorized_production_responsible_user",
+      "human_only_confirmation": "confirm_local_preview_snapshot",
+      "next": "local_preview_ready"
+    }
+  ],
+  "decision_branches": {
+    "request_revision": "author_revision",
+    "accept": "production_prepare",
+    "reject": "closed_rejected"
+  },
+  "important_rules": [
+    "This is analysis data, not executable workflow DSL",
+    "Invitation and review progress can overlap; aggregate required acceptance/report policy controls primary displayed state",
+    "Decline does not create review assignment and cannot satisfy required reports",
+    "Revision creates new frozen version/step cycle; old evidence and reports stay linked to original version",
+    "A local authenticated preview is not production or public publication",
+    "Every critical confirmation API stays outside model tool registry",
+    "Email draft/content approval and business transition confirmations remain independent; real send disabled"
+  ]
+}

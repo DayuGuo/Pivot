@@ -1,0 +1,191 @@
+# Janeway v1.8.4 / e24b23bd112ff7ca08097620d8a31041a25f9d26
+# src/typesetting/models.py
+# Copyright Birkbeck, University of London; AGPL v3. See LICENSE.
+# Static excerpts: field declarations and Meta only; upstream code was NOT executed.
+
+
+# upstream class line 20
+class TypesettingClaim(models.Model):
+    # upstream line 21
+    editor = models.ForeignKey(
+            "core.Account",
+            on_delete=models.CASCADE,
+        )
+    # upstream line 25
+    article = models.OneToOneField(
+            "submission.Article",
+            on_delete=models.CASCADE,
+        )
+    # upstream line 29
+    claimed = models.DateTimeField(default=timezone.now)
+    class Meta:
+            unique_together = (
+                "editor",
+                "article",
+            )
+
+
+# upstream class line 38
+class TypesettingRound(models.Model):
+    # upstream line 39
+    article = models.ForeignKey(
+            "submission.Article",
+            on_delete=models.CASCADE,
+        )
+    # upstream line 43
+    round_number = models.PositiveIntegerField(default=1)
+    # upstream line 44
+    date_created = models.DateTimeField(auto_now_add=True)
+    class Meta:
+            ordering = ("-round_number", "date_created")
+            unique_together = (
+                "round_number",
+                "article",
+            )
+
+
+# upstream class line 98
+class TypesettingAssignment(models.Model):
+    # upstream line 99
+    round = models.OneToOneField(
+            TypesettingRound,
+            on_delete=models.CASCADE,
+        )
+    # upstream line 103
+    manager = models.ForeignKey(
+            "core.Account",
+            null=True,
+            blank=True,
+            on_delete=models.SET_NULL,
+            related_name="manager",
+        )
+    # upstream line 110
+    typesetter = models.ForeignKey(
+            "core.Account",
+            null=True,
+            on_delete=models.SET_NULL,
+            related_name="typesetter",
+        )
+    # upstream line 117
+    assigned = models.DateTimeField(default=timezone.now)
+    # upstream line 118
+    notified = models.BooleanField(default=False)
+    # upstream line 119
+    accepted = models.DateTimeField(blank=True, null=True)
+    # upstream line 120
+    due = models.DateField(null=True)
+    # upstream line 121
+    completed = models.DateTimeField(blank=True, null=True)
+    # upstream line 122
+    cancelled = models.DateTimeField(blank=True, null=True)
+    # upstream line 123
+    reviewed = models.BooleanField(default=False)
+    # upstream line 124
+    display_proof_comments = models.BooleanField(
+            default=True,
+            help_text="Allow the typesetter to see the proofreading comments",
+        )
+    # upstream line 128
+    review_decision = models.CharField(
+            choices=review_choices(),
+            max_length=21,
+            blank=True,
+        )
+    # upstream line 134
+    task = JanewayBleachField(
+            blank=True,
+            verbose_name="Typesetting Task",
+            help_text="The task description if not explained in the typesetting guidelines.",
+        )
+    # upstream line 139
+    files_to_typeset = models.ManyToManyField(
+            "core.File",
+            related_name="files_to_typeset",
+            blank=True,
+        )
+    # upstream line 144
+    galleys_created = models.ManyToManyField(
+            "core.Galley",
+            blank=True,
+        )
+    # upstream line 148
+    typesetter_note = JanewayBleachField(
+            blank=True,
+            verbose_name="Note to Editor",
+        )
+
+
+# upstream class line 304
+class GalleyProofing(models.Model):
+    # upstream line 305
+    round = models.ForeignKey(
+            TypesettingRound,
+            on_delete=models.CASCADE,
+        )
+    # upstream line 309
+    manager = models.ForeignKey(
+            "core.Account",
+            null=True,
+            related_name="galley_manager",
+            on_delete=models.SET_NULL,
+        )
+    # upstream line 315
+    proofreader = models.ForeignKey(
+            "core.Account",
+            null=True,
+            on_delete=models.SET_NULL,
+        )
+    # upstream line 320
+    assigned = models.DateTimeField(default=timezone.now)
+    # upstream line 321
+    notified = models.BooleanField(default=False)
+    # upstream line 322
+    due = models.DateTimeField(default=None, verbose_name="Date Due")
+    # upstream line 323
+    accepted = models.DateTimeField(blank=True, null=True)
+    # upstream line 324
+    completed = models.DateTimeField(blank=True, null=True)
+    # upstream line 325
+    cancelled = models.BooleanField(default=False)
+    # upstream line 327
+    task = JanewayBleachField(
+            verbose_name="Proofing Task",
+            help_text="Add any additional information or instructions "
+            "for the proofreader here.",
+        )
+    # upstream line 332
+    proofed_files = models.ManyToManyField("core.Galley", blank=True)
+    # upstream line 333
+    notes = JanewayBleachField(blank=True)
+    # upstream line 334
+    annotated_files = models.ManyToManyField("core.File", blank=True)
+    class Meta:
+            ordering = ("assigned", "accepted", "pk")
+
+
+# upstream class line 493
+class TypesettingCorrection(models.Model):
+    # upstream line 494
+    task = models.ForeignKey(
+            "typesetting.TypesettingAssignment",
+            related_name="corrections",
+            blank=True,
+            on_delete=models.CASCADE,
+        )
+    # upstream line 500
+    galley = models.ForeignKey(
+            "core.Galley",
+            null=True,
+            blank=True,
+            on_delete=models.SET_NULL,
+        )
+    # upstream line 507
+    label = models.CharField(max_length=255, blank=True, null=True)
+    # upstream line 508
+    date_requested = models.DateTimeField(auto_now_add=True)
+    # upstream line 509
+    date_completed = models.DateTimeField(blank=True, null=True)
+    # upstream line 510
+    date_declined = models.DateTimeField(blank=True, null=True)
+    # upstream line 512
+    file_checksum = models.CharField(max_length=255, blank=True, null=True)

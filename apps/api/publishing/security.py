@@ -49,7 +49,12 @@ def get_actor(request: Request, db: Session = Depends(get_db)) -> Actor:
     if not session or session.expires_at <= now():
         raise HTTPException(401, "请先登录 Publishing OS")
     user = db.get(User, session.user_id)
-    membership = db.scalar(select(Membership).where(Membership.user_id == session.user_id))
+    memberships = db.scalars(
+        select(Membership).where(Membership.user_id == session.user_id).limit(2)
+    ).all()
+    if len(memberships) > 1:
+        raise HTTPException(409, "账号关联多个工作期刊，无法自动选择")
+    membership = memberships[0] if memberships else None
     if not user or not membership:
         raise HTTPException(403, "没有期刊访问权限")
     if request.method not in {"GET", "HEAD", "OPTIONS"}:

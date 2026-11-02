@@ -1,0 +1,554 @@
+app,model,field,declared_type,positional_arguments,options,source_path,line
+submission,ArticleFunding,article,models.ForeignKey,"[""'submission.Article'""]","{""on_delete"": ""models.CASCADE"", ""null"": ""True""}",src/submission/models.py,692
+submission,ArticleFunding,name,models.CharField,[],"{""max_length"": ""500"", ""blank"": ""False"", ""null"": ""False"", ""help_text"": ""'Funder name'""}",src/submission/models.py,697
+submission,ArticleFunding,fundref_id,models.CharField,[],"{""max_length"": ""500"", ""blank"": ""True"", ""null"": ""True"", ""help_text"": ""'Funder DOI (optional). Enter as a full Uniform Resource Identifier (URI), such as https://dx.doi.org/10.13039/501100021082'""}",src/submission/models.py,703
+submission,ArticleFunding,funding_id,models.CharField,[],"{""max_length"": ""500"", ""blank"": ""True"", ""null"": ""True"", ""help_text"": ""'The grant ID (optional). Enter the ID by itself'""}",src/submission/models.py,711
+submission,ArticleFunding,funding_statement,models.TextField,[],"{""blank"": ""True"", ""help_text"": ""_('Additional information regarding this funding entry')""}",src/submission/models.py,717
+submission,ArticleStageLog,article,models.ForeignKey,"[""'Article'""]","{""on_delete"": ""models.CASCADE""}",src/submission/models.py,726
+submission,ArticleStageLog,stage_from,models.CharField,[],"{""max_length"": ""200"", ""blank"": ""False"", ""null"": ""False""}",src/submission/models.py,730
+submission,ArticleStageLog,stage_to,models.CharField,[],"{""max_length"": ""200"", ""blank"": ""False"", ""null"": ""False""}",src/submission/models.py,731
+submission,ArticleStageLog,date_time,models.DateTimeField,[],"{""default"": ""timezone.now""}",src/submission/models.py,732
+submission,Keyword,word,models.CharField,[],"{""max_length"": ""200"", ""unique"": ""True""}",src/submission/models.py,765
+submission,KeywordArticle,keyword,models.ForeignKey,"[""'submission.Keyword'""]","{""on_delete"": ""models.CASCADE""}",src/submission/models.py,772
+submission,KeywordArticle,article,models.ForeignKey,"[""'submission.Article'""]","{""on_delete"": ""models.CASCADE""}",src/submission/models.py,776
+submission,KeywordArticle,order,models.PositiveIntegerField,[],"{""default"": ""1""}",src/submission/models.py,780
+submission,Article,journal,models.ForeignKey,"[""'journal.Journal'""]","{""blank"": ""True"", ""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/submission/models.py,1008
+submission,Article,owner,models.ForeignKey,"[""'core.Account'""]","{""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/submission/models.py,1015
+submission,Article,title,JanewayBleachCharField,[],"{""max_length"": ""999"", ""help_text"": ""_('Your article title')""}",src/submission/models.py,1020
+submission,Article,subtitle,models.CharField,[],"{""max_length"": ""999"", ""blank"": ""True"", ""null"": ""True"", ""help_text"": ""_('Do not use--deprecated in version 1.4.1 and later.')""}",src/submission/models.py,1024
+submission,Article,abstract,JanewayBleachField,[],"{""blank"": ""True"", ""null"": ""True""}",src/submission/models.py,1031
+submission,Article,non_specialist_summary,JanewayBleachField,[],"{""blank"": ""True"", ""null"": ""True"", ""help_text"": ""'A summary of the article for non specialists.'""}",src/submission/models.py,1035
+submission,Article,keywords,M2MOrderedThroughField,"[""Keyword""]","{""blank"": ""True"", ""null"": ""True"", ""through"": ""'submission.KeywordArticle'""}",src/submission/models.py,1038
+submission,Article,language,models.CharField,[],"{""max_length"": ""200"", ""blank"": ""True"", ""null"": ""True"", ""choices"": ""LANGUAGE_CHOICES"", ""help_text"": ""_('The primary language of the article')""}",src/submission/models.py,1044
+submission,Article,section,models.ForeignKey,"[""'Section'""]","{""blank"": ""True"", ""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/submission/models.py,1051
+submission,Article,jats_article_type_override,DynamicChoiceField,[],"{""max_length"": ""255"", ""dynamic_choices"": ""get_jats_article_types()"", ""choices"": ""tuple()"", ""blank"": ""True"", ""null"": ""True"", ""help_text"": ""'The type of article as per the JATS standard. This field allows you to override the default for the section.'"", ""default"": ""None""}",src/submission/models.py,1054
+submission,Article,license,models.ForeignKey,"[""'Licence'""]","{""blank"": ""True"", ""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/submission/models.py,1073
+submission,Article,publisher_notes,models.ManyToManyField,"[""'PublisherNote'""]","{""blank"": ""True"", ""null"": ""True"", ""related_name"": ""'publisher_notes'""}",src/submission/models.py,1076
+submission,Article,is_remote,models.BooleanField,[],"{""default"": ""False"", ""verbose_name"": ""'Remote article'"", ""help_text"": ""'Check if this article is remote'""}",src/submission/models.py,1083
+submission,Article,remote_url,models.URLField,[],"{""blank"": ""True"", ""null"": ""True"", ""help_text"": ""'If the article is remote, its URL should be added.'""}",src/submission/models.py,1088
+submission,Article,authors,models.ManyToManyField,"[""'core.Account'""]","{""blank"": ""True"", ""null"": ""True"", ""related_name"": ""'authors'""}",src/submission/models.py,1096
+submission,Article,correspondence_author,models.ForeignKey,"[""'core.Account'""]","{""related_name"": ""'correspondence_author'"", ""blank"": ""True"", ""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/submission/models.py,1099
+submission,Article,competing_interests_bool,models.BooleanField,[],"{""default"": ""False""}",src/submission/models.py,1107
+submission,Article,competing_interests,JanewayBleachField,[],"{""blank"": ""True"", ""null"": ""True"", ""help_text"": ""'If you have any conflict of interests in the publication of this article please state them here.'""}",src/submission/models.py,1108
+submission,Article,rights,JanewayBleachField,[],"{""blank"": ""True"", ""null"": ""True"", ""help_text"": ""'A custom statement on the usage rights for this article and associated materials, to be rendered in the article page'""}",src/submission/models.py,1115
+submission,Article,article_number,models.PositiveIntegerField,[],"{""blank"": ""True"", ""null"": ""True"", ""help_text"": ""'Optional article number to be displayed on issue and article pages. Not to be confused with article ID.'""}",src/submission/models.py,1122
+submission,Article,manuscript_files,models.ManyToManyField,"[""'core.File'""]","{""null"": ""True"", ""blank"": ""True"", ""related_name"": ""'manuscript_files'""}",src/submission/models.py,1129
+submission,Article,data_figure_files,models.ManyToManyField,"[""'core.File'""]","{""null"": ""True"", ""blank"": ""True"", ""related_name"": ""'data_figure_files'""}",src/submission/models.py,1132
+submission,Article,supplementary_files,models.ManyToManyField,"[""'core.SupplementaryFile'""]","{""null"": ""True"", ""blank"": ""True"", ""related_name"": ""'supp'""}",src/submission/models.py,1135
+submission,Article,source_files,models.ManyToManyField,"[""'core.File'""]","{""blank"": ""True"", ""related_name"": ""'source_files'""}",src/submission/models.py,1138
+submission,Article,render_galley,models.ForeignKey,"[""'core.Galley'""]","{""related_name"": ""'render_galley'"", ""blank"": ""True"", ""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/submission/models.py,1145
+submission,Article,date_started,models.DateTimeField,[],"{""auto_now_add"": ""True""}",src/submission/models.py,1154
+submission,Article,date_accepted,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/submission/models.py,1156
+submission,Article,date_declined,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/submission/models.py,1157
+submission,Article,date_submitted,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/submission/models.py,1158
+submission,Article,date_published,DateTimePickerModelField,[],"{""blank"": ""True"", ""null"": ""True""}",src/submission/models.py,1159
+submission,Article,date_updated,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/submission/models.py,1160
+submission,Article,current_step,models.IntegerField,[],"{""default"": ""1""}",src/submission/models.py,1161
+submission,Article,first_page,models.PositiveIntegerField,[],"{""blank"": ""True"", ""null"": ""True""}",src/submission/models.py,1164
+submission,Article,last_page,models.PositiveIntegerField,[],"{""blank"": ""True"", ""null"": ""True""}",src/submission/models.py,1165
+submission,Article,page_numbers,models.CharField,[],"{""max_length"": ""32"", ""blank"": ""True"", ""null"": ""True"", ""help_text"": ""_(\""Custom page range. e.g.: 'I-VII' or 1-3,4-8\"")""}",src/submission/models.py,1166
+submission,Article,total_pages,models.PositiveIntegerField,[],"{""blank"": ""True"", ""null"": ""True""}",src/submission/models.py,1172
+submission,Article,stage,DynamicChoiceField,[],"{""max_length"": ""200"", ""blank"": ""True"", ""null"": ""False"", ""default"": ""STAGE_UNSUBMITTED"", ""choices"": ""STAGE_CHOICES"", ""dynamic_choices"": ""PLUGIN_WORKFLOW_STAGES"", ""help_text"": ""\""<strong>WARNING</strong>: Manually changing the stage of a submission             overrides Janeway's workflow. It should only be changed to a value             which is know to be safe such as a stage an article has already             been a part of before.\""""}",src/submission/models.py,1175
+submission,Article,publication_fees,models.BooleanField,[],"{""default"": ""False""}",src/submission/models.py,1189
+submission,Article,submission_requirements,models.BooleanField,[],"{""default"": ""False""}",src/submission/models.py,1190
+submission,Article,copyright_notice,models.BooleanField,[],"{""default"": ""False""}",src/submission/models.py,1191
+submission,Article,comments_editor,JanewayBleachField,[],"{""blank"": ""True"", ""null"": ""True"", ""verbose_name"": ""'Comments to the Editor'"", ""help_text"": ""_(\""Add any comments you'd like the editor to consider here.\"")""}",src/submission/models.py,1192
+submission,Article,large_image_file,models.ForeignKey,"[""'core.File'""]","{""null"": ""True"", ""blank"": ""True"", ""related_name"": ""'image_file'"", ""on_delete"": ""models.SET_NULL""}",src/submission/models.py,1200
+submission,Article,exclude_from_slider,models.BooleanField,[],"{""default"": ""False""}",src/submission/models.py,1207
+submission,Article,thumbnail_image_file,models.ForeignKey,"[""'core.File'""]","{""null"": ""True"", ""blank"": ""True"", ""related_name"": ""'thumbnail_file'"", ""on_delete"": ""models.SET_NULL""}",src/submission/models.py,1209
+submission,Article,peer_reviewed,models.BooleanField,[],"{""default"": ""True""}",src/submission/models.py,1218
+submission,Article,is_import,models.BooleanField,[],"{""default"": ""False""}",src/submission/models.py,1221
+submission,Article,article_agreement,JanewayBleachField,[],"{""default"": ""''""}",src/submission/models.py,1226
+submission,Article,custom_how_to_cite,JanewayBleachField,[],"{""blank"": ""True"", ""null"": ""True"", ""help_text"": ""_(\""Custom 'how to cite' text. To be used only if the block generated by Janeway is not suitable.\"")""}",src/submission/models.py,1228
+submission,Article,publisher_name,models.CharField,[],"{""max_length"": ""999"", ""null"": ""True"", ""blank"": ""True"", ""help_text"": ""_('Name of the publisher who published this article Only relevant to migrated articles from a different publisher')""}",src/submission/models.py,1237
+submission,Article,publication_title,models.CharField,[],"{""max_length"": ""999"", ""null"": ""True"", ""blank"": ""True"", ""help_text"": ""_('Name of the publisher who published this article Only relevant to migrated articles from a different publisher')""}",src/submission/models.py,1247
+submission,Article,ISSN_override,models.CharField,[],"{""max_length"": ""999"", ""null"": ""True"", ""blank"": ""True"", ""help_text"": ""_(\""Original ISSN of this article's journal when published Only relevant for back content published under a different title\"")""}",src/submission/models.py,1256
+submission,Article,ithenticate_id,models.TextField,[],"{""blank"": ""True"", ""null"": ""True""}",src/submission/models.py,1267
+submission,Article,ithenticate_score,models.IntegerField,[],"{""blank"": ""True"", ""null"": ""True""}",src/submission/models.py,1268
+submission,Article,primary_issue,models.ForeignKey,"[""'journal.Issue'""]","{""blank"": ""True"", ""null"": ""True"", ""on_delete"": ""models.SET_NULL"", ""help_text"": ""'You can only assign an issue that this article is part of. You can add this article to an issue from the Issue Manager.'""}",src/submission/models.py,1271
+submission,Article,projected_issue,models.ForeignKey,"[""'journal.Issue'""]","{""blank"": ""True"", ""null"": ""True"", ""on_delete"": ""models.SET_NULL"", ""related_name"": ""'projected_issue'"", ""help_text"": ""'This field is for internal purposes only before publication. You can use it to track likely issue assignment before formally assigning an issue.'""}",src/submission/models.py,1281
+submission,Article,meta_image,models.ImageField,[],"{""blank"": ""True"", ""null"": ""True"", ""upload_to"": ""article_media_upload"", ""storage"": ""fs""}",src/submission/models.py,1294
+submission,Article,preprint_journal_article,models.ForeignKey,"[""'submission.Article'""]","{""blank"": ""True"", ""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/submission/models.py,1298
+submission,Article,reviews_shared,models.BooleanField,[],"{""default"": ""False"", ""help_text"": ""'Marked true when an editor manually shares reviews with other reviewers using the decision helper page.'""}",src/submission/models.py,1305
+submission,FrozenAuthor,article,models.ForeignKey,"[""'submission.Article'""]","{""blank"": ""True"", ""null"": ""True"", ""on_delete"": ""models.CASCADE""}",src/submission/models.py,2564
+submission,FrozenAuthor,author,models.ForeignKey,"[""'core.Account'""]","{""blank"": ""True"", ""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/submission/models.py,2570
+submission,FrozenAuthor,name_prefix,models.CharField,[],"{""max_length"": ""300"", ""blank"": ""True"", ""help_text"": ""_('Optional name prefix (e.g: Prof or Dr)')"", ""validators"": ""[plain_text_validator]""}",src/submission/models.py,2577
+submission,FrozenAuthor,name_suffix,models.CharField,[],"{""max_length"": ""300"", ""blank"": ""True"", ""help_text"": ""_('Optional name suffix (e.g.: Jr or III)')"", ""validators"": ""[plain_text_validator]""}",src/submission/models.py,2583
+submission,FrozenAuthor,first_name,models.CharField,[],"{""max_length"": ""300"", ""blank"": ""True"", ""validators"": ""[plain_text_validator]""}",src/submission/models.py,2589
+submission,FrozenAuthor,middle_name,models.CharField,[],"{""max_length"": ""300"", ""blank"": ""True"", ""validators"": ""[plain_text_validator]""}",src/submission/models.py,2594
+submission,FrozenAuthor,last_name,models.CharField,[],"{""max_length"": ""300"", ""blank"": ""True"", ""validators"": ""[plain_text_validator]""}",src/submission/models.py,2599
+submission,FrozenAuthor,frozen_biography,JanewayBleachField,[],"{""blank"": ""True"", ""verbose_name"": ""_('Biography')""}",src/submission/models.py,2605
+submission,FrozenAuthor,order,models.PositiveIntegerField,[],"{""default"": ""1""}",src/submission/models.py,2609
+submission,FrozenAuthor,is_corporate,models.BooleanField,[],"{""default"": ""False"", ""help_text"": ""'Whether the author is an organization. The display name will be formed from the affiliation.'""}",src/submission/models.py,2611
+submission,FrozenAuthor,frozen_email,models.EmailField,[],"{""blank"": ""True"", ""verbose_name"": ""_('Email')""}",src/submission/models.py,2616
+submission,FrozenAuthor,frozen_orcid,models.CharField,[],"{""max_length"": ""40"", ""blank"": ""True"", ""validators"": ""[validate_orcid]"", ""verbose_name"": ""_('ORCID')"", ""help_text"": ""_('ORCID to be displayed when no account is associated with this author.')""}",src/submission/models.py,2620
+submission,FrozenAuthor,display_email,models.BooleanField,[],"{""default"": ""False"", ""help_text"": ""_(\""Whether to display this author's email address on the published article.\"")""}",src/submission/models.py,2629
+submission,CreditRecord,frozen_author,models.ForeignKey,"[""FrozenAuthor""]","{""blank"": ""True"", ""null"": ""True"", ""on_delete"": ""models.CASCADE""}",src/submission/models.py,2969
+submission,CreditRecord,preprint_author,models.ForeignKey,"[""repository_models.PreprintAuthor""]","{""blank"": ""True"", ""null"": ""True"", ""on_delete"": ""models.CASCADE""}",src/submission/models.py,2972
+submission,CreditRecord,role,models.CharField,[],"{""max_length"": ""100"", ""choices"": ""CREDIT_ROLE_CHOICES"", ""default"": ""'writing-original-draft'""}",src/submission/models.py,2978
+submission,Section,journal,models.ForeignKey,"[""'journal.Journal'""]","{""on_delete"": ""models.CASCADE""}",src/submission/models.py,2997
+submission,Section,number_of_reviewers,models.IntegerField,[],"{""default"": ""2""}",src/submission/models.py,3001
+submission,Section,editors,models.ManyToManyField,"[""'core.Account'""]","{""help_text"": ""'Editors assigned will be notified of submissions, overruling the notification settings for the journal.'""}",src/submission/models.py,3003
+submission,Section,section_editors,models.ManyToManyField,"[""'core.Account'""]","{""help_text"": ""'Section editors assigned will be notified of submissions, overruling the notification settings for the journal.'"", ""related_name"": ""'section_editors'""}",src/submission/models.py,3008
+submission,Section,jats_article_type,DynamicChoiceField,[],"{""max_length"": ""255"", ""dynamic_choices"": ""get_jats_article_types()"", ""choices"": ""tuple()"", ""blank"": ""True"", ""null"": ""True"", ""verbose_name"": ""'JATS default article type'"", ""help_text"": ""'The default JATS article type for articles in this section. This can be overridden on a per-article basis.'""}",src/submission/models.py,3014
+submission,Section,auto_assign_editors,models.BooleanField,[],"{""default"": ""False"", ""help_text"": ""'Articles submitted to this section will be automatically assigned to the editors and/or section editors selected above.'""}",src/submission/models.py,3023
+submission,Section,is_filterable,models.BooleanField,[],"{""default"": ""True"", ""help_text"": ""'Allows filtering article search results by this section.'""}",src/submission/models.py,3028
+submission,Section,public_submissions,models.BooleanField,[],"{""default"": ""True""}",src/submission/models.py,3032
+submission,Section,indexing,models.BooleanField,[],"{""default"": ""True"", ""help_text"": ""'Whether this section is put forward for indexing'""}",src/submission/models.py,3033
+submission,Section,sequence,models.PositiveIntegerField,[],"{""default"": ""0"", ""help_text"": ""'Determines the order in which the section is rendered Sections can also be reorder by drag-and-drop'""}",src/submission/models.py,3036
+submission,Section,name,models.CharField,[],"{""max_length"": ""200"", ""null"": ""True""}",src/submission/models.py,3041
+submission,Section,plural,models.CharField,[],"{""max_length"": ""200"", ""null"": ""True"", ""blank"": ""True"", ""help_text"": ""'Pluralised name for the section (e.g: Article -> Articles)'""}",src/submission/models.py,3045
+submission,Licence,journal,models.ForeignKey,"[""'journal.Journal'""]","{""null"": ""True"", ""blank"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/submission/models.py,3099
+submission,Licence,press,models.ForeignKey,"[""'press.Press'""]","{""null"": ""True"", ""blank"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/submission/models.py,3102
+submission,Licence,name,models.CharField,[],"{""max_length"": ""300""}",src/submission/models.py,3106
+submission,Licence,short_name,models.CharField,[],"{""max_length"": ""15""}",src/submission/models.py,3107
+submission,Licence,url,models.URLField,[],"{""max_length"": ""1000""}",src/submission/models.py,3108
+submission,Licence,text,JanewayBleachField,[],"{""null"": ""True"", ""blank"": ""True""}",src/submission/models.py,3109
+submission,Licence,order,models.PositiveIntegerField,[],"{""default"": ""0""}",src/submission/models.py,3110
+submission,Licence,available_for_submission,models.BooleanField,[],"{""default"": ""True""}",src/submission/models.py,3112
+submission,Field,journal,models.ForeignKey,"[""'journal.Journal'""]","{""blank"": ""True"", ""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/submission/models.py,3164
+submission,Field,press,models.ForeignKey,"[""'press.Press'""]","{""blank"": ""True"", ""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/submission/models.py,3170
+submission,Field,name,models.CharField,[],"{""max_length"": ""200""}",src/submission/models.py,3176
+submission,Field,kind,models.CharField,[],"{""max_length"": ""50"", ""choices"": ""field_kind_choices()""}",src/submission/models.py,3177
+submission,Field,width,models.CharField,[],"{""max_length"": ""50"", ""choices"": ""width_choices()"", ""default"": ""'full'""}",src/submission/models.py,3178
+submission,Field,choices,models.CharField,[],"{""max_length"": ""1000"", ""null"": ""True"", ""blank"": ""True"", ""help_text"": ""'Separate choices with the bar | character.'""}",src/submission/models.py,3179
+submission,Field,required,models.BooleanField,[],"{""default"": ""True""}",src/submission/models.py,3185
+submission,Field,order,models.IntegerField,[],{},src/submission/models.py,3186
+submission,Field,display,models.BooleanField,[],"{""default"": ""False"", ""help_text"": ""'Whether or not display this field in the article page'""}",src/submission/models.py,3187
+submission,Field,help_text,models.TextField,[],{},src/submission/models.py,3190
+submission,FieldAnswer,field,models.ForeignKey,"[""Field""]","{""null"": ""True"", ""blank"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/submission/models.py,3207
+submission,FieldAnswer,article,models.ForeignKey,"[""Article""]","{""on_delete"": ""models.CASCADE""}",src/submission/models.py,3208
+submission,FieldAnswer,answer,JanewayBleachField,[],{},src/submission/models.py,3212
+submission,SubmissionConfiguration,journal,models.OneToOneField,"[""'journal.Journal'""]","{""on_delete"": ""models.CASCADE""}",src/submission/models.py,3235
+submission,SubmissionConfiguration,publication_fees,models.BooleanField,[],"{""default"": ""True""}",src/submission/models.py,3240
+submission,SubmissionConfiguration,submission_check,models.BooleanField,[],"{""default"": ""True""}",src/submission/models.py,3241
+submission,SubmissionConfiguration,copyright_notice,models.BooleanField,[],"{""default"": ""True""}",src/submission/models.py,3242
+submission,SubmissionConfiguration,competing_interests,models.BooleanField,[],"{""default"": ""True""}",src/submission/models.py,3243
+submission,SubmissionConfiguration,comments_to_the_editor,models.BooleanField,[],"{""default"": ""True""}",src/submission/models.py,3244
+submission,SubmissionConfiguration,subtitle,models.BooleanField,[],"{""default"": ""False""}",src/submission/models.py,3246
+submission,SubmissionConfiguration,abstract,models.BooleanField,[],"{""default"": ""True""}",src/submission/models.py,3247
+submission,SubmissionConfiguration,language,models.BooleanField,[],"{""default"": ""True""}",src/submission/models.py,3248
+submission,SubmissionConfiguration,license,models.BooleanField,[],"{""default"": ""True""}",src/submission/models.py,3249
+submission,SubmissionConfiguration,keywords,models.BooleanField,[],"{""default"": ""True""}",src/submission/models.py,3250
+submission,SubmissionConfiguration,section,models.BooleanField,[],"{""default"": ""True""}",src/submission/models.py,3251
+submission,SubmissionConfiguration,funding,models.BooleanField,[],"{""default"": ""False""}",src/submission/models.py,3252
+submission,SubmissionConfiguration,figures_data,models.BooleanField,[],"{""default"": ""True"", ""verbose_name"": ""_('Figures and Data Files')""}",src/submission/models.py,3254
+submission,SubmissionConfiguration,default_license,models.ForeignKey,"[""Licence""]","{""null"": ""True"", ""blank"": ""True"", ""help_text"": ""_('The default license applied when no option is presented')"", ""on_delete"": ""models.SET_NULL""}",src/submission/models.py,3259
+submission,SubmissionConfiguration,default_language,models.CharField,[],"{""max_length"": ""200"", ""null"": ""True"", ""blank"": ""True"", ""choices"": ""LANGUAGE_CHOICES"", ""help_text"": ""_('The default language of articles when lang is hidden')""}",src/submission/models.py,3266
+submission,SubmissionConfiguration,default_section,models.ForeignKey,"[""Section""]","{""null"": ""True"", ""blank"": ""True"", ""help_text"": ""_('The default section of articles when no option is presented')"", ""on_delete"": ""models.SET_NULL""}",src/submission/models.py,3273
+submission,SubmissionConfiguration,submission_file_text,models.CharField,[],"{""max_length"": ""255"", ""default"": ""'Manuscript File'"", ""help_text"": ""'During submission the author will be asked to upload a filethat is considered the main text of the article. You can usethis field to change the label for that file in submission.'""}",src/submission/models.py,3280
+review,EditorAssignment,article,models.ForeignKey,"[""'submission.Article'""]","{""on_delete"": ""models.CASCADE""}",src/review/models.py,90
+review,EditorAssignment,editor,models.ForeignKey,"[""'core.Account'""]","{""on_delete"": ""models.CASCADE""}",src/review/models.py,94
+review,EditorAssignment,editor_type,models.CharField,[],"{""max_length"": ""20"", ""choices"": ""assignment_choices""}",src/review/models.py,98
+review,EditorAssignment,assigned,models.DateTimeField,[],"{""default"": ""timezone.now""}",src/review/models.py,99
+review,EditorAssignment,notified,models.BooleanField,[],"{""default"": ""False""}",src/review/models.py,100
+review,ReviewRound,article,models.ForeignKey,"[""'submission.Article'""]","{""on_delete"": ""models.CASCADE""}",src/review/models.py,107
+review,ReviewRound,round_number,models.IntegerField,[],{},src/review/models.py,111
+review,ReviewRound,review_files,models.ManyToManyField,"[""'core.File'""]",{},src/review/models.py,112
+review,ReviewRound,date_started,models.DateTimeField,[],"{""auto_now_add"": ""True""}",src/review/models.py,113
+review,ReviewAssignment,article,models.ForeignKey,"[""'submission.Article'""]","{""on_delete"": ""models.CASCADE""}",src/review/models.py,199
+review,ReviewAssignment,reviewer,models.ForeignKey,"[""'core.Account'""]","{""related_name"": ""'reviewer'"", ""help_text"": ""'User to undertake the review'"", ""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/review/models.py,203
+review,ReviewAssignment,editor,models.ForeignKey,"[""'core.Account'""]","{""related_name"": ""'editor'"", ""help_text"": ""'Editor requesting the review'"", ""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/review/models.py,210
+review,ReviewAssignment,review_round,models.ForeignKey,"[""ReviewRound""]","{""blank"": ""True"", ""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/review/models.py,219
+review,ReviewAssignment,decision,models.CharField,[],"{""max_length"": ""20"", ""blank"": ""True"", ""null"": ""True"", ""choices"": ""all_review_decisions()"", ""verbose_name"": ""'Recommendation'""}",src/review/models.py,225
+review,ReviewAssignment,competing_interests,model_utils.JanewayBleachField,[],"{""blank"": ""True"", ""null"": ""True"", ""help_text"": ""\""If any of the authors or editors have any competing interests please add them here. EG. 'This study was paid for by corp xyz.'.\""""}",src/review/models.py,232
+review,ReviewAssignment,review_type,models.CharField,[],"{""max_length"": ""20"", ""choices"": ""review_type()"", ""default"": ""'traditional'"", ""help_text"": ""'Currently only traditional, form based, review is available.'""}",src/review/models.py,239
+review,ReviewAssignment,visibility,models.CharField,[],"{""max_length"": ""20"", ""choices"": ""review_visibilty()"", ""default"": ""'double-blind'"", ""verbose_name"": ""_('Anonymity')""}",src/review/models.py,245
+review,ReviewAssignment,form,models.ForeignKey,"[""'ReviewForm'""]","{""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/review/models.py,251
+review,ReviewAssignment,access_code,models.CharField,[],"{""max_length"": ""100"", ""blank"": ""True"", ""null"": ""True""}",src/review/models.py,252
+review,ReviewAssignment,date_requested,models.DateTimeField,[],"{""auto_now_add"": ""True""}",src/review/models.py,255
+review,ReviewAssignment,date_due,models.DateField,[],{},src/review/models.py,256
+review,ReviewAssignment,date_accepted,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/review/models.py,257
+review,ReviewAssignment,date_declined,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/review/models.py,258
+review,ReviewAssignment,date_complete,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/review/models.py,259
+review,ReviewAssignment,date_reminded,models.DateField,[],"{""blank"": ""True"", ""null"": ""True""}",src/review/models.py,260
+review,ReviewAssignment,is_complete,models.BooleanField,[],"{""default"": ""False""}",src/review/models.py,262
+review,ReviewAssignment,for_author_consumption,models.BooleanField,[],"{""default"": ""False""}",src/review/models.py,263
+review,ReviewAssignment,suggested_reviewers,models.TextField,[],"{""blank"": ""True"", ""null"": ""True""}",src/review/models.py,265
+review,ReviewAssignment,comments_for_editor,model_utils.JanewayBleachField,[],"{""blank"": ""True"", ""null"": ""True"", ""help_text"": ""'If you have any comments for the Editor you can add them here;                                            these will not be shared with the Author.'"", ""verbose_name"": ""'Comments for the Editor'""}",src/review/models.py,266
+review,ReviewAssignment,review_file,models.ForeignKey,"[""'core.File'""]","{""blank"": ""True"", ""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/review/models.py,273
+review,ReviewAssignment,display_review_file,models.BooleanField,[],"{""default"": ""False""}",src/review/models.py,279
+review,ReviewAssignment,permission_to_make_public,models.BooleanField,[],"{""default"": ""False"", ""help_text"": ""'This journal has a policy of sharing reviews openly alongside the published article to aid in transparency. If you give permission here and the article is published, your name and review will be visible.'""}",src/review/models.py,280
+review,ReviewAssignment,display_public,models.BooleanField,[],"{""default"": ""False"", ""help_text"": ""'Whether this review should be publicly displayed.'""}",src/review/models.py,284
+review,ReviewForm,journal,models.ForeignKey,"[""'journal.Journal'""]","{""on_delete"": ""models.CASCADE""}",src/review/models.py,440
+review,ReviewForm,name,models.CharField,[],"{""max_length"": ""200""}",src/review/models.py,444
+review,ReviewForm,intro,model_utils.JanewayBleachField,[],"{""help_text"": ""'Message displayed at the start of the review form.'""}",src/review/models.py,445
+review,ReviewForm,thanks,model_utils.JanewayBleachField,[],"{""help_text"": ""'Message displayed after the reviewer is finished.'""}",src/review/models.py,448
+review,ReviewForm,elements,models.ManyToManyField,"[""'ReviewFormElement'""]",{},src/review/models.py,451
+review,ReviewForm,deleted,models.BooleanField,[],"{""default"": ""False""}",src/review/models.py,452
+review,BaseReviewFormElement,name,models.CharField,[],"{""max_length"": ""200""}",src/review/models.py,471
+review,BaseReviewFormElement,kind,models.CharField,[],"{""max_length"": ""50"", ""choices"": ""element_kind_choices()""}",src/review/models.py,472
+review,BaseReviewFormElement,choices,models.CharField,[],"{""max_length"": ""1000"", ""null"": ""True"", ""blank"": ""True"", ""help_text"": ""'Seperate choices with the bar | character.'""}",src/review/models.py,473
+review,BaseReviewFormElement,required,models.BooleanField,[],"{""default"": ""True""}",src/review/models.py,479
+review,BaseReviewFormElement,order,models.IntegerField,[],{},src/review/models.py,480
+review,BaseReviewFormElement,help_text,model_utils.JanewayBleachField,[],"{""blank"": ""True"", ""null"": ""True""}",src/review/models.py,481
+review,BaseReviewFormElement,default_visibility,models.BooleanField,[],"{""default"": ""True"", ""help_text"": ""'If true, this setting will be available to the author automatically, if false it willbe hidden to the author by default.'""}",src/review/models.py,483
+review,ReviewAssignmentAnswer,assignment,models.ForeignKey,"[""ReviewAssignment""]","{""on_delete"": ""models.CASCADE""}",src/review/models.py,524
+review,ReviewAssignmentAnswer,original_element,models.ForeignKey,"[""ReviewFormElement""]","{""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/review/models.py,528
+review,ReviewAssignmentAnswer,answer,model_utils.JanewayBleachField,[],"{""blank"": ""True"", ""null"": ""True""}",src/review/models.py,533
+review,ReviewAssignmentAnswer,edited_answer,model_utils.JanewayBleachField,[],"{""null"": ""True"", ""blank"": ""True""}",src/review/models.py,534
+review,ReviewAssignmentAnswer,author_can_see,models.BooleanField,[],"{""default"": ""True""}",src/review/models.py,535
+review,ReviewAssignmentAnswerFile,answer,models.ForeignKey,"[""'review.ReviewAssignmentAnswer'""]","{""on_delete"": ""models.CASCADE"", ""related_name"": ""'files'""}",src/review/models.py,579
+review,ReviewAssignmentAnswerFile,file,models.ForeignKey,"[""'core.File'""]","{""blank"": ""True"", ""null"": ""True"", ""on_delete"": ""models.SET_NULL"", ""related_name"": ""'review_attchments'""}",src/review/models.py,582
+review,ReviewAssignmentAnswerFile,edited,models.BooleanField,[],"{""default"": ""False"", ""help_text"": ""'This file is an edit, rather than the original answer'""}",src/review/models.py,589
+review,FrozenReviewFormElement,form_element,models.ForeignKey,"[""ReviewFormElement""]","{""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/review/models.py,642
+review,FrozenReviewFormElement,answer,models.OneToOneField,"[""ReviewAssignmentAnswer""]","{""related_name"": ""'frozen_element'"", ""on_delete"": ""models.CASCADE""}",src/review/models.py,647
+review,RevisionAction,text,model_utils.JanewayBleachField,[],{},src/review/models.py,692
+review,RevisionAction,logged,models.DateTimeField,[],"{""default"": ""None"", ""null"": ""True"", ""blank"": ""True""}",src/review/models.py,693
+review,RevisionAction,user,models.ForeignKey,"[""'core.Account'""]","{""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/review/models.py,694
+review,RevisionRequest,article,models.ForeignKey,"[""'submission.Article'""]","{""on_delete"": ""models.CASCADE""}",src/review/models.py,713
+review,RevisionRequest,editor,models.ForeignKey,"[""'core.Account'""]","{""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/review/models.py,717
+review,RevisionRequest,editor_note,model_utils.JanewayBleachField,[],"{""blank"": ""True"", ""null"": ""True"", ""help_text"": ""'You can use this optional field to provide the author with any information that may help them when evaluating the article reviews and integrating changes into their manuscript. This text will be displayed to the author on  the revision page, above the reviews.'""}",src/review/models.py,722
+review,RevisionRequest,author_note,model_utils.JanewayBleachField,[],"{""blank"": ""True"", ""null"": ""True"", ""verbose_name"": ""'Covering Letter to Editor'"", ""help_text"": ""\""If you would like to include a cover letter for the editor providing changes you made to your revised manuscript, please add this above'\""""}",src/review/models.py,731
+review,RevisionRequest,actions,models.ManyToManyField,"[""RevisionAction""]",{},src/review/models.py,739
+review,RevisionRequest,type,models.CharField,[],"{""max_length"": ""20"", ""choices"": ""revision_type()"", ""default"": ""'minor_revisions'""}",src/review/models.py,742
+review,RevisionRequest,response_letter,model_utils.JanewayBleachField,[],"{""blank"": ""True"", ""null"": ""True"", ""verbose_name"": ""'Response Letter to Reviewers'"", ""help_text"": ""'You have the option to include a response letter for the reviewers, providing details about the changes you made to your manuscript or counter arguments.'""}",src/review/models.py,748
+review,RevisionRequest,date_requested,models.DateTimeField,[],"{""default"": ""timezone.now""}",src/review/models.py,757
+review,RevisionRequest,date_due,models.DateField,[],{},src/review/models.py,758
+review,RevisionRequest,date_completed,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/review/models.py,759
+review,EditorOverride,article,models.ForeignKey,"[""'submission.Article'""]","{""on_delete"": ""models.CASCADE""}",src/review/models.py,769
+review,EditorOverride,editor,models.ForeignKey,"[""'core.Account'""]","{""on_delete"": ""models.CASCADE""}",src/review/models.py,773
+review,EditorOverride,overwritten,models.DateTimeField,[],"{""default"": ""timezone.now""}",src/review/models.py,777
+review,DecisionDraft,article,models.ForeignKey,"[""'submission.Article'""]","{""on_delete"": ""models.CASCADE""}",src/review/models.py,786
+review,DecisionDraft,editor,models.ForeignKey,"[""'core.Account'""]","{""related_name"": ""'draft_editor'"", ""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/review/models.py,790
+review,DecisionDraft,section_editor,models.ForeignKey,"[""'core.Account'""]","{""related_name"": ""'draft_section_editor'"", ""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/review/models.py,796
+review,DecisionDraft,decision,models.CharField,[],"{""max_length"": ""100"", ""choices"": ""draft_decision_choices()"", ""verbose_name"": ""'Draft Decision'""}",src/review/models.py,802
+review,DecisionDraft,message_to_editor,model_utils.JanewayBleachField,[],"{""null"": ""True"", ""blank"": ""True"", ""help_text"": ""'This is the email that will be sent to the editor notifying them that you are logging your draft decision.'"", ""verbose_name"": ""'Email to Editor'""}",src/review/models.py,807
+review,DecisionDraft,email_message,model_utils.JanewayBleachField,[],"{""null"": ""True"", ""blank"": ""True"", ""help_text"": ""'This is a draft of the email that will be sent to the author. Your editor will check this.'"", ""verbose_name"": ""'Draft Email to Author'""}",src/review/models.py,814
+review,DecisionDraft,drafted,models.DateTimeField,[],"{""auto_now"": ""True""}",src/review/models.py,820
+review,DecisionDraft,editor_decision,models.CharField,[],"{""max_length"": ""20"", ""choices"": ""((ED.ACCEPT.value, 'Accept'), (ED.DECLINE.value, 'Decline'))"", ""null"": ""True"", ""blank"": ""True""}",src/review/models.py,822
+review,DecisionDraft,revision_request_due_date,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True"", ""help_text"": ""'Stores a due date for a Drafted Revision Request.'""}",src/review/models.py,828
+review,DecisionDraft,editor_decline_rationale,model_utils.JanewayBleachField,[],"{""null"": ""True"", ""blank"": ""True"", ""help_text"": ""'Provide the section editor with a rationale for declining their drafted decision.'"", ""verbose_name"": ""'Rationale for Declining Draft Decision'""}",src/review/models.py,833
+core,Account,email,PGCaseInsensitiveEmailField,[],"{""unique"": ""True"", ""verbose_name"": ""_('Email')""}",src/core/models.py,446
+core,Account,username,models.CharField,[],"{""max_length"": ""254"", ""unique"": ""True"", ""verbose_name"": ""_('Username')""}",src/core/models.py,447
+core,Account,name_prefix,models.CharField,[],"{""max_length"": ""10"", ""blank"": ""True""}",src/core/models.py,449
+core,Account,first_name,models.CharField,[],"{""max_length"": ""300"", ""blank"": ""False"", ""verbose_name"": ""_('First name')"", ""validators"": ""[plain_text_validator]""}",src/core/models.py,450
+core,Account,middle_name,models.CharField,[],"{""max_length"": ""300"", ""blank"": ""True"", ""verbose_name"": ""_('Middle name')"", ""validators"": ""[plain_text_validator]""}",src/core/models.py,456
+core,Account,last_name,models.CharField,[],"{""max_length"": ""300"", ""blank"": ""False"", ""verbose_name"": ""_('Last name')"", ""validators"": ""[plain_text_validator]""}",src/core/models.py,462
+core,Account,activation_code,models.CharField,[],"{""max_length"": ""100"", ""null"": ""True"", ""blank"": ""True""}",src/core/models.py,470
+core,Account,salutation,models.CharField,[],"{""max_length"": ""10"", ""choices"": ""SALUTATION_CHOICES"", ""blank"": ""True"", ""verbose_name"": ""_('Salutation')"", ""validators"": ""[plain_text_validator]""}",src/core/models.py,471
+core,Account,suffix,models.CharField,[],"{""max_length"": ""300"", ""blank"": ""True"", ""verbose_name"": ""_('Name suffix')"", ""validators"": ""[plain_text_validator]""}",src/core/models.py,478
+core,Account,biography,JanewayBleachField,[],"{""blank"": ""True"", ""verbose_name"": ""_('Biography')""}",src/core/models.py,484
+core,Account,orcid,models.CharField,[],"{""max_length"": ""40"", ""null"": ""True"", ""blank"": ""True"", ""verbose_name"": ""_('ORCiD')""}",src/core/models.py,488
+core,Account,twitter,models.CharField,[],"{""max_length"": ""300"", ""null"": ""True"", ""blank"": ""True"", ""verbose_name"": ""_('Twitter Handle')""}",src/core/models.py,491
+core,Account,facebook,models.CharField,[],"{""max_length"": ""300"", ""null"": ""True"", ""blank"": ""True"", ""verbose_name"": ""_('Facebook Handle')""}",src/core/models.py,494
+core,Account,linkedin,models.CharField,[],"{""max_length"": ""300"", ""null"": ""True"", ""blank"": ""True"", ""verbose_name"": ""_('Linkedin Profile')""}",src/core/models.py,497
+core,Account,website,models.URLField,[],"{""max_length"": ""300"", ""null"": ""True"", ""blank"": ""True"", ""verbose_name"": ""_('Website')""}",src/core/models.py,500
+core,Account,github,models.CharField,[],"{""max_length"": ""300"", ""null"": ""True"", ""blank"": ""True"", ""verbose_name"": ""_('Github Username')""}",src/core/models.py,503
+core,Account,profile_image,models.ImageField,[],"{""upload_to"": ""profile_images_upload_path"", ""null"": ""True"", ""blank"": ""True"", ""storage"": ""fs"", ""verbose_name"": ""'Profile Image'""}",src/core/models.py,506
+core,Account,email_sent,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/core/models.py,513
+core,Account,date_confirmed,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/core/models.py,514
+core,Account,confirmation_code,models.CharField,[],"{""max_length"": ""200"", ""blank"": ""True"", ""null"": ""True"", ""verbose_name"": ""_('Confirmation Code')"", ""help_text"": ""'A UUID created upon registration and retrieved for authentication during account activation'""}",src/core/models.py,515
+core,Account,signature,JanewayBleachField,[],"{""blank"": ""True"", ""verbose_name"": ""_('Signature')""}",src/core/models.py,523
+core,Account,interest,models.ManyToManyField,"[""'Interest'""]","{""null"": ""True"", ""blank"": ""True""}",src/core/models.py,527
+core,Account,preferred_timezone,DynamicChoiceField,[],"{""max_length"": ""300"", ""null"": ""True"", ""blank"": ""True"", ""choices"": ""tuple()"", ""dynamic_choices"": ""TIMEZONE_CHOICES"", ""verbose_name"": ""_('Preferred Timezone')""}",src/core/models.py,528
+core,Account,is_active,models.BooleanField,[],"{""default"": ""False""}",src/core/models.py,537
+core,Account,is_staff,models.BooleanField,[],"{""default"": ""False""}",src/core/models.py,538
+core,Account,is_admin,models.BooleanField,[],"{""default"": ""False""}",src/core/models.py,539
+core,Account,enable_digest,models.BooleanField,[],"{""default"": ""False"", ""verbose_name"": ""_('Enable Digest')""}",src/core/models.py,541
+core,Account,enable_public_profile,models.BooleanField,[],"{""default"": ""False"", ""help_text"": ""_('If enabled, your basic profile will be available to the public.')"", ""verbose_name"": ""_('Enable public profile')""}",src/core/models.py,545
+core,Account,date_joined,models.DateTimeField,[],"{""default"": ""timezone.now""}",src/core/models.py,551
+core,Account,uuid,models.UUIDField,[],"{""default"": ""uuid.uuid4"", ""editable"": ""False""}",src/core/models.py,553
+core,Role,name,models.CharField,[],"{""max_length"": ""100"", ""help_text"": ""'Display name for this role (can include spaces and capital letters)'""}",src/core/models.py,1003
+core,Role,slug,models.CharField,[],"{""max_length"": ""100"", ""help_text"": ""'Normalized string representing this role containing only lowercase letters and hyphens.'""}",src/core/models.py,1007
+core,AccountRole,user,models.ForeignKey,"[""Account""]","{""on_delete"": ""models.CASCADE""}",src/core/models.py,1024
+core,AccountRole,journal,models.ForeignKey,"[""'journal.Journal'""]","{""on_delete"": ""models.CASCADE""}",src/core/models.py,1028
+core,AccountRole,role,models.ForeignKey,"[""Role""]","{""on_delete"": ""models.CASCADE""}",src/core/models.py,1032
+core,File,article_id,models.PositiveIntegerField,[],"{""blank"": ""True"", ""null"": ""True"", ""verbose_name"": ""_('Article PK')""}",src/core/models.py,1240
+core,File,mime_type,models.CharField,[],"{""max_length"": ""255""}",src/core/models.py,1244
+core,File,original_filename,models.CharField,[],"{""max_length"": ""1000""}",src/core/models.py,1245
+core,File,uuid_filename,models.CharField,[],"{""max_length"": ""100""}",src/core/models.py,1246
+core,File,label,models.CharField,[],"{""max_length"": ""1000"", ""null"": ""True"", ""blank"": ""True"", ""verbose_name"": ""_('Label')""}",src/core/models.py,1247
+core,File,description,JanewayBleachField,[],"{""null"": ""True"", ""blank"": ""True"", ""verbose_name"": ""_('Description')""}",src/core/models.py,1250
+core,File,sequence,models.IntegerField,[],"{""default"": ""1""}",src/core/models.py,1253
+core,File,owner,models.ForeignKey,"[""Account""]","{""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/core/models.py,1254
+core,File,privacy,models.CharField,[],"{""max_length"": ""20"", ""choices"": ""privacy_types"", ""default"": ""'owner'""}",src/core/models.py,1255
+core,File,date_uploaded,models.DateTimeField,[],"{""auto_now_add"": ""True""}",src/core/models.py,1257
+core,File,is_galley,models.BooleanField,[],"{""default"": ""False""}",src/core/models.py,1259
+core,File,is_remote,models.BooleanField,[],"{""default"": ""False""}",src/core/models.py,1262
+core,File,remote_url,models.URLField,[],"{""blank"": ""True"", ""null"": ""True"", ""verbose_name"": ""_('Remote URL of file')""}",src/core/models.py,1263
+core,File,history,models.ManyToManyField,"[""'FileHistory'""]","{""blank"": ""True""}",src/core/models.py,1267
+core,File,text,models.OneToOneField,"[""swapper.get_model_name('core', 'FileText')""]","{""blank"": ""True"", ""null"": ""True"", ""related_name"": ""'file'"", ""on_delete"": ""models.SET_NULL""}",src/core/models.py,1271
+core,FileHistory,article_id,models.PositiveIntegerField,[],"{""blank"": ""True"", ""null"": ""True"", ""verbose_name"": ""_('Article PK')""}",src/core/models.py,1559
+core,FileHistory,mime_type,models.CharField,[],"{""max_length"": ""255""}",src/core/models.py,1563
+core,FileHistory,original_filename,models.CharField,[],"{""max_length"": ""1000""}",src/core/models.py,1564
+core,FileHistory,uuid_filename,models.CharField,[],"{""max_length"": ""100""}",src/core/models.py,1565
+core,FileHistory,label,models.CharField,[],"{""max_length"": ""200"", ""null"": ""True"", ""blank"": ""True"", ""verbose_name"": ""_('Label')""}",src/core/models.py,1566
+core,FileHistory,description,JanewayBleachField,[],"{""null"": ""True"", ""blank"": ""True"", ""verbose_name"": ""_('Description')""}",src/core/models.py,1569
+core,FileHistory,sequence,models.IntegerField,[],"{""default"": ""1""}",src/core/models.py,1572
+core,FileHistory,owner,models.ForeignKey,"[""Account""]","{""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/core/models.py,1573
+core,FileHistory,privacy,models.CharField,[],"{""max_length"": ""20"", ""choices"": ""privacy_types"", ""default"": ""'owner'""}",src/core/models.py,1574
+core,FileHistory,history_seq,models.PositiveIntegerField,[],"{""default"": ""0""}",src/core/models.py,1576
+core,Galley,article,models.ForeignKey,"[""'submission.Article'""]","{""null"": ""True"", ""on_delete"": ""models.CASCADE""}",src/core/models.py,1604
+core,Galley,file,models.ForeignKey,"[""File""]","{""on_delete"": ""models.CASCADE""}",src/core/models.py,1609
+core,Galley,css_file,models.ForeignKey,"[""File""]","{""related_name"": ""'css_file'"", ""null"": ""True"", ""blank"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/core/models.py,1610
+core,Galley,images,models.ManyToManyField,"[""File""]","{""related_name"": ""'images'"", ""null"": ""True"", ""blank"": ""True""}",src/core/models.py,1613
+core,Galley,xsl_file,models.ForeignKey,"[""'core.XSLFile'""]","{""related_name"": ""'xsl_file'"", ""null"": ""True"", ""blank"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/core/models.py,1614
+core,Galley,public,models.BooleanField,[],"{""default"": ""True"", ""help_text"": ""'Uncheck if the typeset file should not be publicly available after the article is published.'""}",src/core/models.py,1621
+core,Galley,is_remote,models.BooleanField,[],"{""default"": ""False""}",src/core/models.py,1627
+core,Galley,remote_file,models.URLField,[],"{""blank"": ""True"", ""null"": ""True""}",src/core/models.py,1628
+core,Galley,label,models.CharField,[],"{""max_length"": ""400"", ""help_text"": ""'Typeset file labels are displayed in download links and have the format \""Download Label\"" eg. if you set the label to be PDF the link will be Download PDF. If you want Janeway to set a label for you, leave it blank.'""}",src/core/models.py,1631
+core,Galley,type,models.CharField,[],"{""max_length"": ""100"", ""choices"": ""galley_type_choices()""}",src/core/models.py,1637
+core,Galley,sequence,models.IntegerField,[],"{""default"": ""0""}",src/core/models.py,1638
+core,Task,content_type,models.ForeignKey,"[""ContentType""]","{""on_delete"": ""models.CASCADE"", ""related_name"": ""'task_content_type'"", ""null"": ""True""}",src/core/models.py,1823
+core,Task,object_id,models.PositiveIntegerField,[],"{""blank"": ""True"", ""null"": ""True""}",src/core/models.py,1829
+core,Task,object,GenericForeignKey,"[""'content_type'"", ""'object_id'""]",{},src/core/models.py,1830
+core,Task,title,models.CharField,[],"{""max_length"": ""300""}",src/core/models.py,1832
+core,Task,description,JanewayBleachField,[],{},src/core/models.py,1833
+core,Task,complete_events,models.ManyToManyField,"[""'core.TaskCompleteEvents'""]",{},src/core/models.py,1834
+core,Task,link,models.TextField,[],"{""null"": ""True"", ""blank"": ""True"", ""help_text"": ""'A url name, where the action of this task can undertaken'""}",src/core/models.py,1835
+core,Task,assignees,models.ManyToManyField,"[""Account""]",{},src/core/models.py,1840
+core,Task,completed_by,models.ForeignKey,"[""Account""]","{""blank"": ""True"", ""null"": ""True"", ""related_name"": ""'completed_by'"", ""on_delete"": ""models.SET_NULL""}",src/core/models.py,1841
+core,Task,created,models.DateTimeField,[],"{""default"": ""timezone.now""}",src/core/models.py,1849
+core,Task,due,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/core/models.py,1850
+core,Task,completed,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/core/models.py,1851
+core,TaskCompleteEvents,event_name,models.CharField,[],"{""max_length"": ""300""}",src/core/models.py,1897
+core,Workflow,journal,models.ForeignKey,"[""'journal.Journal'""]","{""on_delete"": ""models.CASCADE""}",src/core/models.py,2105
+core,Workflow,elements,models.ManyToManyField,"[""'WorkflowElement'""]",{},src/core/models.py,2109
+core,WorkflowElement,journal,models.ForeignKey,"[""'journal.Journal'""]","{""on_delete"": ""models.CASCADE""}",src/core/models.py,2113
+core,WorkflowElement,element_name,models.CharField,[],"{""max_length"": ""255""}",src/core/models.py,2117
+core,WorkflowElement,handshake_url,models.CharField,[],"{""max_length"": ""255""}",src/core/models.py,2118
+core,WorkflowElement,jump_url,models.CharField,[],"{""max_length"": ""255""}",src/core/models.py,2119
+core,WorkflowElement,stage,models.CharField,[],"{""max_length"": ""255"", ""default"": ""submission_models.STAGE_UNASSIGNED""}",src/core/models.py,2120
+core,WorkflowElement,article_url,models.BooleanField,[],"{""default"": ""True""}",src/core/models.py,2124
+core,WorkflowElement,order,models.PositiveIntegerField,[],"{""default"": ""20""}",src/core/models.py,2125
+core,WorkflowLog,article,models.ForeignKey,"[""'submission.Article'""]","{""on_delete"": ""models.CASCADE""}",src/core/models.py,2157
+core,WorkflowLog,element,models.ForeignKey,"[""WorkflowElement""]","{""on_delete"": ""models.CASCADE""}",src/core/models.py,2161
+core,WorkflowLog,timestamp,models.DateTimeField,[],"{""default"": ""timezone.now""}",src/core/models.py,2165
+core,WorkflowLog,user,models.ForeignKey,"[""'core.Account'""]","{""on_delete"": ""models.SET_NULL"", ""null"": ""True"", ""blank"": ""True""}",src/core/models.py,2166
+core,ControlledAffiliation,account,models.ForeignKey,"[""Account""]","{""on_delete"": ""models.CASCADE"", ""blank"": ""True"", ""null"": ""True""}",src/core/models.py,3014
+core,ControlledAffiliation,frozen_author,models.ForeignKey,"[""submission_models.FrozenAuthor""]","{""on_delete"": ""models.CASCADE"", ""blank"": ""True"", ""null"": ""True""}",src/core/models.py,3020
+core,ControlledAffiliation,preprint_author,models.ForeignKey,"[""repository_models.PreprintAuthor""]","{""on_delete"": ""models.CASCADE"", ""blank"": ""True"", ""null"": ""True""}",src/core/models.py,3026
+core,ControlledAffiliation,title,models.CharField,[],"{""blank"": ""True"", ""max_length"": ""300"", ""verbose_name"": ""_('Title, position, or role')""}",src/core/models.py,3032
+core,ControlledAffiliation,department,models.CharField,[],"{""blank"": ""True"", ""max_length"": ""300"", ""verbose_name"": ""_('Department, unit, or team')""}",src/core/models.py,3037
+core,ControlledAffiliation,organization,models.ForeignKey,"[""'Organization'""]","{""blank"": ""True"", ""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/core/models.py,3042
+core,ControlledAffiliation,is_primary,models.BooleanField,[],"{""default"": ""False"", ""help_text"": ""'Each author or user can have one primary affiliation'""}",src/core/models.py,3048
+core,ControlledAffiliation,start,models.DateField,[],"{""blank"": ""True"", ""null"": ""True"", ""verbose_name"": ""'Start date'""}",src/core/models.py,3052
+core,ControlledAffiliation,end,models.DateField,[],"{""blank"": ""True"", ""null"": ""True"", ""verbose_name"": ""'End date'"", ""help_text"": ""'Leave empty for a current affiliation'""}",src/core/models.py,3057
+journal,Journal,code,models.CharField,[],"{""max_length"": ""40"", ""unique"": ""True"", ""help_text"": ""gettext('Short acronym for the journal. Used as part of the journal URLin path mode and to uniquely identify the journal')""}",src/journal/models.py,101
+journal,Journal,current_issue,models.ForeignKey,"[""'Issue'""]","{""related_name"": ""'current_issue'"", ""null"": ""True"", ""blank"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/journal/models.py,109
+journal,Journal,carousel,models.OneToOneField,"[""'carousel.Carousel'""]","{""related_name"": ""'journal'"", ""null"": ""True"", ""blank"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/journal/models.py,116
+journal,Journal,thumbnail_image,models.ForeignKey,"[""'core.File'""]","{""null"": ""True"", ""blank"": ""True"", ""related_name"": ""'thumbnail_image'"", ""on_delete"": ""models.SET_NULL"", ""help_text"": ""gettext(\""The default thumbnail for articles, not to be confused with 'Default cover image'.\"")""}",src/journal/models.py,123
+journal,Journal,press_image_override,SVGImageField,[],"{""upload_to"": ""cover_images_upload_path"", ""null"": ""True"", ""blank"": ""True"", ""storage"": ""fs"", ""help_text"": ""gettext('Replaces the press logo in the footer.')""}",src/journal/models.py,134
+journal,Journal,default_cover_image,SVGImageField,[],"{""upload_to"": ""cover_images_upload_path"", ""null"": ""True"", ""blank"": ""True"", ""storage"": ""fs"", ""help_text"": ""gettext(\""The default cover image for journal issues and for the journal's listing on the press-level website.\"")""}",src/journal/models.py,141
+journal,Journal,default_large_image,SVGImageField,[],"{""upload_to"": ""cover_images_upload_path"", ""null"": ""True"", ""blank"": ""True"", ""storage"": ""fs"", ""help_text"": ""gettext('The default background image for article openers and carousel items.')""}",src/journal/models.py,151
+journal,Journal,header_image,SVGImageField,[],"{""upload_to"": ""cover_images_upload_path"", ""null"": ""True"", ""blank"": ""True"", ""storage"": ""fs"", ""help_text"": ""gettext('The logo-sized image at the top of all pages, typically used for journal logos.')""}",src/journal/models.py,160
+journal,Journal,favicon,models.ImageField,[],"{""upload_to"": ""cover_images_upload_path"", ""null"": ""True"", ""blank"": ""True"", ""storage"": ""fs"", ""help_text"": ""gettext('The tiny round or square image appearing in browser tabs before the webpage title')""}",src/journal/models.py,170
+journal,Journal,default_profile_image,SVGImageField,[],"{""upload_to"": ""cover_images_upload_path"", ""null"": ""True"", ""blank"": ""True"", ""storage"": ""fs"", ""help_text"": ""gettext('A default image displayed on the profile and editorial team pages when the user has no set profile image.')""}",src/journal/models.py,180
+journal,Journal,description,JanewayBleachField,[],"{""null"": ""True"", ""blank"": ""True"", ""verbose_name"": ""'Journal Description'""}",src/journal/models.py,192
+journal,Journal,contact_info,JanewayBleachField,[],"{""null"": ""True"", ""blank"": ""True"", ""verbose_name"": ""'Contact Information'""}",src/journal/models.py,195
+journal,Journal,keywords,models.ManyToManyField,"[""'submission.Keyword'""]","{""blank"": ""True"", ""null"": ""True"", ""verbose_name"": ""'Discipline'""}",src/journal/models.py,198
+journal,Journal,disable_metrics_display,models.BooleanField,[],"{""default"": ""False""}",src/journal/models.py,205
+journal,Journal,disable_article_images,models.BooleanField,[],"{""default"": ""False"", ""help_text"": ""gettext('This field has been deprecated in v1.4.3')""}",src/journal/models.py,206
+journal,Journal,enable_correspondence_authors,models.BooleanField,[],"{""default"": ""True""}",src/journal/models.py,210
+journal,Journal,disable_html_downloads,models.BooleanField,[],"{""default"": ""False"", ""help_text"": ""'Used to disable download links for HTML files on the Article page.'""}",src/journal/models.py,211
+journal,Journal,full_width_navbar,models.BooleanField,[],"{""default"": ""False""}",src/journal/models.py,215
+journal,Journal,is_remote,models.BooleanField,[],"{""default"": ""False"", ""help_text"": ""gettext('When enabled, the journal is marked as not hosted in Janeway.')""}",src/journal/models.py,216
+journal,Journal,is_conference,models.BooleanField,[],"{""default"": ""False""}",src/journal/models.py,222
+journal,Journal,is_archived,models.BooleanField,[],"{""default"": ""False"", ""help_text"": ""'The journal is no longer publishing. This is only used as part of the journal metadata.'""}",src/journal/models.py,223
+journal,Journal,remote_submit_url,models.URLField,[],"{""blank"": ""True"", ""null"": ""True"", ""help_text"": ""gettext('If the journal is remote you can link to its submission page.')""}",src/journal/models.py,228
+journal,Journal,remote_view_url,models.URLField,[],"{""blank"": ""True"", ""null"": ""True"", ""help_text"": ""gettext('If the journal is remote you can link to its home page.')""}",src/journal/models.py,235
+journal,Journal,view_pdf_button,models.BooleanField,[],"{""default"": ""False"", ""help_text"": ""gettext('Enables a \""View PDF\"" link on article pages.')""}",src/journal/models.py,240
+journal,Journal,nav_home,models.BooleanField,[],"{""default"": ""True""}",src/journal/models.py,246
+journal,Journal,nav_news,models.BooleanField,[],"{""default"": ""False""}",src/journal/models.py,247
+journal,Journal,nav_articles,models.BooleanField,[],"{""default"": ""True""}",src/journal/models.py,248
+journal,Journal,nav_issues,models.BooleanField,[],"{""default"": ""True""}",src/journal/models.py,249
+journal,Journal,nav_collections,models.BooleanField,[],"{""default"": ""False""}",src/journal/models.py,250
+journal,Journal,nav_contact,models.BooleanField,[],"{""default"": ""True""}",src/journal/models.py,251
+journal,Journal,nav_start,models.BooleanField,[],"{""default"": ""True""}",src/journal/models.py,252
+journal,Journal,nav_review,models.BooleanField,[],"{""default"": ""True""}",src/journal/models.py,253
+journal,Journal,nav_sub,models.BooleanField,[],"{""default"": ""True""}",src/journal/models.py,254
+journal,Journal,has_xslt,models.BooleanField,[],"{""default"": ""False""}",src/journal/models.py,257
+journal,Journal,xsl,models.ForeignKey,"[""'core.XSLFile'""]","{""default"": ""default_xsl"", ""on_delete"": ""models.SET_DEFAULT"", ""related_name"": ""'default_xsl'""}",src/journal/models.py,258
+journal,Journal,hide_from_press,models.BooleanField,[],"{""default"": ""False""}",src/journal/models.py,266
+journal,Journal,sequence,models.PositiveIntegerField,[],"{""default"": ""0""}",src/journal/models.py,269
+journal,Journal,display_issue_volume,models.BooleanField,[],"{""default"": ""True""}",src/journal/models.py,278
+journal,Journal,display_issue_number,models.BooleanField,[],"{""default"": ""True""}",src/journal/models.py,279
+journal,Journal,display_issue_year,models.BooleanField,[],"{""default"": ""True""}",src/journal/models.py,280
+journal,Journal,display_issue_title,models.BooleanField,[],"{""default"": ""True""}",src/journal/models.py,281
+journal,Journal,display_article_number,models.BooleanField,[],"{""default"": ""False"", ""help_text"": ""gettext('Whether to display article numbers. Article numbers are distinct from article ID and can be set in Edit Metadata.')""}",src/journal/models.py,282
+journal,Journal,display_article_page_numbers,models.BooleanField,[],"{""default"": ""True""}",src/journal/models.py,289
+journal,Journal,display_issue_doi,models.BooleanField,[],"{""default"": ""True""}",src/journal/models.py,290
+journal,Journal,display_issues_grouped_by_decade,models.BooleanField,[],"{""default"": ""False"", ""help_text"": ""'When enabled the issue page will group and display issues by decade.'""}",src/journal/models.py,291
+journal,Journal,disable_front_end,models.BooleanField,[],"{""default"": ""False""}",src/journal/models.py,297
+journal,Issue,journal,models.ForeignKey,"[""Journal""]","{""on_delete"": ""models.CASCADE""}",src/journal/models.py,806
+journal,Issue,volume,models.IntegerField,[],"{""default"": ""1""}",src/journal/models.py,812
+journal,Issue,issue,models.CharField,[],"{""max_length"": ""255"", ""default"": ""'1'""}",src/journal/models.py,813
+journal,Issue,issue_title,models.CharField,[],"{""blank"": ""True"", ""max_length"": ""300""}",src/journal/models.py,814
+journal,Issue,cached_display_title,models.CharField,[],"{""null"": ""True"", ""blank"": ""True"", ""max_length"": ""300"", ""editable"": ""False"", ""help_text"": ""gettext('Autogenerated cache of the display format of an issue title')""}",src/journal/models.py,815
+journal,Issue,date,models.DateTimeField,[],"{""default"": ""timezone.now""}",src/journal/models.py,824
+journal,Issue,order,models.IntegerField,[],"{""default"": ""0""}",src/journal/models.py,825
+journal,Issue,issue_type,models.ForeignKey,"[""'journal.IssueType'""]","{""blank"": ""False"", ""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/journal/models.py,826
+journal,Issue,old_issue_type,models.CharField,[],"{""max_length"": ""200"", ""default"": ""'Issue'"", ""choices"": ""ISSUE_TYPES"", ""null"": ""True"", ""blank"": ""True""}",src/journal/models.py,830
+journal,Issue,issue_description,JanewayBleachField,[],"{""blank"": ""True"", ""null"": ""True""}",src/journal/models.py,833
+journal,Issue,short_description,models.CharField,[],"{""max_length"": ""600"", ""blank"": ""True"", ""null"": ""True""}",src/journal/models.py,834
+journal,Issue,cover_image,SVGImageField,[],"{""upload_to"": ""cover_images_upload_path"", ""null"": ""True"", ""blank"": ""True"", ""storage"": ""fs"", ""help_text"": ""gettext('Image representing the cover of a printed issue or volume')""}",src/journal/models.py,836
+journal,Issue,large_image,SVGImageField,[],"{""upload_to"": ""issue_large_image_path"", ""null"": ""True"", ""blank"": ""True"", ""storage"": ""fs"", ""help_text"": ""gettext('landscape hero image used in the carousel and issue page')""}",src/journal/models.py,845
+journal,Issue,articles,models.ManyToManyField,"[""'submission.Article'""]","{""blank"": ""True"", ""null"": ""True"", ""related_name"": ""'issues'""}",src/journal/models.py,854
+journal,Issue,editors,models.ManyToManyField,"[""'core.Account'""]","{""blank"": ""True"", ""null"": ""True"", ""related_name"": ""'guest_editors'"", ""through"": ""'IssueEditor'""}",src/journal/models.py,859
+journal,Issue,code,models.SlugField,[],"{""max_length"": ""700"", ""null"": ""True"", ""blank"": ""True"", ""help_text"": ""gettext(\""An optional alphanumeric code (Slug) used to generate a verbose  url for this issue. e.g: 'winter-special-issue'.\"")""}",src/journal/models.py,867
+journal,Issue,doi,models.CharField,[],"{""max_length"": ""255"", ""blank"": ""True"", ""null"": ""True"", ""verbose_name"": ""'DOI'"", ""help_text"": ""'The DOI (not URL) to be registered for the issue when registering articles that are part of this issue. If you have enabled issue autoregistration in your settings, this field should not be entered manually.'""}",src/journal/models.py,877
+journal,Issue,isbn,models.CharField,[],"{""max_length"": ""28"", ""blank"": ""True"", ""null"": ""True"", ""verbose_name"": ""'ISBN'"", ""help_text"": ""gettext('An ISBN is relevant for non-serial collections such as conference proceedings')""}",src/journal/models.py,888
+journal,IssueType,journal,models.ForeignKey,"[""Journal""]","{""on_delete"": ""models.CASCADE""}",src/journal/models.py,1298
+journal,IssueType,code,models.CharField,[],"{""max_length"": ""255""}",src/journal/models.py,1302
+journal,IssueType,pretty_name,JanewayBleachCharField,[],"{""max_length"": ""255""}",src/journal/models.py,1304
+journal,IssueType,custom_plural,JanewayBleachCharField,[],"{""max_length"": ""255"", ""blank"": ""True""}",src/journal/models.py,1305
+journal,IssueGalley,file,models.ForeignKey,"[""'core.File'""]","{""on_delete"": ""models.CASCADE""}",src/journal/models.py,1321
+journal,IssueGalley,issue,models.OneToOneField,"[""'journal.Issue'""]","{""related_name"": ""'galley'"", ""on_delete"": ""models.CASCADE""}",src/journal/models.py,1326
+journal,IssueEditor,account,models.ForeignKey,"[""'core.Account'""]","{""on_delete"": ""models.CASCADE""}",src/journal/models.py,1354
+journal,IssueEditor,issue,models.ForeignKey,"[""Issue""]","{""on_delete"": ""models.CASCADE""}",src/journal/models.py,1358
+journal,IssueEditor,role,models.CharField,[],"{""max_length"": ""255"", ""default"": ""'Guest Editor'""}",src/journal/models.py,1362
+journal,IssueEditor,sequence,models.PositiveIntegerField,[],"{""default"": ""1"", ""help_text"": ""'Provides for ordering of the Issue Editors.'""}",src/journal/models.py,1366
+journal,ArticleOrdering,article,models.ForeignKey,"[""'submission.Article'""]","{""on_delete"": ""models.CASCADE""}",src/journal/models.py,1405
+journal,ArticleOrdering,issue,models.ForeignKey,"[""Issue""]","{""on_delete"": ""models.CASCADE""}",src/journal/models.py,1409
+journal,ArticleOrdering,section,models.ForeignKey,"[""'submission.Section'""]","{""on_delete"": ""models.CASCADE""}",src/journal/models.py,1413
+journal,ArticleOrdering,order,models.PositiveIntegerField,[],"{""default"": ""1""}",src/journal/models.py,1417
+journal,FixedPubCheckItems,article,models.OneToOneField,"[""'submission.Article'""]","{""on_delete"": ""models.CASCADE""}",src/journal/models.py,1428
+journal,FixedPubCheckItems,metadata,models.BooleanField,[],"{""default"": ""False""}",src/journal/models.py,1433
+journal,FixedPubCheckItems,verify_doi,models.BooleanField,[],"{""default"": ""False""}",src/journal/models.py,1434
+journal,FixedPubCheckItems,select_issue,models.BooleanField,[],"{""default"": ""False""}",src/journal/models.py,1435
+journal,FixedPubCheckItems,set_pub_date,models.BooleanField,[],"{""default"": ""False""}",src/journal/models.py,1436
+journal,FixedPubCheckItems,send_notifications,models.BooleanField,[],"{""default"": ""False""}",src/journal/models.py,1437
+journal,FixedPubCheckItems,select_render_galley,models.BooleanField,[],"{""default"": ""False""}",src/journal/models.py,1438
+journal,FixedPubCheckItems,select_article_image,models.BooleanField,[],"{""default"": ""False""}",src/journal/models.py,1439
+journal,FixedPubCheckItems,select_open_reviews,models.BooleanField,[],"{""default"": ""False""}",src/journal/models.py,1440
+journal,PresetPublicationCheckItem,journal,models.ForeignKey,"[""Journal""]","{""on_delete"": ""models.CASCADE""}",src/journal/models.py,1447
+journal,PresetPublicationCheckItem,title,models.TextField,[],{},src/journal/models.py,1452
+journal,PresetPublicationCheckItem,text,JanewayBleachField,[],{},src/journal/models.py,1453
+journal,PresetPublicationCheckItem,enabled,models.BooleanField,[],"{""default"": ""True""}",src/journal/models.py,1454
+journal,PrePublicationChecklistItem,article,models.ForeignKey,"[""'submission.Article'""]","{""on_delete"": ""models.CASCADE""}",src/journal/models.py,1458
+journal,PrePublicationChecklistItem,completed,models.BooleanField,[],"{""default"": ""False""}",src/journal/models.py,1463
+journal,PrePublicationChecklistItem,completed_by,models.ForeignKey,"[""'core.Account'""]","{""blank"": ""True"", ""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/journal/models.py,1464
+journal,PrePublicationChecklistItem,completed_on,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/journal/models.py,1470
+journal,PrePublicationChecklistItem,title,models.TextField,[],{},src/journal/models.py,1472
+journal,PrePublicationChecklistItem,text,JanewayBleachField,[],{},src/journal/models.py,1473
+copyediting,CopyeditAssignment,article,models.ForeignKey,"[""'submission.Article'""]","{""on_delete"": ""models.CASCADE""}",src/copyediting/models.py,40
+copyediting,CopyeditAssignment,copyeditor,models.ForeignKey,"[""'core.Account'""]","{""related_name"": ""'copyeditor'"", ""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/copyediting/models.py,44
+copyediting,CopyeditAssignment,editor,models.ForeignKey,"[""'core.Account'""]","{""related_name"": ""'cp_editor'"", ""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/copyediting/models.py,47
+copyediting,CopyeditAssignment,assigned,models.DateTimeField,[],"{""default"": ""timezone.now""}",src/copyediting/models.py,51
+copyediting,CopyeditAssignment,notified,models.BooleanField,[],"{""default"": ""False""}",src/copyediting/models.py,52
+copyediting,CopyeditAssignment,due,models.DateField,[],"{""default"": ""timezone.now""}",src/copyediting/models.py,53
+copyediting,CopyeditAssignment,editor_note,models.TextField,[],"{""blank"": ""True"", ""null"": ""True"", ""verbose_name"": ""'Note for the Copyeditor'""}",src/copyediting/models.py,55
+copyediting,CopyeditAssignment,copyeditor_note,models.TextField,[],"{""blank"": ""True"", ""null"": ""True"", ""verbose_name"": ""'Note for the Editor'""}",src/copyediting/models.py,58
+copyediting,CopyeditAssignment,decision,models.CharField,[],"{""max_length"": ""20"", ""choices"": ""copyeditor_decisions()"", ""null"": ""True"", ""blank"": ""True""}",src/copyediting/models.py,62
+copyediting,CopyeditAssignment,date_decided,models.DateTimeField,[],"{""null"": ""True"", ""blank"": ""True""}",src/copyediting/models.py,65
+copyediting,CopyeditAssignment,files_for_copyediting,models.ManyToManyField,"[""'core.File'""]","{""related_name"": ""'files_for_copyediting'""}",src/copyediting/models.py,67
+copyediting,CopyeditAssignment,copyeditor_files,models.ManyToManyField,"[""'core.File'""]","{""blank"": ""True"", ""related_name"": ""'copyeditor_files'""}",src/copyediting/models.py,70
+copyediting,CopyeditAssignment,copyeditor_completed,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/copyediting/models.py,75
+copyediting,CopyeditAssignment,copyedit_reopened,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/copyediting/models.py,77
+copyediting,CopyeditAssignment,copyedit_reopened_complete,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True"", ""help_text"": ""'The date a reopen was complete'""}",src/copyediting/models.py,78
+copyediting,CopyeditAssignment,copyedit_accepted,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/copyediting/models.py,81
+copyediting,CopyeditAssignment,copyedit_acknowledged,models.BooleanField,[],"{""default"": ""False""}",src/copyediting/models.py,83
+copyediting,AuthorReview,author,models.ForeignKey,"[""'core.Account'""]","{""on_delete"": ""models.CASCADE""}",src/copyediting/models.py,213
+copyediting,AuthorReview,assignment,models.ForeignKey,"[""CopyeditAssignment""]","{""on_delete"": ""models.CASCADE""}",src/copyediting/models.py,217
+copyediting,AuthorReview,assigned,models.DateTimeField,[],"{""default"": ""timezone.now""}",src/copyediting/models.py,222
+copyediting,AuthorReview,notified,models.BooleanField,[],"{""default"": ""False""}",src/copyediting/models.py,223
+copyediting,AuthorReview,decision,models.CharField,[],"{""max_length"": ""20"", ""choices"": ""author_decisions()"", ""null"": ""True"", ""blank"": ""True"", ""help_text"": ""\""Select a decision that reflects your actions. If you've uploaded a new version of the file, select Corrections Required, if you're happy with the copyedit, select Accept.\"""", ""verbose_name"": ""'Your Decision'""}",src/copyediting/models.py,225
+copyediting,AuthorReview,date_decided,models.DateTimeField,[],"{""null"": ""True"", ""blank"": ""True""}",src/copyediting/models.py,235
+copyediting,AuthorReview,author_note,models.TextField,[],"{""null"": ""True"", ""blank"": ""True"", ""verbose_name"": ""'Note to the Editor'""}",src/copyediting/models.py,236
+copyediting,AuthorReview,files_updated,models.ManyToManyField,"[""'core.File'""]","{""verbose_name"": ""'files_updated'"", ""blank"": ""True""}",src/copyediting/models.py,240
+typesetting,TypesettingClaim,editor,models.ForeignKey,"[""'core.Account'""]","{""on_delete"": ""models.CASCADE""}",src/typesetting/models.py,21
+typesetting,TypesettingClaim,article,models.OneToOneField,"[""'submission.Article'""]","{""on_delete"": ""models.CASCADE""}",src/typesetting/models.py,25
+typesetting,TypesettingClaim,claimed,models.DateTimeField,[],"{""default"": ""timezone.now""}",src/typesetting/models.py,29
+typesetting,TypesettingRound,article,models.ForeignKey,"[""'submission.Article'""]","{""on_delete"": ""models.CASCADE""}",src/typesetting/models.py,39
+typesetting,TypesettingRound,round_number,models.PositiveIntegerField,[],"{""default"": ""1""}",src/typesetting/models.py,43
+typesetting,TypesettingRound,date_created,models.DateTimeField,[],"{""auto_now_add"": ""True""}",src/typesetting/models.py,44
+typesetting,TypesettingAssignment,round,models.OneToOneField,"[""TypesettingRound""]","{""on_delete"": ""models.CASCADE""}",src/typesetting/models.py,99
+typesetting,TypesettingAssignment,manager,models.ForeignKey,"[""'core.Account'""]","{""null"": ""True"", ""blank"": ""True"", ""on_delete"": ""models.SET_NULL"", ""related_name"": ""'manager'""}",src/typesetting/models.py,103
+typesetting,TypesettingAssignment,typesetter,models.ForeignKey,"[""'core.Account'""]","{""null"": ""True"", ""on_delete"": ""models.SET_NULL"", ""related_name"": ""'typesetter'""}",src/typesetting/models.py,110
+typesetting,TypesettingAssignment,assigned,models.DateTimeField,[],"{""default"": ""timezone.now""}",src/typesetting/models.py,117
+typesetting,TypesettingAssignment,notified,models.BooleanField,[],"{""default"": ""False""}",src/typesetting/models.py,118
+typesetting,TypesettingAssignment,accepted,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/typesetting/models.py,119
+typesetting,TypesettingAssignment,due,models.DateField,[],"{""null"": ""True""}",src/typesetting/models.py,120
+typesetting,TypesettingAssignment,completed,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/typesetting/models.py,121
+typesetting,TypesettingAssignment,cancelled,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/typesetting/models.py,122
+typesetting,TypesettingAssignment,reviewed,models.BooleanField,[],"{""default"": ""False""}",src/typesetting/models.py,123
+typesetting,TypesettingAssignment,display_proof_comments,models.BooleanField,[],"{""default"": ""True"", ""help_text"": ""'Allow the typesetter to see the proofreading comments'""}",src/typesetting/models.py,124
+typesetting,TypesettingAssignment,review_decision,models.CharField,[],"{""choices"": ""review_choices()"", ""max_length"": ""21"", ""blank"": ""True""}",src/typesetting/models.py,128
+typesetting,TypesettingAssignment,task,JanewayBleachField,[],"{""blank"": ""True"", ""verbose_name"": ""'Typesetting Task'"", ""help_text"": ""'The task description if not explained in the typesetting guidelines.'""}",src/typesetting/models.py,134
+typesetting,TypesettingAssignment,files_to_typeset,models.ManyToManyField,"[""'core.File'""]","{""related_name"": ""'files_to_typeset'"", ""blank"": ""True""}",src/typesetting/models.py,139
+typesetting,TypesettingAssignment,galleys_created,models.ManyToManyField,"[""'core.Galley'""]","{""blank"": ""True""}",src/typesetting/models.py,144
+typesetting,TypesettingAssignment,typesetter_note,JanewayBleachField,[],"{""blank"": ""True"", ""verbose_name"": ""'Note to Editor'""}",src/typesetting/models.py,148
+typesetting,GalleyProofing,round,models.ForeignKey,"[""TypesettingRound""]","{""on_delete"": ""models.CASCADE""}",src/typesetting/models.py,305
+typesetting,GalleyProofing,manager,models.ForeignKey,"[""'core.Account'""]","{""null"": ""True"", ""related_name"": ""'galley_manager'"", ""on_delete"": ""models.SET_NULL""}",src/typesetting/models.py,309
+typesetting,GalleyProofing,proofreader,models.ForeignKey,"[""'core.Account'""]","{""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/typesetting/models.py,315
+typesetting,GalleyProofing,assigned,models.DateTimeField,[],"{""default"": ""timezone.now""}",src/typesetting/models.py,320
+typesetting,GalleyProofing,notified,models.BooleanField,[],"{""default"": ""False""}",src/typesetting/models.py,321
+typesetting,GalleyProofing,due,models.DateTimeField,[],"{""default"": ""None"", ""verbose_name"": ""'Date Due'""}",src/typesetting/models.py,322
+typesetting,GalleyProofing,accepted,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/typesetting/models.py,323
+typesetting,GalleyProofing,completed,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/typesetting/models.py,324
+typesetting,GalleyProofing,cancelled,models.BooleanField,[],"{""default"": ""False""}",src/typesetting/models.py,325
+typesetting,GalleyProofing,task,JanewayBleachField,[],"{""verbose_name"": ""'Proofing Task'"", ""help_text"": ""'Add any additional information or instructions for the proofreader here.'""}",src/typesetting/models.py,327
+typesetting,GalleyProofing,proofed_files,models.ManyToManyField,"[""'core.Galley'""]","{""blank"": ""True""}",src/typesetting/models.py,332
+typesetting,GalleyProofing,notes,JanewayBleachField,[],"{""blank"": ""True""}",src/typesetting/models.py,333
+typesetting,GalleyProofing,annotated_files,models.ManyToManyField,"[""'core.File'""]","{""blank"": ""True""}",src/typesetting/models.py,334
+typesetting,TypesettingCorrection,task,models.ForeignKey,"[""'typesetting.TypesettingAssignment'""]","{""related_name"": ""'corrections'"", ""blank"": ""True"", ""on_delete"": ""models.CASCADE""}",src/typesetting/models.py,494
+typesetting,TypesettingCorrection,galley,models.ForeignKey,"[""'core.Galley'""]","{""null"": ""True"", ""blank"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/typesetting/models.py,500
+typesetting,TypesettingCorrection,label,models.CharField,[],"{""max_length"": ""255"", ""blank"": ""True"", ""null"": ""True""}",src/typesetting/models.py,507
+typesetting,TypesettingCorrection,date_requested,models.DateTimeField,[],"{""auto_now_add"": ""True""}",src/typesetting/models.py,508
+typesetting,TypesettingCorrection,date_completed,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/typesetting/models.py,509
+typesetting,TypesettingCorrection,date_declined,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/typesetting/models.py,510
+typesetting,TypesettingCorrection,file_checksum,models.CharField,[],"{""max_length"": ""255"", ""blank"": ""True"", ""null"": ""True""}",src/typesetting/models.py,512
+identifiers,Identifier,id_type,models.CharField,[],"{""max_length"": ""300"", ""choices"": ""identifier_choices""}",src/identifiers/models.py,259
+identifiers,Identifier,identifier,models.CharField,[],"{""max_length"": ""300""}",src/identifiers/models.py,260
+identifiers,Identifier,enabled,models.BooleanField,[],"{""default"": ""True""}",src/identifiers/models.py,261
+identifiers,Identifier,article,models.ForeignKey,"[""'submission.Article'""]","{""on_delete"": ""models.CASCADE""}",src/identifiers/models.py,262
+identifiers,BrokenDOI,article,models.ForeignKey,"[""'submission.Article'""]","{""on_delete"": ""models.CASCADE""}",src/identifiers/models.py,289
+identifiers,BrokenDOI,identifier,models.ForeignKey,"[""Identifier""]","{""on_delete"": ""models.CASCADE""}",src/identifiers/models.py,293
+identifiers,BrokenDOI,checked,models.DateTimeField,[],{},src/identifiers/models.py,297
+identifiers,BrokenDOI,resolves_to,models.URLField,[],{},src/identifiers/models.py,298
+identifiers,BrokenDOI,expected_to_resolve_to,models.URLField,[],{},src/identifiers/models.py,299
+production,ProductionAssignment,article,models.OneToOneField,"[""'submission.Article'""]","{""on_delete"": ""models.CASCADE""}",src/production/models.py,15
+production,ProductionAssignment,production_manager,models.ForeignKey,"[""'core.Account'""]","{""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/production/models.py,16
+production,ProductionAssignment,editor,models.ForeignKey,"[""'core.Account'""]","{""null"": ""True"", ""on_delete"": ""models.SET_NULL"", ""related_name"": ""'prod_editor'""}",src/production/models.py,19
+production,ProductionAssignment,assigned,models.DateTimeField,[],"{""default"": ""timezone.now""}",src/production/models.py,22
+production,ProductionAssignment,notified,models.BooleanField,[],"{""default"": ""False""}",src/production/models.py,23
+production,ProductionAssignment,closed,models.DateField,[],"{""blank"": ""True"", ""null"": ""True""}",src/production/models.py,24
+production,ProductionAssignment,accepted_by_manager,models.ForeignKey,"[""'TypesetTask'""]","{""null"": ""True"", ""blank"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/production/models.py,26
+production,TypesetTask,assignment,models.ForeignKey,"[""ProductionAssignment""]","{""on_delete"": ""models.CASCADE""}",src/production/models.py,56
+production,TypesetTask,typesetter,models.ForeignKey,"[""'core.Account'""]","{""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/production/models.py,60
+production,TypesetTask,assigned,models.DateTimeField,[],"{""default"": ""timezone.now""}",src/production/models.py,65
+production,TypesetTask,notified,models.BooleanField,[],"{""default"": ""False""}",src/production/models.py,66
+production,TypesetTask,accepted,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/production/models.py,67
+production,TypesetTask,due,models.DateField,[],"{""null"": ""True""}",src/production/models.py,68
+production,TypesetTask,typeset_task,models.TextField,[],"{""blank"": ""True"", ""null"": ""True"", ""verbose_name"": ""'Typesetting Task'""}",src/production/models.py,70
+production,TypesetTask,files_for_typesetting,models.ManyToManyField,"[""'core.File'""]","{""related_name"": ""'files_for_typesetting'""}",src/production/models.py,75
+production,TypesetTask,galleys_loaded,models.ManyToManyField,"[""'core.File'""]","{""blank"": ""True"", ""related_name"": ""'galleys_loaded'""}",src/production/models.py,79
+production,TypesetTask,note_from_typesetter,models.TextField,[],"{""blank"": ""True"", ""null"": ""True"", ""verbose_name"": ""'Note to Editor'""}",src/production/models.py,84
+production,TypesetTask,completed,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/production/models.py,89
+production,TypesetTask,editor_reviewed,models.BooleanField,[],"{""default"": ""False""}",src/production/models.py,91
+proofing,ProofingAssignment,article,models.OneToOneField,"[""'submission.Article'""]","{""on_delete"": ""models.CASCADE""}",src/proofing/models.py,15
+proofing,ProofingAssignment,proofing_manager,models.ForeignKey,"[""'core.Account'""]","{""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/proofing/models.py,19
+proofing,ProofingAssignment,editor,models.ForeignKey,"[""'core.Account'""]","{""null"": ""True"", ""related_name"": ""'proofing_editor'"", ""on_delete"": ""models.SET_NULL""}",src/proofing/models.py,22
+proofing,ProofingAssignment,assigned,models.DateTimeField,[],"{""default"": ""timezone.now""}",src/proofing/models.py,28
+proofing,ProofingAssignment,notified,models.BooleanField,[],"{""default"": ""False""}",src/proofing/models.py,29
+proofing,ProofingAssignment,completed,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/proofing/models.py,30
+proofing,ProofingRound,assignment,models.ForeignKey,"[""ProofingAssignment""]","{""on_delete"": ""models.CASCADE""}",src/proofing/models.py,62
+proofing,ProofingRound,number,models.PositiveIntegerField,[],"{""default"": ""1""}",src/proofing/models.py,66
+proofing,ProofingRound,date_started,models.DateTimeField,[],"{""default"": ""timezone.now""}",src/proofing/models.py,67
+proofing,ProofingTask,round,models.ForeignKey,"[""ProofingRound""]","{""on_delete"": ""models.CASCADE""}",src/proofing/models.py,162
+proofing,ProofingTask,proofreader,models.ForeignKey,"[""'core.Account'""]","{""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/proofing/models.py,166
+proofing,ProofingTask,assigned,models.DateTimeField,[],"{""default"": ""timezone.now""}",src/proofing/models.py,169
+proofing,ProofingTask,notified,models.BooleanField,[],"{""default"": ""False""}",src/proofing/models.py,170
+proofing,ProofingTask,due,models.DateTimeField,[],"{""default"": ""None"", ""verbose_name"": ""'Date Due'""}",src/proofing/models.py,171
+proofing,ProofingTask,accepted,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/proofing/models.py,172
+proofing,ProofingTask,completed,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/proofing/models.py,173
+proofing,ProofingTask,cancelled,models.BooleanField,[],"{""default"": ""False""}",src/proofing/models.py,174
+proofing,ProofingTask,acknowledged,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/proofing/models.py,175
+proofing,ProofingTask,task,models.TextField,[],"{""verbose_name"": ""'Proofing Task'""}",src/proofing/models.py,177
+proofing,ProofingTask,galleys_for_proofing,models.ManyToManyField,"[""'core.Galley'""]",{},src/proofing/models.py,178
+proofing,ProofingTask,proofed_files,models.ManyToManyField,"[""'core.File'""]",{},src/proofing/models.py,179
+proofing,ProofingTask,notes,models.ManyToManyField,"[""'proofing.Note'""]",{},src/proofing/models.py,180
+proofing,TypesetterProofingTask,proofing_task,models.ForeignKey,"[""ProofingTask""]","{""on_delete"": ""models.CASCADE""}",src/proofing/models.py,248
+proofing,TypesetterProofingTask,typesetter,models.ForeignKey,"[""'core.Account'""]","{""null"": ""True"", ""on_delete"": ""models.SET_NULL""}",src/proofing/models.py,249
+proofing,TypesetterProofingTask,assigned,models.DateTimeField,[],"{""default"": ""timezone.now""}",src/proofing/models.py,250
+proofing,TypesetterProofingTask,notified,models.BooleanField,[],"{""default"": ""False""}",src/proofing/models.py,251
+proofing,TypesetterProofingTask,due,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/proofing/models.py,252
+proofing,TypesetterProofingTask,accepted,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/proofing/models.py,253
+proofing,TypesetterProofingTask,completed,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/proofing/models.py,254
+proofing,TypesetterProofingTask,cancelled,models.BooleanField,[],"{""default"": ""False""}",src/proofing/models.py,255
+proofing,TypesetterProofingTask,acknowledged,models.DateTimeField,[],"{""blank"": ""True"", ""null"": ""True""}",src/proofing/models.py,256
+proofing,TypesetterProofingTask,task,models.TextField,[],"{""verbose_name"": ""'Typesetter Task'""}",src/proofing/models.py,258
+proofing,TypesetterProofingTask,galleys,models.ManyToManyField,"[""'core.Galley'""]",{},src/proofing/models.py,259
+proofing,TypesetterProofingTask,files,models.ManyToManyField,"[""'core.File'""]",{},src/proofing/models.py,260
+proofing,TypesetterProofingTask,notes,models.TextField,[],"{""verbose_name"": ""'Correction Note'"", ""blank"": ""True"", ""null"": ""True""}",src/proofing/models.py,261

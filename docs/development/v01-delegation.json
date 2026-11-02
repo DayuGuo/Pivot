@@ -1,0 +1,55 @@
+{
+  "goal": "publishing-v0.1",
+  "date": "2026-11-02",
+  "main_configuration_changed": false,
+  "native_cross_provider_verified": false,
+  "native_model_override": null,
+  "secret_handling": "No global auth files or keys accessed by delegated work; live API environment preserved.",
+  "tasks": [
+    {
+      "agent": "ojs_database_research",
+      "isolation": [
+        "docs/research/library/ojs",
+        "comparison",
+        "scripts/check-research-library.py",
+        "domain/checks.py",
+        "09b migration",
+        "test_publishing_checks_model.py"
+      ],
+      "outcome": "Research manifests + checks component + field mapping delivered; component 48 tests passed. C gateway integration still pending."
+    },
+    {
+      "agent": "janeway_database_research",
+      "isolation": [
+        "docs/research/library/janeway",
+        "domain/schemas.py",
+        "domain/files.py",
+        "test_publishing_files_schemas.py",
+        "apps/web/app/publishing",
+        "apps/web/components/publishing"
+      ],
+      "outcome": "Research +99 file/schema tests + real API UI delivered. Browser author confirmation passed; root full regression pending."
+    },
+    {
+      "agent": "v01_gap_assessment",
+      "isolation": [
+        "docs/research/library/current-system",
+        "domain/models.py",
+        "foundation migration",
+        "test_publishing_security.py",
+        "test_publishing_chat_security.py"
+      ],
+      "outcome": "Foundation migration/review completed. 23 security tests passed; findings fixed by lead. Last assertion scoped to own manuscript after parallel browser generated legitimate confirmations."
+    }
+  ],
+  "telemetry": {
+    "completed_delegated_components": 3,
+    "failed_delegated_components": 0,
+    "token_consumption": null,
+    "api_cost_usd": null,
+    "wall_time_ms": null,
+    "unknown_reason": "Native helper usage and per-task durations unavailable; not inferred from project API telemetry.",
+    "rework": "Lead fixes and helper follow-up: audit privacy, CAS confirmation, lock/provider reauthorization, human default values, context history/replay, negative creation intent, select labels. No tests removed."
+  },
+  "deepseek": "Product live protocol previously verified at baseline354c930; new normalized-domain live acceptance not yet run. No claim that native Codex child provider was switched."
+}

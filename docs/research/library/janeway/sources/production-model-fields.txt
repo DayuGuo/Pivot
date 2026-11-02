@@ -1,0 +1,80 @@
+# Janeway v1.8.4 / e24b23bd112ff7ca08097620d8a31041a25f9d26
+# src/production/models.py
+# Copyright Birkbeck, University of London; AGPL v3. See LICENSE.
+# Static excerpts: field declarations and Meta only; upstream code was NOT executed.
+
+
+# upstream class line 14
+class ProductionAssignment(models.Model):
+    # upstream line 15
+    article = models.OneToOneField("submission.Article", on_delete=models.CASCADE)
+    # upstream line 16
+    production_manager = models.ForeignKey(
+            "core.Account", null=True, on_delete=models.SET_NULL
+        )
+    # upstream line 19
+    editor = models.ForeignKey(
+            "core.Account", null=True, on_delete=models.SET_NULL, related_name="prod_editor"
+        )
+    # upstream line 22
+    assigned = models.DateTimeField(default=timezone.now)
+    # upstream line 23
+    notified = models.BooleanField(default=False)
+    # upstream line 24
+    closed = models.DateField(blank=True, null=True)
+    # upstream line 26
+    accepted_by_manager = models.ForeignKey(
+            "TypesetTask", null=True, blank=True, on_delete=models.SET_NULL
+        )
+    class Meta:
+            unique_together = ("article", "production_manager")
+
+
+# upstream class line 55
+class TypesetTask(models.Model):
+    # upstream line 56
+    assignment = models.ForeignKey(
+            ProductionAssignment,
+            on_delete=models.CASCADE,
+        )
+    # upstream line 60
+    typesetter = models.ForeignKey(
+            "core.Account",
+            null=True,
+            on_delete=models.SET_NULL,
+        )
+    # upstream line 65
+    assigned = models.DateTimeField(default=timezone.now)
+    # upstream line 66
+    notified = models.BooleanField(default=False)
+    # upstream line 67
+    accepted = models.DateTimeField(blank=True, null=True)
+    # upstream line 68
+    due = models.DateField(null=True)
+    # upstream line 70
+    typeset_task = models.TextField(
+            blank=True,
+            null=True,
+            verbose_name="Typesetting Task",
+        )
+    # upstream line 75
+    files_for_typesetting = models.ManyToManyField(
+            "core.File",
+            related_name="files_for_typesetting",
+        )
+    # upstream line 79
+    galleys_loaded = models.ManyToManyField(
+            "core.File",
+            blank=True,
+            related_name="galleys_loaded",
+        )
+    # upstream line 84
+    note_from_typesetter = models.TextField(
+            blank=True,
+            null=True,
+            verbose_name="Note to Editor",
+        )
+    # upstream line 89
+    completed = models.DateTimeField(blank=True, null=True)
+    # upstream line 91
+    editor_reviewed = models.BooleanField(default=False)

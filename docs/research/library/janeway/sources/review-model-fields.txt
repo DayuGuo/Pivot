@@ -1,0 +1,431 @@
+# Janeway v1.8.4 / e24b23bd112ff7ca08097620d8a31041a25f9d26
+# src/review/models.py
+# Copyright Birkbeck, University of London; AGPL v3. See LICENSE.
+# Static excerpts: field declarations and Meta only; upstream code was NOT executed.
+
+
+# upstream class line 89
+class EditorAssignment(models.Model):
+    # upstream line 90
+    article = models.ForeignKey(
+            "submission.Article",
+            on_delete=models.CASCADE,
+        )
+    # upstream line 94
+    editor = models.ForeignKey(
+            "core.Account",
+            on_delete=models.CASCADE,
+        )
+    # upstream line 98
+    editor_type = models.CharField(max_length=20, choices=assignment_choices)
+    # upstream line 99
+    assigned = models.DateTimeField(default=timezone.now)
+    # upstream line 100
+    notified = models.BooleanField(default=False)
+    class Meta:
+            unique_together = ("article", "editor")
+
+
+# upstream class line 106
+class ReviewRound(models.Model):
+    # upstream line 107
+    article = models.ForeignKey(
+            "submission.Article",
+            on_delete=models.CASCADE,
+        )
+    # upstream line 111
+    round_number = models.IntegerField()
+    # upstream line 112
+    review_files = models.ManyToManyField("core.File")
+    # upstream line 113
+    date_started = models.DateTimeField(auto_now_add=True)
+    class Meta:
+            unique_together = ("article", "round_number")
+            ordering = ("-round_number",)
+
+
+# upstream class line 197
+class ReviewAssignment(models.Model):
+    # upstream line 199
+    article = models.ForeignKey(
+            "submission.Article",
+            on_delete=models.CASCADE,
+        )
+    # upstream line 203
+    reviewer = models.ForeignKey(
+            "core.Account",
+            related_name="reviewer",
+            help_text="User to undertake the review",
+            null=True,
+            on_delete=models.SET_NULL,
+        )
+    # upstream line 210
+    editor = models.ForeignKey(
+            "core.Account",
+            related_name="editor",
+            help_text="Editor requesting the review",
+            null=True,
+            on_delete=models.SET_NULL,
+        )
+    # upstream line 219
+    review_round = models.ForeignKey(
+            ReviewRound,
+            blank=True,
+            null=True,
+            on_delete=models.SET_NULL,
+        )
+    # upstream line 225
+    decision = models.CharField(
+            max_length=20,
+            blank=True,
+            null=True,
+            choices=all_review_decisions(),
+            verbose_name="Recommendation",
+        )
+    # upstream line 232
+    competing_interests = model_utils.JanewayBleachField(
+            blank=True,
+            null=True,
+            help_text="If any of the authors or editors "
+            "have any competing interests please add them here. "
+            "EG. 'This study was paid for by corp xyz.'.",
+        )
+    # upstream line 239
+    review_type = models.CharField(
+            max_length=20,
+            choices=review_type(),
+            default="traditional",
+            help_text="Currently only traditional, form based, review is available.",
+        )
+    # upstream line 245
+    visibility = models.CharField(
+            max_length=20,
+            choices=review_visibilty(),
+            default="double-blind",
+            verbose_name=_("Anonymity"),
+        )
+    # upstream line 251
+    form = models.ForeignKey("ReviewForm", null=True, on_delete=models.SET_NULL)
+    # upstream line 252
+    access_code = models.CharField(max_length=100, blank=True, null=True)
+    # upstream line 255
+    date_requested = models.DateTimeField(auto_now_add=True)
+    # upstream line 256
+    date_due = models.DateField()
+    # upstream line 257
+    date_accepted = models.DateTimeField(blank=True, null=True)
+    # upstream line 258
+    date_declined = models.DateTimeField(blank=True, null=True)
+    # upstream line 259
+    date_complete = models.DateTimeField(blank=True, null=True)
+    # upstream line 260
+    date_reminded = models.DateField(blank=True, null=True)
+    # upstream line 262
+    is_complete = models.BooleanField(default=False)
+    # upstream line 263
+    for_author_consumption = models.BooleanField(default=False)
+    # upstream line 265
+    suggested_reviewers = models.TextField(blank=True, null=True)
+    # upstream line 266
+    comments_for_editor = model_utils.JanewayBleachField(
+            blank=True,
+            null=True,
+            help_text="If you have any comments for the Editor you can add them here; \
+                                               these will not be shared with the Author.",
+            verbose_name="Comments for the Editor",
+        )
+    # upstream line 273
+    review_file = models.ForeignKey(
+            "core.File",
+            blank=True,
+            null=True,
+            on_delete=models.SET_NULL,
+        )
+    # upstream line 279
+    display_review_file = models.BooleanField(default=False)
+    # upstream line 280
+    permission_to_make_public = models.BooleanField(
+            default=False,
+            help_text="This journal has a policy of sharing reviews openly alongside the published article to aid in transparency. If you give permission here and the article is published, your name and review will be visible.",
+        )
+    # upstream line 284
+    display_public = models.BooleanField(
+            default=False, help_text="Whether this review should be publicly displayed."
+        )
+
+
+# upstream class line 439
+class ReviewForm(models.Model):
+    # upstream line 440
+    journal = models.ForeignKey(
+            "journal.Journal",
+            on_delete=models.CASCADE,
+        )
+    # upstream line 444
+    name = models.CharField(max_length=200)
+    # upstream line 445
+    intro = model_utils.JanewayBleachField(
+            help_text="Message displayed at the start of the review form.",
+        )
+    # upstream line 448
+    thanks = model_utils.JanewayBleachField(
+            help_text="Message displayed after the reviewer is finished.",
+        )
+    # upstream line 451
+    elements = models.ManyToManyField("ReviewFormElement")
+    # upstream line 452
+    deleted = models.BooleanField(default=False)
+
+
+# upstream class line 470
+class BaseReviewFormElement(models.Model):
+    # upstream line 471
+    name = models.CharField(max_length=200)
+    # upstream line 472
+    kind = models.CharField(max_length=50, choices=element_kind_choices())
+    # upstream line 473
+    choices = models.CharField(
+            max_length=1000,
+            null=True,
+            blank=True,
+            help_text="Seperate choices with the bar | character.",
+        )
+    # upstream line 479
+    required = models.BooleanField(default=True)
+    # upstream line 480
+    order = models.IntegerField()
+    # upstream line 481
+    help_text = model_utils.JanewayBleachField(blank=True, null=True)
+    # upstream line 483
+    default_visibility = models.BooleanField(
+            default=True,
+            help_text="If true, this setting will be available "
+            "to the author automatically, if false it will"
+            "be hidden to the author by default.",
+        )
+    class Meta:
+            ordering = ("order", "name")
+            abstract = True
+
+
+# upstream class line 502
+class ReviewFormElement(BaseReviewFormElement):
+    class Meta(BaseReviewFormElement.Meta):
+            pass
+
+
+# upstream class line 523
+class ReviewAssignmentAnswer(models.Model):
+    # upstream line 524
+    assignment = models.ForeignKey(
+            ReviewAssignment,
+            on_delete=models.CASCADE,
+        )
+    # upstream line 528
+    original_element = models.ForeignKey(
+            ReviewFormElement,
+            null=True,
+            on_delete=models.SET_NULL,
+        )
+    # upstream line 533
+    answer = model_utils.JanewayBleachField(blank=True, null=True)
+    # upstream line 534
+    edited_answer = model_utils.JanewayBleachField(null=True, blank=True)
+    # upstream line 535
+    author_can_see = models.BooleanField(default=True)
+
+
+# upstream class line 577
+class ReviewAssignmentAnswerFile(models.Model):
+    # upstream line 579
+    answer = models.ForeignKey(
+            "review.ReviewAssignmentAnswer", on_delete=models.CASCADE, related_name="files"
+        )
+    # upstream line 582
+    file = models.ForeignKey(
+            "core.File",
+            blank=True,
+            null=True,
+            on_delete=models.SET_NULL,
+            related_name="review_attchments",
+        )
+    # upstream line 589
+    edited = models.BooleanField(
+            default=False, help_text="This file is an edit, rather than the original answer"
+        )
+    class Meta:
+            # Ensure a single file per answer for reviewer and for editor
+            unique_together = ("answer", "edited")
+
+
+# upstream class line 639
+class FrozenReviewFormElement(BaseReviewFormElement):
+    # upstream line 642
+    form_element = models.ForeignKey(
+            ReviewFormElement,
+            null=True,
+            on_delete=models.SET_NULL,
+        )
+    # upstream line 647
+    answer = models.OneToOneField(
+            ReviewAssignmentAnswer,
+            related_name="frozen_element",
+            on_delete=models.CASCADE,
+        )
+    class Meta(BaseReviewFormElement.Meta):
+            pass
+
+
+# upstream class line 691
+class RevisionAction(models.Model):
+    # upstream line 692
+    text = model_utils.JanewayBleachField()
+    # upstream line 693
+    logged = models.DateTimeField(default=None, null=True, blank=True)
+    # upstream line 694
+    user = models.ForeignKey(
+            "core.Account",
+            null=True,
+            on_delete=models.SET_NULL,
+        )
+
+
+# upstream class line 712
+class RevisionRequest(models.Model):
+    # upstream line 713
+    article = models.ForeignKey(
+            "submission.Article",
+            on_delete=models.CASCADE,
+        )
+    # upstream line 717
+    editor = models.ForeignKey(
+            "core.Account",
+            null=True,
+            on_delete=models.SET_NULL,
+        )
+    # upstream line 722
+    editor_note = model_utils.JanewayBleachField(
+            blank=True,
+            null=True,
+            help_text="You can use this optional field to provide the author with "
+            "any information that may help them when evaluating the "
+            "article reviews and integrating changes into their "
+            "manuscript. This text will be displayed to the author on  "
+            "the revision page, above the reviews.",
+        )
+    # upstream line 731
+    author_note = model_utils.JanewayBleachField(
+            blank=True,
+            null=True,
+            verbose_name="Covering Letter to Editor",
+            help_text="If you would like to include a cover letter for the editor "
+            "providing changes you made to your revised manuscript, "
+            "please add this above'",
+        )
+    # upstream line 739
+    actions = models.ManyToManyField(
+            RevisionAction
+        )
+    # upstream line 742
+    type = models.CharField(
+            max_length=20,
+            choices=revision_type(),
+            default="minor_revisions",
+        )
+    # upstream line 748
+    response_letter = model_utils.JanewayBleachField(
+            blank=True,
+            null=True,
+            verbose_name="Response Letter to Reviewers",
+            help_text="You have the option to include a response letter for the "
+            "reviewers, providing details about the changes you made "
+            "to your manuscript or counter arguments.",
+        )
+    # upstream line 757
+    date_requested = models.DateTimeField(default=timezone.now)
+    # upstream line 758
+    date_due = models.DateField()
+    # upstream line 759
+    date_completed = models.DateTimeField(blank=True, null=True)
+
+
+# upstream class line 768
+class EditorOverride(models.Model):
+    # upstream line 769
+    article = models.ForeignKey(
+            "submission.Article",
+            on_delete=models.CASCADE,
+        )
+    # upstream line 773
+    editor = models.ForeignKey(
+            "core.Account",
+            on_delete=models.CASCADE,
+        )
+    # upstream line 777
+    overwritten = models.DateTimeField(default=timezone.now)
+
+
+# upstream class line 785
+class DecisionDraft(models.Model):
+    # upstream line 786
+    article = models.ForeignKey(
+            "submission.Article",
+            on_delete=models.CASCADE,
+        )
+    # upstream line 790
+    editor = models.ForeignKey(
+            "core.Account",
+            related_name="draft_editor",
+            null=True,
+            on_delete=models.SET_NULL,
+        )
+    # upstream line 796
+    section_editor = models.ForeignKey(
+            "core.Account",
+            related_name="draft_section_editor",
+            null=True,
+            on_delete=models.SET_NULL,
+        )
+    # upstream line 802
+    decision = models.CharField(
+            max_length=100,
+            choices=draft_decision_choices(),
+            verbose_name="Draft Decision",
+        )
+    # upstream line 807
+    message_to_editor = model_utils.JanewayBleachField(
+            null=True,
+            blank=True,
+            help_text="This is the email that will be sent to the editor notifying them that you are "
+            "logging your draft decision.",
+            verbose_name="Email to Editor",
+        )
+    # upstream line 814
+    email_message = model_utils.JanewayBleachField(
+            null=True,
+            blank=True,
+            help_text="This is a draft of the email that will be sent to the author. Your editor will check this.",
+            verbose_name="Draft Email to Author",
+        )
+    # upstream line 820
+    drafted = models.DateTimeField(auto_now=True)
+    # upstream line 822
+    editor_decision = models.CharField(
+            max_length=20,
+            choices=((ED.ACCEPT.value, "Accept"), (ED.DECLINE.value, "Decline")),
+            null=True,
+            blank=True,
+        )
+    # upstream line 828
+    revision_request_due_date = models.DateTimeField(
+            blank=True,
+            null=True,
+            help_text="Stores a due date for a Drafted Revision Request.",
+        )
+    # upstream line 833
+    editor_decline_rationale = model_utils.JanewayBleachField(
+            null=True,
+            blank=True,
+            help_text="Provide the section editor with a rationale for declining their drafted decision.",
+            verbose_name="Rationale for Declining Draft Decision",
+        )

@@ -1,0 +1,114 @@
+# Janeway v1.8.4 / e24b23bd112ff7ca08097620d8a31041a25f9d26
+# src/proofing/models.py
+# Copyright Birkbeck, University of London; AGPL v3. See LICENSE.
+# Static excerpts: field declarations and Meta only; upstream code was NOT executed.
+
+
+# upstream class line 14
+class ProofingAssignment(models.Model):
+    # upstream line 15
+    article = models.OneToOneField(
+            "submission.Article",
+            on_delete=models.CASCADE,
+        )
+    # upstream line 19
+    proofing_manager = models.ForeignKey(
+            "core.Account", null=True, on_delete=models.SET_NULL
+        )
+    # upstream line 22
+    editor = models.ForeignKey(
+            "core.Account",
+            null=True,
+            related_name="proofing_editor",
+            on_delete=models.SET_NULL,
+        )
+    # upstream line 28
+    assigned = models.DateTimeField(default=timezone.now)
+    # upstream line 29
+    notified = models.BooleanField(default=False)
+    # upstream line 30
+    completed = models.DateTimeField(blank=True, null=True)
+    class Meta:
+            unique_together = ("article", "proofing_manager")
+
+
+# upstream class line 61
+class ProofingRound(models.Model):
+    # upstream line 62
+    assignment = models.ForeignKey(
+            ProofingAssignment,
+            on_delete=models.CASCADE,
+        )
+    # upstream line 66
+    number = models.PositiveIntegerField(default=1)
+    # upstream line 67
+    date_started = models.DateTimeField(default=timezone.now)
+    class Meta:
+            ordering = ("-number",)
+
+
+# upstream class line 161
+class ProofingTask(models.Model):
+    # upstream line 162
+    round = models.ForeignKey(
+            ProofingRound,
+            on_delete=models.CASCADE,
+        )
+    # upstream line 166
+    proofreader = models.ForeignKey(
+            "core.Account", null=True, on_delete=models.SET_NULL
+        )
+    # upstream line 169
+    assigned = models.DateTimeField(default=timezone.now)
+    # upstream line 170
+    notified = models.BooleanField(default=False)
+    # upstream line 171
+    due = models.DateTimeField(default=None, verbose_name="Date Due")
+    # upstream line 172
+    accepted = models.DateTimeField(blank=True, null=True)
+    # upstream line 173
+    completed = models.DateTimeField(blank=True, null=True)
+    # upstream line 174
+    cancelled = models.BooleanField(default=False)
+    # upstream line 175
+    acknowledged = models.DateTimeField(blank=True, null=True)
+    # upstream line 177
+    task = models.TextField(verbose_name="Proofing Task")
+    # upstream line 178
+    galleys_for_proofing = models.ManyToManyField("core.Galley")
+    # upstream line 179
+    proofed_files = models.ManyToManyField("core.File")
+    # upstream line 180
+    notes = models.ManyToManyField("proofing.Note")
+
+
+# upstream class line 247
+class TypesetterProofingTask(models.Model):
+    # upstream line 248
+    proofing_task = models.ForeignKey(ProofingTask, on_delete=models.CASCADE)
+    # upstream line 249
+    typesetter = models.ForeignKey("core.Account", null=True, on_delete=models.SET_NULL)
+    # upstream line 250
+    assigned = models.DateTimeField(default=timezone.now)
+    # upstream line 251
+    notified = models.BooleanField(default=False)
+    # upstream line 252
+    due = models.DateTimeField(blank=True, null=True)
+    # upstream line 253
+    accepted = models.DateTimeField(blank=True, null=True)
+    # upstream line 254
+    completed = models.DateTimeField(blank=True, null=True)
+    # upstream line 255
+    cancelled = models.BooleanField(default=False)
+    # upstream line 256
+    acknowledged = models.DateTimeField(blank=True, null=True)
+    # upstream line 258
+    task = models.TextField(verbose_name="Typesetter Task")
+    # upstream line 259
+    galleys = models.ManyToManyField("core.Galley")
+    # upstream line 260
+    files = models.ManyToManyField("core.File")
+    # upstream line 261
+    notes = models.TextField(verbose_name="Correction Note", blank=True, null=True)
+    class Meta:
+            verbose_name = "Correction Task"

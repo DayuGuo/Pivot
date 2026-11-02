@@ -1,5 +1,14 @@
 # 架构决策记录
 
+## ADR-015：以成熟系统研究驱动真实 v0.1（2026-11-02，实施中）
+
+保留稳定Manuscript身份，以规范化workflow/version/authors/files/assignments/steps/tasks/proposals/confirmations扩展；不把fixture JSON扩大为出版数据库。来源固定OJS3.5.0-6与实际PKP依赖、Janeway1.8.4，证据/许可/字段映射在docs/research/library。采用两者版本/署名快照/轮次分离的经验；对弱普通整数关联、可绕过状态和未显式唯一的字段不盲从，以复合FK/冻结触发器加强。
+
+先A/B再C、评审修回及制作，不一次创建所有空表。旧记录真实回填只读legacy_screening，不伪造历史审核。期刊多成员关系目前明确拒绝自动选择；完整期刊/角色切换列后续目标，单期刊v0.1不任意取first。独立验证栈与文件volume隔离，保留主服务安全环境不被Mock替换。
+
+AI候选不覆盖人工字段，完整人工表单保存也保护与默认值相同的内容；声明不在AI候选schema中。模型工具可准备审核，只有当前负责人独立确认端点能够推进。实际CAS文件在准备与确认均重校；已读/已暴露对象是聊天历史与幂等重放的权限依赖，不依赖模型是否给引用。
+
+
 日期：2026-11-02。官方研究与来源见 docs/research/landscape.md、docs/research/deepseek.md。
 
 ## ADR-001：先实现一个纵向切片

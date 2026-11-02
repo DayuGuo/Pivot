@@ -1,0 +1,183 @@
+# Static security/workflow excerpts from src/security/decorators.py
+# Janeway e24b23bd112ff7ca08097620d8a31041a25f9d26; AGPL v3; see LICENSE.
+
+
+# upstream line 85
+def editor_is_not_author(func):
+    """
+    This decorator confirms that the current user is not an author on an article. Can only be used where there is a
+    article_id keyword arg.
+    :param func: the function to callback from the decorator
+    :return: the function call or a permission denied
+    """
+
+    def wrapper(request, *args, **kwargs):
+        article_id = kwargs.get("article_id", None)
+        decision = kwargs.get("decision", ED.REVIEW.value)
+
+        if not article_id:
+            raise Http404
+
+        article = get_object_or_404(models.Article, pk=article_id)
+
+        if request.user in article.author_accounts and not article.editor_override(
+            request.user
+        ):
+            return redirect(
+                reverse(
+                    "review_warning",
+                    kwargs={
+                        "article_id": article.pk,
+                        "decision": decision,
+                    },
+                ),
+            )
+
+        return func(request, *args, **kwargs)
+
+    return wrapper
+
+# upstream line 557
+def reviewer_user_for_assignment_required(func):
+    """This decorator checks permissions for a user to accept or decline a review request. It also checks that the
+    associated article is in a stage for which it is valid to perform this action.
+
+    :param func: the function to callback from the decorator
+    :return: either the function call or raises an Http404
+    """
+
+    def wrapper(request, *args, **kwargs):
+        from review import logic as reviewer_logic
+
+        access_code = reviewer_logic.get_access_code(request)
+        assignment_id = kwargs["assignment_id"]
+
+        if not access_code:
+            check = base_check(request, login_redirect=True)
+            if check is False:
+                deny_access(request)
+            elif check is not True:
+                return check
+
+        if access_code is not None:
+            try:
+                assignment = review_models.ReviewAssignment.objects.get(
+                    pk=assignment_id, access_code=access_code
+                )
+
+                if assignment:
+                    return func(request, *args, **kwargs)
+                else:
+                    deny_access(request)
+
+            except review_models.ReviewAssignment.DoesNotExist:
+                deny_access(request)
+
+        if request.user.is_anonymous or not request.user.is_active:
+            deny_access(request)
+
+        if not request.user.is_reviewer(request):
+            deny_access(request)
+
+        try:
+            if request.user.is_staff:
+                assignment = review_models.ReviewAssignment.objects.get(
+                    pk=assignment_id
+                )
+
+                if assignment:
+                    return func(request, *args, **kwargs)
+                else:
+                    deny_access(request)
+
+            assignment = review_models.ReviewAssignment.objects.get(
+                pk=assignment_id, reviewer=request.user
+            )
+
+            if assignment:
+                if assignment.article.stage not in models.REVIEW_ACCESSIBLE_STAGES:
+                    deny_access(request)
+                else:
+                    return func(request, *args, **kwargs)
+            else:
+                deny_access(request)
+        except review_models.ReviewAssignment.DoesNotExist:
+            deny_access(request)
+
+    return wrapper
+
+# upstream line 804
+def user_can_edit_article(func):
+    """This decorator checks permissions for a user to edit a specific article
+
+    :param func: the function to callback from the decorator
+    :return: either the function call or raises an Http404
+    """
+
+    def wrapper(request, *args, **kwargs):
+        article_id = kwargs["article_id"]
+
+        article = models.Article.get_article(request.journal, "id", article_id)
+
+        if article.can_edit(request.user):
+            return func(request, *args, **kwargs)
+        else:
+            deny_access(request)
+
+    return wrapper
+
+# upstream line 845
+def file_user_required(func):
+    """This decorator checks that a user has permission to view a file
+
+    :param func: the function to callback from the decorator
+    :return: either the function call or raises an Http404
+    """
+
+    def wrapper(request, *args, **kwargs):
+        file_id = kwargs["file_id"]
+
+        if file_id == "None":
+            return func(request, *args, **kwargs)
+
+        file_object = get_object_or_404(core_models.File, pk=file_id)
+
+        if can_view_file(request, request.user, file_object):
+            return func(request, *args, **kwargs)
+        else:
+            messages.add_message(
+                request, messages.ERROR, "File is not accessible to this user."
+            )
+            deny_access(request)
+
+    return wrapper
+
+# upstream line 871
+def file_history_user_required(func):
+    """This decorator checks permissions for a user to view the history of a specific article
+
+    :param func: the function to callback from the decorator
+    :return: either the function call or raises an Http404
+    """
+
+    def wrapper(request, *args, **kwargs):
+        file_object = get_object_or_404(core_models.File, pk=kwargs["file_id"])
+
+        try:
+            article = models.Article.get_article(
+                request.journal, "id", kwargs["article_id"]
+            )
+        except KeyError:
+            article = models.Article.get_article(
+                request.journal, kwargs["identifier_type"], kwargs["identifier"]
+            )
+
+        if can_view_file_history(request, request.user, file_object, article):
+            return func(request, *args, **kwargs)
+
+        messages.add_message(
+            request, messages.ERROR, "File editing not accessible to this user."
+        )
+        deny_access(request)
+
+    return wrapper

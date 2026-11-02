@@ -1,0 +1,11 @@
+{
+  "executor": "native Codex subagent",
+  "task": "janeway_database_research",
+  "status": "delivered",
+  "tokens": null,
+  "api_cost": null,
+  "elapsed_seconds": null,
+  "live_deepseek_calls": 0,
+  "model_configuration_changed": false,
+  "limits": "Native tool did not expose token/billed-cost/task-wall-time metrics. Validation refers only to read-only evidence collection, not app or upstream execution."
+}

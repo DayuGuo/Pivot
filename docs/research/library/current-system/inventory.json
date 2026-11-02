@@ -1,0 +1,758 @@
+{
+  "method": "Python AST, no application imports executed",
+  "table_count": 16,
+  "tables": [
+    {
+      "source": "apps/api/publishing/models.py",
+      "class": "Journal",
+      "table": "journals",
+      "line": 20,
+      "fields": [
+        {
+          "name": "id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(36), primary_key=True, default=uid)",
+          "line": 22
+        },
+        {
+          "name": "name",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(200), unique=True)",
+          "line": 23
+        }
+      ],
+      "table_constraints": []
+    },
+    {
+      "source": "apps/api/publishing/models.py",
+      "class": "User",
+      "table": "users",
+      "line": 26,
+      "fields": [
+        {
+          "name": "id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(36), primary_key=True, default=uid)",
+          "line": 28
+        },
+        {
+          "name": "email",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(254), unique=True)",
+          "line": 29
+        },
+        {
+          "name": "name",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(120))",
+          "line": 30
+        },
+        {
+          "name": "password_hash",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(Text)",
+          "line": 31
+        }
+      ],
+      "table_constraints": []
+    },
+    {
+      "source": "apps/api/publishing/models.py",
+      "class": "Membership",
+      "table": "memberships",
+      "line": 34,
+      "fields": [
+        {
+          "name": "id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(36), primary_key=True, default=uid)",
+          "line": 37
+        },
+        {
+          "name": "user_id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(ForeignKey('users.id'))",
+          "line": 38
+        },
+        {
+          "name": "journal_id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(ForeignKey('journals.id'))",
+          "line": 39
+        },
+        {
+          "name": "role",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(30))",
+          "line": 40
+        }
+      ],
+      "table_constraints": [
+        "(UniqueConstraint('user_id', 'journal_id'),)"
+      ]
+    },
+    {
+      "source": "apps/api/publishing/models.py",
+      "class": "LoginSession",
+      "table": "login_sessions",
+      "line": 43,
+      "fields": [
+        {
+          "name": "token_hash",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(64), primary_key=True)",
+          "line": 45
+        },
+        {
+          "name": "user_id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(ForeignKey('users.id'))",
+          "line": 46
+        },
+        {
+          "name": "csrf_token",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(64))",
+          "line": 47
+        },
+        {
+          "name": "expires_at",
+          "annotation": "Mapped[datetime]",
+          "declaration": "mapped_column(DateTime(timezone=True))",
+          "line": 48
+        }
+      ],
+      "table_constraints": []
+    },
+    {
+      "source": "apps/api/publishing/models.py",
+      "class": "Manuscript",
+      "table": "manuscripts",
+      "line": 51,
+      "fields": [
+        {
+          "name": "id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(36), primary_key=True, default=uid)",
+          "line": 53
+        },
+        {
+          "name": "journal_id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(ForeignKey('journals.id'))",
+          "line": 54
+        },
+        {
+          "name": "author_id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(ForeignKey('users.id'))",
+          "line": 55
+        },
+        {
+          "name": "editor_id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(ForeignKey('users.id'))",
+          "line": 56
+        },
+        {
+          "name": "title",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(240))",
+          "line": 57
+        },
+        {
+          "name": "status",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(30), default='draft')",
+          "line": 58
+        },
+        {
+          "name": "created_at",
+          "annotation": "Mapped[datetime]",
+          "declaration": "mapped_column(DateTime(timezone=True), default=now)",
+          "line": 59
+        }
+      ],
+      "table_constraints": []
+    },
+    {
+      "source": "apps/api/publishing/models.py",
+      "class": "EditorialTask",
+      "table": "editorial_tasks",
+      "line": 62,
+      "fields": [
+        {
+          "name": "id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(36), primary_key=True, default=uid)",
+          "line": 65
+        },
+        {
+          "name": "manuscript_id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(ForeignKey('manuscripts.id'))",
+          "line": 66
+        },
+        {
+          "name": "assignee_id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(ForeignKey('users.id'))",
+          "line": 67
+        },
+        {
+          "name": "kind",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(40), default='initial_screening')",
+          "line": 68
+        },
+        {
+          "name": "status",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(30), default='pending')",
+          "line": 69
+        }
+      ],
+      "table_constraints": [
+        "(UniqueConstraint('manuscript_id', 'kind'),)"
+      ]
+    },
+    {
+      "source": "apps/api/publishing/models.py",
+      "class": "Conversation",
+      "table": "conversations",
+      "line": 72,
+      "fields": [
+        {
+          "name": "id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(36), primary_key=True, default=uid)",
+          "line": 74
+        },
+        {
+          "name": "user_id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(ForeignKey('users.id'), index=True)",
+          "line": 75
+        },
+        {
+          "name": "journal_id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(ForeignKey('journals.id'))",
+          "line": 76
+        },
+        {
+          "name": "title",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(120), default='新对话')",
+          "line": 77
+        },
+        {
+          "name": "created_at",
+          "annotation": "Mapped[datetime]",
+          "declaration": "mapped_column(DateTime(timezone=True), default=now)",
+          "line": 78
+        },
+        {
+          "name": "updated_at",
+          "annotation": "Mapped[datetime]",
+          "declaration": "mapped_column(DateTime(timezone=True), default=now)",
+          "line": 79
+        }
+      ],
+      "table_constraints": []
+    },
+    {
+      "source": "apps/api/publishing/models.py",
+      "class": "Message",
+      "table": "messages",
+      "line": 82,
+      "fields": [
+        {
+          "name": "id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(36), primary_key=True, default=uid)",
+          "line": 84
+        },
+        {
+          "name": "user_id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(ForeignKey('users.id'))",
+          "line": 85
+        },
+        {
+          "name": "conversation_id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(ForeignKey('conversations.id'), index=True)",
+          "line": 86
+        },
+        {
+          "name": "role",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(20))",
+          "line": 87
+        },
+        {
+          "name": "content",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(Text)",
+          "line": 88
+        },
+        {
+          "name": "provider",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(50))",
+          "line": 89
+        },
+        {
+          "name": "manuscript_id",
+          "annotation": "Mapped[str | None]",
+          "declaration": "mapped_column(ForeignKey('manuscripts.id'))",
+          "line": 90
+        },
+        {
+          "name": "created_at",
+          "annotation": "Mapped[datetime]",
+          "declaration": "mapped_column(DateTime(timezone=True), default=now)",
+          "line": 91
+        }
+      ],
+      "table_constraints": []
+    },
+    {
+      "source": "apps/api/publishing/models.py",
+      "class": "CommandReceipt",
+      "table": "command_receipts",
+      "line": 94,
+      "fields": [
+        {
+          "name": "id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(36), primary_key=True, default=uid)",
+          "line": 97
+        },
+        {
+          "name": "user_id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(ForeignKey('users.id'))",
+          "line": 98
+        },
+        {
+          "name": "request_id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(36))",
+          "line": 99
+        },
+        {
+          "name": "input_hash",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(64))",
+          "line": 100
+        },
+        {
+          "name": "response",
+          "annotation": "Mapped[dict]",
+          "declaration": "mapped_column(JSON)",
+          "line": 101
+        }
+      ],
+      "table_constraints": [
+        "(UniqueConstraint('user_id', 'request_id'),)"
+      ]
+    },
+    {
+      "source": "apps/api/publishing/models.py",
+      "class": "AuditEvent",
+      "table": "audit_events",
+      "line": 104,
+      "fields": [
+        {
+          "name": "id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(36), primary_key=True, default=uid)",
+          "line": 106
+        },
+        {
+          "name": "journal_id",
+          "annotation": "Mapped[str | None]",
+          "declaration": "mapped_column(ForeignKey('journals.id'))",
+          "line": 107
+        },
+        {
+          "name": "actor_id",
+          "annotation": "Mapped[str | None]",
+          "declaration": "mapped_column(ForeignKey('users.id'))",
+          "line": 108
+        },
+        {
+          "name": "action",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(80))",
+          "line": 109
+        },
+        {
+          "name": "entity_id",
+          "annotation": "Mapped[str | None]",
+          "declaration": "mapped_column(String(36))",
+          "line": 110
+        },
+        {
+          "name": "details",
+          "annotation": "Mapped[dict]",
+          "declaration": "mapped_column(JSON)",
+          "line": 111
+        },
+        {
+          "name": "created_at",
+          "annotation": "Mapped[datetime]",
+          "declaration": "mapped_column(DateTime(timezone=True), default=now)",
+          "line": 112
+        }
+      ],
+      "table_constraints": []
+    },
+    {
+      "source": "apps/api/publishing/models.py",
+      "class": "EmailDraft",
+      "table": "email_drafts",
+      "line": 115,
+      "fields": [
+        {
+          "name": "id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(36), primary_key=True, default=uid)",
+          "line": 117
+        },
+        {
+          "name": "journal_id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(ForeignKey('journals.id'))",
+          "line": 118
+        },
+        {
+          "name": "snapshot",
+          "annotation": "Mapped[dict]",
+          "declaration": "mapped_column(JSON)",
+          "line": 119
+        },
+        {
+          "name": "digest",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(64))",
+          "line": 120
+        },
+        {
+          "name": "status",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(30), default='draft')",
+          "line": 121
+        }
+      ],
+      "table_constraints": []
+    },
+    {
+      "source": "apps/api/publishing/models.py",
+      "class": "EmailApproval",
+      "table": "email_approvals",
+      "line": 124,
+      "fields": [
+        {
+          "name": "id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(36), primary_key=True, default=uid)",
+          "line": 126
+        },
+        {
+          "name": "draft_id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(ForeignKey('email_drafts.id'))",
+          "line": 127
+        },
+        {
+          "name": "approver_id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(ForeignKey('users.id'))",
+          "line": 128
+        },
+        {
+          "name": "digest",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(64))",
+          "line": 129
+        },
+        {
+          "name": "snapshot",
+          "annotation": "Mapped[dict]",
+          "declaration": "mapped_column(JSON)",
+          "line": 130
+        },
+        {
+          "name": "valid",
+          "annotation": "Mapped[bool]",
+          "declaration": "mapped_column(default=True)",
+          "line": 131
+        }
+      ],
+      "table_constraints": []
+    },
+    {
+      "source": "apps/api/publishing/models.py",
+      "class": "MailAccount",
+      "table": "mail_accounts",
+      "line": 134,
+      "fields": [
+        {
+          "name": "id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(36), primary_key=True, default=uid)",
+          "line": 137
+        },
+        {
+          "name": "journal_id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(ForeignKey('journals.id'), index=True)",
+          "line": 138
+        },
+        {
+          "name": "created_by",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(ForeignKey('users.id'))",
+          "line": 139
+        },
+        {
+          "name": "provider",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(20))",
+          "line": 140
+        },
+        {
+          "name": "address",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(254))",
+          "line": 141
+        },
+        {
+          "name": "display_name",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(120))",
+          "line": 142
+        },
+        {
+          "name": "smtp_host",
+          "annotation": "Mapped[str | None]",
+          "declaration": "mapped_column(String(253))",
+          "line": 143
+        },
+        {
+          "name": "smtp_port",
+          "annotation": "Mapped[int | None]",
+          "declaration": null,
+          "line": 144
+        },
+        {
+          "name": "tls_mode",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(20), default='starttls')",
+          "line": 145
+        },
+        {
+          "name": "auth_mode",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(20), default='none')",
+          "line": 146
+        },
+        {
+          "name": "username",
+          "annotation": "Mapped[str | None]",
+          "declaration": "mapped_column(String(254))",
+          "line": 147
+        },
+        {
+          "name": "credential_ref",
+          "annotation": "Mapped[str | None]",
+          "declaration": "mapped_column(String(32))",
+          "line": 148
+        },
+        {
+          "name": "status",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(30), default='unverified')",
+          "line": 149
+        },
+        {
+          "name": "enabled",
+          "annotation": "Mapped[bool]",
+          "declaration": "mapped_column(default=True)",
+          "line": 150
+        },
+        {
+          "name": "last_error",
+          "annotation": "Mapped[str | None]",
+          "declaration": "mapped_column(String(200))",
+          "line": 151
+        },
+        {
+          "name": "last_checked_at",
+          "annotation": "Mapped[datetime | None]",
+          "declaration": "mapped_column(DateTime(timezone=True))",
+          "line": 152
+        },
+        {
+          "name": "created_at",
+          "annotation": "Mapped[datetime]",
+          "declaration": "mapped_column(DateTime(timezone=True), default=now)",
+          "line": 153
+        }
+      ],
+      "table_constraints": [
+        "(UniqueConstraint('journal_id', 'provider', 'address'),)"
+      ]
+    },
+    {
+      "source": "apps/api/publishing/editorial_demo.py",
+      "class": "DemoWorkspaceState",
+      "table": "editorial_demo_states",
+      "line": 31,
+      "fields": [
+        {
+          "name": "id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(36), primary_key=True, default=uid)",
+          "line": 34
+        },
+        {
+          "name": "user_id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(ForeignKey('users.id'))",
+          "line": 35
+        },
+        {
+          "name": "journal_id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(ForeignKey('journals.id'))",
+          "line": 36
+        },
+        {
+          "name": "case_id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(40))",
+          "line": 37
+        },
+        {
+          "name": "revision",
+          "annotation": "Mapped[int]",
+          "declaration": "mapped_column(Integer, default=0)",
+          "line": 38
+        },
+        {
+          "name": "content",
+          "annotation": "Mapped[dict]",
+          "declaration": "mapped_column(JSONB)",
+          "line": 39
+        },
+        {
+          "name": "updated_at",
+          "annotation": "Mapped[datetime]",
+          "declaration": "mapped_column(DateTime(timezone=True), default=now)",
+          "line": 40
+        }
+      ],
+      "table_constraints": [
+        "(UniqueConstraint('user_id', 'journal_id', 'case_id'),)"
+      ]
+    },
+    {
+      "source": "apps/api/publishing/editorial_demo.py",
+      "class": "DemoSavedViews",
+      "table": "editorial_demo_views",
+      "line": 43,
+      "fields": [
+        {
+          "name": "id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(36), primary_key=True, default=uid)",
+          "line": 46
+        },
+        {
+          "name": "user_id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(ForeignKey('users.id'))",
+          "line": 47
+        },
+        {
+          "name": "journal_id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(ForeignKey('journals.id'))",
+          "line": 48
+        },
+        {
+          "name": "content",
+          "annotation": "Mapped[list]",
+          "declaration": "mapped_column(JSONB)",
+          "line": 49
+        },
+        {
+          "name": "updated_at",
+          "annotation": "Mapped[datetime]",
+          "declaration": "mapped_column(DateTime(timezone=True), default=now)",
+          "line": 50
+        }
+      ],
+      "table_constraints": [
+        "(UniqueConstraint('user_id', 'journal_id'),)"
+      ]
+    },
+    {
+      "source": "apps/api/publishing/editorial_chat.py",
+      "class": "EditorialChatTurn",
+      "table": "editorial_chat_turns",
+      "line": 47,
+      "fields": [
+        {
+          "name": "id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(36), primary_key=True, default=uid)",
+          "line": 53
+        },
+        {
+          "name": "user_id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(ForeignKey('users.id'))",
+          "line": 54
+        },
+        {
+          "name": "journal_id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(ForeignKey('journals.id'))",
+          "line": 55
+        },
+        {
+          "name": "request_id",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(36))",
+          "line": 56
+        },
+        {
+          "name": "input_digest",
+          "annotation": "Mapped[str]",
+          "declaration": "mapped_column(String(64))",
+          "line": 57
+        },
+        {
+          "name": "response",
+          "annotation": "Mapped[dict]",
+          "declaration": "mapped_column(JSONB)",
+          "line": 58
+        },
+        {
+          "name": "created_at",
+          "annotation": "Mapped[datetime]",
+          "declaration": "mapped_column(DateTime(timezone=True), default=now)",
+          "line": 59
+        }
+      ],
+      "table_constraints": [
+        "(UniqueConstraint('user_id', 'journal_id', 'request_id'), Index('ix_editorial_chat_history', 'user_id', 'journal_id', 'created_at', 'id'))"
+      ]
+    }
+  ]
+}

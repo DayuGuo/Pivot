@@ -1,5 +1,22 @@
 # Publishing OS
 
+## 正在迭代：真实出版 v0.1
+
+活跃目标见 [goals/publishing-v0.1.md](goals/publishing-v0.1.md)，资料库见 [docs/research/library](docs/research/library/README.md)。完整评审/修回/制作闭环尚在开发，不把现有界面演示当成完整出版系统。
+
+新真实业务入口 `/publishing`（登录后点“出版工作台”）；现有 `/workbench` 保留演示材料。新入口的作者资料、实际UTF8 txt/md文件、版本/任务和独立人工审核使用规范化数据库。AI只能整理候选/准备审核，不能确认提交、发信或作决定。整个Goal的验收状态以PROGRESS为准。
+
+验证新代码使用独立栈，保护当前主服务中的真实模型环境：
+
+```bash
+docker compose -p publishing-os-verification -f compose.yaml -f infrastructure/compose.verify.yaml up -d --build --wait
+COMPOSE_PROJECT_NAME=publishing-os-verification COMPOSE_FILE=compose.yaml:infrastructure/compose.verify.yaml DATABASE_URL=postgresql+psycopg://publishing:publishing_local@localhost:55433/publishing E2E_BASE_URL=http://127.0.0.1:13100 ./scripts/verify.sh
+DATABASE_URL=postgresql+psycopg://publishing:publishing_local@localhost:55433/publishing .venv/bin/python scripts/rehearse-publishing-migration.py
+```
+
+隔离浏览器13100、API18100、DB55433、Mailpit18025；Mock且无供应商凭据。`check-research-library.py` 是离线资料完整性门禁，不会重新下载或执行上游代码。
+
+
 以对话与 AI Agent 为入口的科研期刊出版操作系统原型。首条业务链真实运行于 PostgreSQL：登录 → 对话创建合成测试稿件 → 提交并分派编辑初筛 → 状态、待办、对话、审计持久化 → 刷新恢复。
 
 **默认模型为明确标记的 Mock；工作台可显式启用 DeepSeek，真实供应商工具回环已通过本地验收；真实邮件始终禁用；不包含生产部署。**

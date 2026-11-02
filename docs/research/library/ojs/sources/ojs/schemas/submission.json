@@ -1,0 +1,114 @@
+{
+	"title": "Submission",
+	"description": "A submission to the journal.",
+	"required": [
+		"sectionId"
+	],
+	"properties": {
+		"sectionId": {
+			"type": "integer",
+			"description": "The section this submission should be assigned to. This can only be passed when creating a new submission and the data is assigned to the first publication. After the submission is created, edit the publication to change the `sectionId`.",
+			"writeOnly": true
+		},
+		"scheduledIn": {
+			"type": "integer",
+			"description": "The submission status is `STATUS_SCHEDULED`. It shows the issue it is scheduled in.",
+			"apiSummary": true,
+			"readOnly": true,
+			"validation": [
+				"nullable"
+			]
+		},
+		"reviewerSuggestions": {
+			"type": "array",
+			"description": "Information about suggested reviewers at the time of submission.",
+			"readOnly": true,
+			"items": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "integer"
+					},
+					"familyName" : {
+						"type": "string",
+						"multilingual": true,
+						"apiSummary": true
+					},
+					"givenName": {
+						"type": "string",
+						"multilingual": true,
+						"apiSummary": true
+					},
+					"fullName": {
+						"type": "string",
+						"multilingual": true,
+						"apiSummary": true
+					},
+					"email": {
+						"type": "string",
+						"apiSummary": true
+					},
+					"orcidId": {
+						"type": "string",
+						"apiSummary": true,
+						"validation": [
+							"nullable"
+						]
+					},
+					"suggestionReason": {
+						"type": "string",
+						"multilingual": true,
+						"apiSummary": true
+					},
+					"affiliation" : {
+						"type": "string",
+						"multilingual": true,
+						"apiSummary": true
+					},
+					"approvedAt": {
+						"type": "string",
+						"apiSummary": true,
+						"description": "The date the suggestion was approved as a reviewer.",
+						"validation": [
+							"nullable",
+							"date:Y-m-d H:i:s"
+						]
+					},
+					"existingUserId": {
+						"type": "integer",
+						"apiSummary": true,
+						"description": "The existing user ID, if already present as a user.",
+						"validation": [
+							"nullable"
+						]
+					},
+					"hasExistingReviewerRole": {
+						"type": "boolean",
+						"apiSummary": true,
+						"description": "Whether the existing user already has a reviewer role when there is an existing user association."
+					},
+					"reviewerId": {
+						"type": "integer",
+						"apiSummary": true,
+						"description": "The existing user ID with reviewer role who has been mapped to this suggestion after the suggestion was made.",
+						"validation": [
+							"nullable"
+						]
+					}
+				}
+			}
+		},
+		"issueToBePublished": {
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "integer"
+				},
+				"label": {
+					"type": "string"
+				}
+			},
+			"apiSummary": true
+		}
+	}
+}

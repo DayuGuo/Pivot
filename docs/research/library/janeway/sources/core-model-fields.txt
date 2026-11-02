@@ -1,0 +1,496 @@
+# Janeway v1.8.4 / e24b23bd112ff7ca08097620d8a31041a25f9d26
+# src/core/models.py
+# Copyright Birkbeck, University of London; AGPL v3. See LICENSE.
+# Static excerpts: field declarations and Meta only; upstream code was NOT executed.
+
+
+# upstream class line 445
+class Account(AbstractBaseUser,PermissionsMixin):
+    # upstream line 446
+    email = PGCaseInsensitiveEmailField(unique=True, verbose_name=_("Email"))
+    # upstream line 447
+    username = models.CharField(max_length=254, unique=True, verbose_name=_("Username"))
+    # upstream line 449
+    name_prefix = models.CharField(max_length=10, blank=True)
+    # upstream line 450
+    first_name = models.CharField(
+            max_length=300,
+            blank=False,
+            verbose_name=_("First name"),
+            validators=[plain_text_validator],
+        )
+    # upstream line 456
+    middle_name = models.CharField(
+            max_length=300,
+            blank=True,
+            verbose_name=_("Middle name"),
+            validators=[plain_text_validator],
+        )
+    # upstream line 462
+    last_name = models.CharField(
+            max_length=300,
+            blank=False,
+            verbose_name=_("Last name"),
+            validators=[plain_text_validator],
+        )
+    # upstream line 470
+    activation_code = models.CharField(max_length=100, null=True, blank=True)
+    # upstream line 471
+    salutation = models.CharField(
+            max_length=10,
+            choices=SALUTATION_CHOICES,
+            blank=True,
+            verbose_name=_("Salutation"),
+            validators=[plain_text_validator],
+        )
+    # upstream line 478
+    suffix = models.CharField(
+            max_length=300,
+            blank=True,
+            verbose_name=_("Name suffix"),
+            validators=[plain_text_validator],
+        )
+    # upstream line 484
+    biography = JanewayBleachField(
+            blank=True,
+            verbose_name=_("Biography"),
+        )
+    # upstream line 488
+    orcid = models.CharField(
+            max_length=40, null=True, blank=True, verbose_name=_("ORCiD")
+        )
+    # upstream line 491
+    twitter = models.CharField(
+            max_length=300, null=True, blank=True, verbose_name=_("Twitter Handle")
+        )
+    # upstream line 494
+    facebook = models.CharField(
+            max_length=300, null=True, blank=True, verbose_name=_("Facebook Handle")
+        )
+    # upstream line 497
+    linkedin = models.CharField(
+            max_length=300, null=True, blank=True, verbose_name=_("Linkedin Profile")
+        )
+    # upstream line 500
+    website = models.URLField(
+            max_length=300, null=True, blank=True, verbose_name=_("Website")
+        )
+    # upstream line 503
+    github = models.CharField(
+            max_length=300, null=True, blank=True, verbose_name=_("Github Username")
+        )
+    # upstream line 506
+    profile_image = models.ImageField(
+            upload_to=profile_images_upload_path,
+            null=True,
+            blank=True,
+            storage=fs,
+            verbose_name=("Profile Image"),
+        )
+    # upstream line 513
+    email_sent = models.DateTimeField(blank=True, null=True)
+    # upstream line 514
+    date_confirmed = models.DateTimeField(blank=True, null=True)
+    # upstream line 515
+    confirmation_code = models.CharField(
+            max_length=200,
+            blank=True,
+            null=True,
+            verbose_name=_("Confirmation Code"),
+            help_text="A UUID created upon registration and retrieved "
+            "for authentication during account activation",
+        )
+    # upstream line 523
+    signature = JanewayBleachField(
+            blank=True,
+            verbose_name=_("Signature"),
+        )
+    # upstream line 527
+    interest = models.ManyToManyField("Interest", null=True, blank=True)
+    # upstream line 528
+    preferred_timezone = DynamicChoiceField(
+            max_length=300,
+            null=True,
+            blank=True,
+            choices=tuple(),
+            dynamic_choices=TIMEZONE_CHOICES,
+            verbose_name=_("Preferred Timezone"),
+        )
+    # upstream line 537
+    is_active = models.BooleanField(default=False)
+    # upstream line 538
+    is_staff = models.BooleanField(default=False)
+    # upstream line 539
+    is_admin = models.BooleanField(default=False)
+    # upstream line 541
+    enable_digest = models.BooleanField(
+            default=False,
+            verbose_name=_("Enable Digest"),
+        )
+    # upstream line 545
+    enable_public_profile = models.BooleanField(
+            default=False,
+            help_text=_("If enabled, your basic profile will be available to the public."),
+            verbose_name=_("Enable public profile"),
+        )
+    # upstream line 551
+    date_joined = models.DateTimeField(default=timezone.now)
+    # upstream line 553
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
+    class Meta:
+            ordering = ("first_name", "last_name", "username")
+            unique_together = ("email", "username")
+
+
+# upstream class line 1002
+class Role(models.Model):
+    # upstream line 1003
+    name = models.CharField(
+            max_length=100,
+            help_text="Display name for this role (can include spaces and capital letters)",
+        )
+    # upstream line 1007
+    slug = models.CharField(
+            max_length=100,
+            help_text="Normalized string representing this role "
+            "containing only lowercase letters and hyphens.",
+        )
+    class Meta:
+            ordering = ("name", "slug")
+
+
+# upstream class line 1023
+class AccountRole(models.Model):
+    # upstream line 1024
+    user = models.ForeignKey(
+            Account,
+            on_delete=models.CASCADE,
+        )
+    # upstream line 1028
+    journal = models.ForeignKey(
+            "journal.Journal",
+            on_delete=models.CASCADE,
+        )
+    # upstream line 1032
+    role = models.ForeignKey(
+            Role,
+            on_delete=models.CASCADE,
+        )
+    class Meta:
+            unique_together = ("journal", "user", "role")
+            ordering = ("journal", "role")
+
+
+# upstream class line 1239
+class File(AbstractLastModifiedModel):
+    # upstream line 1240
+    article_id = models.PositiveIntegerField(
+            blank=True, null=True, verbose_name=_("Article PK")
+        )
+    # upstream line 1244
+    mime_type = models.CharField(max_length=255)
+    # upstream line 1245
+    original_filename = models.CharField(max_length=1000)
+    # upstream line 1246
+    uuid_filename = models.CharField(max_length=100)
+    # upstream line 1247
+    label = models.CharField(
+            max_length=1000, null=True, blank=True, verbose_name=_("Label")
+        )
+    # upstream line 1250
+    description = JanewayBleachField(
+            null=True, blank=True, verbose_name=_("Description")
+        )
+    # upstream line 1253
+    sequence = models.IntegerField(default=1)
+    # upstream line 1254
+    owner = models.ForeignKey(Account, null=True, on_delete=models.SET_NULL)
+    # upstream line 1255
+    privacy = models.CharField(max_length=20, choices=privacy_types, default="owner")
+    # upstream line 1257
+    date_uploaded = models.DateTimeField(auto_now_add=True)
+    # upstream line 1259
+    is_galley = models.BooleanField(default=False)
+    # upstream line 1262
+    is_remote = models.BooleanField(default=False)
+    # upstream line 1263
+    remote_url = models.URLField(
+            blank=True, null=True, verbose_name=_("Remote URL of file")
+        )
+    # upstream line 1267
+    history = models.ManyToManyField(
+            "FileHistory",
+            blank=True,
+        )
+    # upstream line 1271
+    text = models.OneToOneField(
+            swapper.get_model_name("core", "FileText"),
+            blank=True,
+            null=True,
+            related_name="file",
+            on_delete=models.SET_NULL,
+        )
+    class Meta:
+            ordering = ("sequence", "pk")
+
+
+# upstream class line 1558
+class FileHistory(models.Model):
+    # upstream line 1559
+    article_id = models.PositiveIntegerField(
+            blank=True, null=True, verbose_name=_("Article PK")
+        )
+    # upstream line 1563
+    mime_type = models.CharField(max_length=255)
+    # upstream line 1564
+    original_filename = models.CharField(max_length=1000)
+    # upstream line 1565
+    uuid_filename = models.CharField(max_length=100)
+    # upstream line 1566
+    label = models.CharField(
+            max_length=200, null=True, blank=True, verbose_name=_("Label")
+        )
+    # upstream line 1569
+    description = JanewayBleachField(
+            null=True, blank=True, verbose_name=_("Description")
+        )
+    # upstream line 1572
+    sequence = models.IntegerField(default=1)
+    # upstream line 1573
+    owner = models.ForeignKey(Account, null=True, on_delete=models.SET_NULL)
+    # upstream line 1574
+    privacy = models.CharField(max_length=20, choices=privacy_types, default="owner")
+    # upstream line 1576
+    history_seq = models.PositiveIntegerField(default=0)
+    class Meta:
+            ordering = ("history_seq",)
+            verbose_name_plural = "file histories"
+
+
+# upstream class line 1602
+class Galley(AbstractLastModifiedModel):
+    # upstream line 1604
+    article = models.ForeignKey(
+            "submission.Article",
+            null=True,
+            on_delete=models.CASCADE,
+        )
+    # upstream line 1609
+    file = models.ForeignKey(File, on_delete=models.CASCADE)
+    # upstream line 1610
+    css_file = models.ForeignKey(
+            File, related_name="css_file", null=True, blank=True, on_delete=models.SET_NULL
+        )
+    # upstream line 1613
+    images = models.ManyToManyField(File, related_name="images", null=True, blank=True)
+    # upstream line 1614
+    xsl_file = models.ForeignKey(
+            "core.XSLFile",
+            related_name="xsl_file",
+            null=True,
+            blank=True,
+            on_delete=models.SET_NULL,
+        )
+    # upstream line 1621
+    public = models.BooleanField(
+            default=True,
+            help_text="Uncheck if the typeset file should not be publicly available after the article is published.",
+        )
+    # upstream line 1627
+    is_remote = models.BooleanField(default=False)
+    # upstream line 1628
+    remote_file = models.URLField(blank=True, null=True)
+    # upstream line 1631
+    label = models.CharField(
+            max_length=400,
+            help_text='Typeset file labels are displayed in download links and have the format "Download Label" eg. if '
+            "you set the label to be PDF the link will be Download PDF. If you want Janeway to set a label for "
+            "you, leave it blank.",
+        )
+    # upstream line 1637
+    type = models.CharField(max_length=100, choices=galley_type_choices())
+    # upstream line 1638
+    sequence = models.IntegerField(default=0)
+
+
+# upstream class line 1822
+class Task(models.Model):
+    # upstream line 1823
+    content_type = models.ForeignKey(
+            ContentType,
+            on_delete=models.CASCADE,
+            related_name="task_content_type",
+            null=True,
+        )
+    # upstream line 1829
+    object_id = models.PositiveIntegerField(blank=True, null=True)
+    # upstream line 1830
+    object = GenericForeignKey("content_type", "object_id")
+    # upstream line 1832
+    title = models.CharField(max_length=300)
+    # upstream line 1833
+    description = JanewayBleachField()
+    # upstream line 1834
+    complete_events = models.ManyToManyField("core.TaskCompleteEvents")
+    # upstream line 1835
+    link = models.TextField(
+            null=True,
+            blank=True,
+            help_text="A url name, where the action of this task can undertaken",
+        )
+    # upstream line 1840
+    assignees = models.ManyToManyField(Account)
+    # upstream line 1841
+    completed_by = models.ForeignKey(
+            Account,
+            blank=True,
+            null=True,
+            related_name="completed_by",
+            on_delete=models.SET_NULL,
+        )
+    # upstream line 1849
+    created = models.DateTimeField(default=timezone.now)
+    # upstream line 1850
+    due = models.DateTimeField(blank=True, null=True)
+    # upstream line 1851
+    completed = models.DateTimeField(blank=True, null=True)
+
+
+# upstream class line 1896
+class TaskCompleteEvents(models.Model):
+    # upstream line 1897
+    event_name = models.CharField(max_length=300)
+    class Meta:
+            verbose_name_plural = "task complete events"
+
+
+# upstream class line 2104
+class Workflow(models.Model):
+    # upstream line 2105
+    journal = models.ForeignKey(
+            "journal.Journal",
+            on_delete=models.CASCADE,
+        )
+    # upstream line 2109
+    elements = models.ManyToManyField("WorkflowElement")
+
+
+# upstream class line 2112
+class WorkflowElement(models.Model):
+    # upstream line 2113
+    journal = models.ForeignKey(
+            "journal.Journal",
+            on_delete=models.CASCADE,
+        )
+    # upstream line 2117
+    element_name = models.CharField(max_length=255)
+    # upstream line 2118
+    handshake_url = models.CharField(max_length=255)
+    # upstream line 2119
+    jump_url = models.CharField(max_length=255)
+    # upstream line 2120
+    stage = models.CharField(
+            max_length=255,
+            default=submission_models.STAGE_UNASSIGNED,
+        )
+    # upstream line 2124
+    article_url = models.BooleanField(default=True)
+    # upstream line 2125
+    order = models.PositiveIntegerField(default=20)
+    class Meta:
+            ordering = ("order", "element_name")
+
+
+# upstream class line 2156
+class WorkflowLog(models.Model):
+    # upstream line 2157
+    article = models.ForeignKey(
+            "submission.Article",
+            on_delete=models.CASCADE,
+        )
+    # upstream line 2161
+    element = models.ForeignKey(
+            WorkflowElement,
+            on_delete=models.CASCADE,
+        )
+    # upstream line 2165
+    timestamp = models.DateTimeField(default=timezone.now)
+    # upstream line 2166
+    user = models.ForeignKey(
+            "core.Account",
+            on_delete=models.SET_NULL,
+            null=True,
+            blank=True,
+        )
+    class Meta:
+            ordering = ("timestamp",)
+
+
+# upstream class line 3005
+class ControlledAffiliation(models.Model):
+    # upstream line 3014
+    account = models.ForeignKey(
+            Account,
+            on_delete=models.CASCADE,
+            blank=True,
+            null=True,
+        )
+    # upstream line 3020
+    frozen_author = models.ForeignKey(
+            submission_models.FrozenAuthor,
+            on_delete=models.CASCADE,
+            blank=True,
+            null=True,
+        )
+    # upstream line 3026
+    preprint_author = models.ForeignKey(
+            repository_models.PreprintAuthor,
+            on_delete=models.CASCADE,
+            blank=True,
+            null=True,
+        )
+    # upstream line 3032
+    title = models.CharField(
+            blank=True,
+            max_length=300,
+            verbose_name=_("Title, position, or role"),
+        )
+    # upstream line 3037
+    department = models.CharField(
+            blank=True,
+            max_length=300,
+            verbose_name=_("Department, unit, or team"),
+        )
+    # upstream line 3042
+    organization = models.ForeignKey(
+            "Organization",
+            blank=True,
+            null=True,
+            on_delete=models.SET_NULL,
+        )
+    # upstream line 3048
+    is_primary = models.BooleanField(
+            default=False,
+            help_text="Each author or user can have one primary affiliation",
+        )
+    # upstream line 3052
+    start = models.DateField(
+            blank=True,
+            null=True,
+            verbose_name="Start date",
+        )
+    # upstream line 3057
+    end = models.DateField(
+            blank=True,
+            null=True,
+            verbose_name="End date",
+            help_text="Leave empty for a current affiliation",
+        )
+    class Meta:
+            constraints = [
+                check_exclusive_fields_constraint(
+                    "controlled_affiliation",
+                    ["account", "frozen_author", "preprint_author"],
+                )
+            ]
+            ordering = ["-is_primary", "-pk"]

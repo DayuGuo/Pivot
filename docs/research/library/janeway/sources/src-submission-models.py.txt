@@ -1,0 +1,77 @@
+# Static security/workflow excerpts from src/submission/models.py
+# Janeway e24b23bd112ff7ca08097620d8a31041a25f9d26; AGPL v3; see LICENSE.
+
+
+# upstream line 1836
+def save(self, *args, **kwargs):
+        if self.pk is not None:
+            current_object = Article.objects.get(pk=self.pk)
+            if current_object.stage != self.stage:
+                ArticleStageLog.objects.create(
+                    article=self, stage_from=current_object.stage, stage_to=self.stage
+                )
+        super(Article, self).save(*args, **kwargs)
+
+# upstream line 1977
+def can_edit(self, user):
+        """
+        Determines whether a user can edit the article.
+        They can if:
+          - they are staff of the press, or
+          - they are a section editor on the article's section, or
+          - they are an editor of the journal, or
+          - they are the owner and the article is unsubmitted.
+        """
+
+        if user.is_staff:
+            return True
+        elif user in self.section_editors():
+            return True
+        elif not user.is_anonymous and user.is_editor(
+            request=None,
+            journal=self.journal,
+        ):
+            return True
+        elif self.owner == user and self.is_unsubmitted():
+            return True
+        else:
+            return False
+
+# upstream line 2062
+def accept_article(self, stage=None):
+        self.date_accepted = timezone.now()
+        self.date_declined = None
+
+        if stage:
+            self.stage = stage
+        else:
+            self.stage = STAGE_ACCEPTED
+
+        if self.completed_reviews_with_decision.count() > 0:
+            self.peer_reviewed = True
+
+        self.save()
+
+        if self.journal.use_crossref:
+            id = id_logic.generate_crossref_doi_with_pattern(self)
+            if self.journal.register_doi_at_acceptance:
+                id.register()
+
+# upstream line 2081
+def decline_article(self):
+        self.date_declined = timezone.now()
+        self.date_accepted = None
+        self.stage = STAGE_REJECTED
+
+        self.incomplete_reviews().update(
+            decision=RD.DECISION_WITHDRAWN.value,
+            date_complete=timezone.now(),
+            is_complete=True,
+        )
+        self.save()
+
+# upstream line 2117
+def user_is_author(self, user):
+        if user.email in [account.email for account in self.author_accounts]:
+            return True
+        return False

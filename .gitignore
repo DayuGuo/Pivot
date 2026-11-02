@@ -13,5 +13,6 @@ test-results/
 artifacts/
 .coverage
 *.log
+var/
 *.tsbuildinfo
 apps/web/next-env.d.ts
