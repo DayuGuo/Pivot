@@ -268,7 +268,7 @@ def test_staged_draft_rolls_back_on_later_provider_or_policy_failure(
     login()
     select_reviewer(client, db)
     before = state(db).revision
-    upstream(completion(inspect(), invitation()), failure)
+    upstream(completion(inspect(), invitation()), failure, failure)
     response = post(client, "请准备邀请草稿")
     assert response.status_code in {422, 503}, response.text
     assert state(db).revision == before and state(db).content["invitation"]["body"] == ""
@@ -478,3 +478,63 @@ def test_model_prose_cannot_replace_deterministic_execution_status(client, login
     assert reply["tool_receipts"] == []
     assert "本轮未发送邮件、未发布正式决定" in reply["content"]
     assert not response.json()["state_changed"]
+
+
+def test_final_round_exposes_only_structured_response_and_required_choice(client, login, upstream):
+    login()
+    requests = upstream(
+        completion(inspect()), completion(inspect(material="issues")), done("有依据的建议", ["e1"])
+    )
+    response = post(client)
+    assert response.status_code == 200
+    assert [tool["function"]["name"] for tool in requests[-1]["tools"]] == ["respond"]
+    assert all(request["tool_choice"] == "required" for request in requests)
+    assert response.json()["messages"][1]["references"]
+
+
+def test_unstructured_response_after_read_is_rejected_instead_of_losing_evidence(
+    client, login, db, upstream
+):
+    login()
+    upstream(completion(inspect()), completion(content="这里是没有结构化引用的建议"))
+    assert post(client).status_code == 422
+    assert turns(db) == 0
+
+
+def test_real_read_can_repair_bad_citation_ids_within_budget_without_inventing_sources(
+    client, login, upstream
+):
+    login()
+    requests = upstream(
+        completion(inspect()), done("建议", ["wrong-id"]), done("有原文依据的建议", ["e1"])
+    )
+    result = post(client)
+    assert result.status_code == 200
+    assert len(requests) == 3
+    correction = json.loads(requests[-1]["messages"][-1]["content"])
+    assert correction == {"error": "invalid_citation_ids", "allowed_citation_ids": ["e1"]}
+    source_schema = requests[-1]["tools"][0]["function"]["parameters"]["properties"][
+        "citation_ids"
+    ]["items"]
+    assert source_schema["enum"] == ["e1"]
+    assert result.json()["messages"][1]["references"][0]["anchor"]["version"] == "v3"
+
+
+def test_task_read_without_source_ids_can_correct_to_empty_sources_and_refuse(
+    client, login, upstream
+):
+    login()
+    requests = upstream(
+        completion(tool("list_tasks", {"stage": "all", "query": "", "today_only": False})),
+        done("不能发送邮件或正式录用", ["invented"]),
+        done("不能发送邮件或正式录用", []),
+    )
+    response = post(client, "请发送邮件并正式录用")
+    assert response.status_code == 200
+    assert not response.json()["state_changed"]
+    assert response.json()["messages"][1]["references"] == []
+    assert (
+        requests[0]["tools"][-1]["function"]["parameters"]["properties"]["citation_ids"]["maxItems"]
+        == 0
+    )
+    assert json.loads(requests[-1]["messages"][-1]["content"])["allowed_citation_ids"] == []

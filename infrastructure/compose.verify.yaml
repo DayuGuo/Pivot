@@ -1,0 +1,17 @@
+# Use with: docker compose -p publishing-os-verification -f compose.yaml -f infrastructure/compose.verify.yaml ...
+# Separate local ports/volumes; never inherit a live supplier credential.
+services:
+  db:
+    ports: !override ["127.0.0.1:55433:5432"]
+  mailpit:
+    ports: !override ["127.0.0.1:18025:8025"]
+  api:
+    ports: !override ["127.0.0.1:18100:8100"]
+    environment:
+      MODEL_PROVIDER: mock
+      EDITORIAL_MODEL_PROVIDER: mock
+      EDITORIAL_MODEL_LIVE_ENABLED: "false"
+      DEEPSEEK_API_KEY: ""
+      EMAIL_SEND_ENABLED: "false"
+  web:
+    ports: !override ["127.0.0.1:13100:3100"]

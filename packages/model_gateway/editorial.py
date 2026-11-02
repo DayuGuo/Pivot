@@ -157,6 +157,7 @@ class EditorialDeepSeekProvider:
                     "model": self.model,
                     "messages": messages,
                     "tools": tools,
+                    "tool_choice": "required" if tools else "none",
                     "stream": False,
                     "max_tokens": 2048,
                     "thinking": {"type": "disabled"},
@@ -205,6 +206,14 @@ class EditorialDeepSeekProvider:
             code = (
                 str(exc) if isinstance(exc, GatewayError) else "editorial_provider_request_failed"
             )
+            if isinstance(exc, httpx.HTTPStatusError):
+                code = {
+                    401: "editorial_provider_authentication_failed",
+                    402: "editorial_provider_insufficient_balance",
+                    429: "editorial_provider_rate_limited",
+                    500: "editorial_provider_unavailable",
+                    503: "editorial_provider_unavailable",
+                }.get(exc.response.status_code, "editorial_provider_request_failed")
             input_tokens, output_tokens = _usage(raw_usage)
             self.last_telemetry = Telemetry(
                 self.name,

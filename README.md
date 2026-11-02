@@ -2,7 +2,7 @@
 
 以对话与 AI Agent 为入口的科研期刊出版操作系统原型。首条业务链真实运行于 PostgreSQL：登录 → 对话创建合成测试稿件 → 提交并分派编辑初筛 → 状态、待办、对话、审计持久化 → 刷新恢复。
 
-**默认模型为明确标记的 Mock；工作台可显式启用 DeepSeek，真实供应商验证需新环境凭据；真实邮件始终禁用；不包含生产部署。**
+**默认模型为明确标记的 Mock；工作台可显式启用 DeepSeek，真实供应商工具回环已通过本地验收；真实邮件始终禁用；不包含生产部署。**
 
 当前外观依据用户提供的最新 Hermes 工作台截图：浅灰侧栏、白色对话区、细蓝色选中线与底部输入框。参考证据和适配取舍见 [DESIGN.md](DESIGN.md)。原样遵循 AGENTS.md 中的精简标签规则；四个设计技能的来源、分工和安装记录见 [设计技能](docs/development/design-skills.md)，本轮审查与限制见 [设计验收](docs/development/design-acceptance.md)。
 
@@ -95,7 +95,7 @@ npm run test:e2e
 
 ## 模型协作
 
-主模型配置保持不变。DeepSeek 目标为 **DeepSeek-V4.1-Flash-1017 / deepseek-flash**。当前无新密钥：真实 DeepSeek 调用 **0 次**，原生跨提供商子 Agent **未验证**。已通过隔离 Codex CLI → loopback 假 Responses 服务 → 真实无副作用 shell 工具 → 工具结果回传实验；这不代表真实 DeepSeek 通过。
+主模型配置保持不变。DeepSeek 目标为 **DeepSeek-V4.1-Flash-1017 / deepseek-flash**。当前工作台真实DeepSeek API回环已通过本地验收；开发委派/原生跨提供商子Agent仍未进行真实DeepSeek工具实验，保持**未验证**。已通过隔离 Codex CLI → loopback 假 Responses 服务 → 真实无副作用 shell 工具 → 工具结果回传实验；这不代表真实 DeepSeek 通过。
 
 可测试替代路径：安全 API 委派器，默认 Mock，草稿仅写入 UUID 隔离目录，由主 Agent 审查集成，不执行生成代码。支持 research/api/react/tests/documentation。只在明确加 `--live` 后从可信环境读取新 `DEEPSEEK_API_KEY`；不要将密钥放进命令参数、Git 或日志。
 
@@ -111,7 +111,7 @@ npm run test:e2e
 ./scripts/delegate-deepseek.sh
 ```
 
-逐任务记录成功、Token、成本、耗时与返工；未知成本为 null。Ollama/vLLM 预留显式 opt-in、仅 loopback 接口。开发协作路径与产品运行时独立。原投稿链固定Mock；当前工作台已实现真实模型显式接入和工具评测，仍待新凭据供应商验收，仅允许授权合成材料出域。详见 [DeepSeek 协作验证报告](docs/research/deepseek.md)。
+逐任务记录成功、Token、成本、耗时与返工；未知成本为 null。Ollama/vLLM 预留显式 opt-in、仅 loopback 接口。开发协作路径与产品运行时独立。原投稿链固定Mock；当前工作台已实现真实模型显式接入和工具评测，已完成真实供应商回环验收，仅允许授权合成材料出域。详见 [DeepSeek 协作验证报告](docs/research/deepseek.md)。
 
 ## 后续数据库与产品规划
 
@@ -131,4 +131,6 @@ npm run test:e2e
 
 `/workbench` 支持显式启用 DeepSeek `deepseek-flash`：在本机交互终端运行 `python scripts/start-live-model.py`，无回显输入新密钥；也可从安全环境注入 `DEEPSEEK_API_KEY`。不使用聊天中已公开的凭据。然后运行 `.venv/bin/python scripts/smoke-live-model.py` 验证真实工具回环。默认启动仍为Mock，原投稿链不改变。
 
-AI可按真实登录角色与当前合成稿件读取材料、检索任务、定位引用、导航和准备私有邀请草稿。邮件发送/批准和关键决定不进入工具表，负责人审核权限不变。缺配置或供应商错误明确失败，不静默降级。当前真实供应商调用尚未通过新凭据验证；自动化中的假HTTP协议回环不等于live验证。配置、边界和最新证据见 [真实模型接入](docs/development/live-editorial-model.md)。
+AI可按真实登录角色与当前合成稿件读取材料、检索任务、定位引用、导航和准备私有邀请草稿。邮件发送/批准和关键决定不进入工具表，负责人审核权限不变。缺配置或供应商错误明确失败，不静默降级。已通过真实供应商稿件/角色/工具/草稿/危险请求拒绝和浏览器验收；独立Mock回归与live证据分别记录。配置、边界和最新证据见 [真实模型接入](docs/development/live-editorial-model.md)。
+
+真实验收可复跑：`.venv/bin/python scripts/accept-live-model.py --draft`。该命令只在空的合成工作区准备内部邀请草稿，留下人工可审核记录；不发送邮件或发布决定。完整回归使用独立Mock栈，避免消耗真实API或覆盖当前模型配置，见接入说明。

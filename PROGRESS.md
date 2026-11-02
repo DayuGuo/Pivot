@@ -2,11 +2,19 @@
 
 更新：2026-11-02。首个编辑初筛纵向原型已实现并通过本地自动化验收。未真实发信、未生产部署、未更改主模型或全局 Codex 配置。
 
+## 当前验证：真实DeepSeek对话与受控工具已通过
+
+用户在本机安全配置有效密钥后，实际DeepSeek deepseek-flash模型回环成功。最终live验收6/6通过（26.719秒）：主编角色/ENV-2026-0129-v3状态与原文引用、问题依据、UUID响应/审计幂等、危险发信/正式录用指令明确拒绝且工作区不变、作者/审稿人403、私有邀请主题/正文真实保存与人工收件人保留。Mailpit前后0，正式状态未改变；未发信/未作关键决定。
+
+实际Chromium主界面对话也使用真实DeepSeek，工具/引用/角色标记和刷新恢复通过；见artifacts/live-deepseek-browser.json/.png。最终live报告artifacts/live-model-acceptance.json：10次供应商请求、输入43694/输出3543Token，成本未知为null，仅该轮统计。先前401凭据已解决，历史失败未当作成功。
+
+实际调用修复了自由终答丢引用与引用ID漂移：required工具选择、最终回合respond、后端来源枚举/无来源空数组、原预算内一次来源纠正；坏来源仍拒绝，草稿最终校验后才提交。独立代码复审通过；最终隔离 `scripts/verify.sh` 实际退出0：322 Pytest（28.28秒）+23 Playwright（45.4秒）、静态检查、迁移/漂移和生产构建通过，1项第三方弃用警告。日志artifacts/live-supplier-final-verify.log；无新迁移，head e7b24c91a603。配置/平台限制和运行命令见docs/development/live-editorial-model.md；当前运行时真实供应商验证不代表原生跨提供商Codex子Agent已验证。
+
 ## 当前更新：真实模型与安全工具循环
 
 按spec006实现独立DeepSeek工作台adapter、角色/期刊/版本上下文、最多3轮/8工具/1草稿的真实工具协议。草稿整轮成功后才提交，等待期间复核人工修改和权限；来源ID、请求幂等、审计与Mock历史供应商标记保留。邮件批准/发送、重大决定均无Agent工具。安全本地启动器就绪，不落盘密钥。
 
-当前真实DeepSeek调用0：安全环境未提供新凭据，聊天中已公开的旧密钥未使用。最终 `./scripts/start.sh` 与 `./scripts/verify.sh` 退出0：**316 Pytest（27.91秒）+23 Playwright（49.8秒）通过**，Ruff/format、依赖边界、ESLint、TypeScript、迁移/漂移、Docker生产构建通过；1项第三方弃用警告。新增47离线传输、35真实PostgreSQL工具循环安全集成、7启动器测试及2浏览器UI契约场景；日志artifacts/live-model-final-verify.log。审查补强明确目标/否定指令、等待期间人工修改/撤权和固定执行边界。无新迁移，head仍e7b24c91a603。只读smoke实际退出2并记录live_verified=false/fresh_live_model_configuration_required，不把假HTTP回环冒称真实供应商验证。详细启用、平台限制及委派记录见docs/development/live-editorial-model.md和live-model-delegation.json。
+以下为接入代码初次交付的历史证据；当时真实DeepSeek调用0、未提供新凭据。当前真实验收见上节，聊天公开的旧密钥未使用。最终 `./scripts/start.sh` 与 `./scripts/verify.sh` 退出0：**316 Pytest（27.91秒）+23 Playwright（49.8秒）通过**，Ruff/format、依赖边界、ESLint、TypeScript、迁移/漂移、Docker生产构建通过；1项第三方弃用警告。新增47离线传输、35真实PostgreSQL工具循环安全集成、7启动器测试及2浏览器UI契约场景；日志artifacts/live-model-final-verify.log。审查补强明确目标/否定指令、等待期间人工修改/撤权和固定执行边界。无新迁移，head仍e7b24c91a603。只读smoke实际退出2并记录live_verified=false/fresh_live_model_configuration_required，不把假HTTP回环冒称真实供应商验证。详细启用、平台限制及委派记录见docs/development/live-editorial-model.md和live-model-delegation.json。
 
 ## 最新用户修正：对话为主，材料随行
 
@@ -83,7 +91,7 @@ PRODUCT、ARCHITECTURE、SECURITY、DESIGN、DECISIONS与ROADMAP同步区分“�
 
 ## 限制与下一步
 
-本期是本地、单期刊、合成数据原型，非生产系统。模型只支持既定测试指令；完整评审/修回/决定/制作/出版尚未实现，OJS/Janeway 只有适配契约。邮件审批为后端不变量，没有真实邀请 UI、附件存储或发送 outbox。收到新密钥后仍需真实 DeepSeek 工具循环验证，不能从本地 Mock 探针推断兼容性。后续顺序见 ROADMAP.md：完整状态/权限 → Agent/多模型 → 邮件审批/邀请 → 评审/决定/修回 → 制作/发布 → 评测/部署/加固。
+本期是本地、单期刊、合成数据原型，非生产系统。原投稿链保持Mock；工作台真实模型工具回环已通过本地验收；完整评审/修回/决定/制作/出版尚未实现，OJS/Janeway 只有适配契约。邮件审批为后端不变量，没有真实邀请 UI、附件存储或发送 outbox。真实API运行时已验证，原生跨提供商Codex子Agent仍未验证；不能从产品API回环推断开发助手兼容性。后续顺序见 ROADMAP.md：完整状态/权限 → Agent/多模型 → 邮件审批/邀请 → 评审/决定/修回 → 制作/发布 → 评测/部署/加固。
 
 ## 恢复入口
 

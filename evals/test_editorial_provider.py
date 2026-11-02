@@ -126,6 +126,7 @@ def test_two_request_tool_result_protocol_and_telemetry(monkeypatch):
     second = adapter.completion(messages, tools)
     assert "修回核验" in second["choices"][0]["message"]["content"]
     assert len(requests) == 2
+    assert all(request["tool_choice"] == "required" for request in requests)
     metrics = adapter.last_telemetry
     assert metrics.success
     assert metrics.input_tokens == 12 and metrics.output_tokens == 7
@@ -134,7 +135,7 @@ def test_two_request_tool_result_protocol_and_telemetry(monkeypatch):
     assert "目前这篇稿件" not in str(metrics)
 
 
-@pytest.mark.parametrize("status", [301, 307, 401, 429, 500])
+@pytest.mark.parametrize("status", [301, 307, 401, 402, 429, 500, 503])
 def test_http_errors_and_redirects_are_sanitized_not_followed(monkeypatch, status):
     calls = []
 
@@ -145,7 +146,14 @@ def test_http_errors_and_redirects_are_sanitized_not_followed(monkeypatch, statu
         )
 
     adapter = provider(monkeypatch, handle)
-    with pytest.raises(GatewayError, match="^editorial_provider_request_failed$") as error:
+    expected = {
+        401: "editorial_provider_authentication_failed",
+        402: "editorial_provider_insufficient_balance",
+        429: "editorial_provider_rate_limited",
+        500: "editorial_provider_unavailable",
+        503: "editorial_provider_unavailable",
+    }.get(status, "editorial_provider_request_failed")
+    with pytest.raises(GatewayError, match=f"^{expected}$") as error:
         adapter.completion([{"role": "user", "content": "private-prompt"}], [])
     assert calls == [ENDPOINT]
     assert error.value.__cause__ is None
