@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+.venv/
+node_modules/
+.next/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.pyc
+playwright-report/
+test-results/
+artifacts/
+.coverage
+*.log
+*.tsbuildinfo
+apps/web/next-env.d.ts

@@ -1,0 +1,13 @@
+{
+  "attempts": 1,
+  "successes": 1,
+  "success_rate": 1.0,
+  "mock_attempts": 1,
+  "input_tokens_known": 0,
+  "output_tokens_known": 0,
+  "unknown_usage_attempts": 0,
+  "known_cost_usd": 0.0,
+  "unknown_cost_attempts": 0,
+  "duration_ms": 0,
+  "rework_count": 0
+}

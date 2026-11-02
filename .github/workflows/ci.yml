@@ -1,0 +1,32 @@
+name: verify
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  prototype:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.9.7'
+          python-version: '3.12'
+      - run: ./scripts/setup.sh
+      - run: npx playwright install-deps chromium
+      - run: ./scripts/start.sh
+      - run: ./scripts/verify.sh
+      - if: always()
+        run: docker compose logs --no-color > artifacts/compose.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verification-evidence
+          path: |
+            artifacts/
+            playwright-report/
+            test-results/

@@ -1,0 +1,24 @@
+{
+  "task_id": "8d316ae5-c4f9-4f91-b95f-4b6995d4057c",
+  "result": {
+    "task_id": "8d316ae5-c4f9-4f91-b95f-4b6995d4057c",
+    "kind": "research",
+    "requires_lead_review": true,
+    "result": {
+      "summary": "[MOCK] research task draft",
+      "draft": "模拟委派结果。未调用 DeepSeek。主 Agent 需独立完成并验证此任务。"
+    }
+  },
+  "telemetry": {
+    "provider": "mock",
+    "model": "deterministic-delegation-v1",
+    "success": true,
+    "duration_ms": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cost_usd": 0.0,
+    "cost_basis": "mock; no API charge",
+    "rework_count": 0,
+    "error_code": null
+  }
+}

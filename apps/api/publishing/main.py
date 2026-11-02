@@ -1,0 +1,201 @@
+import os
+from uuid import UUID
+
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
+from pydantic import BaseModel, ConfigDict, Field
+from sqlalchemy import func, select, text
+from sqlalchemy.orm import Session
+
+from packages.model_gateway import MockModelProvider
+
+from .audit import record
+from .db import get_db
+from .models import AuditEvent, Journal, Manuscript, Message, User, now
+from .policy import EDITOR_ROLES, can_view_manuscript
+from .runtime import execute_command
+from .security import Actor, check_password, get_actor, hash_password, new_session
+from .serialization import manuscript_json, message_json, user_json
+
+# The first product slice is explicitly mock-only. Live gateway evaluation is a separate CLI.
+provider = MockModelProvider()
+app = FastAPI(title="Publishing OS", version="0.1.0")
+DUMMY_HASH = hash_password("invalid-password-timing-padding")
+
+
+class LoginInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    email: str = Field(min_length=3, max_length=254)
+    password: str = Field(min_length=1, max_length=256)
+
+
+class CommandInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    message: str = Field(min_length=1, max_length=2000)
+    request_id: UUID
+
+
+@app.middleware("http")
+async def browser_boundary(request: Request, call_next):
+    # Block cross-site browser mutations, including login CSRF, before credentials are read.
+    if request.method not in {"GET", "HEAD", "OPTIONS"}:
+        if request.headers.get("sec-fetch-site") == "cross-site":
+            from fastapi.responses import JSONResponse
+
+            return JSONResponse({"detail": "跨站请求被禁止"}, status_code=403)
+    response = await call_next(request)
+    response.headers["Cache-Control"] = "no-store"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "same-origin"
+    return response
+
+
+@app.get("/api/health")
+def health(db: Session = Depends(get_db)):
+    db.execute(text("SELECT 1 FROM alembic_version"))
+    return {
+        "status": "ok",
+        "database": "postgresql",
+        "email_send_enabled": False,
+        "model_provider": "mock",
+    }
+
+
+@app.post("/api/auth/login")
+def login(body: LoginInput, response: Response, db: Session = Depends(get_db)):
+    # Persistent local-demo throttle. No passwords, raw cookies or API keys are audited.
+    cutoff = now().timestamp() - 300
+    failures = db.scalar(
+        select(func.count())
+        .select_from(AuditEvent)
+        .where(
+            AuditEvent.action == "auth.login_failed",
+            AuditEvent.details["email"].as_string() == body.email.lower(),
+            func.extract("epoch", AuditEvent.created_at) >= cutoff,
+        )
+    )
+    if failures >= 10:
+        raise HTTPException(429, "登录尝试过多，请稍后重试")
+    user = db.scalar(select(User).where(User.email == body.email.lower()))
+    valid = check_password(body.password, user.password_hash if user else DUMMY_HASH)
+    if not user or not valid:
+        record(
+            db,
+            actor_id=None,
+            journal_id=None,
+            action="auth.login_failed",
+            details={"email": body.email.lower()},
+        )
+        db.commit()
+        raise HTTPException(401, "邮箱或密码不正确")
+    token, session = new_session(user)
+    db.add(session)
+    db.flush()
+    # Resolve role with the same policy used for restored sessions.
+    from .models import Membership
+
+    membership = db.scalar(select(Membership).where(Membership.user_id == user.id))
+    if not membership:
+        raise HTTPException(403, "没有期刊访问权限")
+    actor = Actor(user, membership, session)
+    record(
+        db, actor_id=user.id, journal_id=actor.journal_id, action="auth.login", entity_id=user.id
+    )
+    db.commit()
+    response.set_cookie(
+        "publishing_session",
+        token,
+        httponly=True,
+        samesite="strict",
+        secure=os.getenv("COOKIE_SECURE", "false").lower() == "true",
+        max_age=28800,
+        path="/",
+    )
+    return {"user": user_json(actor), "csrf_token": session.csrf_token}
+
+
+@app.get("/api/auth/me")
+def me(actor: Actor = Depends(get_actor)):
+    return {"user": user_json(actor), "csrf_token": actor.session.csrf_token}
+
+
+@app.post("/api/auth/logout")
+def logout(response: Response, actor: Actor = Depends(get_actor), db: Session = Depends(get_db)):
+    db.delete(actor.session)
+    record(
+        db,
+        actor_id=actor.user.id,
+        journal_id=actor.journal_id,
+        action="auth.logout",
+        entity_id=actor.user.id,
+    )
+    db.commit()
+    response.delete_cookie("publishing_session", path="/")
+    return {"ok": True}
+
+
+@app.get("/api/workspace")
+def workspace(actor: Actor = Depends(get_actor), db: Session = Depends(get_db)):
+    journal = db.get(Journal, actor.journal_id)
+    query = select(Manuscript).where(Manuscript.journal_id == actor.journal_id)
+    if actor.role == "author":
+        query = query.where(Manuscript.author_id == actor.user.id)
+    elif actor.role not in EDITOR_ROLES:
+        query = query.where(False)
+    manuscripts = db.scalars(query.order_by(Manuscript.created_at.desc())).all()
+    messages = db.scalars(
+        select(Message)
+        .where(Message.user_id == actor.user.id)
+        .order_by(Message.created_at, Message.id)
+    ).all()
+    events = []
+    if actor.role in EDITOR_ROLES:
+        events = db.scalars(
+            select(AuditEvent)
+            .where(AuditEvent.journal_id == actor.journal_id)
+            .order_by(AuditEvent.created_at.desc())
+            .limit(100)
+        ).all()
+    return {
+        "journal": {"id": journal.id, "name": journal.name},
+        "manuscripts": [manuscript_json(db, m) for m in manuscripts],
+        "messages": [message_json(m) for m in messages],
+        "audit": [
+            {
+                "id": e.id,
+                "action": e.action,
+                "entity_id": e.entity_id,
+                "actor_name": db.get(User, e.actor_id).name if e.actor_id else "系统",
+                "details": e.details,
+                "created_at": e.created_at.isoformat(),
+            }
+            for e in events
+        ],
+        "email_send_enabled": False,
+    }
+
+
+@app.get("/api/manuscripts/{manuscript_id}")
+def manuscript_detail(
+    manuscript_id: UUID, actor: Actor = Depends(get_actor), db: Session = Depends(get_db)
+):
+    manuscript = db.get(Manuscript, str(manuscript_id))
+    if not manuscript or not can_view_manuscript(actor, manuscript):
+        raise HTTPException(404, "稿件不存在或无权访问")
+    return manuscript_json(db, manuscript)
+
+
+@app.post("/api/conversations/commands")
+def command(body: CommandInput, actor: Actor = Depends(get_actor), db: Session = Depends(get_db)):
+    try:
+        return execute_command(db, actor, body.message, str(body.request_id), provider)
+    except HTTPException as exc:
+        db.rollback()
+        record(
+            db,
+            actor_id=actor.user.id,
+            journal_id=actor.journal_id,
+            action="action.denied",
+            details={"status": exc.status_code, "request_id": str(body.request_id)},
+        )
+        db.commit()
+        raise

@@ -1,0 +1,131 @@
+{
+  "cli_version": "codex-cli 0.165.0",
+  "exit_code": 0,
+  "isolated_home": true,
+  "real_provider_called": false,
+  "fresh_key_available": false,
+  "shell_marker_seen": false,
+  "event_types": [
+    "thread.started",
+    "item.completed",
+    "turn.started",
+    "item.completed",
+    "turn.completed"
+  ],
+  "protocol_tool_roundtrip_verified": false,
+  "native_cross_provider_verified": false,
+  "native_probe_limitation": "Fake function_call for spawn_agent rejected by this CLI; cannot establish native provider switching",
+  "errors": [],
+  "request_count": 2,
+  "offered_tool_names": [
+    "exec_command",
+    "write_stdin",
+    "request_user_input",
+    "view_image",
+    "multi_agent_v1",
+    "close_agent",
+    "resume_agent",
+    "send_input",
+    "spawn_agent",
+    "wait_agent",
+    "get_goal",
+    "create_goal",
+    "update_goal"
+  ],
+  "tool_output_seen": true,
+  "requested_models": [
+    "publishing-parent-probe",
+    "publishing-parent-probe"
+  ],
+  "native_spawn_result": "unsupported call: spawn_agent",
+  "tool_types": [
+    {
+      "type": "function",
+      "name": "exec_command"
+    },
+    {
+      "type": "function",
+      "name": "write_stdin"
+    },
+    {
+      "type": "function",
+      "name": "request_user_input"
+    },
+    {
+      "type": "function",
+      "name": "view_image"
+    },
+    {
+      "type": "namespace",
+      "name": "multi_agent_v1"
+    },
+    {
+      "type": "function",
+      "name": "get_goal"
+    },
+    {
+      "type": "function",
+      "name": "create_goal"
+    },
+    {
+      "type": "function",
+      "name": "update_goal"
+    }
+  ],
+  "spawn_parameters": {
+    "type": "object",
+    "properties": {
+      "fork_context": {
+        "type": "boolean",
+        "description": "True forks the current thread history into the new agent; false or omitted starts with only the initial prompt."
+      },
+      "items": {
+        "type": "array",
+        "description": "Structured input items. Use this to pass explicit mentions (for example app:// connector paths).",
+        "items": {
+          "type": "object",
+          "properties": {
+            "audio_url": {
+              "type": "string",
+              "description": "Audio data URL when type is audio."
+            },
+            "image_url": {
+              "type": "string",
+              "description": "Image URL when type is image."
+            },
+            "name": {
+              "type": "string",
+              "description": "Display name when type is skill or mention."
+            },
+            "path": {
+              "type": "string",
+              "description": "Path when type is local_image/local_audio/skill, or structured mention target such as app://<connector-id> or plugin://<plugin-name>@<marketplace-name> when type is mention."
+            },
+            "text": {
+              "type": "string",
+              "description": "Text content when type is text."
+            },
+            "type": {
+              "type": "string",
+              "description": "Input item type: text, image, local_image, audio, local_audio, skill, or mention."
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "message": {
+        "type": "string",
+        "description": "Initial plain-text task for the new agent. Use either message or items."
+      },
+      "model": {
+        "type": "string",
+        "description": "Model override for the new agent. Omit unless an explicit override is needed."
+      },
+      "reasoning_effort": {
+        "type": "string",
+        "description": "Reasoning effort override for the new agent. Omit to inherit the parent effort."
+      }
+    },
+    "additionalProperties": false
+  }
+}

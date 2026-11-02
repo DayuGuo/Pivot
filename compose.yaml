@@ -1,0 +1,50 @@
+name: publishing-os
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: publishing
+      POSTGRES_PASSWORD: publishing_local
+      POSTGRES_DB: publishing
+    ports: ["127.0.0.1:55432:5432"]
+    volumes: ["publishing_db:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U publishing -d publishing"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  mailpit:
+    image: axllent/mailpit:v1.27
+    ports: ["127.0.0.1:8025:8025"]
+  api:
+    build:
+      context: .
+      dockerfile: infrastructure/api.Dockerfile
+    environment:
+      DATABASE_URL: postgresql+psycopg://publishing:publishing_local@db:5432/publishing
+      EMAIL_SEND_ENABLED: "false"
+      MODEL_PROVIDER: mock
+    ports: ["127.0.0.1:8100:8100"]
+    depends_on:
+      db: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8100/api/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+  web:
+    build:
+      context: .
+      dockerfile: infrastructure/web.Dockerfile
+    environment:
+      INTERNAL_API_URL: http://api:8100
+    ports: ["127.0.0.1:3100:3100"]
+    depends_on:
+      api: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3100').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+volumes:
+  publishing_db:
