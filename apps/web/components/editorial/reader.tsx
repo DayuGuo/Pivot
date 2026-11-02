@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties, type Keyb
 import type { Anchor, Case, CaseState, PatchState, View } from "./types";
 import styles from "./reader.module.css";
 
-type Props = { manuscript: Case; state: CaseState; onSave: PatchState; onNavigate: (view: View) => void; anchor?: Anchor; storageScope?: string };
+type Props = { manuscript: Case; state: CaseState; onSave: PatchState; onNavigate: (view: View) => void; anchor?: Anchor; storageScope?: string; companion?: boolean };
 type ReadingPosition = { version: string; section: string; paragraph: number };
 type PendingNote = { text: string; base_note: string; base_revision: number };
 const noteCacheKey = (scope: string, caseId: string, versionId: string) => `publishing-os-pending-note:${encodeURIComponent(scope)}:${encodeURIComponent(caseId)}:${encodeURIComponent(versionId)}`;
@@ -23,7 +23,7 @@ function removeCachedNote(scope: string | undefined, caseId: string, versionId: 
 
 type ReaderPrefs = { font: number; width: number; toc: boolean; panel: boolean; focus: boolean };
 const defaults: ReaderPrefs = { font: 17, width: 328, toc: true, panel: true, focus: false };
-const preferenceKey = "publishing-os-reader-preferences";
+const basePreferenceKey = "publishing-os-reader-preferences";
 const boundedWidth = (width: number) => Math.min(480, Math.max(264, width));
 
 function Highlight({ text, quote }: { text: string; quote?: string }) {
@@ -32,11 +32,12 @@ function Highlight({ text, quote }: { text: string; quote?: string }) {
   return <>{text.slice(0, index)}<mark>{quote}</mark>{text.slice(index + quote.length)}</>;
 }
 
-export default function Reader({ manuscript, state, onSave, onNavigate, anchor, storageScope }: Props) {
+export default function Reader({ manuscript, state, onSave, onNavigate, anchor, storageScope, companion }: Props) {
+  const preferenceKey = companion ? `${basePreferenceKey}-conversation` : basePreferenceKey;
   const firstVersion = manuscript.versions.find(v => v.id === state.reading.version) ?? manuscript.versions.at(-1)!;
   const [versionId, setVersionId] = useState(firstVersion.id);
   const [sectionId, setSectionId] = useState(state.reading.section || firstVersion.sections[0]?.id || "");
-  const [prefs, setPrefs] = useState<ReaderPrefs>(defaults);
+  const [prefs, setPrefs] = useState<ReaderPrefs>({ ...defaults, toc: !companion, panel: !companion });
   const [prefsReady, setPrefsReady] = useState(false);
   const [panelTab, setPanelTab] = useState<"issues" | "notes">("issues");
   const [drafts, setDrafts] = useState<Record<string, string>>(state.version_notes ?? {});
@@ -82,11 +83,11 @@ export default function Reader({ manuscript, state, onSave, onNavigate, anchor, 
       setPrefsReady(true);
     });
     return () => cancelAnimationFrame(frame);
-  }, []);
+  }, [preferenceKey]);
   useEffect(() => {
     if (!prefsReady) return;
     try { localStorage.setItem(preferenceKey, JSON.stringify(prefs)); } catch { /* Reading remains usable in private storage modes. */ }
-  }, [prefs, prefsReady]);
+  }, [prefs, prefsReady, preferenceKey]);
 
   const persist = useCallback(async (patch: Partial<Omit<CaseState, "revision">>) => {
     pending.current += 1;
@@ -222,17 +223,24 @@ export default function Reader({ manuscript, state, onSave, onNavigate, anchor, 
   }, [anchor, jump]);
 
   useEffect(() => {
+    if (!prefsReady) return;
+    let active = true;
+    let frame: number | undefined;
     const section = target?.version === versionId ? target.section : restoreSection.current;
-    const frame = requestAnimationFrame(() => {
-      const highlighted = target?.version === versionId ? scrollRef.current?.querySelector("mark") : undefined;
-      const paragraph = sectionRefs.current[section]?.querySelectorAll(":scope > p")[restoreParagraph.current];
-      if (highlighted) scrollArticleTo(highlighted, true);
-      else if (restoreParagraph.current > 0 && paragraph) scrollArticleTo(paragraph);
-      else if (section && section !== version.sections[0]?.id) scrollArticleTo(sectionRefs.current[section]);
-      else if (scrollRef.current) scrollRef.current.scrollTo({ top: 0, behavior: "instant" });
+    void document.fonts.ready.then(() => {
+      if (!active) return;
+      frame = requestAnimationFrame(() => {
+        if (!active) return;
+        const highlighted = target?.version === versionId ? scrollRef.current?.querySelector("mark") : undefined;
+        const paragraph = sectionRefs.current[section]?.querySelectorAll(":scope > p")[restoreParagraph.current];
+        if (highlighted) scrollArticleTo(highlighted, true);
+        else if (restoreParagraph.current > 0 && paragraph) scrollArticleTo(paragraph);
+        else if (section && section !== version.sections[0]?.id) scrollArticleTo(sectionRefs.current[section]);
+        else if (scrollRef.current) scrollRef.current.scrollTo({ top: 0, behavior: "instant" });
+      });
     });
-    return () => cancelAnimationFrame(frame);
-  }, [versionId, target, version.sections, scrollArticleTo]);
+    return () => { active = false; if (frame !== undefined) cancelAnimationFrame(frame); };
+  }, [versionId, target, version.sections, scrollArticleTo, prefsReady]);
 
   const rememberPosition = (id: string, paragraph: number) => {
     const previous = lastReading.current;
@@ -246,6 +254,7 @@ export default function Reader({ manuscript, state, onSave, onNavigate, anchor, 
   };
 
   const onScroll = () => {
+    if (!prefsReady) return;
     const container = scrollRef.current;
     if (!container) return;
     const top = container.getBoundingClientRect().top;

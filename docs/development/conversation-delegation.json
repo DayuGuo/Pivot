@@ -1,0 +1,15 @@
+{
+  "date": "2026-11-02",
+  "executor": "native Codex subagents with disjoint file ownership",
+  "deepseek_live_calls": 0,
+  "model_configuration_changed": false,
+  "tasks": [
+    {"task":"persistent_chat_api","scope":"isolated chat API, migration and tests","status":"delivered","rework":"lead integrated router and migration metadata; recipient aliases and blank-letter handling strengthened","tokens":null,"api_cost":null,"elapsed_seconds":null},
+    {"task":"central_conversation","scope":"persistent chat component, scoped CSS and shared types","status":"delivered","rework":"lead added manual-draft preflight and compact composer layout","tokens":null,"api_cost":null,"elapsed_seconds":null},
+    {"task":"chat_workbench_qa","scope":"six chat scenarios and adaptation of seven existing browser scenarios","status":"delivered","rework":"strengthened actual input, send button and article visibility; exercised both manual-draft races","tokens":null,"api_cost":null,"elapsed_seconds":null},
+    {"task":"conversation_review","scope":"independent read-only code, policy and actual screenshot review","status":"delivered","rework":"identified unsaved invitation race; subsequent network-controlled browser checks cover correction","tokens":null,"api_cost":null,"elapsed_seconds":null},
+    {"task":"manual_draft_protection","scope":"review component conflict recovery and save protection","status":"delivered","rework":"retained newer local text and preview/restore/discard; excluded automatic recipient-only metadata","tokens":null,"api_cost":null,"elapsed_seconds":null}
+  ],
+  "delivered_task_ratio":"5/5",
+  "measurement_limits":"Native tools expose no token, billed cost or task elapsed-time metrics here; null means unavailable, not zero. Actual test timings are recorded in artifact logs. No exposed key used. Main agent owns integration, policy and final verification."
+}

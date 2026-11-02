@@ -2,7 +2,13 @@
 
 更新：2026-11-02。首个编辑初筛纵向原型已实现并通过本地自动化验收。未真实发信、未生产部署、未更改主模型或全局 Codex 配置。
 
-## 当前Goal：任务工作台、长稿阅读、选人及修回核验
+## 最新用户修正：对话为主，材料随行
+
+按spec005将原弹出助手改为四页常驻主体对话，左任务/中对话/右材料；自动白名单筛选与导航、真实私有聊天历史、当时上下文快照、原文引用和安全邀请/决定草稿准备已接入。新增回合表e7b24c91a603，旧真实投稿链保留。人工未保存内容有准备前同步及冲突候选恢复；纯查询不因未完表单阻断。
+
+最终实际运行 `scripts/start.sh` 和 `scripts/verify.sh`：**227 Pytest（22.39秒）+21 Playwright（46.6秒）全部通过**，含45个聊天API用例及6个新增对话浏览器场景；Ruff/format、依赖边界、ESLint、TypeScript、PostgreSQL迁移/漂移、Docker生产构建通过。另13个工作台场景阶段复测通过（38.2秒）。日志artifacts/conversation-final-verify.log；迁移head e7b24c91a603。1项第三方Starlette/httpx弃用警告。实际修正CSS200输入/发送裁切、窄屏正文不足、人工草稿保存竞态和字体偏好恢复时序；20种页面布局检查正文与发送按钮实际可见区域。仅Linux Chromium及CSS缩放，未实测其他OS/浏览器/原生缩放/手机软键盘。交付与限制见docs/development/conversation-first-delivery.md，委派证据conversation-delegation.json；截图artifacts/conversation-*。
+
+## 已完成Goal：任务工作台、长稿阅读、选人及修回核验
 
 已读取用户目标文件goal-objective.md并按spec004增量开发。新路由/workbench保留原投稿/邮件链，四页共用6篇合成稿件，其中主案例3个版本、2轮修回、多审稿人、长中英文正文与历史。私有草稿、阅读位置、候选选择、核验、AI建议处置及常用视图经真实API/PostgreSQL保存；迁移c81b8c41b016只增加两个隔离状态表，未修改正式出版状态机。
 

@@ -34,3 +34,42 @@
 
 .sidebarClose{display:none!important}
 @media(max-width:900px){.sidebar{display:none}.sidebar.navOpen{display:flex}.sidebarClose{display:inline-flex!important;justify-content:space-between!important;margin-bottom:15px}}
+
+/* Conversation is the stable work surface; all documents live beside it. */
+.shell{position:fixed;inset:0;height:100dvh;min-height:0}
+.sidebar{width:184px;flex-basis:184px}
+.main{display:grid;grid-template-columns:minmax(380px,.85fr) minmax(0,1.15fr);overflow:hidden;min-height:0}
+.conversationPane{min-width:0;min-height:0;display:flex;border-right:1px solid var(--wb-line)}
+.materialPane{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;container:editorial-material / inline-size;background:var(--wb-bg)}
+.materialBar{height:38px;min-height:38px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;background:var(--wb-bg);border-bottom:1px solid var(--wb-line);font-size:11px;color:var(--wb-muted)}
+.materialBar button{border:0;background:transparent;font-size:11px;padding:3px 6px;min-height:26px;color:var(--wb-muted)}
+.main.materialsExpanded{grid-template-columns:minmax(320px,.48fr) minmax(0,1.52fr)}
+.workLayout{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--wb-surface)}
+.queue{flex:1;min-height:0}
+.progressDetails{flex-shrink:0;border-top:1px solid var(--wb-line);font-size:12px;max-height:48%;overflow:auto}
+.progressDetails>summary{padding:11px 20px;cursor:pointer;position:sticky;top:0;background:var(--wb-bg);z-index:2;color:var(--wb-ink)}
+.casePreview{border-left:0;width:100%;display:block;flex-basis:auto;overflow:visible}
+.previewHandle{display:none}.previewBody{padding:18px 22px}.previewBody dl{display:flex;flex-direction:row;flex-wrap:wrap;gap:12px 24px}.previewBody dl>div{gap:10px}.previewBody>h2{font-size:16px}
+.pageHeading{padding:23px 22px 19px}.pageHeading h1{font-size:21px}.pageHeading p{font-size:12px;line-height:1.7}
+.filters{padding-inline:22px;gap:7px}.filters .search{flex-basis:100%;min-width:0}.filters .search kbd{margin-left:auto;display:block}
+.workTable th:first-child{width:52%}.workTable th:nth-child(2){width:23%}.workTable th:nth-child(3){width:20%}.workTable td:first-child,.workTable th:first-child{padding-left:22px}.workTable td{padding-inline:9px}.workTable .titleButton{font-size:13px}
+.queueFooter{padding-inline:22px}.queueFooter>span:last-child{display:none}
+.caseWorkspace{flex:1;height:auto;min-height:0;background:var(--wb-surface);overflow:hidden}
+.caseHeader{padding:13px 20px 0}.caseHeader h1{font-size:16px;line-height:1.65}.caseHeader nav{gap:18px}.caseHeader nav button{font-size:11px}
+.agentBody{padding:0;gap:12px;font-size:12px}.agentBody p{font-size:12px;line-height:1.7}.agentBody .demo{display:none}
+@media(min-width:1700px){.sidebar{width:200px;flex-basis:200px}.main{grid-template-columns:minmax(450px,.85fr) minmax(0,1.15fr)}}
+@media(max-width:1100px){.main{grid-template-columns:minmax(340px,.85fr) minmax(0,1.15fr)}.sidebar{width:170px;flex-basis:170px}.caseHeader h1{font-size:15px}.topbar{padding-inline:18px}}
+@media(max-width:900px){.sidebar{position:fixed;width:220px}.main{grid-template-columns:minmax(330px,.9fr) minmax(0,1.1fr)}.main.materialsExpanded{grid-template-columns:320px minmax(0,1fr)}}
+@media(max-width:700px){.shell{height:100dvh;position:fixed;min-height:0}.content{min-height:0}.main,.main.materialsExpanded{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(290px,54%) minmax(0,46%);min-height:0;overflow:hidden}.conversationPane{border-right:0;border-bottom:1px solid var(--wb-line)}.materialPane{min-height:0}.materialBar{height:30px;min-height:30px;padding-inline:14px}.materialBar button{display:none}.workLayout{height:auto;min-height:0}.queue{min-height:0}.tableWrap{max-height:none}.pageHeading{padding:15px 16px 12px}.pageHeading p{display:none}.pageHeading h1{font-size:18px}.filters{padding:0 16px 12px}.filters .search{display:flex}.caseHeader{padding:10px 16px 0}.caseHeader h1{font-size:14px;margin-block:6px}.caseIdentity{font-size:10px;gap:8px}.caseTask{margin-bottom:7px;font-size:10px}.caseHeader nav{gap:15px}.caseHeader nav button{padding-top:7px;padding-bottom:9px}.caseWorkspace{height:auto;overflow:hidden}.queueFooter{display:none}.progressDetails{max-height:45%}.saveStatus{display:none}.caseHeader .status{font-size:10px}.topbar{position:static;height:45px;min-height:45px}}
+
+/* Inset sizing respects both native zoom and document CSS zoom. */
+.shell{height:auto;container:workbench-shell / size}
+.content{container:workbench-content / inline-size}
+@container workbench-shell (max-width:900px){
+ .sidebar{position:fixed;inset:0 auto 0 0;z-index:40;width:220px;display:none;transform:translateX(-100%)}.sidebar.navOpen{display:flex;transform:none}.mobileMenu{display:inline-flex!important;padding:3px!important;border:0!important;background:transparent!important}.sidebarClose{display:inline-flex!important;justify-content:space-between!important;margin-bottom:15px}.backdrop{display:block!important;position:fixed;inset:0;background:#0005!important;border:0!important;z-index:39;border-radius:0!important}
+}
+@container workbench-content (max-width:800px){
+ .main,.main.materialsExpanded{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,55%) minmax(0,45%);min-height:0;overflow:hidden}.conversationPane{border-right:0;border-bottom:1px solid var(--wb-line)}.materialPane{min-height:0}.materialBar{height:28px;min-height:28px;padding-inline:14px}.materialBar button{display:none}.caseHeader{padding:8px 14px 0}.caseHeader h1,.caseTask{display:none}.caseIdentity{font-size:10px;gap:7px}.caseIdentity .backButton{font-size:10px;min-height:23px}.caseHeader nav{gap:15px}.caseHeader nav button{font-size:11px;padding-top:6px;padding-bottom:7px}.caseWorkspace{height:auto;overflow:hidden}.queueFooter{display:none}
+}
+@container workbench-content (max-width:800px){.main,.main.materialsExpanded{grid-template-rows:minmax(0,48%) minmax(0,52%)}}
+@container workbench-content (max-width:800px){.materialBar{height:22px;min-height:22px}.caseHeader{padding-top:6px}.caseHeader nav button{min-height:24px;padding-top:3px;padding-bottom:3px}}

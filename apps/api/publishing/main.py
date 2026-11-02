@@ -18,6 +18,7 @@ from .conversations import (
     owned_conversation,
 )
 from .db import get_db
+from .editorial_chat import router as editorial_chat_router
 from .editorial_demo import router as editorial_demo_router
 from .mail_accounts import router as mail_router
 from .models import AuditEvent, Conversation, Journal, Manuscript, Message, User, now
@@ -31,6 +32,7 @@ provider = MockModelProvider()
 app = FastAPI(title="Publishing OS", version="0.1.0")
 app.include_router(mail_router)
 app.include_router(editorial_demo_router)
+app.include_router(editorial_chat_router)
 DUMMY_HASH = hash_password("invalid-password-timing-padding")
 
 

@@ -1,7 +1,7 @@
 from alembic import context
 from sqlalchemy import create_engine, pool
 
-from apps.api.publishing import editorial_demo  # noqa: F401
+from apps.api.publishing import editorial_chat, editorial_demo  # noqa: F401
 from apps.api.publishing.db import DATABASE_URL
 from apps.api.publishing.models import Base
 

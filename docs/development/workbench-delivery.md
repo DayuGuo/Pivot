@@ -1,5 +1,7 @@
 # 四页编辑工作台交付与验收
 
+本文记录先前四页版本；最新常驻主体对话和全量验收见 [conversation-first-delivery.md](conversation-first-delivery.md)。
+
 目标来源：2026-11-02用户goal-objective.md。本轮在现有Next.js/FastAPI/PostgreSQL体系增量实现编辑核心交互，不重写出版平台。代码契约spec004；完整正式业务仍按spec003后续实施。
 
 ## 运行与演示

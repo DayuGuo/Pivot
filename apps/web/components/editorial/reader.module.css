@@ -87,3 +87,17 @@
 .history{list-style:none;padding:0;font-size:14px;line-height:1.8}.history li{border-bottom:1px solid var(--wb-line);padding:17px 0}.history li>div{display:flex;flex-wrap:wrap;gap:7px 15px;font-size:11px;color:var(--wb-muted);margin-bottom:8px}.history strong{color:var(--wb-ink);font-weight:500}.history p{margin:0}.roundHistory{font-size:13px;line-height:1.8;margin-bottom:20px}.roundHistory details{padding:10px 0;border-bottom:1px solid var(--wb-line)}.roundHistory summary{cursor:pointer}.roundHistory p{margin:10px 0}
 
 .formula{margin-top:17px;padding:14px 0;display:flex;align-items:center;gap:15px;flex-wrap:wrap;border-bottom:1px solid var(--wb-line)}.formula>span,.formula>small{font-size:12px;color:var(--wb-muted)}.formula [role=math]{font-size:20px;line-height:1.7;color:var(--wb-ink)}
+
+@container editorial-material (max-width: 900px){
+ .layout,.withToc,.withPanel,.withToc.withPanel{display:flex;flex-direction:column;overflow:auto;align-content:stretch;min-height:0}
+ .toc{flex:0 0 auto;max-height:150px;border-right:0;border-bottom:1px solid var(--wb-line);padding:12px 16px}
+ .tocHeading,.tocFooter{display:none}.toc button{display:inline-block;width:auto;margin:0 6px 3px 0}.tocExtra{margin-top:7px;padding-top:7px}
+ .articleScroll{flex:1 0 210px;min-height:210px;max-height:none;border-bottom:1px solid var(--wb-line)}
+ .separator{min-height:7px;flex:0 0 7px;display:block;cursor:col-resize;border-left:0;border-top:1px solid var(--wb-line)}
+ .separator::after{height:0;width:35px;left:46%;top:2px;border-left:0;border-top:1px solid var(--wb-line)}
+ .panel{flex:0 0 300px;min-height:220px;max-height:360px}.panelContent{padding:16px 22px}.panelTabs{padding-left:18px}
+ .article{padding:28px 28px 40px;max-width:800px}.article h1{font-size:22px}.article h2{font-size:19px}.toolbar{padding:8px 14px;gap:6px}.toolbarGroup{gap:5px}.toolbar button,.toolbar a,.toolbar select,.versionLabel,.fontLabel{font-size:12px}
+ .notes textarea{min-height:150px}.notes{padding:17px 20px}.focusMode .article{padding:28px 28px 40px}
+}
+@container editorial-material (max-width: 520px){.article,.focusMode .article{padding:24px 20px 35px}.toolbar{padding:7px 10px}.toolbarGroup{gap:2px}.article h1{font-size:20px}.englishTitle{font-size:15px}.toolbar select{max-width:120px}.toolbar a{font-size:11px}.panelContent{padding:16px 20px}}
+@container editorial-material (max-width:900px){.layout:not(.withToc):not(.withPanel){overflow:hidden}.layout:not(.withToc):not(.withPanel) .articleScroll{flex:1 1 0;min-height:0;max-height:none}}

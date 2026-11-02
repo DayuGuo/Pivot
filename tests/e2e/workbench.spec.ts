@@ -39,6 +39,16 @@ async function open(page: Page, view = "work") {
   await page.goto(`/workbench?view=${view}&case=${caseId}`);
   await expect(page.getByRole("navigation", { name: "工作视图" })).toBeVisible();
 }
+async function openProgressPreview(page: Page) {
+  const details = page.locator("details").filter({ has: page.getByText("稿件进度", { exact: true }) });
+  if (!(await details.evaluate(node => (node as HTMLDetailsElement).open))) await details.locator("summary").click();
+}
+async function readingTools(page: Page) {
+  for (const name of ["目录", "问题与笔记"]) {
+    const control = page.getByRole("button", { name, exact: true });
+    if (await control.getAttribute("aria-expanded") === "false") await control.click();
+  }
+}
 async function persisted<T>(page: Page, read: (value: CaseState) => T, expected: T) {
   await expect.poll(async () => read(await state(page))).toEqual(expected);
 }
@@ -59,11 +69,14 @@ test.describe("合成编辑工作台 · Linux Chromium acceptance", () => {
     await expect(page.getByText("合成数据演示", { exact: true })).toBeVisible();
     const table = page.getByRole("table", { name: "我的稿件工作列表" });
     await expect(table.getByRole("row")).toHaveCount(before.cases.length + 1);
-    await page.getByLabel("询问我的工作").fill("哪些稿件需要我今天初筛？");
-    await page.getByRole("button", { name: "查询工作列表" }).click();
+    await page.getByLabel("对话范围", { exact: true }).selectOption("queue");
+    await page.getByRole("textbox", { name: "对话消息", exact: true }).fill("哪些稿件需要我今天初筛？");
+    const filtered = page.waitForResponse(response => response.url().endsWith("/api/editorial-demo/chat") && response.request().method() === "POST");
+    await page.getByRole("button", { name: "发送消息", exact: true }).click();
+    expect((await filtered).status()).toBe(200);
     await expect(page.getByLabel("筛选稿件阶段")).toHaveValue("screening");
-    await expect(page.getByText(/模拟检索已应用到工作列表/)).toBeVisible();
-    await page.getByRole("button", { name: "清除", exact: true }).click();
+    await expect(page.getByRole("log")).toContainText(/初筛/);
+    await page.getByRole("navigation", { name: "工作视图" }).getByRole("button", { name: /^我的工作/ }).click();
     await page.getByLabel("搜索工作稿件").fill("不存在的合成编号");
     await expect(page.getByRole("heading", { name: "没有符合条件的工作" })).toBeVisible();
     await page.getByRole("button", { name: "重置筛选" }).click();
@@ -94,6 +107,7 @@ test.describe("合成编辑工作台 · Linux Chromium acceptance", () => {
     const queue = table.locator("..");
     const offset = await queue.evaluate(node => { node.scrollTop = node.scrollHeight; return node.scrollTop; });
     expect(offset).toBeGreaterThan(0);
+    await openProgressPreview(page);
     await page.getByRole("button", { name: "打开稿件", exact: true }).click();
     await page.getByRole("button", { name: "返回工作列表" }).click();
     await expect.poll(() => queue.evaluate(node => node.scrollTop)).toBeCloseTo(offset, 0);
@@ -111,6 +125,7 @@ test.describe("合成编辑工作台 · Linux Chromium acceptance", () => {
     const manuscript = await reset(page);
     await page.setViewportSize({ width: 1440, height: 900 });
     await open(page, "read");
+    await readingTools(page);
     const issue = manuscript.issues.find(i => i.id === "issue-3")!;
     const evidence = page.getByRole("complementary", { name: "问题与编辑笔记" });
     await evidence.getByRole("button", { name: `${issue.before.version} · ${issue.before.location}`, exact: true }).click();
@@ -177,7 +192,9 @@ test.describe("合成编辑工作台 · Linux Chromium acceptance", () => {
     await expect(separator).toHaveAttribute("aria-valuenow", "280");
     await expect(page.getByRole("navigation", { name: "稿件章节" }).getByRole("button", { name: /5 讨论/ })).toHaveAttribute("aria-current", "location");
     await expect(resumedParagraph).toHaveText(manuscript.versions.find(version => version.id === "v2")!.sections.find(section => section.id === "discussion")!.paragraphs[2]);
-    await expect(resumedParagraph).toBeInViewport({ ratio: 1 });
+    // A long paragraph can exceed the companion reader height; its restored start
+    // must be visible, and the precise top offset below verifies the location.
+    await expect(resumedParagraph).toBeInViewport();
     const restoredOffset = await resumedParagraph.evaluate(node => node.getBoundingClientRect().top - node.closest('[aria-label="稿件正文"]')!.getBoundingClientRect().top);
     expect(restoredOffset).toBeGreaterThanOrEqual(0);
     expect(restoredOffset).toBeLessThan(80);
@@ -301,8 +318,8 @@ test.describe("合成编辑工作台 · Linux Chromium acceptance", () => {
     await login(page);
     const manuscript = await reset(page);
     await open(page, "read");
-    await page.getByRole("button", { name: "编辑助手", exact: true }).click();
-    const assistant = page.getByRole("complementary", { name: "编辑助手", exact: true });
+    await page.getByText("模拟检查工具", { exact: true }).click();
+    const assistant = page.getByRole("region", { name: "模拟检查工具", exact: true });
     await expect(assistant).toContainText("模拟模型 · 不执行正式操作");
     await expect(assistant).toContainText(`${manuscript.number} / V3 / 第2轮`);
     const initial = await state(page);
@@ -336,22 +353,22 @@ test.describe("合成编辑工作台 · Linux Chromium acceptance", () => {
     await assistant.getByLabel(`处理AI建议 ${second.title}`, { exact: true }).selectOption("ignored");
     await persisted(page, value => value.ai_results.find(r => r.issue_id === second.id)?.status, "ignored");
     await page.reload();
-    await page.getByRole("button", { name: "编辑助手", exact: true }).click();
+    await page.getByText("模拟检查工具", { exact: true }).click();
     await expect(assistant.getByLabel(`改写AI建议 ${first.title}`, { exact: true })).toHaveValue(rewritten);
     await expect(assistant.getByLabel(`处理AI建议 ${first.title}`, { exact: true })).toHaveValue("adopted");
     await expect(assistant.getByLabel(`处理AI建议 ${second.title}`, { exact: true })).toHaveValue("ignored");
-    await assistant.getByLabel("助手访问范围").selectOption("queue");
-    await expect(assistant).toContainText("全部工作，");
+    await page.getByLabel("对话范围", { exact: true }).selectOption("queue");
+    await expect(page.getByRole("region", { name: "编辑对话", exact: true })).toContainText("当前工作队列");
     await expect(assistant.getByRole("button", { name: "分析当前版本" })).toHaveCount(0);
-    await assistant.getByLabel("助手访问范围").selectOption("journal");
-    await expect(assistant).toContainText("授权合成稿件");
-    await page.getByRole("button", { name: "关闭编辑助手" }).click();
+    await page.getByLabel("对话范围", { exact: true }).selectOption("journal");
+    await expect(page.getByRole("region", { name: "编辑对话", exact: true })).toContainText("本刊授权稿件");
+    await page.getByText("模拟检查工具", { exact: true }).click();
     await page.getByLabel("稿件版本").selectOption("v2");
     await persisted(page, value => value.reading.version, "v2");
     const retained = await state(page);
     expect(retained.ai_results.find(result => result.issue_id === first.id)?.status).toBe("adopted");
-    await page.getByRole("button", { name: "编辑助手", exact: true }).click();
-    await assistant.getByLabel("助手访问范围").selectOption("case");
+    await page.getByText("模拟检查工具", { exact: true }).click();
+    await page.getByLabel("对话范围", { exact: true }).selectOption("case");
     await expect(assistant.getByLabel(`改写AI建议 ${first.title}`, { exact: true })).toHaveCount(0);
     await expect(assistant).toContainText(`${manuscript.number} / V2`);
   });
@@ -371,6 +388,7 @@ test.describe("合成编辑工作台 · Linux Chromium acceptance", () => {
     await expect(page.getByLabel("搜索工作稿件")).toHaveCSS("outline-style", "solid");
     await page.getByLabel("界面主题").selectOption("dark");
     await expect(page.locator("[data-theme]")).toHaveAttribute("data-theme", "dark");
+    await openProgressPreview(page);
     await page.getByRole("button", { name: "打开稿件", exact: true }).click();
     await page.screenshot({ path: "artifacts/workbench-reader-dark.png", fullPage: true });
     await page.getByLabel("界面主题").selectOption("system");
