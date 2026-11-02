@@ -1,0 +1,15 @@
+{
+  "date": "2026-11-02",
+  "executor": "native Codex subagents with disjoint file ownership",
+  "deepseek_live_calls": 0,
+  "model_configuration_changed": false,
+  "tasks": [
+    {"task":"editorial_backend","scope":"fixture, isolated API, migration and API tests","status":"delivered","rework":"fixture coherence corrected; lead integrated evidence preservation, scoped assertions and paragraph persistence","tokens":null,"api_cost":null,"elapsed_seconds":null},
+    {"task":"editorial_reader","scope":"reader component and scoped CSS","status":"delivered","rework":"local scrolling, scoped failed-note cache, paragraph reading position","tokens":null,"api_cost":null,"elapsed_seconds":null},
+    {"task":"editorial_review","scope":"candidate and revision components with scoped CSS","status":"delivered","rework":"autosave/recovery, shared dark theme tokens","tokens":null,"api_cost":null,"elapsed_seconds":null},
+    {"task":"workbench_acceptance","scope":"seven meaningful browser scenarios and checklist","status":"delivered","rework":"selectors stabilized; recovery/paragraph checks strengthened; found proxy integration defects","tokens":null,"api_cost":null,"elapsed_seconds":null},
+    {"task":"workbench_review","scope":"independent read-only code/security and actual capture review","status":"delivered","rework":"scored preservation/cache fixes and corrected reader capture","tokens":null,"api_cost":null,"elapsed_seconds":null}
+  ],
+  "delivered_task_ratio":"5/5",
+  "measurement_limits":"Native subagent tools expose no token, billed cost or task wall-time telemetry here; null means unavailable, not zero. Test timings and executed results are in artifact logs. No exposed key used."
+}

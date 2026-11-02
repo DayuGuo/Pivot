@@ -4,6 +4,10 @@
 
 范围：官方调研、仓库上下文、真实登录/对话工具/持久化、受控工作流/权限/审计、Mock 与隔离模型网关、PostgreSQL 迁移、Docker Compose、Pytest/Playwright/静态检查。验收执行状态以 PROGRESS.md 为准。
 
+## 四页工作台交付与后续接入
+
+spec004聚焦新Goal的四个界面与最小必要持久化：合成稿件贯穿任务、阅读、选人、修回/决定草稿。验收证据见PROGRESS和docs/development/workbench-delivery.md。后续将独立演示数据接口按spec003替换为受控真实版本/任务/轮次服务，不扩大两个演示JSONB表承载正式出版业务。先落实作者辅助投稿、阶段责任/确认，再接入真实评审和正式操作。
+
 ## 1. 完整出版状态机与角色权限
 
 执行规格：[稿件工作流、角色待办与AI辅助填报](specs/003-editorial-workflow-and-assisted-intake.md)。此处为后续目标，尚未实施。

@@ -1,0 +1,12 @@
+export type Anchor = { version: string; section: string; quote: string; file: string; location: string };
+export type Section = { id: string; title: string; paragraphs: string[] };
+export type Version = { id: string; label: string; date: string; sections: Section[]; original: string };
+export type Issue = { id: string; title: string; source: string; visibility: "internal" | "author"; round: number; comment: string; response: string; before: Anchor; after: Anchor; initial_status: "unanswered" | "unverified" | "resolved" };
+export type Candidate = { id: string; name: string; affiliation: string; topics: string[]; papers: {title: string; year: number; source: string}[]; review_history: string; availability: string; conflict: string; reason: string; sources: string[]; email: string };
+export type Case = { id: string; number: string; title: string; title_en: string; authors: string[]; stage: string; stage_key: string; owner: string; due: string; priority: string; task: string; action: string; abstract: string; versions: Version[]; issues: Issue[]; candidates: Candidate[]; rounds: {number: number; label: string; tasks: {reviewer: string; status: string; due: string}[]}[]; history: {date: string; actor: string; text: string; visibility: string}[]; figures: {id: string; title: string; caption: string; values: {label: string; value: number}[]}[]; references: string[]; attachments: {id: string; name: string; version: string; content: string}[] };
+export type CaseState = { revision: number; selected_reviewers: string[]; issue_statuses: Record<string,string>; notes: string; version_notes: Record<string,string>; invitation: {to: string; subject: string; body: string; due: string}; decision: {outcome: string; body: string}; reading: {version: string; section: string; paragraph?: number}; ai_results: {id: string; issue_id: string; status: string; text: string; version: string}[] };
+export type PatchState = (patch: Partial<Omit<CaseState,"revision">>) => Promise<void>;
+export type View = "work" | "read" | "reviewers" | "revision";
+export type ViewState = { query: string; stage: string; sort: string; name?: string; today_only?: boolean };
+export type Dataset = { demo: true; cases: Case[]; states: Record<string,CaseState>; saved_views: ViewState[] };
+export const issueLabels: Record<string,string> = {unanswered:"待回复",unverified:"已回复待核验",resolved:"已解决",ignored:"已忽略",adopted:"已采纳",pending:"待核实"};

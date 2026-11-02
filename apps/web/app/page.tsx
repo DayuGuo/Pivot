@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import MailSettings from "./mail-settings";
 
 type User = { id: string; email: string; name: string; role: string };
@@ -56,6 +57,7 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [session, setSession] = useState<Session | null>(null);
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [loading, setLoading] = useState(true);
@@ -214,7 +216,7 @@ export default function Home() {
     {drawerOpen && <button className="drawer-backdrop" aria-label="关闭导航遮罩" tabIndex={-1} onClick={() => setDrawerOpen(false)}/>}
     <aside className="sidebar" ref={drawerRef} aria-label="侧栏" role={drawerOpen ? "dialog" : undefined} aria-modal={drawerOpen || undefined}><div className="sidebar-top"><Brand small/><button className="icon-button desktop-collapse" aria-label="收起侧栏" onClick={() => setSidebarCollapsed(true)}><Icon name="panel"/></button><button className="icon-button mobile-close" aria-label="关闭导航" onClick={() => setDrawerOpen(false)}><Icon name="close"/></button></div>
     <div className="journal-name">{workspace.journal.name}</div>
-    <nav aria-label="工作空间"><button className={view === "chat" ? "active" : ""} onClick={() => navigate("chat")}><Icon name="chat"/>编辑助手</button><button className={view === "manuscripts" ? "active" : ""} onClick={() => navigate("manuscripts")}><Icon name="file"/>稿件管理<span className="nav-count">{workspace.manuscripts.length}</span></button><button className={view === "audit" ? "active" : ""} onClick={() => navigate("audit")}><Icon name="activity"/>审计记录</button>{canCreate && <button className={view === "mail" ? "active" : ""} onClick={() => navigate("mail")}><Icon name="mail"/>邮件</button>}</nav>
+    <nav aria-label="工作空间">{canCreate && <button onClick={() => router.push("/workbench")}><Icon name="file"/>我的工作<span className="nav-count">演示</span></button>}<button className={view === "chat" ? "active" : ""} onClick={() => navigate("chat")}><Icon name="chat"/>编辑助手</button><button className={view === "manuscripts" ? "active" : ""} onClick={() => navigate("manuscripts")}><Icon name="file"/>稿件管理<span className="nav-count">{workspace.manuscripts.length}</span></button><button className={view === "audit" ? "active" : ""} onClick={() => navigate("audit")}><Icon name="activity"/>审计记录</button>{canCreate && <button className={view === "mail" ? "active" : ""} onClick={() => navigate("mail")}><Icon name="mail"/>邮件</button>}</nav>
     <div className="sessions-toolbar"><button className="new-conversation" onClick={() => void newConversation()} disabled={busy}><Icon name="plus"/>新对话</button></div>
     <label className="session-search"><Icon name="search" size={15}/><input aria-label="搜索对话" type="search" name="conversation-search" autoComplete="off" placeholder="搜索对话…" value={search} onChange={event => setSearch(event.target.value)}/></label>
     <div className="conversation-list" aria-label="会话列表">{(workspace.conversations || []).filter(item => item.title.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase())).map(item => <button key={item.id} data-conversation-id={item.id} className={view === "chat" && item.id === workspace.active_conversation_id ? "selected" : ""} aria-current={view === "chat" && item.id === workspace.active_conversation_id ? "true" : undefined} onClick={() => void switchConversation(item.id)} disabled={busy}><strong>{item.title}</strong><small>{item.message_count} 条消息<span>{date(item.updated_at)}</span></small></button>)}{!(workspace.conversations || []).filter(item => item.title.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase())).length && <p className="session-empty">{search ? "没有匹配的对话" : "暂无对话"}</p>}</div>

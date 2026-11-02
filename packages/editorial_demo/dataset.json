@@ -1,0 +1,2136 @@
+{
+  "demo": true,
+  "cases": [
+    {
+      "id": "demo-001",
+      "number": "ENV-2026-0129",
+      "title": "城市绿地与热暴露：面向不同空间尺度、观测窗口与不确定性表达的可重复合成研究",
+      "title_en": "Urban greenness and heat exposure across spatial scales: reproducible synthetic evidence, observation windows, and uncertainty reporting",
+      "authors": [
+        "合成作者 何青",
+        "合成作者 宋岚"
+      ],
+      "stage": "修回核验",
+      "stage_key": "decision",
+      "owner": "我",
+      "due": "2026-11-03",
+      "priority": "高",
+      "task": "核对第二次修回与审稿意见",
+      "action": "核验修回",
+      "abstract": "本稿件使用完全合成的数据与虚构作者，展示从证据阅读到编辑核验的工作过程。研究重点为采样设计、结果解释和可复核性，所有来源均是本地情景材料，不代表真实研究。 Urban greenness and heat exposure across spatial scales: reproducible synthetic evidence, observation windows, and uncertainty reporting.",
+      "versions": [
+        {
+          "id": "v1",
+          "label": "初稿",
+          "date": "2026-09-02",
+          "sections": [
+            {
+              "id": "abstract",
+              "title": "摘要 / Abstract",
+              "paragraphs": [
+                "本研究构建了一个完全合成的城市温度观测情景，比较空间采样、时间窗口与不确定性表述对结论的影响。所有站点与观测均为教学演示生成，不对应真实受试者或城市。",
+                "This study uses a fully synthetic urban temperature scenario to examine sampling, temporal windows, and uncertainty. No record describes a real person or city.",
+                "在摘要中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。",
+                "For reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.",
+                "表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。",
+                "The editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.",
+                "研究问题不是评估一项真实干预，而是说明当证据链中存在缺项时，编辑应如何定位和核查修改。我们预先区分描述性差异、敏感性结果与超出数据支持范围的主张；三个版本分别保留原始表述、第一次修正和第二次修正。",
+                "The demonstration is organized around three explicit checks: whether the denominator can be reconstructed, whether the uncertainty calculation respects clustered observations, and whether the language of the conclusion matches the design. Each check is inspectable in the text rather than inferred from a score. The reported numerical values are fixed examples, with no external data collection or claim of empirical novelty."
+              ]
+            },
+            {
+              "id": "introduction",
+              "title": "1 引言 / Introduction",
+              "paragraphs": [
+                "城市热环境研究需要同时解释局部差异与测量边界。单一平均数容易掩盖街区之间的异质性，因此我们以可复核的证据链组织问题，而不是把统计显著性当作普遍适用性的保证。",
+                "Urban heat observations depend on where and when measurements are taken. An auditable evidence chain connects the research question to the sampling design, analysis, and qualified interpretation.",
+                "在1 引言中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。",
+                "For reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.",
+                "表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。",
+                "The editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.",
+                "已有情景手册S1讨论了重复观测的相关性，情景手册S2讨论区间报告。本文引用这些虚构材料只是为了测试参考文献与正文之间的跳转，不为论点提供真实文献证据。我们以这种明确边界避免把演示的完整性误解为研究本身的有效性。",
+                "A useful editorial question is whether a reader can identify the unit that generated each summary. The number of time points is not the number of independent sites, and the number of sites is not a measure of population representativeness. We therefore keep these quantities separate throughout the narrative, including in figure captions and the local data dictionary. This distinction motivates the revision requests retained in the editorial record."
+              ]
+            },
+            {
+              "id": "methods",
+              "title": "2 材料与方法 / Methods",
+              "paragraphs": [
+                "合成站点按绿地覆盖与建筑密度分层，每层使用相同的观测窗口。预处理保留缺失标记，在任何插补前记录原始样本量，并以固定随机种子生成演示值。",
+                "Synthetic sites were stratified by vegetation cover and building density. Preprocessing retained missingness flags and recorded original denominators before any imputation.",
+                "缺失值按相邻时点的均值填补，本文未记录缺失比例。",
+                "在2 材料与方法中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。",
+                "For reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.",
+                "表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。",
+                "The editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.",
+                "每个虚构站点含早、中、晚三个窗口，缺失指示在聚合前独立保存。完整案例分析仅使用窗口记录齐全的站点，与插补情景分别汇总；两组比较沿用同一站点编号，不通过重新抽样制造新的观测来源。对极端值的处理规则写在补充材料中，未经预先说明不删除记录。",
+                "The local dictionary specifies site_id, observation_window, synthetic_temperature, and missing_flag. Site identifiers are stable across versions, allowing the editor to compare the same analytical unit before and after revision. Quality checks are conducted before aggregation: duplicate keys, unexpected window labels, and empty values are recorded separately. An imputed value remains distinguishable from an observed fixture value in every derived summary."
+              ]
+            },
+            {
+              "id": "analysis",
+              "title": "3 统计分析 / Analysis",
+              "paragraphs": [
+                "分析以站点为重采样单位，避免把同一站点的重复观测当作独立样本。对主要效应报告点估计、区间和敏感性分析，并保留不支持预设解释的结果。",
+                "Resampling was performed at the site level to preserve dependence among repeated observations. We report effect estimates, intervals, and sensitivity analyses, including results inconsistent with the initial hypothesis.",
+                "我们对每条观测独立重采样，报告平均差值而未给出置信区间。",
+                "在3 统计分析中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。",
+                "For reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.",
+                "表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。",
+                "The editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.",
+                "主要比较使用站点组均值之差，附加比较按观测窗口分层。区间用于表达当前生成与重采样规则下的变化，不涵盖真实仪器偏差、地点选择偏差或政策实施效果。对缺失处理的敏感性和对时间窗口的敏感性分别呈现，不能以其中一项稳定替代另一项的核查。",
+                "The bootstrap resamples site identifiers with replacement and includes all windows for a selected site. For each replicate, a group difference is calculated using the same aggregation rule as the primary analysis. The percentile interval is read from the empirical distribution of replicate estimates. This procedure illustrates a dependence-aware calculation; it does not correct for unmeasured confounding or establish a causal effect in an observational design."
+              ]
+            },
+            {
+              "id": "results",
+              "title": "4 结果 / Results",
+              "paragraphs": [
+                "图1呈现合成情景中的分层温度差异，图2比较不同时间窗口下的估计。结果表明采样窗口会改变估计的幅度；这只能支持当前合成设计内的比较。",
+                "Figure 1 shows differences between synthetic strata; Figure 2 compares time windows. The magnitude of the estimate depends on the observation window and should be interpreted within this scenario.",
+                "在4 结果中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。",
+                "For reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.",
+                "表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。",
+                "The editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.",
+                "高、中、低绿地组的合成均值分别为29.4、31.1与32.6。上午、午间与傍晚的合成温差分别为1.2、2.1与0.8。图形刻意保留这些值的单位与情景标签，避免以漂亮图表遮盖测量来源。补充材料中的数据字典明确每个汇总量的分母；没有将这些值描述为真实城市的监测结果。",
+                "The direction of the group comparison is consistent across the three display windows, while its magnitude varies. The midday contrast is larger than the evening contrast in the fixed fixture. A stable direction does not imply a stable effect size, and neither finding determines whether an unobserved site would behave similarly. We report both the shared pattern and the window-specific differences so that the discussion can be checked against the displayed summaries."
+              ]
+            },
+            {
+              "id": "discussion",
+              "title": "5 讨论 / Discussion",
+              "paragraphs": [
+                "研究说明了采样设计、模型假设与解释边界之间的关系。任何将当前结果迁移到真实城市的工作，都需要独立数据、伦理审查和外部验证，本演示不提供这种证据。",
+                "The example illustrates how sampling design and modeling assumptions constrain interpretation. Transfer to a real city would require independent data and external validation that are absent from this synthetic demonstration.",
+                "结果证明增加绿地能够降低所有城市的高温暴露。",
+                "在5 讨论中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。",
+                "For reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.",
+                "表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。",
+                "The editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.",
+                "对审稿意见的响应需要改变可见正文，而不仅在回复信中说明已经处理。第一次修回收窄讨论中的推断范围，第二次修回补充区间计算细节；这两项修订解决不同问题。编辑核验时应分别检查原句、改后句、方法依据与图注，不能用笼统的“已修改”覆盖全部问题。",
+                "The change in language is substantively connected to the design. A descriptive contrast among generated site groups cannot establish the effect of creating green space in a real neighborhood. Alternative mechanisms, site selection, and measurement error have not been empirically assessed. The appropriate interpretation is a worked example of how observation windows and dependence assumptions influence a reported comparison, accompanied by an explicit statement of what remains unknown."
+              ]
+            },
+            {
+              "id": "limitations",
+              "title": "6 局限性 / Limitations",
+              "paragraphs": [
+                "本研究使用合成观测，没有代表真实总体的抽样框。传感器误差、极端天气与人群暴露均未被真实测量，因此结果不能用于健康建议或城市规划决策。",
+                "The synthetic observations do not constitute a sampling frame for a real population. Sensor error, extreme weather, and personal exposure have not been measured, so these findings cannot guide health or planning decisions.",
+                "在6 局限性中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。",
+                "For reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.",
+                "表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。",
+                "The editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.",
+                "合成材料没有真实受试者，不能验证匿名化是否充分，也没有真实数据使用授权或机构伦理批件。这里的声明是情景说明，不是可复用的合规证明。未来若替换为真实数据，必须重新检查访问权限、用途、来源与研究设计，不能沿用本演示的通过状态或编辑批注。",
+                "The fixture also simplifies the editorial process. Reviewer names and availability are invented, invitation text is private, and a saved decision is only a draft. No external reviewer has assessed these materials. The scenario therefore tests whether the interface preserves evidence and user intent, rather than whether the scientific conclusion has passed peer review. These limitations remain visible even when a local issue is marked as resolved."
+              ]
+            },
+            {
+              "id": "data",
+              "title": "7 数据与声明 / Data and declarations",
+              "paragraphs": [
+                "所有文本、作者、审稿人、来源与数值均为合成测试材料。数据字典、生成规则与原始文本保存在本工作台附件中，仅供本地交互与审核流程验证。",
+                "All text, people, sources, and values are synthetic fixtures. The data dictionary and original text are bundled as local attachments for testing editorial reading and review interactions.",
+                "数据将在合理请求后提供。",
+                "在7 数据与声明中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。",
+                "For reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.",
+                "表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。",
+                "The editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.",
+                "原始文本附件与阅读排版使用相同段落，版本标识固定为v1、v2和v3。补充材料S1解释字段与处理顺序，作者回复附件保存逐点说明。附件只含本地合成文本，所有候选审稿人的地址使用.test域，来源使用fixture协议；没有真实论文、联系人或机构信息被用于生成此情景。",
+                "The materials are bundled for local inspection and contain no network dependencies. The original text of each version remains available after reading positions and private notes change. Evidence anchors identify a version, section, quoted passage, attachment, and paragraph location. This structure allows a future data adapter to replace the fixture while preserving the distinction between immutable source content and mutable personal workspace annotations."
+              ]
+            }
+          ],
+          "original": "demo-001-v1-original"
+        },
+        {
+          "id": "v2",
+          "label": "第一次修回",
+          "date": "2026-10-03",
+          "sections": [
+            {
+              "id": "abstract",
+              "title": "摘要 / Abstract",
+              "paragraphs": [
+                "本研究构建了一个完全合成的城市温度观测情景，比较空间采样、时间窗口与不确定性表述对结论的影响。所有站点与观测均为教学演示生成，不对应真实受试者或城市。",
+                "This study uses a fully synthetic urban temperature scenario to examine sampling, temporal windows, and uncertainty. No record describes a real person or city.",
+                "在摘要中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。",
+                "For reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.",
+                "表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。",
+                "The editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.",
+                "研究问题不是评估一项真实干预，而是说明当证据链中存在缺项时，编辑应如何定位和核查修改。我们预先区分描述性差异、敏感性结果与超出数据支持范围的主张；三个版本分别保留原始表述、第一次修正和第二次修正。",
+                "The demonstration is organized around three explicit checks: whether the denominator can be reconstructed, whether the uncertainty calculation respects clustered observations, and whether the language of the conclusion matches the design. Each check is inspectable in the text rather than inferred from a score. The reported numerical values are fixed examples, with no external data collection or claim of empirical novelty."
+              ]
+            },
+            {
+              "id": "introduction",
+              "title": "1 引言 / Introduction",
+              "paragraphs": [
+                "城市热环境研究需要同时解释局部差异与测量边界。单一平均数容易掩盖街区之间的异质性，因此我们以可复核的证据链组织问题，而不是把统计显著性当作普遍适用性的保证。",
+                "Urban heat observations depend on where and when measurements are taken. An auditable evidence chain connects the research question to the sampling design, analysis, and qualified interpretation.",
+                "在1 引言中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。",
+                "For reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.",
+                "表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。",
+                "The editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.",
+                "已有情景手册S1讨论了重复观测的相关性，情景手册S2讨论区间报告。本文引用这些虚构材料只是为了测试参考文献与正文之间的跳转，不为论点提供真实文献证据。我们以这种明确边界避免把演示的完整性误解为研究本身的有效性。",
+                "A useful editorial question is whether a reader can identify the unit that generated each summary. The number of time points is not the number of independent sites, and the number of sites is not a measure of population representativeness. We therefore keep these quantities separate throughout the narrative, including in figure captions and the local data dictionary. This distinction motivates the revision requests retained in the editorial record."
+              ]
+            },
+            {
+              "id": "methods",
+              "title": "2 材料与方法 / Methods",
+              "paragraphs": [
+                "合成站点按绿地覆盖与建筑密度分层，每层使用相同的观测窗口。预处理保留缺失标记，在任何插补前记录原始样本量，并以固定随机种子生成演示值。",
+                "Synthetic sites were stratified by vegetation cover and building density. Preprocessing retained missingness flags and recorded original denominators before any imputation.",
+                "缺失比例为8.2%；我们记录逐站点缺失分布，并以完整案例作为敏感性分析。",
+                "在2 材料与方法中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。",
+                "For reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.",
+                "表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。",
+                "The editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.",
+                "每个虚构站点含早、中、晚三个窗口，缺失指示在聚合前独立保存。完整案例分析仅使用窗口记录齐全的站点，与插补情景分别汇总；两组比较沿用同一站点编号，不通过重新抽样制造新的观测来源。对极端值的处理规则写在补充材料中，未经预先说明不删除记录。",
+                "The local dictionary specifies site_id, observation_window, synthetic_temperature, and missing_flag. Site identifiers are stable across versions, allowing the editor to compare the same analytical unit before and after revision. Quality checks are conducted before aggregation: duplicate keys, unexpected window labels, and empty values are recorded separately. An imputed value remains distinguishable from an observed fixture value in every derived summary."
+              ]
+            },
+            {
+              "id": "analysis",
+              "title": "3 统计分析 / Analysis",
+              "paragraphs": [
+                "分析以站点为重采样单位，避免把同一站点的重复观测当作独立样本。对主要效应报告点估计、区间和敏感性分析，并保留不支持预设解释的结果。",
+                "Resampling was performed at the site level to preserve dependence among repeated observations. We report effect estimates, intervals, and sensitivity analyses, including results inconsistent with the initial hypothesis.",
+                "我们改为按站点进行1000次重采样，但尚未报告区间计算方法。",
+                "在3 统计分析中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。",
+                "For reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.",
+                "表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。",
+                "The editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.",
+                "主要比较使用站点组均值之差，附加比较按观测窗口分层。区间用于表达当前生成与重采样规则下的变化，不涵盖真实仪器偏差、地点选择偏差或政策实施效果。对缺失处理的敏感性和对时间窗口的敏感性分别呈现，不能以其中一项稳定替代另一项的核查。",
+                "The bootstrap resamples site identifiers with replacement and includes all windows for a selected site. For each replicate, a group difference is calculated using the same aggregation rule as the primary analysis. The percentile interval is read from the empirical distribution of replicate estimates. This procedure illustrates a dependence-aware calculation; it does not correct for unmeasured confounding or establish a causal effect in an observational design."
+              ]
+            },
+            {
+              "id": "results",
+              "title": "4 结果 / Results",
+              "paragraphs": [
+                "图1呈现合成情景中的分层温度差异，图2比较不同时间窗口下的估计。结果表明采样窗口会改变估计的幅度；这只能支持当前合成设计内的比较。",
+                "Figure 1 shows differences between synthetic strata; Figure 2 compares time windows. The magnitude of the estimate depends on the observation window and should be interpreted within this scenario.",
+                "在4 结果中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。",
+                "For reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.",
+                "表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。",
+                "The editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.",
+                "高、中、低绿地组的合成均值分别为29.4、31.1与32.6。上午、午间与傍晚的合成温差分别为1.2、2.1与0.8。图形刻意保留这些值的单位与情景标签，避免以漂亮图表遮盖测量来源。补充材料中的数据字典明确每个汇总量的分母；没有将这些值描述为真实城市的监测结果。",
+                "The direction of the group comparison is consistent across the three display windows, while its magnitude varies. The midday contrast is larger than the evening contrast in the fixed fixture. A stable direction does not imply a stable effect size, and neither finding determines whether an unobserved site would behave similarly. We report both the shared pattern and the window-specific differences so that the discussion can be checked against the displayed summaries."
+              ]
+            },
+            {
+              "id": "discussion",
+              "title": "5 讨论 / Discussion",
+              "paragraphs": [
+                "研究说明了采样设计、模型假设与解释边界之间的关系。任何将当前结果迁移到真实城市的工作，都需要独立数据、伦理审查和外部验证，本演示不提供这种证据。",
+                "The example illustrates how sampling design and modeling assumptions constrain interpretation. Transfer to a real city would require independent data and external validation that are absent from this synthetic demonstration.",
+                "在当前合成采样设计内，绿地组的平均温度较低，无法推断真实城市的因果效应。",
+                "在5 讨论中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。",
+                "For reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.",
+                "表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。",
+                "The editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.",
+                "对审稿意见的响应需要改变可见正文，而不仅在回复信中说明已经处理。第一次修回收窄讨论中的推断范围，第二次修回补充区间计算细节；这两项修订解决不同问题。编辑核验时应分别检查原句、改后句、方法依据与图注，不能用笼统的“已修改”覆盖全部问题。",
+                "The change in language is substantively connected to the design. A descriptive contrast among generated site groups cannot establish the effect of creating green space in a real neighborhood. Alternative mechanisms, site selection, and measurement error have not been empirically assessed. The appropriate interpretation is a worked example of how observation windows and dependence assumptions influence a reported comparison, accompanied by an explicit statement of what remains unknown."
+              ]
+            },
+            {
+              "id": "limitations",
+              "title": "6 局限性 / Limitations",
+              "paragraphs": [
+                "本研究使用合成观测，没有代表真实总体的抽样框。传感器误差、极端天气与人群暴露均未被真实测量，因此结果不能用于健康建议或城市规划决策。",
+                "The synthetic observations do not constitute a sampling frame for a real population. Sensor error, extreme weather, and personal exposure have not been measured, so these findings cannot guide health or planning decisions.",
+                "在6 局限性中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。",
+                "For reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.",
+                "表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。",
+                "The editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.",
+                "合成材料没有真实受试者，不能验证匿名化是否充分，也没有真实数据使用授权或机构伦理批件。这里的声明是情景说明，不是可复用的合规证明。未来若替换为真实数据，必须重新检查访问权限、用途、来源与研究设计，不能沿用本演示的通过状态或编辑批注。",
+                "The fixture also simplifies the editorial process. Reviewer names and availability are invented, invitation text is private, and a saved decision is only a draft. No external reviewer has assessed these materials. The scenario therefore tests whether the interface preserves evidence and user intent, rather than whether the scientific conclusion has passed peer review. These limitations remain visible even when a local issue is marked as resolved."
+              ]
+            },
+            {
+              "id": "data",
+              "title": "7 数据与声明 / Data and declarations",
+              "paragraphs": [
+                "所有文本、作者、审稿人、来源与数值均为合成测试材料。数据字典、生成规则与原始文本保存在本工作台附件中，仅供本地交互与审核流程验证。",
+                "All text, people, sources, and values are synthetic fixtures. The data dictionary and original text are bundled as local attachments for testing editorial reading and review interactions.",
+                "合成数据字典与生成规则作为补充材料S1提供，许可范围为本地演示。",
+                "在7 数据与声明中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。",
+                "For reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.",
+                "表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。",
+                "The editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.",
+                "原始文本附件与阅读排版使用相同段落，版本标识固定为v1、v2和v3。补充材料S1解释字段与处理顺序，作者回复附件保存逐点说明。附件只含本地合成文本，所有候选审稿人的地址使用.test域，来源使用fixture协议；没有真实论文、联系人或机构信息被用于生成此情景。",
+                "The materials are bundled for local inspection and contain no network dependencies. The original text of each version remains available after reading positions and private notes change. Evidence anchors identify a version, section, quoted passage, attachment, and paragraph location. This structure allows a future data adapter to replace the fixture while preserving the distinction between immutable source content and mutable personal workspace annotations."
+              ]
+            }
+          ],
+          "original": "demo-001-v2-original"
+        },
+        {
+          "id": "v3",
+          "label": "第二次修回",
+          "date": "2026-10-28",
+          "sections": [
+            {
+              "id": "abstract",
+              "title": "摘要 / Abstract",
+              "paragraphs": [
+                "本研究构建了一个完全合成的城市温度观测情景，比较空间采样、时间窗口与不确定性表述对结论的影响。所有站点与观测均为教学演示生成，不对应真实受试者或城市。",
+                "This study uses a fully synthetic urban temperature scenario to examine sampling, temporal windows, and uncertainty. No record describes a real person or city.",
+                "在摘要中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。",
+                "For reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.",
+                "表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。",
+                "The editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.",
+                "研究问题不是评估一项真实干预，而是说明当证据链中存在缺项时，编辑应如何定位和核查修改。我们预先区分描述性差异、敏感性结果与超出数据支持范围的主张；三个版本分别保留原始表述、第一次修正和第二次修正。",
+                "The demonstration is organized around three explicit checks: whether the denominator can be reconstructed, whether the uncertainty calculation respects clustered observations, and whether the language of the conclusion matches the design. Each check is inspectable in the text rather than inferred from a score. The reported numerical values are fixed examples, with no external data collection or claim of empirical novelty."
+              ]
+            },
+            {
+              "id": "introduction",
+              "title": "1 引言 / Introduction",
+              "paragraphs": [
+                "城市热环境研究需要同时解释局部差异与测量边界。单一平均数容易掩盖街区之间的异质性，因此我们以可复核的证据链组织问题，而不是把统计显著性当作普遍适用性的保证。",
+                "Urban heat observations depend on where and when measurements are taken. An auditable evidence chain connects the research question to the sampling design, analysis, and qualified interpretation.",
+                "在1 引言中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。",
+                "For reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.",
+                "表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。",
+                "The editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.",
+                "已有情景手册S1讨论了重复观测的相关性，情景手册S2讨论区间报告。本文引用这些虚构材料只是为了测试参考文献与正文之间的跳转，不为论点提供真实文献证据。我们以这种明确边界避免把演示的完整性误解为研究本身的有效性。",
+                "A useful editorial question is whether a reader can identify the unit that generated each summary. The number of time points is not the number of independent sites, and the number of sites is not a measure of population representativeness. We therefore keep these quantities separate throughout the narrative, including in figure captions and the local data dictionary. This distinction motivates the revision requests retained in the editorial record."
+              ]
+            },
+            {
+              "id": "methods",
+              "title": "2 材料与方法 / Methods",
+              "paragraphs": [
+                "合成站点按绿地覆盖与建筑密度分层，每层使用相同的观测窗口。预处理保留缺失标记，在任何插补前记录原始样本量，并以固定随机种子生成演示值。",
+                "Synthetic sites were stratified by vegetation cover and building density. Preprocessing retained missingness flags and recorded original denominators before any imputation.",
+                "缺失比例为8.2%；我们记录逐站点缺失分布，并以完整案例作为敏感性分析。",
+                "在2 材料与方法中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。",
+                "For reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.",
+                "表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。",
+                "The editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.",
+                "每个虚构站点含早、中、晚三个窗口，缺失指示在聚合前独立保存。完整案例分析仅使用窗口记录齐全的站点，与插补情景分别汇总；两组比较沿用同一站点编号，不通过重新抽样制造新的观测来源。对极端值的处理规则写在补充材料中，未经预先说明不删除记录。",
+                "The local dictionary specifies site_id, observation_window, synthetic_temperature, and missing_flag. Site identifiers are stable across versions, allowing the editor to compare the same analytical unit before and after revision. Quality checks are conducted before aggregation: duplicate keys, unexpected window labels, and empty values are recorded separately. An imputed value remains distinguishable from an observed fixture value in every derived summary."
+              ]
+            },
+            {
+              "id": "analysis",
+              "title": "3 统计分析 / Analysis",
+              "paragraphs": [
+                "分析以站点为重采样单位，避免把同一站点的重复观测当作独立样本。对主要效应报告点估计、区间和敏感性分析，并保留不支持预设解释的结果。",
+                "Resampling was performed at the site level to preserve dependence among repeated observations. We report effect estimates, intervals, and sensitivity analyses, including results inconsistent with the initial hypothesis.",
+                "我们按站点进行2000次重采样，采用百分位法计算95%区间，固定随机种子为42。",
+                "在3 统计分析中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。",
+                "For reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.",
+                "表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。",
+                "The editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.",
+                "主要比较使用站点组均值之差，附加比较按观测窗口分层。区间用于表达当前生成与重采样规则下的变化，不涵盖真实仪器偏差、地点选择偏差或政策实施效果。对缺失处理的敏感性和对时间窗口的敏感性分别呈现，不能以其中一项稳定替代另一项的核查。",
+                "The bootstrap resamples site identifiers with replacement and includes all windows for a selected site. For each replicate, a group difference is calculated using the same aggregation rule as the primary analysis. The percentile interval is read from the empirical distribution of replicate estimates. This procedure illustrates a dependence-aware calculation; it does not correct for unmeasured confounding or establish a causal effect in an observational design."
+              ]
+            },
+            {
+              "id": "results",
+              "title": "4 结果 / Results",
+              "paragraphs": [
+                "图1呈现合成情景中的分层温度差异，图2比较不同时间窗口下的估计。结果表明采样窗口会改变估计的幅度；这只能支持当前合成设计内的比较。",
+                "Figure 1 shows differences between synthetic strata; Figure 2 compares time windows. The magnitude of the estimate depends on the observation window and should be interpreted within this scenario.",
+                "在4 结果中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。",
+                "For reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.",
+                "表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。",
+                "The editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.",
+                "高、中、低绿地组的合成均值分别为29.4、31.1与32.6。上午、午间与傍晚的合成温差分别为1.2、2.1与0.8。图形刻意保留这些值的单位与情景标签，避免以漂亮图表遮盖测量来源。补充材料中的数据字典明确每个汇总量的分母；没有将这些值描述为真实城市的监测结果。",
+                "The direction of the group comparison is consistent across the three display windows, while its magnitude varies. The midday contrast is larger than the evening contrast in the fixed fixture. A stable direction does not imply a stable effect size, and neither finding determines whether an unobserved site would behave similarly. We report both the shared pattern and the window-specific differences so that the discussion can be checked against the displayed summaries."
+              ]
+            },
+            {
+              "id": "discussion",
+              "title": "5 讨论 / Discussion",
+              "paragraphs": [
+                "研究说明了采样设计、模型假设与解释边界之间的关系。任何将当前结果迁移到真实城市的工作，都需要独立数据、伦理审查和外部验证，本演示不提供这种证据。",
+                "The example illustrates how sampling design and modeling assumptions constrain interpretation. Transfer to a real city would require independent data and external validation that are absent from this synthetic demonstration.",
+                "在当前合成采样设计内，绿地组的平均温度较低，无法推断真实城市的因果效应。",
+                "在5 讨论中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。",
+                "For reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.",
+                "表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。",
+                "The editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.",
+                "对审稿意见的响应需要改变可见正文，而不仅在回复信中说明已经处理。第一次修回收窄讨论中的推断范围，第二次修回补充区间计算细节；这两项修订解决不同问题。编辑核验时应分别检查原句、改后句、方法依据与图注，不能用笼统的“已修改”覆盖全部问题。",
+                "The change in language is substantively connected to the design. A descriptive contrast among generated site groups cannot establish the effect of creating green space in a real neighborhood. Alternative mechanisms, site selection, and measurement error have not been empirically assessed. The appropriate interpretation is a worked example of how observation windows and dependence assumptions influence a reported comparison, accompanied by an explicit statement of what remains unknown."
+              ]
+            },
+            {
+              "id": "limitations",
+              "title": "6 局限性 / Limitations",
+              "paragraphs": [
+                "本研究使用合成观测，没有代表真实总体的抽样框。传感器误差、极端天气与人群暴露均未被真实测量，因此结果不能用于健康建议或城市规划决策。",
+                "The synthetic observations do not constitute a sampling frame for a real population. Sensor error, extreme weather, and personal exposure have not been measured, so these findings cannot guide health or planning decisions.",
+                "在6 局限性中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。",
+                "For reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.",
+                "表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。",
+                "The editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.",
+                "合成材料没有真实受试者，不能验证匿名化是否充分，也没有真实数据使用授权或机构伦理批件。这里的声明是情景说明，不是可复用的合规证明。未来若替换为真实数据，必须重新检查访问权限、用途、来源与研究设计，不能沿用本演示的通过状态或编辑批注。",
+                "The fixture also simplifies the editorial process. Reviewer names and availability are invented, invitation text is private, and a saved decision is only a draft. No external reviewer has assessed these materials. The scenario therefore tests whether the interface preserves evidence and user intent, rather than whether the scientific conclusion has passed peer review. These limitations remain visible even when a local issue is marked as resolved."
+              ]
+            },
+            {
+              "id": "data",
+              "title": "7 数据与声明 / Data and declarations",
+              "paragraphs": [
+                "所有文本、作者、审稿人、来源与数值均为合成测试材料。数据字典、生成规则与原始文本保存在本工作台附件中，仅供本地交互与审核流程验证。",
+                "All text, people, sources, and values are synthetic fixtures. The data dictionary and original text are bundled as local attachments for testing editorial reading and review interactions.",
+                "合成数据字典与生成规则作为补充材料S1提供，许可范围为本地演示。",
+                "在7 数据与声明中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。",
+                "For reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.",
+                "表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。",
+                "The editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.",
+                "原始文本附件与阅读排版使用相同段落，版本标识固定为v1、v2和v3。补充材料S1解释字段与处理顺序，作者回复附件保存逐点说明。附件只含本地合成文本，所有候选审稿人的地址使用.test域，来源使用fixture协议；没有真实论文、联系人或机构信息被用于生成此情景。",
+                "The materials are bundled for local inspection and contain no network dependencies. The original text of each version remains available after reading positions and private notes change. Evidence anchors identify a version, section, quoted passage, attachment, and paragraph location. This structure allows a future data adapter to replace the fixture while preserving the distinction between immutable source content and mutable personal workspace annotations."
+              ]
+            }
+          ],
+          "original": "demo-001-v3-original"
+        }
+      ],
+      "issues": [
+        {
+          "id": "issue-1",
+          "title": "补齐缺失数据处理",
+          "source": "第1轮 · 审稿人1",
+          "visibility": "author",
+          "round": 1,
+          "comment": "请报告缺失比例，并说明插补是否改变估计。",
+          "response": "已在方法中补充8.2%的缺失比例，并增加完整案例分析。",
+          "before": {
+            "version": "v1",
+            "section": "methods",
+            "quote": "缺失值按相邻时点的均值填补，本文未记录缺失比例。",
+            "file": "demo-001-v1-original",
+            "location": "2 材料与方法 / Methods · 第3段"
+          },
+          "after": {
+            "version": "v2",
+            "section": "methods",
+            "quote": "缺失比例为8.2%；我们记录逐站点缺失分布，并以完整案例作为敏感性分析。",
+            "file": "demo-001-v2-original",
+            "location": "2 材料与方法 / Methods · 第3段"
+          },
+          "initial_status": "resolved"
+        },
+        {
+          "id": "issue-2",
+          "title": "收窄因果推断",
+          "source": "第1轮 · 审稿人2",
+          "visibility": "author",
+          "round": 1,
+          "comment": "当前观察不能证明所有城市中的因果效应。",
+          "response": "已将结论限定于当前合成设计，并删除普遍因果表述。",
+          "before": {
+            "version": "v1",
+            "section": "discussion",
+            "quote": "结果证明增加绿地能够降低所有城市的高温暴露。",
+            "file": "demo-001-v1-original",
+            "location": "5 讨论 / Discussion · 第3段"
+          },
+          "after": {
+            "version": "v2",
+            "section": "discussion",
+            "quote": "在当前合成采样设计内，绿地组的平均温度较低，无法推断真实城市的因果效应。",
+            "file": "demo-001-v2-original",
+            "location": "5 讨论 / Discussion · 第3段"
+          },
+          "initial_status": "unverified"
+        },
+        {
+          "id": "issue-3",
+          "title": "核对重采样单位与区间",
+          "source": "第2轮 · 审稿人3",
+          "visibility": "author",
+          "round": 2,
+          "comment": "请明确重采样单位、次数与95%区间计算方法。",
+          "response": "第二次修回改为2000次站点重采样，使用百分位法和种子42。",
+          "before": {
+            "version": "v2",
+            "section": "analysis",
+            "quote": "我们改为按站点进行1000次重采样，但尚未报告区间计算方法。",
+            "file": "demo-001-v2-original",
+            "location": "3 统计分析 / Analysis · 第3段"
+          },
+          "after": {
+            "version": "v3",
+            "section": "analysis",
+            "quote": "我们按站点进行2000次重采样，采用百分位法计算95%区间，固定随机种子为42。",
+            "file": "demo-001-v3-original",
+            "location": "3 统计分析 / Analysis · 第3段"
+          },
+          "initial_status": "unverified"
+        },
+        {
+          "id": "issue-4",
+          "title": "确认补充材料可用性",
+          "source": "第2轮 · 编辑核查",
+          "visibility": "internal",
+          "round": 2,
+          "comment": "正文称有数据字典，请核查附件内容及版本。",
+          "response": "已提供补充材料S1，内容明确为合成测试数据。",
+          "before": {
+            "version": "v2",
+            "section": "data",
+            "quote": "合成数据字典与生成规则作为补充材料S1提供，许可范围为本地演示。",
+            "file": "demo-001-v2-original",
+            "location": "7 数据与声明 / Data and declarations · 第3段"
+          },
+          "after": {
+            "version": "v3",
+            "section": "data",
+            "quote": "合成数据字典与生成规则作为补充材料S1提供，许可范围为本地演示。",
+            "file": "demo-001-v3-original",
+            "location": "7 数据与声明 / Data and declarations · 第3段"
+          },
+          "initial_status": "unanswered"
+        },
+        {
+          "id": "issue-5",
+          "title": "统一图注的观测单位",
+          "source": "第2轮 · 审稿人3",
+          "visibility": "author",
+          "round": 2,
+          "comment": "图1和图2需要明确站点与时间窗口的区别。",
+          "response": "已检查正文，图注仍需编辑复核。",
+          "before": {
+            "version": "v1",
+            "section": "results",
+            "quote": "图1呈现合成情景中的分层温度差异，图2比较不同时间窗口下的估计。结果表明采样窗口会改变估计的幅度；这只能支持当前合成设计内的比较。",
+            "file": "demo-001-v1-original",
+            "location": "4 结果 / Results · 第1段"
+          },
+          "after": {
+            "version": "v3",
+            "section": "results",
+            "quote": "图1呈现合成情景中的分层温度差异，图2比较不同时间窗口下的估计。结果表明采样窗口会改变估计的幅度；这只能支持当前合成设计内的比较。",
+            "file": "demo-001-v3-original",
+            "location": "4 结果 / Results · 第1段"
+          },
+          "initial_status": "unverified"
+        }
+      ],
+      "candidates": [
+        {
+          "id": "candidate-1",
+          "name": "林澄",
+          "affiliation": "合成海湾大学",
+          "topics": [
+            "城市气候",
+            "空间统计"
+          ],
+          "papers": [
+            {
+              "title": "合成研究1：观测设计与估计边界",
+              "year": 2024,
+              "source": "fixture://reviewer-1/publications/1"
+            },
+            {
+              "title": "Synthetic methods note 1: reproducible uncertainty",
+              "year": 2025,
+              "source": "fixture://reviewer-1/publications/2"
+            }
+          ],
+          "review_history": "合成记录：过去24个月完成3次评审，中位用时13天；并非真实履历。",
+          "availability": "可于两周内开始（情景信息）",
+          "conflict": "未发现情景内共著；仍需人工核对",
+          "reason": "其合成主题覆盖城市气候，可核对方法与解释边界。",
+          "sources": [
+            "fixture://reviewer-1/profile",
+            "fixture://reviewer-1/publications"
+          ],
+          "email": "reviewer1@editorial-demo.test"
+        },
+        {
+          "id": "candidate-2",
+          "name": "周遥",
+          "affiliation": "合成北岸研究所",
+          "topics": [
+            "不确定性",
+            "可重复研究"
+          ],
+          "papers": [
+            {
+              "title": "合成研究2：观测设计与估计边界",
+              "year": 2024,
+              "source": "fixture://reviewer-2/publications/1"
+            },
+            {
+              "title": "Synthetic methods note 2: reproducible uncertainty",
+              "year": 2025,
+              "source": "fixture://reviewer-2/publications/2"
+            }
+          ],
+          "review_history": "合成记录：过去24个月完成4次评审，中位用时14天；并非真实履历。",
+          "availability": "本月可用（尚未联系）",
+          "conflict": "与合成作者无共同机构；需确认近期合作",
+          "reason": "其合成主题覆盖不确定性，可核对方法与解释边界。",
+          "sources": [
+            "fixture://reviewer-2/profile",
+            "fixture://reviewer-2/publications"
+          ],
+          "email": "reviewer2@editorial-demo.test"
+        },
+        {
+          "id": "candidate-3",
+          "name": "陈禾",
+          "affiliation": "合成山地大学",
+          "topics": [
+            "环境观测",
+            "数据质量"
+          ],
+          "papers": [
+            {
+              "title": "合成研究3：观测设计与估计边界",
+              "year": 2024,
+              "source": "fixture://reviewer-3/publications/1"
+            },
+            {
+              "title": "Synthetic methods note 3: reproducible uncertainty",
+              "year": 2025,
+              "source": "fixture://reviewer-3/publications/2"
+            }
+          ],
+          "review_history": "合成记录：过去24个月完成5次评审，中位用时15天；并非真实履历。",
+          "availability": "预计11月中旬可用",
+          "conflict": "主题匹配，机构信息有待核实",
+          "reason": "其合成主题覆盖环境观测，可核对方法与解释边界。",
+          "sources": [
+            "fixture://reviewer-3/profile",
+            "fixture://reviewer-3/publications"
+          ],
+          "email": "reviewer3@editorial-demo.test"
+        },
+        {
+          "id": "candidate-4",
+          "name": "许星",
+          "affiliation": "合成湖畔学院",
+          "topics": [
+            "遥感",
+            "城市生态"
+          ],
+          "papers": [
+            {
+              "title": "合成研究4：观测设计与估计边界",
+              "year": 2024,
+              "source": "fixture://reviewer-4/publications/1"
+            },
+            {
+              "title": "Synthetic methods note 4: reproducible uncertainty",
+              "year": 2025,
+              "source": "fixture://reviewer-4/publications/2"
+            }
+          ],
+          "review_history": "合成记录：过去24个月完成6次评审，中位用时16天；并非真实履历。",
+          "availability": "待确认",
+          "conflict": "同领域；需进一步利益冲突核查",
+          "reason": "其合成主题覆盖遥感，可核对方法与解释边界。",
+          "sources": [
+            "fixture://reviewer-4/profile",
+            "fixture://reviewer-4/publications"
+          ],
+          "email": "reviewer4@editorial-demo.test"
+        }
+      ],
+      "rounds": [
+        {
+          "number": 1,
+          "label": "第一轮评审 · v1 初稿 → v2 第一次修回",
+          "tasks": [
+            {
+              "reviewer": "合成审稿人1",
+              "status": "已完成",
+              "due": "2026-09-24"
+            },
+            {
+              "reviewer": "合成审稿人2",
+              "status": "已完成",
+              "due": "2026-09-26"
+            }
+          ]
+        },
+        {
+          "number": 2,
+          "label": "第二轮评审 · v2 第一次修回 → v3 第二次修回",
+          "tasks": [
+            {
+              "reviewer": "合成审稿人1",
+              "status": "已提交意见",
+              "due": "2026-10-24"
+            },
+            {
+              "reviewer": "合成审稿人3",
+              "status": "等待回复",
+              "due": "2026-11-06"
+            }
+          ]
+        }
+      ],
+      "history": [
+        {
+          "date": "2026-09-02T09:30:00Z",
+          "actor": "合成作者",
+          "text": "提交初稿及声明",
+          "visibility": "author"
+        },
+        {
+          "date": "2026-09-03T09:30:00Z",
+          "actor": "合成编辑",
+          "text": "完成范围核对，创建内部核查记录",
+          "visibility": "internal"
+        },
+        {
+          "date": "2026-09-05T09:30:00Z",
+          "actor": "合成编辑",
+          "text": "记录方法与数据可复核性问题",
+          "visibility": "internal"
+        },
+        {
+          "date": "2026-09-06T09:30:00Z",
+          "actor": "合成主编",
+          "text": "确认处理编辑分工",
+          "visibility": "author"
+        },
+        {
+          "date": "2026-09-08T09:30:00Z",
+          "actor": "合成编辑",
+          "text": "整理候选审稿人，尚未发出邀请",
+          "visibility": "internal"
+        },
+        {
+          "date": "2026-09-24T09:30:00Z",
+          "actor": "合成审稿人1",
+          "text": "提交第一轮合成评审意见",
+          "visibility": "author"
+        },
+        {
+          "date": "2026-09-26T09:30:00Z",
+          "actor": "合成审稿人2",
+          "text": "提交第一轮合成评审意见",
+          "visibility": "author"
+        },
+        {
+          "date": "2026-09-28T09:30:00Z",
+          "actor": "合成编辑",
+          "text": "归并第一轮问题，保留原始意见",
+          "visibility": "author"
+        },
+        {
+          "date": "2026-10-03T09:30:00Z",
+          "actor": "合成作者",
+          "text": "上传第一次修回与逐点回复",
+          "visibility": "author"
+        },
+        {
+          "date": "2026-10-06T09:30:00Z",
+          "actor": "合成编辑",
+          "text": "核对缺失数据段落，记录证据锚点",
+          "visibility": "internal"
+        },
+        {
+          "date": "2026-10-24T09:30:00Z",
+          "actor": "合成审稿人1",
+          "text": "提出第二轮区间估计问题",
+          "visibility": "author"
+        },
+        {
+          "date": "2026-10-28T09:30:00Z",
+          "actor": "合成作者",
+          "text": "上传第二次修回、回复及补充材料",
+          "visibility": "author"
+        },
+        {
+          "date": "2026-11-01T09:30:00Z",
+          "actor": "合成编辑",
+          "text": "打开第二次修回并保存阅读位置",
+          "visibility": "internal"
+        },
+        {
+          "date": "2026-11-02T09:30:00Z",
+          "actor": "合成编辑",
+          "text": "准备内部核验与决定草稿；无正式决定",
+          "visibility": "internal"
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-1",
+          "title": "图1 · 合成分层温度",
+          "caption": "完全合成数据；各柱为站点组的情景均值，非真实测量。",
+          "values": [
+            {
+              "label": "高绿地组",
+              "value": 29.4
+            },
+            {
+              "label": "中绿地组",
+              "value": 31.1
+            },
+            {
+              "label": "低绿地组",
+              "value": 32.6
+            }
+          ]
+        },
+        {
+          "id": "figure-2",
+          "title": "图2 · 观测窗口敏感性",
+          "caption": "合成温差，单位°C；比较窗口而非个体暴露。",
+          "values": [
+            {
+              "label": "上午",
+              "value": 1.2
+            },
+            {
+              "label": "午间",
+              "value": 2.1
+            },
+            {
+              "label": "傍晚",
+              "value": 0.8
+            }
+          ]
+        }
+      ],
+      "references": [
+        "[S1] 合成方法工作组（2025）. 站点重采样情景手册. fixture://references/site-bootstrap（虚构来源）",
+        "[S2] Synthetic Reproducibility Group (2024). Reporting uncertainty in demonstration data. fixture://references/uncertainty（虚构来源）",
+        "[S3] 合成数据委员会（2026）. 演示数据字典与生成规范. fixture://references/data-dictionary（虚构来源）"
+      ],
+      "attachments": [
+        {
+          "id": "demo-001-v1-original",
+          "name": "demo-001-v1-original.txt",
+          "version": "v1",
+          "content": "SYNTHETIC EDITORIAL FIXTURE / 合成稿件\n城市绿地与热暴露：面向不同空间尺度、观测窗口与不确定性表达的可重复合成研究\nUrban greenness and heat exposure across spatial scales: reproducible synthetic evidence, observation windows, and uncertainty reporting\n版本：v1\n\n摘要 / Abstract\n本研究构建了一个完全合成的城市温度观测情景，比较空间采样、时间窗口与不确定性表述对结论的影响。所有站点与观测均为教学演示生成，不对应真实受试者或城市。\n\nThis study uses a fully synthetic urban temperature scenario to examine sampling, temporal windows, and uncertainty. No record describes a real person or city.\n\n在摘要中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。\n\nFor reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.\n\n表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。\n\nThe editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.\n\n研究问题不是评估一项真实干预，而是说明当证据链中存在缺项时，编辑应如何定位和核查修改。我们预先区分描述性差异、敏感性结果与超出数据支持范围的主张；三个版本分别保留原始表述、第一次修正和第二次修正。\n\nThe demonstration is organized around three explicit checks: whether the denominator can be reconstructed, whether the uncertainty calculation respects clustered observations, and whether the language of the conclusion matches the design. Each check is inspectable in the text rather than inferred from a score. The reported numerical values are fixed examples, with no external data collection or claim of empirical novelty.\n\n1 引言 / Introduction\n城市热环境研究需要同时解释局部差异与测量边界。单一平均数容易掩盖街区之间的异质性，因此我们以可复核的证据链组织问题，而不是把统计显著性当作普遍适用性的保证。\n\nUrban heat observations depend on where and when measurements are taken. An auditable evidence chain connects the research question to the sampling design, analysis, and qualified interpretation.\n\n在1 引言中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。\n\nFor reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.\n\n表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。\n\nThe editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.\n\n已有情景手册S1讨论了重复观测的相关性，情景手册S2讨论区间报告。本文引用这些虚构材料只是为了测试参考文献与正文之间的跳转，不为论点提供真实文献证据。我们以这种明确边界避免把演示的完整性误解为研究本身的有效性。\n\nA useful editorial question is whether a reader can identify the unit that generated each summary. The number of time points is not the number of independent sites, and the number of sites is not a measure of population representativeness. We therefore keep these quantities separate throughout the narrative, including in figure captions and the local data dictionary. This distinction motivates the revision requests retained in the editorial record.\n\n2 材料与方法 / Methods\n合成站点按绿地覆盖与建筑密度分层，每层使用相同的观测窗口。预处理保留缺失标记，在任何插补前记录原始样本量，并以固定随机种子生成演示值。\n\nSynthetic sites were stratified by vegetation cover and building density. Preprocessing retained missingness flags and recorded original denominators before any imputation.\n\n缺失值按相邻时点的均值填补，本文未记录缺失比例。\n\n在2 材料与方法中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。\n\nFor reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.\n\n表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。\n\nThe editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.\n\n每个虚构站点含早、中、晚三个窗口，缺失指示在聚合前独立保存。完整案例分析仅使用窗口记录齐全的站点，与插补情景分别汇总；两组比较沿用同一站点编号，不通过重新抽样制造新的观测来源。对极端值的处理规则写在补充材料中，未经预先说明不删除记录。\n\nThe local dictionary specifies site_id, observation_window, synthetic_temperature, and missing_flag. Site identifiers are stable across versions, allowing the editor to compare the same analytical unit before and after revision. Quality checks are conducted before aggregation: duplicate keys, unexpected window labels, and empty values are recorded separately. An imputed value remains distinguishable from an observed fixture value in every derived summary.\n\n3 统计分析 / Analysis\n分析以站点为重采样单位，避免把同一站点的重复观测当作独立样本。对主要效应报告点估计、区间和敏感性分析，并保留不支持预设解释的结果。\n\nResampling was performed at the site level to preserve dependence among repeated observations. We report effect estimates, intervals, and sensitivity analyses, including results inconsistent with the initial hypothesis.\n\n我们对每条观测独立重采样，报告平均差值而未给出置信区间。\n\n在3 统计分析中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。\n\nFor reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.\n\n表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。\n\nThe editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.\n\n主要比较使用站点组均值之差，附加比较按观测窗口分层。区间用于表达当前生成与重采样规则下的变化，不涵盖真实仪器偏差、地点选择偏差或政策实施效果。对缺失处理的敏感性和对时间窗口的敏感性分别呈现，不能以其中一项稳定替代另一项的核查。\n\nThe bootstrap resamples site identifiers with replacement and includes all windows for a selected site. For each replicate, a group difference is calculated using the same aggregation rule as the primary analysis. The percentile interval is read from the empirical distribution of replicate estimates. This procedure illustrates a dependence-aware calculation; it does not correct for unmeasured confounding or establish a causal effect in an observational design.\n\n4 结果 / Results\n图1呈现合成情景中的分层温度差异，图2比较不同时间窗口下的估计。结果表明采样窗口会改变估计的幅度；这只能支持当前合成设计内的比较。\n\nFigure 1 shows differences between synthetic strata; Figure 2 compares time windows. The magnitude of the estimate depends on the observation window and should be interpreted within this scenario.\n\n在4 结果中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。\n\nFor reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.\n\n表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。\n\nThe editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.\n\n高、中、低绿地组的合成均值分别为29.4、31.1与32.6。上午、午间与傍晚的合成温差分别为1.2、2.1与0.8。图形刻意保留这些值的单位与情景标签，避免以漂亮图表遮盖测量来源。补充材料中的数据字典明确每个汇总量的分母；没有将这些值描述为真实城市的监测结果。\n\nThe direction of the group comparison is consistent across the three display windows, while its magnitude varies. The midday contrast is larger than the evening contrast in the fixed fixture. A stable direction does not imply a stable effect size, and neither finding determines whether an unobserved site would behave similarly. We report both the shared pattern and the window-specific differences so that the discussion can be checked against the displayed summaries.\n\n5 讨论 / Discussion\n研究说明了采样设计、模型假设与解释边界之间的关系。任何将当前结果迁移到真实城市的工作，都需要独立数据、伦理审查和外部验证，本演示不提供这种证据。\n\nThe example illustrates how sampling design and modeling assumptions constrain interpretation. Transfer to a real city would require independent data and external validation that are absent from this synthetic demonstration.\n\n结果证明增加绿地能够降低所有城市的高温暴露。\n\n在5 讨论中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。\n\nFor reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.\n\n表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。\n\nThe editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.\n\n对审稿意见的响应需要改变可见正文，而不仅在回复信中说明已经处理。第一次修回收窄讨论中的推断范围，第二次修回补充区间计算细节；这两项修订解决不同问题。编辑核验时应分别检查原句、改后句、方法依据与图注，不能用笼统的“已修改”覆盖全部问题。\n\nThe change in language is substantively connected to the design. A descriptive contrast among generated site groups cannot establish the effect of creating green space in a real neighborhood. Alternative mechanisms, site selection, and measurement error have not been empirically assessed. The appropriate interpretation is a worked example of how observation windows and dependence assumptions influence a reported comparison, accompanied by an explicit statement of what remains unknown.\n\n6 局限性 / Limitations\n本研究使用合成观测，没有代表真实总体的抽样框。传感器误差、极端天气与人群暴露均未被真实测量，因此结果不能用于健康建议或城市规划决策。\n\nThe synthetic observations do not constitute a sampling frame for a real population. Sensor error, extreme weather, and personal exposure have not been measured, so these findings cannot guide health or planning decisions.\n\n在6 局限性中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。\n\nFor reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.\n\n表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。\n\nThe editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.\n\n合成材料没有真实受试者，不能验证匿名化是否充分，也没有真实数据使用授权或机构伦理批件。这里的声明是情景说明，不是可复用的合规证明。未来若替换为真实数据，必须重新检查访问权限、用途、来源与研究设计，不能沿用本演示的通过状态或编辑批注。\n\nThe fixture also simplifies the editorial process. Reviewer names and availability are invented, invitation text is private, and a saved decision is only a draft. No external reviewer has assessed these materials. The scenario therefore tests whether the interface preserves evidence and user intent, rather than whether the scientific conclusion has passed peer review. These limitations remain visible even when a local issue is marked as resolved.\n\n7 数据与声明 / Data and declarations\n所有文本、作者、审稿人、来源与数值均为合成测试材料。数据字典、生成规则与原始文本保存在本工作台附件中，仅供本地交互与审核流程验证。\n\nAll text, people, sources, and values are synthetic fixtures. The data dictionary and original text are bundled as local attachments for testing editorial reading and review interactions.\n\n数据将在合理请求后提供。\n\n在7 数据与声明中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。\n\nFor reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.\n\n表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。\n\nThe editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.\n\n原始文本附件与阅读排版使用相同段落，版本标识固定为v1、v2和v3。补充材料S1解释字段与处理顺序，作者回复附件保存逐点说明。附件只含本地合成文本，所有候选审稿人的地址使用.test域，来源使用fixture协议；没有真实论文、联系人或机构信息被用于生成此情景。\n\nThe materials are bundled for local inspection and contain no network dependencies. The original text of each version remains available after reading positions and private notes change. Evidence anchors identify a version, section, quoted passage, attachment, and paragraph location. This structure allows a future data adapter to replace the fixture while preserving the distinction between immutable source content and mutable personal workspace annotations."
+        },
+        {
+          "id": "demo-001-v2-original",
+          "name": "demo-001-v2-original.txt",
+          "version": "v2",
+          "content": "SYNTHETIC EDITORIAL FIXTURE / 合成稿件\n城市绿地与热暴露：面向不同空间尺度、观测窗口与不确定性表达的可重复合成研究\nUrban greenness and heat exposure across spatial scales: reproducible synthetic evidence, observation windows, and uncertainty reporting\n版本：v2\n\n摘要 / Abstract\n本研究构建了一个完全合成的城市温度观测情景，比较空间采样、时间窗口与不确定性表述对结论的影响。所有站点与观测均为教学演示生成，不对应真实受试者或城市。\n\nThis study uses a fully synthetic urban temperature scenario to examine sampling, temporal windows, and uncertainty. No record describes a real person or city.\n\n在摘要中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。\n\nFor reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.\n\n表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。\n\nThe editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.\n\n研究问题不是评估一项真实干预，而是说明当证据链中存在缺项时，编辑应如何定位和核查修改。我们预先区分描述性差异、敏感性结果与超出数据支持范围的主张；三个版本分别保留原始表述、第一次修正和第二次修正。\n\nThe demonstration is organized around three explicit checks: whether the denominator can be reconstructed, whether the uncertainty calculation respects clustered observations, and whether the language of the conclusion matches the design. Each check is inspectable in the text rather than inferred from a score. The reported numerical values are fixed examples, with no external data collection or claim of empirical novelty.\n\n1 引言 / Introduction\n城市热环境研究需要同时解释局部差异与测量边界。单一平均数容易掩盖街区之间的异质性，因此我们以可复核的证据链组织问题，而不是把统计显著性当作普遍适用性的保证。\n\nUrban heat observations depend on where and when measurements are taken. An auditable evidence chain connects the research question to the sampling design, analysis, and qualified interpretation.\n\n在1 引言中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。\n\nFor reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.\n\n表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。\n\nThe editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.\n\n已有情景手册S1讨论了重复观测的相关性，情景手册S2讨论区间报告。本文引用这些虚构材料只是为了测试参考文献与正文之间的跳转，不为论点提供真实文献证据。我们以这种明确边界避免把演示的完整性误解为研究本身的有效性。\n\nA useful editorial question is whether a reader can identify the unit that generated each summary. The number of time points is not the number of independent sites, and the number of sites is not a measure of population representativeness. We therefore keep these quantities separate throughout the narrative, including in figure captions and the local data dictionary. This distinction motivates the revision requests retained in the editorial record.\n\n2 材料与方法 / Methods\n合成站点按绿地覆盖与建筑密度分层，每层使用相同的观测窗口。预处理保留缺失标记，在任何插补前记录原始样本量，并以固定随机种子生成演示值。\n\nSynthetic sites were stratified by vegetation cover and building density. Preprocessing retained missingness flags and recorded original denominators before any imputation.\n\n缺失比例为8.2%；我们记录逐站点缺失分布，并以完整案例作为敏感性分析。\n\n在2 材料与方法中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。\n\nFor reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.\n\n表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。\n\nThe editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.\n\n每个虚构站点含早、中、晚三个窗口，缺失指示在聚合前独立保存。完整案例分析仅使用窗口记录齐全的站点，与插补情景分别汇总；两组比较沿用同一站点编号，不通过重新抽样制造新的观测来源。对极端值的处理规则写在补充材料中，未经预先说明不删除记录。\n\nThe local dictionary specifies site_id, observation_window, synthetic_temperature, and missing_flag. Site identifiers are stable across versions, allowing the editor to compare the same analytical unit before and after revision. Quality checks are conducted before aggregation: duplicate keys, unexpected window labels, and empty values are recorded separately. An imputed value remains distinguishable from an observed fixture value in every derived summary.\n\n3 统计分析 / Analysis\n分析以站点为重采样单位，避免把同一站点的重复观测当作独立样本。对主要效应报告点估计、区间和敏感性分析，并保留不支持预设解释的结果。\n\nResampling was performed at the site level to preserve dependence among repeated observations. We report effect estimates, intervals, and sensitivity analyses, including results inconsistent with the initial hypothesis.\n\n我们改为按站点进行1000次重采样，但尚未报告区间计算方法。\n\n在3 统计分析中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。\n\nFor reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.\n\n表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。\n\nThe editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.\n\n主要比较使用站点组均值之差，附加比较按观测窗口分层。区间用于表达当前生成与重采样规则下的变化，不涵盖真实仪器偏差、地点选择偏差或政策实施效果。对缺失处理的敏感性和对时间窗口的敏感性分别呈现，不能以其中一项稳定替代另一项的核查。\n\nThe bootstrap resamples site identifiers with replacement and includes all windows for a selected site. For each replicate, a group difference is calculated using the same aggregation rule as the primary analysis. The percentile interval is read from the empirical distribution of replicate estimates. This procedure illustrates a dependence-aware calculation; it does not correct for unmeasured confounding or establish a causal effect in an observational design.\n\n4 结果 / Results\n图1呈现合成情景中的分层温度差异，图2比较不同时间窗口下的估计。结果表明采样窗口会改变估计的幅度；这只能支持当前合成设计内的比较。\n\nFigure 1 shows differences between synthetic strata; Figure 2 compares time windows. The magnitude of the estimate depends on the observation window and should be interpreted within this scenario.\n\n在4 结果中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。\n\nFor reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.\n\n表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。\n\nThe editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.\n\n高、中、低绿地组的合成均值分别为29.4、31.1与32.6。上午、午间与傍晚的合成温差分别为1.2、2.1与0.8。图形刻意保留这些值的单位与情景标签，避免以漂亮图表遮盖测量来源。补充材料中的数据字典明确每个汇总量的分母；没有将这些值描述为真实城市的监测结果。\n\nThe direction of the group comparison is consistent across the three display windows, while its magnitude varies. The midday contrast is larger than the evening contrast in the fixed fixture. A stable direction does not imply a stable effect size, and neither finding determines whether an unobserved site would behave similarly. We report both the shared pattern and the window-specific differences so that the discussion can be checked against the displayed summaries.\n\n5 讨论 / Discussion\n研究说明了采样设计、模型假设与解释边界之间的关系。任何将当前结果迁移到真实城市的工作，都需要独立数据、伦理审查和外部验证，本演示不提供这种证据。\n\nThe example illustrates how sampling design and modeling assumptions constrain interpretation. Transfer to a real city would require independent data and external validation that are absent from this synthetic demonstration.\n\n在当前合成采样设计内，绿地组的平均温度较低，无法推断真实城市的因果效应。\n\n在5 讨论中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。\n\nFor reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.\n\n表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。\n\nThe editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.\n\n对审稿意见的响应需要改变可见正文，而不仅在回复信中说明已经处理。第一次修回收窄讨论中的推断范围，第二次修回补充区间计算细节；这两项修订解决不同问题。编辑核验时应分别检查原句、改后句、方法依据与图注，不能用笼统的“已修改”覆盖全部问题。\n\nThe change in language is substantively connected to the design. A descriptive contrast among generated site groups cannot establish the effect of creating green space in a real neighborhood. Alternative mechanisms, site selection, and measurement error have not been empirically assessed. The appropriate interpretation is a worked example of how observation windows and dependence assumptions influence a reported comparison, accompanied by an explicit statement of what remains unknown.\n\n6 局限性 / Limitations\n本研究使用合成观测，没有代表真实总体的抽样框。传感器误差、极端天气与人群暴露均未被真实测量，因此结果不能用于健康建议或城市规划决策。\n\nThe synthetic observations do not constitute a sampling frame for a real population. Sensor error, extreme weather, and personal exposure have not been measured, so these findings cannot guide health or planning decisions.\n\n在6 局限性中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。\n\nFor reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.\n\n表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。\n\nThe editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.\n\n合成材料没有真实受试者，不能验证匿名化是否充分，也没有真实数据使用授权或机构伦理批件。这里的声明是情景说明，不是可复用的合规证明。未来若替换为真实数据，必须重新检查访问权限、用途、来源与研究设计，不能沿用本演示的通过状态或编辑批注。\n\nThe fixture also simplifies the editorial process. Reviewer names and availability are invented, invitation text is private, and a saved decision is only a draft. No external reviewer has assessed these materials. The scenario therefore tests whether the interface preserves evidence and user intent, rather than whether the scientific conclusion has passed peer review. These limitations remain visible even when a local issue is marked as resolved.\n\n7 数据与声明 / Data and declarations\n所有文本、作者、审稿人、来源与数值均为合成测试材料。数据字典、生成规则与原始文本保存在本工作台附件中，仅供本地交互与审核流程验证。\n\nAll text, people, sources, and values are synthetic fixtures. The data dictionary and original text are bundled as local attachments for testing editorial reading and review interactions.\n\n合成数据字典与生成规则作为补充材料S1提供，许可范围为本地演示。\n\n在7 数据与声明中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。\n\nFor reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.\n\n表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。\n\nThe editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.\n\n原始文本附件与阅读排版使用相同段落，版本标识固定为v1、v2和v3。补充材料S1解释字段与处理顺序，作者回复附件保存逐点说明。附件只含本地合成文本，所有候选审稿人的地址使用.test域，来源使用fixture协议；没有真实论文、联系人或机构信息被用于生成此情景。\n\nThe materials are bundled for local inspection and contain no network dependencies. The original text of each version remains available after reading positions and private notes change. Evidence anchors identify a version, section, quoted passage, attachment, and paragraph location. This structure allows a future data adapter to replace the fixture while preserving the distinction between immutable source content and mutable personal workspace annotations."
+        },
+        {
+          "id": "demo-001-v3-original",
+          "name": "demo-001-v3-original.txt",
+          "version": "v3",
+          "content": "SYNTHETIC EDITORIAL FIXTURE / 合成稿件\n城市绿地与热暴露：面向不同空间尺度、观测窗口与不确定性表达的可重复合成研究\nUrban greenness and heat exposure across spatial scales: reproducible synthetic evidence, observation windows, and uncertainty reporting\n版本：v3\n\n摘要 / Abstract\n本研究构建了一个完全合成的城市温度观测情景，比较空间采样、时间窗口与不确定性表述对结论的影响。所有站点与观测均为教学演示生成，不对应真实受试者或城市。\n\nThis study uses a fully synthetic urban temperature scenario to examine sampling, temporal windows, and uncertainty. No record describes a real person or city.\n\n在摘要中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。\n\nFor reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.\n\n表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。\n\nThe editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.\n\n研究问题不是评估一项真实干预，而是说明当证据链中存在缺项时，编辑应如何定位和核查修改。我们预先区分描述性差异、敏感性结果与超出数据支持范围的主张；三个版本分别保留原始表述、第一次修正和第二次修正。\n\nThe demonstration is organized around three explicit checks: whether the denominator can be reconstructed, whether the uncertainty calculation respects clustered observations, and whether the language of the conclusion matches the design. Each check is inspectable in the text rather than inferred from a score. The reported numerical values are fixed examples, with no external data collection or claim of empirical novelty.\n\n1 引言 / Introduction\n城市热环境研究需要同时解释局部差异与测量边界。单一平均数容易掩盖街区之间的异质性，因此我们以可复核的证据链组织问题，而不是把统计显著性当作普遍适用性的保证。\n\nUrban heat observations depend on where and when measurements are taken. An auditable evidence chain connects the research question to the sampling design, analysis, and qualified interpretation.\n\n在1 引言中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。\n\nFor reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.\n\n表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。\n\nThe editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.\n\n已有情景手册S1讨论了重复观测的相关性，情景手册S2讨论区间报告。本文引用这些虚构材料只是为了测试参考文献与正文之间的跳转，不为论点提供真实文献证据。我们以这种明确边界避免把演示的完整性误解为研究本身的有效性。\n\nA useful editorial question is whether a reader can identify the unit that generated each summary. The number of time points is not the number of independent sites, and the number of sites is not a measure of population representativeness. We therefore keep these quantities separate throughout the narrative, including in figure captions and the local data dictionary. This distinction motivates the revision requests retained in the editorial record.\n\n2 材料与方法 / Methods\n合成站点按绿地覆盖与建筑密度分层，每层使用相同的观测窗口。预处理保留缺失标记，在任何插补前记录原始样本量，并以固定随机种子生成演示值。\n\nSynthetic sites were stratified by vegetation cover and building density. Preprocessing retained missingness flags and recorded original denominators before any imputation.\n\n缺失比例为8.2%；我们记录逐站点缺失分布，并以完整案例作为敏感性分析。\n\n在2 材料与方法中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。\n\nFor reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.\n\n表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。\n\nThe editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.\n\n每个虚构站点含早、中、晚三个窗口，缺失指示在聚合前独立保存。完整案例分析仅使用窗口记录齐全的站点，与插补情景分别汇总；两组比较沿用同一站点编号，不通过重新抽样制造新的观测来源。对极端值的处理规则写在补充材料中，未经预先说明不删除记录。\n\nThe local dictionary specifies site_id, observation_window, synthetic_temperature, and missing_flag. Site identifiers are stable across versions, allowing the editor to compare the same analytical unit before and after revision. Quality checks are conducted before aggregation: duplicate keys, unexpected window labels, and empty values are recorded separately. An imputed value remains distinguishable from an observed fixture value in every derived summary.\n\n3 统计分析 / Analysis\n分析以站点为重采样单位，避免把同一站点的重复观测当作独立样本。对主要效应报告点估计、区间和敏感性分析，并保留不支持预设解释的结果。\n\nResampling was performed at the site level to preserve dependence among repeated observations. We report effect estimates, intervals, and sensitivity analyses, including results inconsistent with the initial hypothesis.\n\n我们按站点进行2000次重采样，采用百分位法计算95%区间，固定随机种子为42。\n\n在3 统计分析中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。\n\nFor reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.\n\n表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。\n\nThe editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.\n\n主要比较使用站点组均值之差，附加比较按观测窗口分层。区间用于表达当前生成与重采样规则下的变化，不涵盖真实仪器偏差、地点选择偏差或政策实施效果。对缺失处理的敏感性和对时间窗口的敏感性分别呈现，不能以其中一项稳定替代另一项的核查。\n\nThe bootstrap resamples site identifiers with replacement and includes all windows for a selected site. For each replicate, a group difference is calculated using the same aggregation rule as the primary analysis. The percentile interval is read from the empirical distribution of replicate estimates. This procedure illustrates a dependence-aware calculation; it does not correct for unmeasured confounding or establish a causal effect in an observational design.\n\n4 结果 / Results\n图1呈现合成情景中的分层温度差异，图2比较不同时间窗口下的估计。结果表明采样窗口会改变估计的幅度；这只能支持当前合成设计内的比较。\n\nFigure 1 shows differences between synthetic strata; Figure 2 compares time windows. The magnitude of the estimate depends on the observation window and should be interpreted within this scenario.\n\n在4 结果中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。\n\nFor reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.\n\n表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。\n\nThe editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.\n\n高、中、低绿地组的合成均值分别为29.4、31.1与32.6。上午、午间与傍晚的合成温差分别为1.2、2.1与0.8。图形刻意保留这些值的单位与情景标签，避免以漂亮图表遮盖测量来源。补充材料中的数据字典明确每个汇总量的分母；没有将这些值描述为真实城市的监测结果。\n\nThe direction of the group comparison is consistent across the three display windows, while its magnitude varies. The midday contrast is larger than the evening contrast in the fixed fixture. A stable direction does not imply a stable effect size, and neither finding determines whether an unobserved site would behave similarly. We report both the shared pattern and the window-specific differences so that the discussion can be checked against the displayed summaries.\n\n5 讨论 / Discussion\n研究说明了采样设计、模型假设与解释边界之间的关系。任何将当前结果迁移到真实城市的工作，都需要独立数据、伦理审查和外部验证，本演示不提供这种证据。\n\nThe example illustrates how sampling design and modeling assumptions constrain interpretation. Transfer to a real city would require independent data and external validation that are absent from this synthetic demonstration.\n\n在当前合成采样设计内，绿地组的平均温度较低，无法推断真实城市的因果效应。\n\n在5 讨论中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。\n\nFor reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.\n\n表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。\n\nThe editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.\n\n对审稿意见的响应需要改变可见正文，而不仅在回复信中说明已经处理。第一次修回收窄讨论中的推断范围，第二次修回补充区间计算细节；这两项修订解决不同问题。编辑核验时应分别检查原句、改后句、方法依据与图注，不能用笼统的“已修改”覆盖全部问题。\n\nThe change in language is substantively connected to the design. A descriptive contrast among generated site groups cannot establish the effect of creating green space in a real neighborhood. Alternative mechanisms, site selection, and measurement error have not been empirically assessed. The appropriate interpretation is a worked example of how observation windows and dependence assumptions influence a reported comparison, accompanied by an explicit statement of what remains unknown.\n\n6 局限性 / Limitations\n本研究使用合成观测，没有代表真实总体的抽样框。传感器误差、极端天气与人群暴露均未被真实测量，因此结果不能用于健康建议或城市规划决策。\n\nThe synthetic observations do not constitute a sampling frame for a real population. Sensor error, extreme weather, and personal exposure have not been measured, so these findings cannot guide health or planning decisions.\n\n在6 局限性中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。\n\nFor reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.\n\n表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。\n\nThe editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.\n\n合成材料没有真实受试者，不能验证匿名化是否充分，也没有真实数据使用授权或机构伦理批件。这里的声明是情景说明，不是可复用的合规证明。未来若替换为真实数据，必须重新检查访问权限、用途、来源与研究设计，不能沿用本演示的通过状态或编辑批注。\n\nThe fixture also simplifies the editorial process. Reviewer names and availability are invented, invitation text is private, and a saved decision is only a draft. No external reviewer has assessed these materials. The scenario therefore tests whether the interface preserves evidence and user intent, rather than whether the scientific conclusion has passed peer review. These limitations remain visible even when a local issue is marked as resolved.\n\n7 数据与声明 / Data and declarations\n所有文本、作者、审稿人、来源与数值均为合成测试材料。数据字典、生成规则与原始文本保存在本工作台附件中，仅供本地交互与审核流程验证。\n\nAll text, people, sources, and values are synthetic fixtures. The data dictionary and original text are bundled as local attachments for testing editorial reading and review interactions.\n\n合成数据字典与生成规则作为补充材料S1提供，许可范围为本地演示。\n\n在7 数据与声明中，我们另外保留了每个分析步骤的输入、排除规则与解释范围。站点A至F只是本地情景标识；两次分析使用同一数据字典，并在任何比较前核对观测单位、时间顺序和缺失标记。这些记录使编辑能够从概述回到原始段落，判断作者回复是否真正回应了问题。\n\nFor reproducibility, each analytical choice is linked to a declared unit of observation and a fixed synthetic input. We distinguish a descriptive association from a causal claim, and we preserve the denominator alongside every aggregate. A discrepancy between windows is retained as evidence about sensitivity rather than removed as an inconvenient result.\n\n表述中的不确定性与数值结果同样重要。正文说明了哪些观察来自当前设计，哪些解释仍是假设；图注标记样本单位，附录给出处理顺序。读者可以比较版本，检查修改前后的原句，而不必依赖作者回复中的概括。\n\nThe editorial record should allow a reader to reconstruct the connection between a reviewer comment, the author response, and the revised passage. The attached original is a text fixture of this exact version; it is preserved separately from the reading layout so that an evidence link remains inspectable.\n\n原始文本附件与阅读排版使用相同段落，版本标识固定为v1、v2和v3。补充材料S1解释字段与处理顺序，作者回复附件保存逐点说明。附件只含本地合成文本，所有候选审稿人的地址使用.test域，来源使用fixture协议；没有真实论文、联系人或机构信息被用于生成此情景。\n\nThe materials are bundled for local inspection and contain no network dependencies. The original text of each version remains available after reading positions and private notes change. Evidence anchors identify a version, section, quoted passage, attachment, and paragraph location. This structure allows a future data adapter to replace the fixture while preserving the distinction between immutable source content and mutable personal workspace annotations."
+        },
+        {
+          "id": "demo-001-supplement",
+          "name": "demo-001-supplement-S1.txt",
+          "version": "v3",
+          "content": "合成补充材料 S1 / Synthetic supplement\n数据字典：site_id为虚构站点A-F；temperature为教学情景值；missing为缺失标记。\n生成规则：固定种子42；非真实测量。\n处理顺序：保留缺失→按站点汇总→重采样→区间估计。"
+        },
+        {
+          "id": "demo-001-response",
+          "name": "demo-001-author-response.txt",
+          "version": "v3",
+          "content": "合成作者回复 / Synthetic author response\nR1-1：补充缺失比例与完整案例分析。\nR1-2：收窄因果表述。\nR2-1：按站点重采样并说明百分位区间。\nR2-2：提供本地合成数据字典。"
+        }
+      ]
+    },
+    {
+      "id": "demo-002",
+      "number": "ENV-2026-0130",
+      "title": "开放数据仓储的可复核性评估",
+      "title_en": "Auditing reproducibility in synthetic data repositories",
+      "authors": [
+        "合成作者 何青",
+        "合成作者 宋岚"
+      ],
+      "stage": "待分派编辑",
+      "stage_key": "assignment",
+      "owner": "待分派",
+      "due": "2026-11-04",
+      "priority": "中",
+      "task": "核对范围并分派处理编辑",
+      "action": "查看分派",
+      "abstract": "本研究以完全合成的数据仓储目录为对象，评估元数据字段、版本标识和复现说明的完整性。目录、条目及作者均为虚构，仅用于测试编辑分派和阅读流程。",
+      "versions": [
+        {
+          "id": "v1",
+          "label": "初稿",
+          "date": "2026-10-29",
+          "sections": [
+            {
+              "id": "abstract",
+              "title": "摘要 / Abstract",
+              "paragraphs": [
+                "本研究以完全合成的数据仓储目录为对象，评估元数据字段、版本标识和复现说明的完整性。目录、条目及作者均为虚构，仅用于测试编辑分派和阅读流程。",
+                "This manuscript studies synthetic data repositories using local invented inputs. All people, organizations, numbers, and source records are synthetic fixtures, not empirical evidence."
+              ]
+            },
+            {
+              "id": "introduction",
+              "title": "1 引言 / Introduction",
+              "paragraphs": [
+                "开放数据仓储需要区分研究问题、输入边界与可核查的结果。本情景将这些内容分段保存，便于编辑回到原句核对研究范围。",
+                "The research question concerns synthetic data repositories. We distinguish the declared scope from any claim about real populations, institutions, or operational performance."
+              ]
+            },
+            {
+              "id": "methods",
+              "title": "2 材料与方法 / Methods",
+              "paragraphs": [
+                "我们构造六个虚构仓储目录，每个目录含十个合成条目；按数据字典检查许可、版本与运行说明，不访问真实仓储。",
+                "Every input is generated locally for this manuscript scenario. The attached dictionary records the observation unit, field labels, and generation assumptions; no external collection is performed."
+              ]
+            },
+            {
+              "id": "analysis",
+              "title": "3 统计分析 / Analysis",
+              "paragraphs": [
+                "分析报告字段完整率与评估者一致率。分母固定为六十个合成条目，缺失说明保留为缺失，不以推测补齐。",
+                "The analysis preserves the original denominator and reports limitations alongside the summary. A computed metric is an illustration of the stated rules rather than a validated result from a real dataset."
+              ]
+            },
+            {
+              "id": "results",
+              "title": "4 结果 / Results",
+              "paragraphs": [
+                "合成目录的许可说明完整率为80%，版本标识完整率为70%，复现步骤完整率为60%；这些比例仅描述本地测试材料。",
+                "Figure 1 presents the fixed values for synthetic data repositories. The values should be read with their synthetic units and declared denominator, without extrapolation beyond the scenario."
+              ]
+            },
+            {
+              "id": "discussion",
+              "title": "5 讨论 / Discussion",
+              "paragraphs": [
+                "字段完整不等于结果可复现。当前情景只能说明检查规则如何发现缺项，无法评价真实仓储的研究质量。",
+                "A complete editorial record should connect the question, method, displayed result, and qualification. Private workspace annotations do not change the submitted text or constitute a published decision."
+              ]
+            },
+            {
+              "id": "limitations",
+              "title": "6 局限性 / Limitations",
+              "paragraphs": [
+                "本研究仅含本地合成材料，没有真实总体抽样框或独立验证。虚构作者、机构与来源不应被当作真实联系人、履历或文献证据。",
+                "This fixture cannot establish scientific validity, ethics approval, or operational safety. Replacing its content with real material would require a separate authorized process and fresh evidence."
+              ]
+            },
+            {
+              "id": "data",
+              "title": "7 数据与声明 / Data and declarations",
+              "paragraphs": [
+                "开放数据仓储的字段说明与生成边界保存在补充材料S1。原稿v1与阅读正文逐段一致，所有来源均使用fixture协议，仅用于本地交互验证。",
+                "The original v1 and supplement are immutable local text fixtures for synthetic data repositories. There is no uploaded confidential manuscript, network data source, or real recipient."
+              ]
+            }
+          ],
+          "original": "demo-002-v1-original"
+        }
+      ],
+      "issues": [],
+      "candidates": [
+        {
+          "id": "candidate-1",
+          "name": "林澄",
+          "affiliation": "合成海湾大学",
+          "topics": [
+            "开放数据仓储",
+            "可重复研究"
+          ],
+          "papers": [
+            {
+              "title": "合成方法说明1：开放数据仓储",
+              "year": 2025,
+              "source": "fixture://demo-002/reviewer-1/publications/1"
+            }
+          ],
+          "review_history": "合成记录：过去24个月完成3次评审，中位用时13天；并非真实履历。",
+          "availability": "可于两周内开始（情景信息）",
+          "conflict": "未发现情景内共著；仍需人工核对",
+          "reason": "其虚构研究主题包括开放数据仓储，可参与方法与解释边界核查；仍需人工确认。",
+          "sources": [
+            "fixture://demo-002/reviewer-1/profile",
+            "fixture://demo-002/reviewer-1/publications"
+          ],
+          "email": "reviewer1@editorial-demo.test"
+        },
+        {
+          "id": "candidate-2",
+          "name": "周遥",
+          "affiliation": "合成北岸研究所",
+          "topics": [
+            "开放数据仓储",
+            "可重复研究"
+          ],
+          "papers": [
+            {
+              "title": "合成方法说明2：开放数据仓储",
+              "year": 2025,
+              "source": "fixture://demo-002/reviewer-2/publications/1"
+            }
+          ],
+          "review_history": "合成记录：过去24个月完成4次评审，中位用时14天；并非真实履历。",
+          "availability": "本月可用（尚未联系）",
+          "conflict": "与合成作者无共同机构；需确认近期合作",
+          "reason": "其虚构研究主题包括开放数据仓储，可参与方法与解释边界核查；仍需人工确认。",
+          "sources": [
+            "fixture://demo-002/reviewer-2/profile",
+            "fixture://demo-002/reviewer-2/publications"
+          ],
+          "email": "reviewer2@editorial-demo.test"
+        },
+        {
+          "id": "candidate-3",
+          "name": "陈禾",
+          "affiliation": "合成山地大学",
+          "topics": [
+            "开放数据仓储",
+            "可重复研究"
+          ],
+          "papers": [
+            {
+              "title": "合成方法说明3：开放数据仓储",
+              "year": 2025,
+              "source": "fixture://demo-002/reviewer-3/publications/1"
+            }
+          ],
+          "review_history": "合成记录：过去24个月完成5次评审，中位用时15天；并非真实履历。",
+          "availability": "预计11月中旬可用",
+          "conflict": "主题匹配，机构信息有待核实",
+          "reason": "其虚构研究主题包括开放数据仓储，可参与方法与解释边界核查；仍需人工确认。",
+          "sources": [
+            "fixture://demo-002/reviewer-3/profile",
+            "fixture://demo-002/reviewer-3/publications"
+          ],
+          "email": "reviewer3@editorial-demo.test"
+        },
+        {
+          "id": "candidate-4",
+          "name": "许星",
+          "affiliation": "合成湖畔学院",
+          "topics": [
+            "开放数据仓储",
+            "可重复研究"
+          ],
+          "papers": [
+            {
+              "title": "合成方法说明4：开放数据仓储",
+              "year": 2025,
+              "source": "fixture://demo-002/reviewer-4/publications/1"
+            }
+          ],
+          "review_history": "合成记录：过去24个月完成6次评审，中位用时16天；并非真实履历。",
+          "availability": "待确认",
+          "conflict": "同领域；需进一步利益冲突核查",
+          "reason": "其虚构研究主题包括开放数据仓储，可参与方法与解释边界核查；仍需人工确认。",
+          "sources": [
+            "fixture://demo-002/reviewer-4/profile",
+            "fixture://demo-002/reviewer-4/publications"
+          ],
+          "email": "reviewer4@editorial-demo.test"
+        }
+      ],
+      "rounds": [],
+      "history": [
+        {
+          "date": "2026-10-29T09:30:00Z",
+          "actor": "合成作者",
+          "text": "提交合成初稿v1及数据仓储清单",
+          "visibility": "author"
+        },
+        {
+          "date": "2026-10-30T09:30:00Z",
+          "actor": "合成编辑",
+          "text": "核对文件齐全，等待处理编辑分派",
+          "visibility": "internal"
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-1",
+          "title": "图1 · 开放数据仓储合成结果",
+          "caption": "完全合成的固定情景值；单位与分母见结果正文。",
+          "values": [
+            {
+              "label": "许可说明",
+              "value": 80
+            },
+            {
+              "label": "版本标识",
+              "value": 70
+            },
+            {
+              "label": "复现步骤",
+              "value": 60
+            }
+          ]
+        }
+      ],
+      "references": [
+        "[S1] 合成开放数据仓储工作组（2026）. 本地情景生成与检查说明. fixture://demo-002/references/methods（虚构来源）",
+        "[S2] Synthetic Scenario Group (2025). Reporting boundaries for synthetic data repositories. fixture://demo-002/references/reporting（虚构来源）"
+      ],
+      "attachments": [
+        {
+          "id": "demo-002-v1-original",
+          "name": "demo-002-v1-original.txt",
+          "version": "v1",
+          "content": "SYNTHETIC EDITORIAL FIXTURE / 合成稿件\n开放数据仓储的可复核性评估\nAuditing reproducibility in synthetic data repositories\n版本：v1\n\n摘要 / Abstract\n本研究以完全合成的数据仓储目录为对象，评估元数据字段、版本标识和复现说明的完整性。目录、条目及作者均为虚构，仅用于测试编辑分派和阅读流程。\n\nThis manuscript studies synthetic data repositories using local invented inputs. All people, organizations, numbers, and source records are synthetic fixtures, not empirical evidence.\n\n1 引言 / Introduction\n开放数据仓储需要区分研究问题、输入边界与可核查的结果。本情景将这些内容分段保存，便于编辑回到原句核对研究范围。\n\nThe research question concerns synthetic data repositories. We distinguish the declared scope from any claim about real populations, institutions, or operational performance.\n\n2 材料与方法 / Methods\n我们构造六个虚构仓储目录，每个目录含十个合成条目；按数据字典检查许可、版本与运行说明，不访问真实仓储。\n\nEvery input is generated locally for this manuscript scenario. The attached dictionary records the observation unit, field labels, and generation assumptions; no external collection is performed.\n\n3 统计分析 / Analysis\n分析报告字段完整率与评估者一致率。分母固定为六十个合成条目，缺失说明保留为缺失，不以推测补齐。\n\nThe analysis preserves the original denominator and reports limitations alongside the summary. A computed metric is an illustration of the stated rules rather than a validated result from a real dataset.\n\n4 结果 / Results\n合成目录的许可说明完整率为80%，版本标识完整率为70%，复现步骤完整率为60%；这些比例仅描述本地测试材料。\n\nFigure 1 presents the fixed values for synthetic data repositories. The values should be read with their synthetic units and declared denominator, without extrapolation beyond the scenario.\n\n5 讨论 / Discussion\n字段完整不等于结果可复现。当前情景只能说明检查规则如何发现缺项，无法评价真实仓储的研究质量。\n\nA complete editorial record should connect the question, method, displayed result, and qualification. Private workspace annotations do not change the submitted text or constitute a published decision.\n\n6 局限性 / Limitations\n本研究仅含本地合成材料，没有真实总体抽样框或独立验证。虚构作者、机构与来源不应被当作真实联系人、履历或文献证据。\n\nThis fixture cannot establish scientific validity, ethics approval, or operational safety. Replacing its content with real material would require a separate authorized process and fresh evidence.\n\n7 数据与声明 / Data and declarations\n开放数据仓储的字段说明与生成边界保存在补充材料S1。原稿v1与阅读正文逐段一致，所有来源均使用fixture协议，仅用于本地交互验证。\n\nThe original v1 and supplement are immutable local text fixtures for synthetic data repositories. There is no uploaded confidential manuscript, network data source, or real recipient."
+        },
+        {
+          "id": "demo-002-supplement",
+          "name": "demo-002-supplement-S1.txt",
+          "version": "v1",
+          "content": "合成补充材料S1 / Synthetic supplement\n主题：开放数据仓储\n方法：我们构造六个虚构仓储目录，每个目录含十个合成条目；按数据字典检查许可、版本与运行说明，不访问真实仓储。\n分析：分析报告字段完整率与评估者一致率。分母固定为六十个合成条目，缺失说明保留为缺失，不以推测补齐。\n全部字段、单位与数值仅供本地情景演示；无真实研究数据。"
+        }
+      ]
+    },
+    {
+      "id": "demo-003",
+      "number": "ENV-2026-0131",
+      "title": "海岸湿地遥感分类的不确定性",
+      "title_en": "Uncertainty in synthetic coastal wetland classification",
+      "authors": [
+        "合成作者 何青",
+        "合成作者 宋岚"
+      ],
+      "stage": "寻找审稿人",
+      "stage_key": "reviewers",
+      "owner": "我",
+      "due": "2026-11-05",
+      "priority": "高",
+      "task": "为第一轮评审整理候选人",
+      "action": "寻找审稿人",
+      "abstract": "本研究使用完全合成的光谱与地类标签，比较分类概率校准和验证集划分。没有真实卫星影像或地理坐标，当前工作台处于第一轮候选审稿人准备阶段。",
+      "versions": [
+        {
+          "id": "v1",
+          "label": "初稿",
+          "date": "2026-10-23",
+          "sections": [
+            {
+              "id": "abstract",
+              "title": "摘要 / Abstract",
+              "paragraphs": [
+                "本研究使用完全合成的光谱与地类标签，比较分类概率校准和验证集划分。没有真实卫星影像或地理坐标，当前工作台处于第一轮候选审稿人准备阶段。",
+                "This manuscript studies synthetic wetland classification using local invented inputs. All people, organizations, numbers, and source records are synthetic fixtures, not empirical evidence."
+              ]
+            },
+            {
+              "id": "introduction",
+              "title": "1 引言 / Introduction",
+              "paragraphs": [
+                "湿地遥感分类需要区分研究问题、输入边界与可核查的结果。本情景将这些内容分段保存，便于编辑回到原句核对研究范围。",
+                "The research question concerns synthetic wetland classification. We distinguish the declared scope from any claim about real populations, institutions, or operational performance."
+              ]
+            },
+            {
+              "id": "methods",
+              "title": "2 材料与方法 / Methods",
+              "paragraphs": [
+                "我们生成六类虚构湿地标签与对应光谱特征，以空间块标识分割训练集和验证集，避免同一合成块同时出现在两者中。",
+                "Every input is generated locally for this manuscript scenario. The attached dictionary records the observation unit, field labels, and generation assumptions; no external collection is performed."
+              ]
+            },
+            {
+              "id": "analysis",
+              "title": "3 统计分析 / Analysis",
+              "paragraphs": [
+                "分类结果同时报告每类召回率与概率校准误差，重复实验保留固定种子。总体准确率不替代少数类别的检查。",
+                "The analysis preserves the original denominator and reports limitations alongside the summary. A computed metric is an illustration of the stated rules rather than a validated result from a real dataset."
+              ]
+            },
+            {
+              "id": "results",
+              "title": "4 结果 / Results",
+              "paragraphs": [
+                "三个合成测试块的分类准确率分别为78%、82%和75%；低频类别的召回率较低，概率校准仍有误差。",
+                "Figure 1 presents the fixed values for synthetic wetland classification. The values should be read with their synthetic units and declared denominator, without extrapolation beyond the scenario."
+              ]
+            },
+            {
+              "id": "discussion",
+              "title": "5 讨论 / Discussion",
+              "paragraphs": [
+                "当前结果只比较生成规则内的分类方法。真实湿地的季节变化、传感器差异与地面验证均不在此合成研究中。",
+                "A complete editorial record should connect the question, method, displayed result, and qualification. Private workspace annotations do not change the submitted text or constitute a published decision."
+              ]
+            },
+            {
+              "id": "limitations",
+              "title": "6 局限性 / Limitations",
+              "paragraphs": [
+                "本研究仅含本地合成材料，没有真实总体抽样框或独立验证。虚构作者、机构与来源不应被当作真实联系人、履历或文献证据。",
+                "This fixture cannot establish scientific validity, ethics approval, or operational safety. Replacing its content with real material would require a separate authorized process and fresh evidence."
+              ]
+            },
+            {
+              "id": "data",
+              "title": "7 数据与声明 / Data and declarations",
+              "paragraphs": [
+                "湿地遥感分类的字段说明与生成边界保存在补充材料S1。原稿v1与阅读正文逐段一致，所有来源均使用fixture协议，仅用于本地交互验证。",
+                "The original v1 and supplement are immutable local text fixtures for synthetic wetland classification. There is no uploaded confidential manuscript, network data source, or real recipient."
+              ]
+            }
+          ],
+          "original": "demo-003-v1-original"
+        }
+      ],
+      "issues": [],
+      "candidates": [
+        {
+          "id": "candidate-1",
+          "name": "林澄",
+          "affiliation": "合成海湾大学",
+          "topics": [
+            "湿地遥感分类",
+            "可重复研究"
+          ],
+          "papers": [
+            {
+              "title": "合成方法说明1：湿地遥感分类",
+              "year": 2025,
+              "source": "fixture://demo-003/reviewer-1/publications/1"
+            }
+          ],
+          "review_history": "合成记录：过去24个月完成3次评审，中位用时13天；并非真实履历。",
+          "availability": "可于两周内开始（情景信息）",
+          "conflict": "未发现情景内共著；仍需人工核对",
+          "reason": "其虚构研究主题包括湿地遥感分类，可参与方法与解释边界核查；仍需人工确认。",
+          "sources": [
+            "fixture://demo-003/reviewer-1/profile",
+            "fixture://demo-003/reviewer-1/publications"
+          ],
+          "email": "reviewer1@editorial-demo.test"
+        },
+        {
+          "id": "candidate-2",
+          "name": "周遥",
+          "affiliation": "合成北岸研究所",
+          "topics": [
+            "湿地遥感分类",
+            "可重复研究"
+          ],
+          "papers": [
+            {
+              "title": "合成方法说明2：湿地遥感分类",
+              "year": 2025,
+              "source": "fixture://demo-003/reviewer-2/publications/1"
+            }
+          ],
+          "review_history": "合成记录：过去24个月完成4次评审，中位用时14天；并非真实履历。",
+          "availability": "本月可用（尚未联系）",
+          "conflict": "与合成作者无共同机构；需确认近期合作",
+          "reason": "其虚构研究主题包括湿地遥感分类，可参与方法与解释边界核查；仍需人工确认。",
+          "sources": [
+            "fixture://demo-003/reviewer-2/profile",
+            "fixture://demo-003/reviewer-2/publications"
+          ],
+          "email": "reviewer2@editorial-demo.test"
+        },
+        {
+          "id": "candidate-3",
+          "name": "陈禾",
+          "affiliation": "合成山地大学",
+          "topics": [
+            "湿地遥感分类",
+            "可重复研究"
+          ],
+          "papers": [
+            {
+              "title": "合成方法说明3：湿地遥感分类",
+              "year": 2025,
+              "source": "fixture://demo-003/reviewer-3/publications/1"
+            }
+          ],
+          "review_history": "合成记录：过去24个月完成5次评审，中位用时15天；并非真实履历。",
+          "availability": "预计11月中旬可用",
+          "conflict": "主题匹配，机构信息有待核实",
+          "reason": "其虚构研究主题包括湿地遥感分类，可参与方法与解释边界核查；仍需人工确认。",
+          "sources": [
+            "fixture://demo-003/reviewer-3/profile",
+            "fixture://demo-003/reviewer-3/publications"
+          ],
+          "email": "reviewer3@editorial-demo.test"
+        },
+        {
+          "id": "candidate-4",
+          "name": "许星",
+          "affiliation": "合成湖畔学院",
+          "topics": [
+            "湿地遥感分类",
+            "可重复研究"
+          ],
+          "papers": [
+            {
+              "title": "合成方法说明4：湿地遥感分类",
+              "year": 2025,
+              "source": "fixture://demo-003/reviewer-4/publications/1"
+            }
+          ],
+          "review_history": "合成记录：过去24个月完成6次评审，中位用时16天；并非真实履历。",
+          "availability": "待确认",
+          "conflict": "同领域；需进一步利益冲突核查",
+          "reason": "其虚构研究主题包括湿地遥感分类，可参与方法与解释边界核查；仍需人工确认。",
+          "sources": [
+            "fixture://demo-003/reviewer-4/profile",
+            "fixture://demo-003/reviewer-4/publications"
+          ],
+          "email": "reviewer4@editorial-demo.test"
+        }
+      ],
+      "rounds": [
+        {
+          "number": 1,
+          "label": "第一轮评审准备 · v1 初稿 · 尚未邀请",
+          "tasks": []
+        }
+      ],
+      "history": [
+        {
+          "date": "2026-10-23T09:30:00Z",
+          "actor": "合成作者",
+          "text": "提交合成初稿v1与特征字典",
+          "visibility": "author"
+        },
+        {
+          "date": "2026-10-25T09:30:00Z",
+          "actor": "合成编辑",
+          "text": "完成初筛并记录虚构处理编辑分工",
+          "visibility": "internal"
+        },
+        {
+          "date": "2026-10-30T09:30:00Z",
+          "actor": "合成编辑",
+          "text": "创建第一轮评审准备；尚未邀请或联系候选人",
+          "visibility": "internal"
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-1",
+          "title": "图1 · 湿地遥感分类合成结果",
+          "caption": "完全合成的固定情景值；单位与分母见结果正文。",
+          "values": [
+            {
+              "label": "测试块A",
+              "value": 78
+            },
+            {
+              "label": "测试块B",
+              "value": 82
+            },
+            {
+              "label": "测试块C",
+              "value": 75
+            }
+          ]
+        }
+      ],
+      "references": [
+        "[S1] 合成湿地遥感分类工作组（2026）. 本地情景生成与检查说明. fixture://demo-003/references/methods（虚构来源）",
+        "[S2] Synthetic Scenario Group (2025). Reporting boundaries for synthetic wetland classification. fixture://demo-003/references/reporting（虚构来源）"
+      ],
+      "attachments": [
+        {
+          "id": "demo-003-v1-original",
+          "name": "demo-003-v1-original.txt",
+          "version": "v1",
+          "content": "SYNTHETIC EDITORIAL FIXTURE / 合成稿件\n海岸湿地遥感分类的不确定性\nUncertainty in synthetic coastal wetland classification\n版本：v1\n\n摘要 / Abstract\n本研究使用完全合成的光谱与地类标签，比较分类概率校准和验证集划分。没有真实卫星影像或地理坐标，当前工作台处于第一轮候选审稿人准备阶段。\n\nThis manuscript studies synthetic wetland classification using local invented inputs. All people, organizations, numbers, and source records are synthetic fixtures, not empirical evidence.\n\n1 引言 / Introduction\n湿地遥感分类需要区分研究问题、输入边界与可核查的结果。本情景将这些内容分段保存，便于编辑回到原句核对研究范围。\n\nThe research question concerns synthetic wetland classification. We distinguish the declared scope from any claim about real populations, institutions, or operational performance.\n\n2 材料与方法 / Methods\n我们生成六类虚构湿地标签与对应光谱特征，以空间块标识分割训练集和验证集，避免同一合成块同时出现在两者中。\n\nEvery input is generated locally for this manuscript scenario. The attached dictionary records the observation unit, field labels, and generation assumptions; no external collection is performed.\n\n3 统计分析 / Analysis\n分类结果同时报告每类召回率与概率校准误差，重复实验保留固定种子。总体准确率不替代少数类别的检查。\n\nThe analysis preserves the original denominator and reports limitations alongside the summary. A computed metric is an illustration of the stated rules rather than a validated result from a real dataset.\n\n4 结果 / Results\n三个合成测试块的分类准确率分别为78%、82%和75%；低频类别的召回率较低，概率校准仍有误差。\n\nFigure 1 presents the fixed values for synthetic wetland classification. The values should be read with their synthetic units and declared denominator, without extrapolation beyond the scenario.\n\n5 讨论 / Discussion\n当前结果只比较生成规则内的分类方法。真实湿地的季节变化、传感器差异与地面验证均不在此合成研究中。\n\nA complete editorial record should connect the question, method, displayed result, and qualification. Private workspace annotations do not change the submitted text or constitute a published decision.\n\n6 局限性 / Limitations\n本研究仅含本地合成材料，没有真实总体抽样框或独立验证。虚构作者、机构与来源不应被当作真实联系人、履历或文献证据。\n\nThis fixture cannot establish scientific validity, ethics approval, or operational safety. Replacing its content with real material would require a separate authorized process and fresh evidence.\n\n7 数据与声明 / Data and declarations\n湿地遥感分类的字段说明与生成边界保存在补充材料S1。原稿v1与阅读正文逐段一致，所有来源均使用fixture协议，仅用于本地交互验证。\n\nThe original v1 and supplement are immutable local text fixtures for synthetic wetland classification. There is no uploaded confidential manuscript, network data source, or real recipient."
+        },
+        {
+          "id": "demo-003-supplement",
+          "name": "demo-003-supplement-S1.txt",
+          "version": "v1",
+          "content": "合成补充材料S1 / Synthetic supplement\n主题：湿地遥感分类\n方法：我们生成六类虚构湿地标签与对应光谱特征，以空间块标识分割训练集和验证集，避免同一合成块同时出现在两者中。\n分析：分类结果同时报告每类召回率与概率校准误差，重复实验保留固定种子。总体准确率不替代少数类别的检查。\n全部字段、单位与数值仅供本地情景演示；无真实研究数据。"
+        }
+      ]
+    },
+    {
+      "id": "demo-004",
+      "number": "ENV-2026-0132",
+      "title": "跨学科团队中的数据标注一致性",
+      "title_en": "Annotation agreement in synthetic interdisciplinary teams",
+      "authors": [
+        "合成作者 何青",
+        "合成作者 宋岚"
+      ],
+      "stage": "第一轮外审进行中",
+      "stage_key": "review",
+      "owner": "林编辑",
+      "due": "2026-11-07",
+      "priority": "中",
+      "task": "跟进第一轮评审进度",
+      "action": "查看轮次",
+      "abstract": "本研究用虚构标注者对合成文本进行类别标注，比较一致性指标与分歧记录。所有文本和标注者均为虚构；当前情景为初稿v1的第一轮评审，尚无修回版本。",
+      "versions": [
+        {
+          "id": "v1",
+          "label": "初稿",
+          "date": "2026-10-12",
+          "sections": [
+            {
+              "id": "abstract",
+              "title": "摘要 / Abstract",
+              "paragraphs": [
+                "本研究用虚构标注者对合成文本进行类别标注，比较一致性指标与分歧记录。所有文本和标注者均为虚构；当前情景为初稿v1的第一轮评审，尚无修回版本。",
+                "This manuscript studies synthetic annotation agreement using local invented inputs. All people, organizations, numbers, and source records are synthetic fixtures, not empirical evidence."
+              ]
+            },
+            {
+              "id": "introduction",
+              "title": "1 引言 / Introduction",
+              "paragraphs": [
+                "数据标注一致性需要区分研究问题、输入边界与可核查的结果。本情景将这些内容分段保存，便于编辑回到原句核对研究范围。",
+                "The research question concerns synthetic annotation agreement. We distinguish the declared scope from any claim about real populations, institutions, or operational performance."
+              ]
+            },
+            {
+              "id": "methods",
+              "title": "2 材料与方法 / Methods",
+              "paragraphs": [
+                "四名虚构标注者分别标记一百条合成文本。每条文本保留独立标签与分歧原因，不将讨论后的共识覆盖原始标签。",
+                "Every input is generated locally for this manuscript scenario. The attached dictionary records the observation unit, field labels, and generation assumptions; no external collection is performed."
+              ]
+            },
+            {
+              "id": "analysis",
+              "title": "3 统计分析 / Analysis",
+              "paragraphs": [
+                "分析分别计算原始一致率与机会校正指标，并按类别报告分歧。标注者和文本的重复结构在不确定性解释中单独说明。",
+                "The analysis preserves the original denominator and reports limitations alongside the summary. A computed metric is an illustration of the stated rules rather than a validated result from a real dataset."
+              ]
+            },
+            {
+              "id": "results",
+              "title": "4 结果 / Results",
+              "paragraphs": [
+                "三个合成类别的一致率为84%、76%和68%；混合含义文本的分歧较多，不能用总体一致率消除类别差异。",
+                "Figure 1 presents the fixed values for synthetic annotation agreement. The values should be read with their synthetic units and declared denominator, without extrapolation beyond the scenario."
+              ]
+            },
+            {
+              "id": "discussion",
+              "title": "5 讨论 / Discussion",
+              "paragraphs": [
+                "一致性是规则可操作性的一个信号，不代表标签就是真实事实。当前分析不能推断真实团队能力，也不衡量个人工作表现。",
+                "A complete editorial record should connect the question, method, displayed result, and qualification. Private workspace annotations do not change the submitted text or constitute a published decision."
+              ]
+            },
+            {
+              "id": "limitations",
+              "title": "6 局限性 / Limitations",
+              "paragraphs": [
+                "本研究仅含本地合成材料，没有真实总体抽样框或独立验证。虚构作者、机构与来源不应被当作真实联系人、履历或文献证据。",
+                "This fixture cannot establish scientific validity, ethics approval, or operational safety. Replacing its content with real material would require a separate authorized process and fresh evidence."
+              ]
+            },
+            {
+              "id": "data",
+              "title": "7 数据与声明 / Data and declarations",
+              "paragraphs": [
+                "数据标注一致性的字段说明与生成边界保存在补充材料S1。原稿v1与阅读正文逐段一致，所有来源均使用fixture协议，仅用于本地交互验证。",
+                "The original v1 and supplement are immutable local text fixtures for synthetic annotation agreement. There is no uploaded confidential manuscript, network data source, or real recipient."
+              ]
+            }
+          ],
+          "original": "demo-004-v1-original"
+        }
+      ],
+      "issues": [],
+      "candidates": [
+        {
+          "id": "candidate-1",
+          "name": "林澄",
+          "affiliation": "合成海湾大学",
+          "topics": [
+            "数据标注一致性",
+            "可重复研究"
+          ],
+          "papers": [
+            {
+              "title": "合成方法说明1：数据标注一致性",
+              "year": 2025,
+              "source": "fixture://demo-004/reviewer-1/publications/1"
+            }
+          ],
+          "review_history": "合成记录：过去24个月完成3次评审，中位用时13天；并非真实履历。",
+          "availability": "可于两周内开始（情景信息）",
+          "conflict": "未发现情景内共著；仍需人工核对",
+          "reason": "其虚构研究主题包括数据标注一致性，可参与方法与解释边界核查；仍需人工确认。",
+          "sources": [
+            "fixture://demo-004/reviewer-1/profile",
+            "fixture://demo-004/reviewer-1/publications"
+          ],
+          "email": "reviewer1@editorial-demo.test"
+        },
+        {
+          "id": "candidate-2",
+          "name": "周遥",
+          "affiliation": "合成北岸研究所",
+          "topics": [
+            "数据标注一致性",
+            "可重复研究"
+          ],
+          "papers": [
+            {
+              "title": "合成方法说明2：数据标注一致性",
+              "year": 2025,
+              "source": "fixture://demo-004/reviewer-2/publications/1"
+            }
+          ],
+          "review_history": "合成记录：过去24个月完成4次评审，中位用时14天；并非真实履历。",
+          "availability": "本月可用（尚未联系）",
+          "conflict": "与合成作者无共同机构；需确认近期合作",
+          "reason": "其虚构研究主题包括数据标注一致性，可参与方法与解释边界核查；仍需人工确认。",
+          "sources": [
+            "fixture://demo-004/reviewer-2/profile",
+            "fixture://demo-004/reviewer-2/publications"
+          ],
+          "email": "reviewer2@editorial-demo.test"
+        },
+        {
+          "id": "candidate-3",
+          "name": "陈禾",
+          "affiliation": "合成山地大学",
+          "topics": [
+            "数据标注一致性",
+            "可重复研究"
+          ],
+          "papers": [
+            {
+              "title": "合成方法说明3：数据标注一致性",
+              "year": 2025,
+              "source": "fixture://demo-004/reviewer-3/publications/1"
+            }
+          ],
+          "review_history": "合成记录：过去24个月完成5次评审，中位用时15天；并非真实履历。",
+          "availability": "预计11月中旬可用",
+          "conflict": "主题匹配，机构信息有待核实",
+          "reason": "其虚构研究主题包括数据标注一致性，可参与方法与解释边界核查；仍需人工确认。",
+          "sources": [
+            "fixture://demo-004/reviewer-3/profile",
+            "fixture://demo-004/reviewer-3/publications"
+          ],
+          "email": "reviewer3@editorial-demo.test"
+        },
+        {
+          "id": "candidate-4",
+          "name": "许星",
+          "affiliation": "合成湖畔学院",
+          "topics": [
+            "数据标注一致性",
+            "可重复研究"
+          ],
+          "papers": [
+            {
+              "title": "合成方法说明4：数据标注一致性",
+              "year": 2025,
+              "source": "fixture://demo-004/reviewer-4/publications/1"
+            }
+          ],
+          "review_history": "合成记录：过去24个月完成6次评审，中位用时16天；并非真实履历。",
+          "availability": "待确认",
+          "conflict": "同领域；需进一步利益冲突核查",
+          "reason": "其虚构研究主题包括数据标注一致性，可参与方法与解释边界核查；仍需人工确认。",
+          "sources": [
+            "fixture://demo-004/reviewer-4/profile",
+            "fixture://demo-004/reviewer-4/publications"
+          ],
+          "email": "reviewer4@editorial-demo.test"
+        }
+      ],
+      "rounds": [
+        {
+          "number": 1,
+          "label": "第一轮评审 · v1 初稿",
+          "tasks": [
+            {
+              "reviewer": "合成审稿人1",
+              "status": "评审中",
+              "due": "2026-11-07"
+            },
+            {
+              "reviewer": "合成审稿人2",
+              "status": "评审中",
+              "due": "2026-11-09"
+            }
+          ]
+        }
+      ],
+      "history": [
+        {
+          "date": "2026-10-12T09:30:00Z",
+          "actor": "合成作者",
+          "text": "提交合成初稿v1及标注规则",
+          "visibility": "author"
+        },
+        {
+          "date": "2026-10-14T09:30:00Z",
+          "actor": "合成编辑",
+          "text": "完成初筛并准备第一轮评审",
+          "visibility": "internal"
+        },
+        {
+          "date": "2026-10-17T09:30:00Z",
+          "actor": "合成编辑",
+          "text": "情景记录：两名虚构审稿人接受第一轮邀请；本系统未发送邮件",
+          "visibility": "internal"
+        },
+        {
+          "date": "2026-10-30T09:30:00Z",
+          "actor": "合成编辑",
+          "text": "跟进v1第一轮评审，仍等待两份报告",
+          "visibility": "internal"
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-1",
+          "title": "图1 · 数据标注一致性合成结果",
+          "caption": "完全合成的固定情景值；单位与分母见结果正文。",
+          "values": [
+            {
+              "label": "类别A",
+              "value": 84
+            },
+            {
+              "label": "类别B",
+              "value": 76
+            },
+            {
+              "label": "类别C",
+              "value": 68
+            }
+          ]
+        }
+      ],
+      "references": [
+        "[S1] 合成数据标注一致性工作组（2026）. 本地情景生成与检查说明. fixture://demo-004/references/methods（虚构来源）",
+        "[S2] Synthetic Scenario Group (2025). Reporting boundaries for synthetic annotation agreement. fixture://demo-004/references/reporting（虚构来源）"
+      ],
+      "attachments": [
+        {
+          "id": "demo-004-v1-original",
+          "name": "demo-004-v1-original.txt",
+          "version": "v1",
+          "content": "SYNTHETIC EDITORIAL FIXTURE / 合成稿件\n跨学科团队中的数据标注一致性\nAnnotation agreement in synthetic interdisciplinary teams\n版本：v1\n\n摘要 / Abstract\n本研究用虚构标注者对合成文本进行类别标注，比较一致性指标与分歧记录。所有文本和标注者均为虚构；当前情景为初稿v1的第一轮评审，尚无修回版本。\n\nThis manuscript studies synthetic annotation agreement using local invented inputs. All people, organizations, numbers, and source records are synthetic fixtures, not empirical evidence.\n\n1 引言 / Introduction\n数据标注一致性需要区分研究问题、输入边界与可核查的结果。本情景将这些内容分段保存，便于编辑回到原句核对研究范围。\n\nThe research question concerns synthetic annotation agreement. We distinguish the declared scope from any claim about real populations, institutions, or operational performance.\n\n2 材料与方法 / Methods\n四名虚构标注者分别标记一百条合成文本。每条文本保留独立标签与分歧原因，不将讨论后的共识覆盖原始标签。\n\nEvery input is generated locally for this manuscript scenario. The attached dictionary records the observation unit, field labels, and generation assumptions; no external collection is performed.\n\n3 统计分析 / Analysis\n分析分别计算原始一致率与机会校正指标，并按类别报告分歧。标注者和文本的重复结构在不确定性解释中单独说明。\n\nThe analysis preserves the original denominator and reports limitations alongside the summary. A computed metric is an illustration of the stated rules rather than a validated result from a real dataset.\n\n4 结果 / Results\n三个合成类别的一致率为84%、76%和68%；混合含义文本的分歧较多，不能用总体一致率消除类别差异。\n\nFigure 1 presents the fixed values for synthetic annotation agreement. The values should be read with their synthetic units and declared denominator, without extrapolation beyond the scenario.\n\n5 讨论 / Discussion\n一致性是规则可操作性的一个信号，不代表标签就是真实事实。当前分析不能推断真实团队能力，也不衡量个人工作表现。\n\nA complete editorial record should connect the question, method, displayed result, and qualification. Private workspace annotations do not change the submitted text or constitute a published decision.\n\n6 局限性 / Limitations\n本研究仅含本地合成材料，没有真实总体抽样框或独立验证。虚构作者、机构与来源不应被当作真实联系人、履历或文献证据。\n\nThis fixture cannot establish scientific validity, ethics approval, or operational safety. Replacing its content with real material would require a separate authorized process and fresh evidence.\n\n7 数据与声明 / Data and declarations\n数据标注一致性的字段说明与生成边界保存在补充材料S1。原稿v1与阅读正文逐段一致，所有来源均使用fixture协议，仅用于本地交互验证。\n\nThe original v1 and supplement are immutable local text fixtures for synthetic annotation agreement. There is no uploaded confidential manuscript, network data source, or real recipient."
+        },
+        {
+          "id": "demo-004-supplement",
+          "name": "demo-004-supplement-S1.txt",
+          "version": "v1",
+          "content": "合成补充材料S1 / Synthetic supplement\n主题：数据标注一致性\n方法：四名虚构标注者分别标记一百条合成文本。每条文本保留独立标签与分歧原因，不将讨论后的共识覆盖原始标签。\n分析：分析分别计算原始一致率与机会校正指标，并按类别报告分歧。标注者和文本的重复结构在不确定性解释中单独说明。\n全部字段、单位与数值仅供本地情景演示；无真实研究数据。"
+        }
+      ]
+    },
+    {
+      "id": "demo-005",
+      "number": "ENV-2026-0133",
+      "title": "社区能源需求的情景预测",
+      "title_en": "Scenario forecasts of synthetic community energy demand",
+      "authors": [
+        "合成作者 何青",
+        "合成作者 宋岚"
+      ],
+      "stage": "编辑初筛",
+      "stage_key": "screening",
+      "owner": "我",
+      "due": "2026-11-02",
+      "priority": "高",
+      "task": "核对研究范围与方法说明",
+      "action": "开始初筛",
+      "abstract": "本研究构造虚构社区的能源需求序列，比较基线预测与情景假设。数值不描述真实住户或社区，当前仅进入编辑初筛，尚未创建评审轮次。",
+      "versions": [
+        {
+          "id": "v1",
+          "label": "初稿",
+          "date": "2026-10-31",
+          "sections": [
+            {
+              "id": "abstract",
+              "title": "摘要 / Abstract",
+              "paragraphs": [
+                "本研究构造虚构社区的能源需求序列，比较基线预测与情景假设。数值不描述真实住户或社区，当前仅进入编辑初筛，尚未创建评审轮次。",
+                "This manuscript studies synthetic community energy forecasts using local invented inputs. All people, organizations, numbers, and source records are synthetic fixtures, not empirical evidence."
+              ]
+            },
+            {
+              "id": "introduction",
+              "title": "1 引言 / Introduction",
+              "paragraphs": [
+                "社区能源情景预测需要区分研究问题、输入边界与可核查的结果。本情景将这些内容分段保存，便于编辑回到原句核对研究范围。",
+                "The research question concerns synthetic community energy forecasts. We distinguish the declared scope from any claim about real populations, institutions, or operational performance."
+              ]
+            },
+            {
+              "id": "methods",
+              "title": "2 材料与方法 / Methods",
+              "paragraphs": [
+                "我们按日生成六个月的合成需求序列，输入包含虚构天气类别和工作日标记。按时间顺序划分训练与验证区间，不打乱未来记录。",
+                "Every input is generated locally for this manuscript scenario. The attached dictionary records the observation unit, field labels, and generation assumptions; no external collection is performed."
+              ]
+            },
+            {
+              "id": "analysis",
+              "title": "3 统计分析 / Analysis",
+              "paragraphs": [
+                "预测误差采用绝对误差和峰值偏差，分别展示平稳情景与波动情景。任何超出生成参数范围的预测都标记为未验证。",
+                "The analysis preserves the original denominator and reports limitations alongside the summary. A computed metric is an illustration of the stated rules rather than a validated result from a real dataset."
+              ]
+            },
+            {
+              "id": "results",
+              "title": "4 结果 / Results",
+              "paragraphs": [
+                "三个合成情景的平均绝对误差为4.2、5.8和7.1个演示单位；波动情景误差较大，单位不对应真实用电量。",
+                "Figure 1 presents the fixed values for synthetic community energy forecasts. The values should be read with their synthetic units and declared denominator, without extrapolation beyond the scenario."
+              ]
+            },
+            {
+              "id": "discussion",
+              "title": "5 讨论 / Discussion",
+              "paragraphs": [
+                "情景假设限定了预测结果。模型不能据此用于电网调度、真实家庭画像或费用决策；真实应用需要独立资料与验证。",
+                "A complete editorial record should connect the question, method, displayed result, and qualification. Private workspace annotations do not change the submitted text or constitute a published decision."
+              ]
+            },
+            {
+              "id": "limitations",
+              "title": "6 局限性 / Limitations",
+              "paragraphs": [
+                "本研究仅含本地合成材料，没有真实总体抽样框或独立验证。虚构作者、机构与来源不应被当作真实联系人、履历或文献证据。",
+                "This fixture cannot establish scientific validity, ethics approval, or operational safety. Replacing its content with real material would require a separate authorized process and fresh evidence."
+              ]
+            },
+            {
+              "id": "data",
+              "title": "7 数据与声明 / Data and declarations",
+              "paragraphs": [
+                "社区能源情景预测的字段说明与生成边界保存在补充材料S1。原稿v1与阅读正文逐段一致，所有来源均使用fixture协议，仅用于本地交互验证。",
+                "The original v1 and supplement are immutable local text fixtures for synthetic community energy forecasts. There is no uploaded confidential manuscript, network data source, or real recipient."
+              ]
+            }
+          ],
+          "original": "demo-005-v1-original"
+        }
+      ],
+      "issues": [],
+      "candidates": [
+        {
+          "id": "candidate-1",
+          "name": "林澄",
+          "affiliation": "合成海湾大学",
+          "topics": [
+            "社区能源情景预测",
+            "可重复研究"
+          ],
+          "papers": [
+            {
+              "title": "合成方法说明1：社区能源情景预测",
+              "year": 2025,
+              "source": "fixture://demo-005/reviewer-1/publications/1"
+            }
+          ],
+          "review_history": "合成记录：过去24个月完成3次评审，中位用时13天；并非真实履历。",
+          "availability": "可于两周内开始（情景信息）",
+          "conflict": "未发现情景内共著；仍需人工核对",
+          "reason": "其虚构研究主题包括社区能源情景预测，可参与方法与解释边界核查；仍需人工确认。",
+          "sources": [
+            "fixture://demo-005/reviewer-1/profile",
+            "fixture://demo-005/reviewer-1/publications"
+          ],
+          "email": "reviewer1@editorial-demo.test"
+        },
+        {
+          "id": "candidate-2",
+          "name": "周遥",
+          "affiliation": "合成北岸研究所",
+          "topics": [
+            "社区能源情景预测",
+            "可重复研究"
+          ],
+          "papers": [
+            {
+              "title": "合成方法说明2：社区能源情景预测",
+              "year": 2025,
+              "source": "fixture://demo-005/reviewer-2/publications/1"
+            }
+          ],
+          "review_history": "合成记录：过去24个月完成4次评审，中位用时14天；并非真实履历。",
+          "availability": "本月可用（尚未联系）",
+          "conflict": "与合成作者无共同机构；需确认近期合作",
+          "reason": "其虚构研究主题包括社区能源情景预测，可参与方法与解释边界核查；仍需人工确认。",
+          "sources": [
+            "fixture://demo-005/reviewer-2/profile",
+            "fixture://demo-005/reviewer-2/publications"
+          ],
+          "email": "reviewer2@editorial-demo.test"
+        },
+        {
+          "id": "candidate-3",
+          "name": "陈禾",
+          "affiliation": "合成山地大学",
+          "topics": [
+            "社区能源情景预测",
+            "可重复研究"
+          ],
+          "papers": [
+            {
+              "title": "合成方法说明3：社区能源情景预测",
+              "year": 2025,
+              "source": "fixture://demo-005/reviewer-3/publications/1"
+            }
+          ],
+          "review_history": "合成记录：过去24个月完成5次评审，中位用时15天；并非真实履历。",
+          "availability": "预计11月中旬可用",
+          "conflict": "主题匹配，机构信息有待核实",
+          "reason": "其虚构研究主题包括社区能源情景预测，可参与方法与解释边界核查；仍需人工确认。",
+          "sources": [
+            "fixture://demo-005/reviewer-3/profile",
+            "fixture://demo-005/reviewer-3/publications"
+          ],
+          "email": "reviewer3@editorial-demo.test"
+        },
+        {
+          "id": "candidate-4",
+          "name": "许星",
+          "affiliation": "合成湖畔学院",
+          "topics": [
+            "社区能源情景预测",
+            "可重复研究"
+          ],
+          "papers": [
+            {
+              "title": "合成方法说明4：社区能源情景预测",
+              "year": 2025,
+              "source": "fixture://demo-005/reviewer-4/publications/1"
+            }
+          ],
+          "review_history": "合成记录：过去24个月完成6次评审，中位用时16天；并非真实履历。",
+          "availability": "待确认",
+          "conflict": "同领域；需进一步利益冲突核查",
+          "reason": "其虚构研究主题包括社区能源情景预测，可参与方法与解释边界核查；仍需人工确认。",
+          "sources": [
+            "fixture://demo-005/reviewer-4/profile",
+            "fixture://demo-005/reviewer-4/publications"
+          ],
+          "email": "reviewer4@editorial-demo.test"
+        }
+      ],
+      "rounds": [],
+      "history": [
+        {
+          "date": "2026-10-31T09:30:00Z",
+          "actor": "合成作者",
+          "text": "提交合成初稿v1与情景参数说明",
+          "visibility": "author"
+        },
+        {
+          "date": "2026-11-01T09:30:00Z",
+          "actor": "合成编辑",
+          "text": "文件齐全，进入编辑初筛；尚未创建评审轮次",
+          "visibility": "internal"
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-1",
+          "title": "图1 · 社区能源情景预测合成结果",
+          "caption": "完全合成的固定情景值；单位与分母见结果正文。",
+          "values": [
+            {
+              "label": "平稳情景",
+              "value": 4.2
+            },
+            {
+              "label": "季节情景",
+              "value": 5.8
+            },
+            {
+              "label": "波动情景",
+              "value": 7.1
+            }
+          ]
+        }
+      ],
+      "references": [
+        "[S1] 合成社区能源情景预测工作组（2026）. 本地情景生成与检查说明. fixture://demo-005/references/methods（虚构来源）",
+        "[S2] Synthetic Scenario Group (2025). Reporting boundaries for synthetic community energy forecasts. fixture://demo-005/references/reporting（虚构来源）"
+      ],
+      "attachments": [
+        {
+          "id": "demo-005-v1-original",
+          "name": "demo-005-v1-original.txt",
+          "version": "v1",
+          "content": "SYNTHETIC EDITORIAL FIXTURE / 合成稿件\n社区能源需求的情景预测\nScenario forecasts of synthetic community energy demand\n版本：v1\n\n摘要 / Abstract\n本研究构造虚构社区的能源需求序列，比较基线预测与情景假设。数值不描述真实住户或社区，当前仅进入编辑初筛，尚未创建评审轮次。\n\nThis manuscript studies synthetic community energy forecasts using local invented inputs. All people, organizations, numbers, and source records are synthetic fixtures, not empirical evidence.\n\n1 引言 / Introduction\n社区能源情景预测需要区分研究问题、输入边界与可核查的结果。本情景将这些内容分段保存，便于编辑回到原句核对研究范围。\n\nThe research question concerns synthetic community energy forecasts. We distinguish the declared scope from any claim about real populations, institutions, or operational performance.\n\n2 材料与方法 / Methods\n我们按日生成六个月的合成需求序列，输入包含虚构天气类别和工作日标记。按时间顺序划分训练与验证区间，不打乱未来记录。\n\nEvery input is generated locally for this manuscript scenario. The attached dictionary records the observation unit, field labels, and generation assumptions; no external collection is performed.\n\n3 统计分析 / Analysis\n预测误差采用绝对误差和峰值偏差，分别展示平稳情景与波动情景。任何超出生成参数范围的预测都标记为未验证。\n\nThe analysis preserves the original denominator and reports limitations alongside the summary. A computed metric is an illustration of the stated rules rather than a validated result from a real dataset.\n\n4 结果 / Results\n三个合成情景的平均绝对误差为4.2、5.8和7.1个演示单位；波动情景误差较大，单位不对应真实用电量。\n\nFigure 1 presents the fixed values for synthetic community energy forecasts. The values should be read with their synthetic units and declared denominator, without extrapolation beyond the scenario.\n\n5 讨论 / Discussion\n情景假设限定了预测结果。模型不能据此用于电网调度、真实家庭画像或费用决策；真实应用需要独立资料与验证。\n\nA complete editorial record should connect the question, method, displayed result, and qualification. Private workspace annotations do not change the submitted text or constitute a published decision.\n\n6 局限性 / Limitations\n本研究仅含本地合成材料，没有真实总体抽样框或独立验证。虚构作者、机构与来源不应被当作真实联系人、履历或文献证据。\n\nThis fixture cannot establish scientific validity, ethics approval, or operational safety. Replacing its content with real material would require a separate authorized process and fresh evidence.\n\n7 数据与声明 / Data and declarations\n社区能源情景预测的字段说明与生成边界保存在补充材料S1。原稿v1与阅读正文逐段一致，所有来源均使用fixture协议，仅用于本地交互验证。\n\nThe original v1 and supplement are immutable local text fixtures for synthetic community energy forecasts. There is no uploaded confidential manuscript, network data source, or real recipient."
+        },
+        {
+          "id": "demo-005-supplement",
+          "name": "demo-005-supplement-S1.txt",
+          "version": "v1",
+          "content": "合成补充材料S1 / Synthetic supplement\n主题：社区能源情景预测\n方法：我们按日生成六个月的合成需求序列，输入包含虚构天气类别和工作日标记。按时间顺序划分训练与验证区间，不打乱未来记录。\n分析：预测误差采用绝对误差和峰值偏差，分别展示平稳情景与波动情景。任何超出生成参数范围的预测都标记为未验证。\n全部字段、单位与数值仅供本地情景演示；无真实研究数据。"
+        }
+      ]
+    },
+    {
+      "id": "demo-006",
+      "number": "ENV-2026-0134",
+      "title": "环境观测网络的数据质量控制",
+      "title_en": "Quality control for synthetic environmental networks",
+      "authors": [
+        "合成作者 何青",
+        "合成作者 宋岚"
+      ],
+      "stage": "制作检查",
+      "stage_key": "production",
+      "owner": "制作编辑",
+      "due": "2026-11-10",
+      "priority": "低",
+      "task": "核对图表、参考文献与元数据",
+      "action": "查看制作",
+      "abstract": "本研究用虚构观测网络测试重复记录、缺失值与异常标记的质量控制规则。该条目是预设的既往接收后制作情景，仅供检查排版与元数据，不代表系统执行过接收决定。",
+      "versions": [
+        {
+          "id": "v1",
+          "label": "初稿",
+          "date": "2026-09-20",
+          "sections": [
+            {
+              "id": "abstract",
+              "title": "摘要 / Abstract",
+              "paragraphs": [
+                "本研究用虚构观测网络测试重复记录、缺失值与异常标记的质量控制规则。该条目是预设的既往接收后制作情景，仅供检查排版与元数据，不代表系统执行过接收决定。",
+                "This manuscript studies synthetic environmental network quality using local invented inputs. All people, organizations, numbers, and source records are synthetic fixtures, not empirical evidence."
+              ]
+            },
+            {
+              "id": "introduction",
+              "title": "1 引言 / Introduction",
+              "paragraphs": [
+                "环境网络数据质量需要区分研究问题、输入边界与可核查的结果。本情景将这些内容分段保存，便于编辑回到原句核对研究范围。",
+                "The research question concerns synthetic environmental network quality. We distinguish the declared scope from any claim about real populations, institutions, or operational performance."
+              ]
+            },
+            {
+              "id": "methods",
+              "title": "2 材料与方法 / Methods",
+              "paragraphs": [
+                "合成网络含六个虚构节点，逐小时生成演示记录并插入已知缺陷。质量规则保留原值，以标记说明重复键、缺失值和越界值。",
+                "Every input is generated locally for this manuscript scenario. The attached dictionary records the observation unit, field labels, and generation assumptions; no external collection is performed."
+              ]
+            },
+            {
+              "id": "analysis",
+              "title": "3 统计分析 / Analysis",
+              "paragraphs": [
+                "检查按已知注入缺陷计算检出率与误报率。不同规则分别统计，不将重叠警报重复当作新增缺陷。",
+                "The analysis preserves the original denominator and reports limitations alongside the summary. A computed metric is an illustration of the stated rules rather than a validated result from a real dataset."
+              ]
+            },
+            {
+              "id": "results",
+              "title": "4 结果 / Results",
+              "paragraphs": [
+                "重复键、缺失标记和越界规则的合成检出率分别为100%、96%和92%；结果取决于预设缺陷，不说明真实网络可靠性。",
+                "Figure 1 presents the fixed values for synthetic environmental network quality. The values should be read with their synthetic units and declared denominator, without extrapolation beyond the scenario."
+              ]
+            },
+            {
+              "id": "discussion",
+              "title": "5 讨论 / Discussion",
+              "paragraphs": [
+                "规则检测需要保留可追溯的输入与标记。当前演示没有真实设备、地点或运维记录，不能作为真实观测网络的验收证据。",
+                "A complete editorial record should connect the question, method, displayed result, and qualification. Private workspace annotations do not change the submitted text or constitute a published decision."
+              ]
+            },
+            {
+              "id": "limitations",
+              "title": "6 局限性 / Limitations",
+              "paragraphs": [
+                "本研究仅含本地合成材料，没有真实总体抽样框或独立验证。虚构作者、机构与来源不应被当作真实联系人、履历或文献证据。",
+                "This fixture cannot establish scientific validity, ethics approval, or operational safety. Replacing its content with real material would require a separate authorized process and fresh evidence."
+              ]
+            },
+            {
+              "id": "data",
+              "title": "7 数据与声明 / Data and declarations",
+              "paragraphs": [
+                "环境网络数据质量的字段说明与生成边界保存在补充材料S1。原稿v1与阅读正文逐段一致，所有来源均使用fixture协议，仅用于本地交互验证。",
+                "The original v1 and supplement are immutable local text fixtures for synthetic environmental network quality. There is no uploaded confidential manuscript, network data source, or real recipient."
+              ]
+            }
+          ],
+          "original": "demo-006-v1-original"
+        }
+      ],
+      "issues": [],
+      "candidates": [
+        {
+          "id": "candidate-1",
+          "name": "林澄",
+          "affiliation": "合成海湾大学",
+          "topics": [
+            "环境网络数据质量",
+            "可重复研究"
+          ],
+          "papers": [
+            {
+              "title": "合成方法说明1：环境网络数据质量",
+              "year": 2025,
+              "source": "fixture://demo-006/reviewer-1/publications/1"
+            }
+          ],
+          "review_history": "合成记录：过去24个月完成3次评审，中位用时13天；并非真实履历。",
+          "availability": "可于两周内开始（情景信息）",
+          "conflict": "未发现情景内共著；仍需人工核对",
+          "reason": "其虚构研究主题包括环境网络数据质量，可参与方法与解释边界核查；仍需人工确认。",
+          "sources": [
+            "fixture://demo-006/reviewer-1/profile",
+            "fixture://demo-006/reviewer-1/publications"
+          ],
+          "email": "reviewer1@editorial-demo.test"
+        },
+        {
+          "id": "candidate-2",
+          "name": "周遥",
+          "affiliation": "合成北岸研究所",
+          "topics": [
+            "环境网络数据质量",
+            "可重复研究"
+          ],
+          "papers": [
+            {
+              "title": "合成方法说明2：环境网络数据质量",
+              "year": 2025,
+              "source": "fixture://demo-006/reviewer-2/publications/1"
+            }
+          ],
+          "review_history": "合成记录：过去24个月完成4次评审，中位用时14天；并非真实履历。",
+          "availability": "本月可用（尚未联系）",
+          "conflict": "与合成作者无共同机构；需确认近期合作",
+          "reason": "其虚构研究主题包括环境网络数据质量，可参与方法与解释边界核查；仍需人工确认。",
+          "sources": [
+            "fixture://demo-006/reviewer-2/profile",
+            "fixture://demo-006/reviewer-2/publications"
+          ],
+          "email": "reviewer2@editorial-demo.test"
+        },
+        {
+          "id": "candidate-3",
+          "name": "陈禾",
+          "affiliation": "合成山地大学",
+          "topics": [
+            "环境网络数据质量",
+            "可重复研究"
+          ],
+          "papers": [
+            {
+              "title": "合成方法说明3：环境网络数据质量",
+              "year": 2025,
+              "source": "fixture://demo-006/reviewer-3/publications/1"
+            }
+          ],
+          "review_history": "合成记录：过去24个月完成5次评审，中位用时15天；并非真实履历。",
+          "availability": "预计11月中旬可用",
+          "conflict": "主题匹配，机构信息有待核实",
+          "reason": "其虚构研究主题包括环境网络数据质量，可参与方法与解释边界核查；仍需人工确认。",
+          "sources": [
+            "fixture://demo-006/reviewer-3/profile",
+            "fixture://demo-006/reviewer-3/publications"
+          ],
+          "email": "reviewer3@editorial-demo.test"
+        },
+        {
+          "id": "candidate-4",
+          "name": "许星",
+          "affiliation": "合成湖畔学院",
+          "topics": [
+            "环境网络数据质量",
+            "可重复研究"
+          ],
+          "papers": [
+            {
+              "title": "合成方法说明4：环境网络数据质量",
+              "year": 2025,
+              "source": "fixture://demo-006/reviewer-4/publications/1"
+            }
+          ],
+          "review_history": "合成记录：过去24个月完成6次评审，中位用时16天；并非真实履历。",
+          "availability": "待确认",
+          "conflict": "同领域；需进一步利益冲突核查",
+          "reason": "其虚构研究主题包括环境网络数据质量，可参与方法与解释边界核查；仍需人工确认。",
+          "sources": [
+            "fixture://demo-006/reviewer-4/profile",
+            "fixture://demo-006/reviewer-4/publications"
+          ],
+          "email": "reviewer4@editorial-demo.test"
+        }
+      ],
+      "rounds": [],
+      "history": [
+        {
+          "date": "2026-09-20T09:30:00Z",
+          "actor": "合成作者",
+          "text": "情景背景：合成初稿v1完成准备",
+          "visibility": "author"
+        },
+        {
+          "date": "2026-10-18T09:30:00Z",
+          "actor": "合成主编",
+          "text": "预设历史背景：该合成稿件此前已接收；并非本系统执行的决定",
+          "visibility": "internal"
+        },
+        {
+          "date": "2026-10-21T09:30:00Z",
+          "actor": "合成制作编辑",
+          "text": "预设制作情景：开始图表与元数据检查，待作者核对校样",
+          "visibility": "internal"
+        },
+        {
+          "date": "2026-11-01T09:30:00Z",
+          "actor": "合成制作编辑",
+          "text": "记录图注单位与参考文献格式检查项",
+          "visibility": "internal"
+        }
+      ],
+      "figures": [
+        {
+          "id": "figure-1",
+          "title": "图1 · 环境网络数据质量合成结果",
+          "caption": "完全合成的固定情景值；单位与分母见结果正文。",
+          "values": [
+            {
+              "label": "重复键",
+              "value": 100
+            },
+            {
+              "label": "缺失标记",
+              "value": 96
+            },
+            {
+              "label": "越界值",
+              "value": 92
+            }
+          ]
+        }
+      ],
+      "references": [
+        "[S1] 合成环境网络数据质量工作组（2026）. 本地情景生成与检查说明. fixture://demo-006/references/methods（虚构来源）",
+        "[S2] Synthetic Scenario Group (2025). Reporting boundaries for synthetic environmental network quality. fixture://demo-006/references/reporting（虚构来源）"
+      ],
+      "attachments": [
+        {
+          "id": "demo-006-v1-original",
+          "name": "demo-006-v1-original.txt",
+          "version": "v1",
+          "content": "SYNTHETIC EDITORIAL FIXTURE / 合成稿件\n环境观测网络的数据质量控制\nQuality control for synthetic environmental networks\n版本：v1\n\n摘要 / Abstract\n本研究用虚构观测网络测试重复记录、缺失值与异常标记的质量控制规则。该条目是预设的既往接收后制作情景，仅供检查排版与元数据，不代表系统执行过接收决定。\n\nThis manuscript studies synthetic environmental network quality using local invented inputs. All people, organizations, numbers, and source records are synthetic fixtures, not empirical evidence.\n\n1 引言 / Introduction\n环境网络数据质量需要区分研究问题、输入边界与可核查的结果。本情景将这些内容分段保存，便于编辑回到原句核对研究范围。\n\nThe research question concerns synthetic environmental network quality. We distinguish the declared scope from any claim about real populations, institutions, or operational performance.\n\n2 材料与方法 / Methods\n合成网络含六个虚构节点，逐小时生成演示记录并插入已知缺陷。质量规则保留原值，以标记说明重复键、缺失值和越界值。\n\nEvery input is generated locally for this manuscript scenario. The attached dictionary records the observation unit, field labels, and generation assumptions; no external collection is performed.\n\n3 统计分析 / Analysis\n检查按已知注入缺陷计算检出率与误报率。不同规则分别统计，不将重叠警报重复当作新增缺陷。\n\nThe analysis preserves the original denominator and reports limitations alongside the summary. A computed metric is an illustration of the stated rules rather than a validated result from a real dataset.\n\n4 结果 / Results\n重复键、缺失标记和越界规则的合成检出率分别为100%、96%和92%；结果取决于预设缺陷，不说明真实网络可靠性。\n\nFigure 1 presents the fixed values for synthetic environmental network quality. The values should be read with their synthetic units and declared denominator, without extrapolation beyond the scenario.\n\n5 讨论 / Discussion\n规则检测需要保留可追溯的输入与标记。当前演示没有真实设备、地点或运维记录，不能作为真实观测网络的验收证据。\n\nA complete editorial record should connect the question, method, displayed result, and qualification. Private workspace annotations do not change the submitted text or constitute a published decision.\n\n6 局限性 / Limitations\n本研究仅含本地合成材料，没有真实总体抽样框或独立验证。虚构作者、机构与来源不应被当作真实联系人、履历或文献证据。\n\nThis fixture cannot establish scientific validity, ethics approval, or operational safety. Replacing its content with real material would require a separate authorized process and fresh evidence.\n\n7 数据与声明 / Data and declarations\n环境网络数据质量的字段说明与生成边界保存在补充材料S1。原稿v1与阅读正文逐段一致，所有来源均使用fixture协议，仅用于本地交互验证。\n\nThe original v1 and supplement are immutable local text fixtures for synthetic environmental network quality. There is no uploaded confidential manuscript, network data source, or real recipient."
+        },
+        {
+          "id": "demo-006-supplement",
+          "name": "demo-006-supplement-S1.txt",
+          "version": "v1",
+          "content": "合成补充材料S1 / Synthetic supplement\n主题：环境网络数据质量\n方法：合成网络含六个虚构节点，逐小时生成演示记录并插入已知缺陷。质量规则保留原值，以标记说明重复键、缺失值和越界值。\n分析：检查按已知注入缺陷计算检出率与误报率。不同规则分别统计，不将重叠警报重复当作新增缺陷。\n全部字段、单位与数值仅供本地情景演示；无真实研究数据。"
+        }
+      ]
+    }
+  ]
+}

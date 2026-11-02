@@ -2,6 +2,14 @@
 
 更新：2026-11-02。首个编辑初筛纵向原型已实现并通过本地自动化验收。未真实发信、未生产部署、未更改主模型或全局 Codex 配置。
 
+## 当前Goal：任务工作台、长稿阅读、选人及修回核验
+
+已读取用户目标文件goal-objective.md并按spec004增量开发。新路由/workbench保留原投稿/邮件链，四页共用6篇合成稿件，其中主案例3个版本、2轮修回、多审稿人、长中英文正文与历史。私有草稿、阅读位置、候选选择、核验、AI建议处置及常用视图经真实API/PostgreSQL保存；迁移c81b8c41b016只增加两个隔离状态表，未修改正式出版状态机。
+
+所有指定参考的9个官方URL已实际读取，取舍见docs/research/workbench-design.md；统一规范已补入DESIGN。独立审查发现并修复版本阅读误删核验历史、失败笔记导航恢复及局部滚动引起外层空白；浏览器首轮暴露代理缺PATCH/PUT及下载头，现已补齐。原型不发送、不取消评审、不发布正式决定、不改变关键权限，模拟材料有明确披露。
+
+最终 `scripts/start.sh` + `scripts/verify.sh` 实际退出0：**182 Pytest +15 Playwright**（原8+新7），Ruff/format、依赖边界、ESLint、TypeScript、迁移/漂移、Docker生产构建通过。日志artifacts/workbench-start.log、artifacts/workbench-final-verify.log；head c81b8c41b016；1项第三方Starlette/httpx弃用警告。段落级恢复、字体18下刷新定位和失败草稿经过无关保存后恢复均实际通过。12个四页桌面布局（1366/1440/1920）无横向溢出，主要主题文字色对表面最低5.55:1；实际Linux Chromium，含深色/系统、键盘、CSS200%与窄屏。其他OS/浏览器、原生工具栏缩放未实测。截图、来源、模拟/待接入项及精确审查范围见docs/development/workbench-delivery.md；委派记录workbench-delegation.json不可用Token/成本/耗时留null。不得把新界面推断成spec003完整业务已实现。
+
 ## 最新规划：数据库、三栏任务工作区与负责人审核
 
 用户本轮要求已固化到 specs/003-editorial-workflow-and-assisted-intake.md：核心步骤与标签分层、逐关负责人、版本/作者/文件/分派/任务/检查/提案/确认/轮次实体、约束索引、并发幂等、角色待办排序、AI提取与缺项表单、独立审核页、历史迁移和分批验收。复核了现有models/workflow/policy，记录了单status、必填editor_id、单author_id、任务唯一键和单role的结构缺口。实际读取OJS/Janeway官方工作流资料，来源记录在规格末尾。

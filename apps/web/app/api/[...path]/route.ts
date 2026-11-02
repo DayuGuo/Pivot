@@ -26,6 +26,8 @@ async function proxy(request: NextRequest, context: Context) {
     const resultHeaders = new Headers({ "Cache-Control": "no-store" });
     const contentType = upstream.headers.get("content-type");
     if (contentType) resultHeaders.set("content-type", contentType);
+    const disposition = upstream.headers.get("content-disposition");
+    if (disposition) resultHeaders.set("content-disposition", disposition);
     for (const cookie of upstream.headers.getSetCookie()) resultHeaders.append("set-cookie", cookie);
     return new Response(upstream.body, { status: upstream.status, headers: resultHeaders });
   } catch {
@@ -34,3 +36,6 @@ async function proxy(request: NextRequest, context: Context) {
 }
 export const GET = proxy;
 export const POST = proxy;
+
+export const PATCH = proxy;
+export const PUT = proxy;

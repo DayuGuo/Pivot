@@ -35,3 +35,27 @@ Frontend Design owns aesthetic coherence with the supplied screenshot. UI/UX Pro
 The latest user requirement establishes three columns: left role/assignment-based priority work, center conversation, right authorized manuscript progress. Once implemented, this supersedes the current default-closed manuscript detail behavior above. Session history becomes secondary to actionable work. Right context shows the current step, responsible person, blockers and next human checkpoint, with a real manuscript switcher. Narrow layouts expose the same context through responsive views/drawers, not three squeezed columns.
 
 Long or consequential submissions use a dedicated review route with complete content and differences. AI prepares sourced candidates and missing-field forms; the responsible user explicitly confirms each business checkpoint there. Keep the screenshot palette, quiet hierarchy and minimal labels. This section specifies future behavior only; the current app has not been changed. Full data and interaction contract: specs/003-editorial-workflow-and-assisted-intake.md.
+
+## Current workbench delivery — 2026-11-02
+
+The active goal's Linear/Attio/GitHub/Dovetail/Benchling references govern the new `/workbench` task surfaces. They extend the screenshot's quiet neutral world; no Notion reference or multiple component libraries. Research and sources: docs/research/workbench-design.md. `/` retains the actual editorial intake/mail workspace; its visual rules above still apply there.
+
+Operate/Read contract: left stable task queues; center actionable list or dominant article; right record preview/evidence. Location bar stays stable above contextual actions. Full titles and required facts remain available without hover. Draft previews show complete actual content and synthetic .test recipients; model/human/executed states are distinct. No hero metrics, decorative cards or repeated eyebrow labels.
+
+| Token / behavior | Light | Dark |
+| --- | --- | --- |
+| Canvas | #f5f6f8 | #191b20 |
+| Surface | #ffffff | #202329 |
+| Body ink | #242833 | #e7e9ef |
+| Secondary ink | #5f6674 | #afb5c3 |
+| Border | #e1e4e9 | #383d47 |
+| Accent / selected surface | #4659c7 / #eef0fb | #a6b2ff / #2d354c |
+| Verified / warning / error text | #24704e / #8b601b / #b33747 | #8bd5b2 / #e5c382 / #ffabb4 |
+
+System UI stack first: -apple-system/BlinkMacSystemFont/Segoe UI, with bundled Noto Sans SC Variable and Noto Sans CJK/PingFang/Microsoft YaHei fallbacks. This supersedes forcing the Chinese face on Latin controls in the new workbench. No external font CDN. Management text14px, supporting metadata11–13px, article17px/1.75 (user16/17/18). Heading hierarchy18/24px; long content wraps. Body contrast target4.5:1; text labels accompany status dots. Browser zoom/selection/copy remain native. CmdK on Apple, CtrlK elsewhere.
+
+Spacing4/8/12/16/24/32px; row density adapts to actual title/task length; reading paragraphs have19px gaps. Corners4–8px, hairline boundaries, overlays alone carry soft depth. Sources, scope and draft visibility labels are functional, not ornament. Tabs use restrained accent underline; destructive academic outcomes are never selected by default.
+
+Reader: locally scrollable article, independent collapsible TOC/side evidence, focus mode, keyboard/pointer panel resize, version-bound drafts and anchors, original text download. Looking at an old version must not delete saved judgments. Narrow layouts stack secondary content; desktop root is viewport-contained. Task list/filters/selection restore. Themes light/default, dark and system persist as non-auth preferences. Pending synthetic drafts cache per-user while PostgreSQL is authoritative after save.
+
+Implementation tokens: apps/web/app/workbench/workbench.module.css; reader/review module CSS consume the same variables. No standalone claim of cross-platform validation: executed sizes/browser/zoom and limitations are in docs/development/workbench-delivery.md and PROGRESS.md.
