@@ -2,7 +2,7 @@
 
 以对话与 AI Agent 为入口的科研期刊出版操作系统原型。首条业务链真实运行于 PostgreSQL：登录 → 对话创建合成测试稿件 → 提交并分派编辑初筛 → 状态、待办、对话、审计持久化 → 刷新恢复。
 
-**当前模型为明确标记的 Mock；真实邮件始终禁用；不包含生产部署。**
+**默认模型为明确标记的 Mock；工作台可显式启用 DeepSeek，真实供应商验证需新环境凭据；真实邮件始终禁用；不包含生产部署。**
 
 当前外观依据用户提供的最新 Hermes 工作台截图：浅灰侧栏、白色对话区、细蓝色选中线与底部输入框。参考证据和适配取舍见 [DESIGN.md](DESIGN.md)。原样遵循 AGENTS.md 中的精简标签规则；四个设计技能的来源、分工和安装记录见 [设计技能](docs/development/design-skills.md)，本轮审查与限制见 [设计验收](docs/development/design-acceptance.md)。
 
@@ -51,7 +51,7 @@ Mock 只模拟意图识别，稿件/任务/状态/审计不是前端假数据。
 4. 在“修回核验与决定”查看两轮问题、回复和原文差异，保存人工核验、内部笔记；选择中性的拟定结果、编辑决定信并查看草稿。进行中的评审任务保持不变。
 5. 直接对话“列出当前版本尚未解决的问题，并给出原文依据”“准备邀请草稿”“协助准备决定草稿”，可打开来源和对应工作材料。邀请须先人工选人；已有人工正文不覆盖。模拟检查工具仍在对话下方展开，可取消/重试、改写和处置结果。
 
-默认浅色，可选深色/跟随系统。原始文件是可下载的合成文本，与重排版段落一致；不冒称PDF/DOCX解析。候选档案、论文、既往流程与分析均为合成场景，不是真实履历或学术结论。没有真实模型、发信、正式决定、任务取消或权限变更能力。作者/审稿人目前无此编辑演示工作台访问权。
+默认浅色，可选深色/跟随系统。原始文件是可下载的合成文本，与重排版段落一致；不冒称PDF/DOCX解析。候选档案、论文、既往流程与分析均为合成场景，不是真实履历或学术结论。默认分析仍为Mock；主体对话可按文末步骤显式接入DeepSeek。没有发信、正式决定、任务取消或权限变更能力。作者/审稿人目前无此编辑演示工作台访问权。
 
 设计规范见 [DESIGN.md](DESIGN.md)，接口/数据边界见 [spec004](specs/004-workbench-contract.md)，完整验收、截图与未验证平台见 [本轮交付记录](docs/development/workbench-delivery.md)。工作台采用隔离的草稿/视图表和私有对话回合表，尚未实现spec003的完整出版数据库与作者辅助投稿。常驻对话契约见 [spec005](specs/005-conversation-first-workbench.md)，最新截图/验证/模拟边界见 [常驻对话交付记录](docs/development/conversation-first-delivery.md)。
 
@@ -111,7 +111,7 @@ npm run test:e2e
 ./scripts/delegate-deepseek.sh
 ```
 
-逐任务记录成功、Token、成本、耗时与返工；未知成本为 null。Ollama/vLLM 预留显式 opt-in、仅 loopback 接口。真实模型接入产品还需要后续集成与评测，当前 Web 原型固定 Mock，避免环境密钥意外导致稿件外传。详见 [DeepSeek 协作验证报告](docs/research/deepseek.md)。
+逐任务记录成功、Token、成本、耗时与返工；未知成本为 null。Ollama/vLLM 预留显式 opt-in、仅 loopback 接口。开发协作路径与产品运行时独立。原投稿链固定Mock；当前工作台已实现真实模型显式接入和工具评测，仍待新凭据供应商验收，仅允许授权合成材料出域。详见 [DeepSeek 协作验证报告](docs/research/deepseek.md)。
 
 ## 后续数据库与产品规划
 
@@ -126,3 +126,9 @@ npm run test:e2e
 - [PRODUCT.md](PRODUCT.md)、[ARCHITECTURE.md](ARCHITECTURE.md)、[SECURITY.md](SECURITY.md)、[DECISIONS.md](DECISIONS.md)、[ROADMAP.md](ROADMAP.md)、[研究与来源](docs/research/landscape.md)。
 
 安全约束由代码强制：确定性权限/状态、请求幂等、事务审计、审计不可改写、审批快照修订失效、真实邮件无传输器。完整评审、决策、制作和公开出版属于下一阶段，不能从本地原型推断生产能力。
+
+## 工作台真实模型接入
+
+`/workbench` 支持显式启用 DeepSeek `deepseek-flash`：在本机交互终端运行 `python scripts/start-live-model.py`，无回显输入新密钥；也可从安全环境注入 `DEEPSEEK_API_KEY`。不使用聊天中已公开的凭据。然后运行 `.venv/bin/python scripts/smoke-live-model.py` 验证真实工具回环。默认启动仍为Mock，原投稿链不改变。
+
+AI可按真实登录角色与当前合成稿件读取材料、检索任务、定位引用、导航和准备私有邀请草稿。邮件发送/批准和关键决定不进入工具表，负责人审核权限不变。缺配置或供应商错误明确失败，不静默降级。当前真实供应商调用尚未通过新凭据验证；自动化中的假HTTP协议回环不等于live验证。配置、边界和最新证据见 [真实模型接入](docs/development/live-editorial-model.md)。

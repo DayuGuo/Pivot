@@ -1,6 +1,6 @@
-"""Private persistent contextual Mock turns and allowlisted draft preparation.
+"""Private persistent contextual turns and allowlisted draft preparation.
 
-No model, network, workflow transition, or mail capability is reachable here.
+Real models can propose scoped tools, never workflow transitions or mail.
 The response is stored atomically with its request digest before it is returned.
 """
 
@@ -18,6 +18,8 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, Session, mapped_column
 
 from packages.editorial_demo import load_cases
+from packages.model_gateway.editorial import editorial_model_status, get_editorial_provider
+from packages.model_gateway.gateway import GatewayError
 
 from .audit import record
 from .db import get_db
@@ -37,7 +39,7 @@ from .editorial_demo import (
 from .models import Base, now, uid
 from .security import Actor
 
-router = APIRouter(prefix="/api/editorial-demo/chat", tags=["private contextual mock chat"])
+router = APIRouter(prefix="/api/editorial-demo/chat", tags=["private contextual editorial chat"])
 View = Literal["work", "read", "reviewers", "revision"]
 Stage = Literal["all", "screening", "assignment", "reviewers", "review", "decision", "production"]
 
@@ -116,18 +118,20 @@ class ChatMessage(TypedInput):
     context: ChatContext
     references: list[ChatReference]
     action: Annotated[Navigate | Filter, Field(discriminator="type")] | None = None
+    provider: Literal["mock", "deepseek"] = "mock"
+    tool_receipts: list[dict] = Field(default_factory=list)
 
 
 class ChatTurn(TypedInput):
     request_id: str
     messages: list[ChatMessage]
     state_changed: bool
-    provider: Literal["mock"] = "mock"
+    provider: Literal["mock", "deepseek", "unavailable"] = "mock"
 
 
 class ChatHistory(TypedInput):
     messages: list[ChatMessage]
-    provider: Literal["mock"] = "mock"
+    provider: Literal["mock", "deepseek", "unavailable"] = "mock"
 
 
 def owned_turns(actor: Actor):
@@ -214,11 +218,22 @@ def validate_outputs(references: list[ChatReference], action: Navigate | Filter 
         case_record(action.case_id)
 
 
-def prepare_invitation(db: Session, actor: Actor, case: dict, version: str):
+def prepare_invitation(
+    db: Session,
+    actor: Actor,
+    case: dict,
+    version: str,
+    *,
+    subject: str | None = None,
+    body: str | None = None,
+    expected_revision: int | None = None,
+):
     # Same lock, typed validator, private ownership and audit as the existing state gateway.
     lock_workspace(db, actor, case["id"])
     row = db.scalar(state_query(actor, case["id"]).with_for_update())
     state = {**row.content, "revision": row.revision} if row else default_state(case)
+    if expected_revision is not None and state["revision"] != expected_revision:
+        return "工作区已更新，未保存AI草稿；请检查最新选人与人工内容后重新准备。", False
     selected = [c for c in case["candidates"] if c["id"] in state["selected_reviewers"]]
     if not selected:
         return "请先在候选人页面选择审稿人，再准备邀请草稿；不会替你选择或联系候选人。", False
@@ -234,8 +249,10 @@ def prepare_invitation(db: Session, actor: Actor, case: dict, version: str):
         return "已有邀请草稿，已保留全部人工内容。请在候选人页面继续检查。", False
     invitation = Invitation(
         to=existing["to"] or recipients,
-        subject=f"[合成邀请草稿] {case['number']} · {version}",
-        body=(
+        subject=subject if subject is not None else f"[合成邀请草稿] {case['number']} · {version}",
+        body=body
+        if body is not None
+        else (
             f"您好：\n邀请您评阅合成稿件《{case['title']}》（{case['number']}，{version}）。\n"
             "请人工核对研究方向、利益冲突、评审期限与完整正文。\n"
             "这是内部测试草稿，尚未联系审稿人，也未发送邮件。"
@@ -529,6 +546,21 @@ def mock_reply(db: Session, actor: Actor, body: ChatInput):
     )
 
 
+@router.get("/model")
+def model_status(actor: Actor = Depends(editor)):
+    return {
+        **editorial_model_status(),
+        "synthetic_only": True,
+        "email_send_enabled": False,
+        "human_confirmation_required": [
+            "email_send",
+            "final_decision",
+            "publication",
+            "permissions",
+        ],
+    }
+
+
 @router.get("", response_model=ChatHistory, response_model_exclude_none=True)
 def history(actor: Actor = Depends(editor), db: Session = Depends(get_db)):
     rows = db.scalars(
@@ -536,7 +568,10 @@ def history(actor: Actor = Depends(editor), db: Session = Depends(get_db)):
         .order_by(EditorialChatTurn.created_at.desc(), EditorialChatTurn.id.desc())
         .limit(50)
     ).all()
-    return ChatHistory(messages=[m for row in reversed(rows) for m in row.response["messages"]])
+    return ChatHistory(
+        messages=[m for row in reversed(rows) for m in row.response["messages"]],
+        provider=editorial_model_status()["provider"],
+    )
 
 
 @router.post("", response_model=ChatTurn, response_model_exclude_none=True)
@@ -559,8 +594,54 @@ def chat(body: ChatInput, actor: Actor = Depends(editor), db: Session = Depends(
             raise HTTPException(409, "请求编号已用于不同的问题或上下文")
         return ChatTurn.model_validate(existing.response)
     validate_context(body.context)
-    content, references, action, changed = mock_reply(db, actor, body)
-    validate_outputs(references, action)
+    receipts, telemetry = [], []
+    provider = None
+    try:
+        if re.search(r"\bsk-[A-Za-z0-9_-]{20,}\b", body.message):
+            raise GatewayError("secret_in_chat_input")
+        provider = get_editorial_provider()
+        if provider.name == "mock":
+            content, references, action, changed = mock_reply(db, actor, body)
+        else:
+            from .editorial_agent import run_agent
+
+            result = run_agent(db, actor, body, provider)
+            content, references, action, changed = (
+                result.content,
+                result.references,
+                result.action,
+                result.changed,
+            )
+            receipts, telemetry = result.receipts, result.telemetry
+        validate_outputs(references, action)
+    except GatewayError as exc:
+        db.rollback()
+        code = str(exc)
+        # Safe codes only; raw provider responses and prompt text never enter audit.
+        record(
+            db,
+            actor_id=actor.user.id,
+            journal_id=actor.journal_id,
+            action="editorial_agent.failed",
+            entity_id=str(body.request_id),
+            details={
+                "error_code": code,
+                "provider": editorial_model_status()["provider"],
+                "telemetry": getattr(provider, "editorial_telemetry", []) if provider else [],
+            },
+        )
+        db.commit()
+        configuration = code in {
+            "fresh_deepseek_key_required",
+            "editorial_live_access_requires_opt_in",
+            "unknown_editorial_model_provider",
+        }
+        raise HTTPException(
+            503 if configuration or "provider" in code or "deadline" in code else 422,
+            "模型未就绪，请由管理员通过本地安全入口配置新密钥。"
+            if configuration
+            else "模型请求或工具校验未完成，未保存本次业务变更，请重试。",
+        ) from None
     timestamp = now()
     messages = [
         ChatMessage(
@@ -570,6 +651,7 @@ def chat(body: ChatInput, actor: Actor = Depends(editor), db: Session = Depends(
             created_at=timestamp.isoformat(),
             context=body.context,
             references=[],
+            provider=provider.name,
         ),
         ChatMessage(
             id=uid(),
@@ -579,9 +661,16 @@ def chat(body: ChatInput, actor: Actor = Depends(editor), db: Session = Depends(
             context=body.context,
             references=references,
             action=action,
+            provider=provider.name,
+            tool_receipts=receipts,
         ),
     ]
-    result = ChatTurn(request_id=str(body.request_id), messages=messages, state_changed=changed)
+    result = ChatTurn(
+        request_id=str(body.request_id),
+        messages=messages,
+        state_changed=changed,
+        provider=provider.name,
+    )
     db.add(
         EditorialChatTurn(
             user_id=actor.user.id,
@@ -598,7 +687,12 @@ def chat(body: ChatInput, actor: Actor = Depends(editor), db: Session = Depends(
         journal_id=actor.journal_id,
         action="editorial_demo.chat_turn",
         entity_id=str(body.request_id),
-        details={"demo": True, "provider": "mock", "state_changed": changed},
+        details={
+            "demo": True,
+            "provider": provider.name,
+            "state_changed": changed,
+            "telemetry": telemetry,
+        },
     )
     db.commit()
     return result

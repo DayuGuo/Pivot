@@ -20,6 +20,14 @@ PASSWORD = "TestOnly2026!"
 PROMPT = "创建一篇测试稿件，并交给编辑初筛。"
 
 
+@pytest.fixture(autouse=True)
+def isolated_model_configuration(monkeypatch):
+    # API regression must never call a real provider because a developer exported a key.
+    monkeypatch.setenv("EDITORIAL_MODEL_PROVIDER", "mock")
+    monkeypatch.setenv("EDITORIAL_MODEL_LIVE_ENABLED", "false")
+    monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
+
+
 @pytest.fixture
 def db():
     connection = engine.connect()

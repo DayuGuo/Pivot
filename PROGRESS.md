@@ -2,6 +2,12 @@
 
 更新：2026-11-02。首个编辑初筛纵向原型已实现并通过本地自动化验收。未真实发信、未生产部署、未更改主模型或全局 Codex 配置。
 
+## 当前更新：真实模型与安全工具循环
+
+按spec006实现独立DeepSeek工作台adapter、角色/期刊/版本上下文、最多3轮/8工具/1草稿的真实工具协议。草稿整轮成功后才提交，等待期间复核人工修改和权限；来源ID、请求幂等、审计与Mock历史供应商标记保留。邮件批准/发送、重大决定均无Agent工具。安全本地启动器就绪，不落盘密钥。
+
+当前真实DeepSeek调用0：安全环境未提供新凭据，聊天中已公开的旧密钥未使用。最终 `./scripts/start.sh` 与 `./scripts/verify.sh` 退出0：**316 Pytest（27.91秒）+23 Playwright（49.8秒）通过**，Ruff/format、依赖边界、ESLint、TypeScript、迁移/漂移、Docker生产构建通过；1项第三方弃用警告。新增47离线传输、35真实PostgreSQL工具循环安全集成、7启动器测试及2浏览器UI契约场景；日志artifacts/live-model-final-verify.log。审查补强明确目标/否定指令、等待期间人工修改/撤权和固定执行边界。无新迁移，head仍e7b24c91a603。只读smoke实际退出2并记录live_verified=false/fresh_live_model_configuration_required，不把假HTTP回环冒称真实供应商验证。详细启用、平台限制及委派记录见docs/development/live-editorial-model.md和live-model-delegation.json。
+
 ## 最新用户修正：对话为主，材料随行
 
 按spec005将原弹出助手改为四页常驻主体对话，左任务/中对话/右材料；自动白名单筛选与导航、真实私有聊天历史、当时上下文快照、原文引用和安全邀请/决定草稿准备已接入。新增回合表e7b24c91a603，旧真实投稿链保留。人工未保存内容有准备前同步及冲突候选恢复；纯查询不因未完表单阻断。

@@ -1,0 +1,13 @@
+{
+  "date": "2026-11-02",
+  "executor": "native Codex subagent, isolated provider/eval/research files",
+  "main_model_configuration_changed": false,
+  "deepseek_live_calls": 0,
+  "tasks": [
+    {"task": "live_editorial_provider", "scope": "DeepSeek transport, 47 offline protocol cases, official source research", "status": "delivered", "tokens": null, "api_cost": null, "elapsed_seconds": null, "rework_count": 0},
+    {"task": "live_editorial_provider_followup_review", "scope": "read-only peer review of lead runtime, permission and secret boundaries", "status": "delivered", "tokens": null, "api_cost": null, "elapsed_seconds": null, "rework_count": 2}
+  ],
+  "delivered_task_ratio": "2/2",
+  "review_fixes": ["Unknown/other/multiple explicit target cannot write to current paper", "Negated/query-only invitation request cannot trigger a draft", "Every live response includes deterministic no-mail/no-decision execution boundary"],
+  "measurement_limits": "Native tool does not expose token, billed cost or task wall time; null means unavailable. Runtime provider telemetry and test timings are separately recorded. No exposed credential used."
+}

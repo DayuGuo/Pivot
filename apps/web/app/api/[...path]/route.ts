@@ -21,7 +21,7 @@ async function proxy(request: NextRequest, context: Context) {
       body: request.method === "GET" ? undefined : await request.text(),
       cache: "no-store",
       redirect: "manual",
-      signal: AbortSignal.timeout(30_000),
+      signal: AbortSignal.timeout(path.join("/") === "editorial-demo/chat" ? 75_000 : 30_000),
     });
     const resultHeaders = new Headers({ "Cache-Control": "no-store" });
     const contentType = upstream.headers.get("content-type");

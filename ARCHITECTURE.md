@@ -41,7 +41,7 @@ flowchart LR
 
 ## 外部边界
 
-产品当前固定 Mock，避免环境变量静默向外发送稿件；真实模型仅在独立委派 CLI 明确 --live 后读取新环境密钥。代码草稿写到 UUID 隔离目录，由主 Agent 审查整合，不自动执行。协作探针结果详见 docs/research/deepseek.md。
+原投稿链固定Mock；工作台真实模型仅在独立 `EDITORIAL_MODEL_PROVIDER=deepseek`、`EDITORIAL_MODEL_LIVE_ENABLED=true` 和新环境密钥齐备时启用，仅发送授权合成上下文。独立开发委派 CLI 仍需明确 --live。代码草稿写到 UUID 隔离目录，由主 Agent 审查整合，不自动执行。协作探针结果详见 docs/research/deepseek.md。
 
 OJS/Janeway 后续走受控适配器与外部 ID 映射，不共享数据库；接口预留见 packages/integrations/contracts.py，尚未连接外部系统。Mailpit 仅本机捕获服务；邮箱适配器只进行 EHLO/TLS/AUTH 或云账户 GET 身份探测，没有外发 SMTP 传输器。本期不实施生产部署。
 
@@ -76,3 +76,11 @@ spec005将编辑对话作为跨四页不卸载的主组件，右侧仅切换工�
 确定性的上下文Mock可检索/解释合成状态、问题与候选，产生白名单navigate/filter并准备私有邀请草稿；不会调用真实供应商、发信或正式决定。已有人工主题/正文/期限或自定义收件人不覆盖，UI选择产生的仅收件人元数据可保留并补齐空信件。提交准备类对话前刷新保存当前人工草稿，冲突的本地候选内容保留供负责人恢复，不用AI回复覆盖未保存输入。
 
 主对话组件处理同UUID失败重试、丢失响应后的重复请求恢复、上下文快照与用户隔离；已提交回合若右侧刷新失败，仅重试刷新，不重复执行模型动作。现有真实投稿链仍独立保留。详细验收见本轮交付记录与PROGRESS。
+
+## 工作台真实模型（spec006）
+
+`packages/model_gateway/editorial.py` 只拥有固定DeepSeek HTTPS协议传输与安全配置/遥测，不导入业务数据库；`editorial_agent.py` 构造角色/期刊/版本与有界同上下文历史，执行严格DTO工具白名单。3轮/8工具/1草稿上限，服务器生成引用ID。真实模型无发信、批准或正式状态变更接口。
+
+草稿先暂存，最终响应/引用通过后，复核角色/会话/期刊、获取原私有状态锁并检查阅读时的revision，才调用现有草稿入口与回合/审计同事务提交。模型等待期间的人工修改不被旧结果覆盖。失败回滚，通用审计不含正文；成功回执重试不再访问模型。每条消息持久供应商和工具记录；JSONB响应容纳扩展，无需新增迁移。
+
+GET `/api/editorial-demo/chat/model` 是配置可用性而非远端健康保证。供应商错误显式返回安全错误，无Mock回退；代理/浏览器对话超时匹配有界多轮调用。健康接口另返回editorial_model，不改变原投稿链model_provider=mock语义。配置/真实调用未验证项见docs/development/live-editorial-model.md。

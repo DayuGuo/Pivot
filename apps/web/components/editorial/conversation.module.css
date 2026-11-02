@@ -58,3 +58,8 @@
  .header{padding:7px 13px 5px;gap:7px}.heading h2{font-size:14px}.mock{font-size:10px}.header select{padding:4px 6px;font-size:11px;min-height:26px}.contextTitle{display:none}.currentContext{padding:0 13px 5px;font-size:10px;gap:3px 8px}.transcript{padding:12px 14px}.messageText{font-size:14px;line-height:1.7}.messageMeta{font-size:10px}.composer{padding:7px 12px max(7px,env(safe-area-inset-bottom))}.composer textarea{min-height:44px;height:44px;max-height:80px;padding:7px 10px;font-size:15px}.composerFooter{padding-top:5px}.composerFooter>span{display:none}.composerFooter button{min-height:28px;padding:4px 10px;font-size:11px}.tools{flex-shrink:1;min-height:26px;overflow:auto}.tools summary{padding:6px 13px;min-height:26px;font-size:10px}.toolBody{max-height:100px}.empty>p{font-size:14px}.prompts button{font-size:12px;padding-block:5px;min-height:30px}.userMessage,.assistantMessage{margin-bottom:16px}
 }
 @container workbench-content (max-width:800px){.header{padding-top:5px;padding-bottom:3px}.transcript{padding-top:6px;padding-bottom:6px}.composer{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:8px;align-items:end}.composer textarea{grid-column:1;min-height:44px;height:44px}.composerFooter{grid-column:2;padding-top:0}.composerFooter button{min-height:44px;height:44px;padding:6px 10px}.composer>.error{grid-column:1 / -1}}
+
+.receipts { margin-top: 12px; color: var(--wb-muted); font-size: 12px; overflow-wrap: anywhere; }
+.receipts summary { cursor: pointer; min-height: 30px; padding-block: 4px; }
+.receipts ol { padding-left: 20px; margin-block: 5px; }
+.receipts p { margin-block: 5px; }

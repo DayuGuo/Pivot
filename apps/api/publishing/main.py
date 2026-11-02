@@ -9,6 +9,7 @@ from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
 
 from packages.model_gateway import MockModelProvider
+from packages.model_gateway.editorial import editorial_model_status
 
 from .audit import record
 from .conversations import (
@@ -27,7 +28,7 @@ from .runtime import execute_command
 from .security import Actor, check_password, get_actor, hash_password, new_session
 from .serialization import manuscript_json, message_json, user_json
 
-# The first product slice is explicitly mock-only. Live gateway evaluation is a separate CLI.
+# The original intake slice stays Mock. Workbench live configuration is independent.
 provider = MockModelProvider()
 app = FastAPI(title="Publishing OS", version="0.1.0")
 app.include_router(mail_router)
@@ -89,6 +90,7 @@ def health(db: Session = Depends(get_db)):
         "database": "postgresql",
         "email_send_enabled": False,
         "model_provider": "mock",
+        "editorial_model": editorial_model_status(),
     }
 
 

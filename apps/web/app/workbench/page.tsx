@@ -74,7 +74,7 @@ export default function Workbench(){
  useEffect(()=>{if(!navOpen)return;const previous=document.activeElement as HTMLElement|null;const frame=requestAnimationFrame(()=>navRef.current?.querySelector<HTMLElement>("button,a")?.focus());const trap=(event:KeyboardEvent)=>{if(event.key!=="Tab")return;const items=[...(navRef.current?.querySelectorAll<HTMLElement>("button,a,select,input")||[])].filter(el=>!el.hasAttribute("disabled"));if(!items.length)return;const first=items[0],last=items.at(-1)!;if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}};document.addEventListener("keydown",trap);return()=>{cancelAnimationFrame(frame);document.removeEventListener("keydown",trap);if(previous?.isConnected)previous.focus();};},[navOpen]);
  const reportDraft=useCallback((patch:Partial<Omit<CaseState,"revision">>|null)=>{manualDraft.current=patch?{caseId:selectedId,patch}:null;},[selectedId]);
  const flushBeforeChat=useCallback(async(message:string)=>{
-  if(!/(准备|起草|草稿|draft|prepare)/i.test(message)||!/(邀请|决定|invitation|invite|decision)/i.test(message))return;
+  if(!/(准备|起草|草稿|撰写|draft|prepare|write)/i.test(message)||!/(邀请|决定|invitation|invite|decision)/i.test(message))return;
   for(let attempt=0;attempt<5;attempt++){
    const current=manualDraft.current;if(!current)return;
    const snapshot=JSON.stringify(current.patch);
