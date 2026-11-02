@@ -43,3 +43,5 @@ Official Goal behavior: https://developers.openai.com/cookbook/examples/codex/us
 ## Checkpoint evidence (2026-11-02, Goal remains active)
 
 Research library and A/B real normalized intake implemented. Isolated scripts/verify.sh exit0:508 backend tests and24 Chromium E2E, including author conversation→actual files→independent confirmation→editor task; immutable/permissions/history/replay/concurrent-confirmation checks. Foundation migration24 rollback-only rehearsal checks; CheckRun component48 tests. Main live server/database unchanged. C gateway/UI, review/revision/decision/production/local preview and new-domain live acceptance are outstanding.
+
+C checkpoint: all screening gates and returned-version recheck implemented. Isolated final verify exit0:532 backend tests,24 browser (same manuscript author→editor→chief→editor chain), static/migration/build/start passed. No live provider call/new main migration. D review invitation/report, E decision/revision, production/proof/preview and live normalized-domain safety acceptance remain pending. Goal stays active.

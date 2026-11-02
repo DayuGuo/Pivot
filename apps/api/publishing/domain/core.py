@@ -247,9 +247,29 @@ def require_task(
     required = CAPABILITIES.get(task.kind if task else "")
     if not task or not required or required not in capabilities(db, actor, manuscript):
         raise HTTPException(403, "当前账号不是此关口的负责人")
-    if required != "author" and manuscript.author_id == actor.user.id:
+    if required != "author" and is_conflicted(db, manuscript, actor.user):
         raise HTTPException(403, "作者不能审核自己的稿件，请由独立负责人处理")
     return task
+
+
+def is_conflicted(db: Session, manuscript: Manuscript, user: User) -> bool:
+    if manuscript.author_id == user.id:
+        return True
+    # A match is only a conflict signal, never an access grant. Preserve conflicts
+    # against historical authorship, including authors without linked accounts.
+    return bool(
+        db.scalar(
+            select(VersionAuthor.id)
+            .where(
+                VersionAuthor.manuscript_id == manuscript.id,
+                or_(
+                    VersionAuthor.linked_user_id == user.id,
+                    func.lower(VersionAuthor.email) == user.email.casefold(),
+                ),
+            )
+            .limit(1)
+        )
+    )
 
 
 def version_data(db: Session, version: ManuscriptVersion) -> IntakeData:
@@ -407,6 +427,16 @@ def assign(db: Session, actor: Actor, manuscript: Manuscript, user_id: str, capa
     )
     if not member:
         raise HTTPException(422, "负责人必须是本刊现有成员")
+    expected = {
+        "precheck": "editor",
+        "handling_editor": "editor",
+        "chief": "chief_editor",
+        "production": "production_editor",
+    }.get(capability)
+    if expected and (
+        member.role != expected or is_conflicted(db, manuscript, db.get(User, user_id))
+    ):
+        raise HTTPException(422, "负责人角色不符或存在已知作者利益冲突")
     row = db.scalar(
         select(Assignment).where(
             Assignment.manuscript_id == manuscript.id,
@@ -430,7 +460,14 @@ def assign(db: Session, actor: Actor, manuscript: Manuscript, user_id: str, capa
     return row
 
 
-def staff(db: Session, journal_id: str, role: str, *, exclude: str | None = None) -> User:
+def staff(
+    db: Session,
+    journal_id: str,
+    role: str,
+    *,
+    exclude: str | None = None,
+    manuscript: Manuscript | None = None,
+) -> User:
     query = (
         select(User)
         .join(Membership, Membership.user_id == User.id)
@@ -439,7 +476,10 @@ def staff(db: Session, journal_id: str, role: str, *, exclude: str | None = None
     )
     if exclude:
         query = query.where(User.id != exclude)
-    user = db.scalar(query)
+    user = next(
+        (u for u in db.scalars(query) if not manuscript or not is_conflicted(db, manuscript, u)),
+        None,
+    )
     if not user:
         raise HTTPException(409, "尚未配置独立的本刊负责人")
     return user
@@ -586,7 +626,8 @@ def save_intake(
         k: values[k] for k in ("keywords", "funding_statement", "declarations")
     }
     version.updated_at = now()
-    manuscript.title = data.title or "未命名投稿"
+    if flow.stage == "author_draft":
+        manuscript.title = data.title or "未命名投稿"
     db.execute(delete(VersionAuthor).where(VersionAuthor.version_id == version.id))
     db.flush()
     for ordinal, author in enumerate(data.authors):
@@ -718,24 +759,41 @@ def prepare_proposal(
     manuscript, flow = load_submission(db, actor, manuscript_id, write=True)
     require_revision(flow, expected_revision)
     task = require_task(db, actor, manuscript, flow)
-    if flow.stage != "author_draft" or action_type != "submit":
-        raise HTTPException(422, "此关口尚不支持该审核动作")
-    version = db.get(ManuscriptVersion, flow.draft_version_id)
+    if flow.stage in {"author_draft", "author_revision"} and action_type != "submit":
+        raise HTTPException(422, "当前准备阶段只能准备投稿审核")
+    author_submit = flow.stage in {"author_draft", "author_revision"} and action_type == "submit"
+    version = db.get(
+        ManuscriptVersion, flow.draft_version_id if author_submit else flow.current_version_id
+    )
     snapshot = version_snapshot(db, version)
     verify_version_files(db, version)
     missing = missing_requirements(
         version_data(db, version), {f["purpose"] for f in snapshot["files"]}
     )
-    if missing:
+    if missing and author_submit:
         raise HTTPException(422, {"message": "请先补齐投稿必需信息", "missing": missing})
-    if action_data:
+    if action_data and author_submit:
         raise HTTPException(422, "投稿审核不接受额外状态或身份字段")
+    extra = {}
+    if not author_submit:
+        from pydantic import ValidationError
+
+        from .checks import CheckPreparationError
+        from .stages import prepare_stage
+
+        try:
+            extra = prepare_stage(
+                db, actor, manuscript, flow, task, version, action_type, action_data or {}
+            )
+        except (ValidationError, CheckPreparationError):
+            raise HTTPException(422, "请补齐当前关口的检查结论、材料和人工复核声明") from None
     payload = {
         "action": action_type,
         "stage": flow.stage,
         "version": snapshot,
         "schema_version": 1,
         "synthetic_only": True,
+        **extra,
     }
     evidence = snapshot_evidence(snapshot)
     proposal = ActionProposal(
@@ -852,6 +910,7 @@ def confirm_proposal(
     require_revision(flow, expected_revision)
     if (
         proposal.base_revision != flow.revision
+        or proposal.payload_snapshot["stage"] != flow.stage
         or proposal.policy_version != flow.policy_version
         or proposal.digest != expected_digest
         or proposal.superseded_at
@@ -869,15 +928,39 @@ def confirm_proposal(
         or snapshot_evidence(snapshot) != proposal.evidence_digests
     ):
         raise HTTPException(409, "版本或附件已变化，请重新核对")
-    if flow.stage != "author_draft" or proposal.action_type != "submit":
-        raise HTTPException(422, "此关口不能执行该动作")
+    if flow.stage not in {"author_draft", "author_revision"} or proposal.action_type != "submit":
+        from .stages import confirm_stage
+
+        return confirm_stage(db, actor, manuscript, flow, task, version, proposal, reason)
     missing = missing_requirements(
         version_data(db, version), {f["purpose"] for f in snapshot["files"]}
     )
     if missing:
         raise HTTPException(422, "投稿资料不完整，不能确认提交")
-    checker = staff(db, manuscript.journal_id, "editor", exclude=manuscript.author_id)
-    chief = staff(db, manuscript.journal_id, "chief_editor", exclude=manuscript.author_id)
+    previous_stage = flow.stage
+    return_to = (
+        db.get(StepRun, task.step_run_id).outcome_json.get("return_to")
+        if previous_stage == "author_revision"
+        else None
+    )
+    if previous_stage == "author_revision" and return_to not in {
+        "precheck_completeness",
+        "similarity_review",
+        "technical_screening",
+        "chief_scope",
+        "editor_quality",
+    }:
+        raise HTTPException(409, "修回目标关口无效，请联系负责人")
+    checker = staff(
+        db, manuscript.journal_id, "editor", exclude=manuscript.author_id, manuscript=manuscript
+    )
+    chief = staff(
+        db,
+        manuscript.journal_id,
+        "chief_editor",
+        exclude=manuscript.author_id,
+        manuscript=manuscript,
+    )
     confirmation = HumanConfirmation(
         id=uid(),
         manuscript_id=manuscript.id,
@@ -901,6 +984,7 @@ def confirm_proposal(
     version.content_digest = digest(snapshot_evidence(snapshot))
     version.frozen_at = now()
     manuscript.status = "submitted"
+    manuscript.title = version.title
     flow.current_version_id, flow.draft_version_id, flow.submitted_at, flow.chief_id = (
         version.id,
         None,
@@ -911,7 +995,14 @@ def confirm_proposal(
     assign(db, actor, manuscript, chief.id, "chief")
     # Flush frozen data before the next step references it; no future edits allowed.
     db.flush()
-    start_step(db, manuscript, flow, "precheck_completeness", checker.id, version_id=version.id)
+    target = return_to or "precheck_completeness"
+    if return_to:
+        from .stages import next_assignee
+
+        assignee = next_assignee(db, manuscript, flow, target)
+    else:
+        assignee = checker.id
+    start_step(db, manuscript, flow, target, assignee, version_id=version.id)
     bump(db, flow)
     event(
         db,
@@ -985,13 +1076,31 @@ def submission_projection(db: Session, actor: Actor, manuscript_id: str, *, deta
         "created_at": flow.created_at.isoformat(),
         "submitted_at": flow.submitted_at.isoformat() if flow.submitted_at else None,
     }
-    result["allowed_actions"] = (
-        [{"action": "submit", "label": "准备投稿审核", "requires_human": True}]
-        if not flow.is_legacy
-        and manuscript.author_id == actor.user.id
-        and flow.stage == "author_draft"
-        else []
-    )
+    result["allowed_actions"] = []
+    if not flow.is_legacy and own_tasks:
+        try:
+            require_task(db, actor, manuscript, flow)
+        except HTTPException:
+            pass
+        else:
+            if flow.stage in {"author_draft", "author_revision"}:
+                result["allowed_actions"] = [
+                    {"action": "submit", "label": "准备投稿审核", "requires_human": True}
+                ]
+            elif flow.stage in {
+                "precheck_completeness",
+                "similarity_review",
+                "technical_screening",
+                "chief_scope",
+                "editor_quality",
+            }:
+                result["allowed_actions"] = [
+                    {"action": "record_check", "label": "准备检查审核", "requires_human": True}
+                ]
+            elif flow.stage == "assign_editor":
+                result["allowed_actions"] = [
+                    {"action": "assign_editor", "label": "准备编辑分派审核", "requires_human": True}
+                ]
     if not detail:
         return result
     result["versions"] = [
@@ -1029,6 +1138,18 @@ def submission_projection(db: Session, actor: Actor, manuscript_id: str, *, deta
         else None
     )
     result["field_sources"] = draft.sources_json if draft else {}
+    from .stages import staff_projection
+
+    result["staff_review"] = staff_projection(db, actor, manuscript, flow, version)
+    current_step = db.get(StepRun, flow.current_step_id) if flow.current_step_id else None
+    result["return_request"] = (
+        {
+            "reason": current_step.outcome_json.get("reason", ""),
+            "return_to": current_step.outcome_json.get("return_to"),
+        }
+        if current_step and flow.stage == "author_revision"
+        else None
+    )
     result["timeline"] = [
         {
             "id": s.id,

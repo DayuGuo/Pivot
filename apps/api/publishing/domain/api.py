@@ -19,6 +19,7 @@ from .chat import ChatContext, ChatInput, conversation, history
 from .files import FileValidationError, read_bytes
 from .models import FileObject, ManuscriptVersion, VersionFile
 from .schemas import FileUpload, IntakeData, StrictInput
+from .stages import download_report, upload_report
 
 router = APIRouter(prefix="/api/publishing", tags=["normalized publishing domain"])
 RequestID = Annotated[UUID, Field(strict=False)]
@@ -242,6 +243,44 @@ def download(file_id: UUID, actor: Actor = Depends(get_actor), db: Session = Dep
         media_type=blob.media_type,
         headers={
             "Content-Disposition": f"attachment; filename*=UTF-8''{quote(link.display_name, safe='')}",
+            "X-Content-SHA256": blob.sha256,
+        },
+    )
+
+
+@router.post("/manuscripts/{manuscript_id}/reports")
+def report_upload(
+    manuscript_id: UUID,
+    body: UploadInput,
+    actor: Actor = Depends(get_actor),
+    db: Session = Depends(get_db),
+):
+    return core.run_action(
+        db,
+        actor,
+        str(body.request_id),
+        "upload_report",
+        {
+            "manuscript_id": str(manuscript_id),
+            **body.model_dump(mode="json", exclude={"request_id"}),
+        },
+        lambda: upload_report(db, actor, str(manuscript_id), body.expected_revision, body.file),
+    )
+
+
+@router.get("/manuscripts/{manuscript_id}/reports/{file_id}")
+def report_download(
+    manuscript_id: UUID,
+    file_id: UUID,
+    actor: Actor = Depends(get_actor),
+    db: Session = Depends(get_db),
+):
+    blob, name, content = download_report(db, actor, str(manuscript_id), str(file_id))
+    return Response(
+        content=content,
+        media_type=blob.media_type,
+        headers={
+            "Content-Disposition": f"attachment; filename*=UTF-8''{quote(name, safe='')}",
             "X-Content-SHA256": blob.sha256,
         },
     )

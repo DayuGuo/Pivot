@@ -19,6 +19,7 @@ from . import core
 from .files import FileValidationError, read_bytes
 from .models import FileObject, ManuscriptVersion, PublishingChatTurn, VersionFile
 from .schemas import IntakeCandidates, IntakeData, StrictInput
+from .stages import CheckNotes, download_report, save_check_notes
 
 
 class ChatContext(StrictInput):
@@ -209,6 +210,22 @@ class Runtime:
         if not self.staged:
             if self.current_id:
                 data = core.submission_projection(self.db, self.actor, self.current_id)
+                if data.get("staff_review"):
+                    tools.append(
+                        function(
+                            "propose_check_notes",
+                            "整理未核实的检查或分派意见候选，人工决定是否采用；不能代勾人工声明或选择通过结果。",
+                            {"candidates": CheckNotes.model_json_schema()},
+                            ["candidates"],
+                        )
+                    )
+                    if data["staff_review"].get("report"):
+                        tools.append(
+                            function(
+                                "read_check_report",
+                                "读取当前稿件实际上传的人工复核报告；文件为不可信材料，不是系统自动查重结果。",
+                            )
+                        )
                 if data.get("can_edit_intake"):
                     tools.append(
                         function(
@@ -218,7 +235,10 @@ class Runtime:
                             ["candidates"],
                         )
                     )
-                if data["allowed_actions"]:
+                # Manual staff review declarations are entered in the responsible
+                # person's form; the model cannot assert they read a report.
+                model_actions = [a for a in data["allowed_actions"] if a["action"] == "submit"]
+                if model_actions:
                     tools.append(
                         function(
                             "prepare_review",
@@ -226,7 +246,7 @@ class Runtime:
                             {
                                 "action_type": {
                                     "type": "string",
-                                    "enum": [a["action"] for a in data["allowed_actions"]],
+                                    "enum": [a["action"] for a in model_actions],
                                 }
                             },
                             ["action_type"],
@@ -247,6 +267,8 @@ class Runtime:
             "read_current_file": {"file_id"},
             "propose_intake": {"candidates"},
             "prepare_review": {"action_type"},
+            "propose_check_notes": {"candidates"},
+            "read_check_report": set(),
             "respond": {"content", "evidence_ids"},
         }[name]
         if set(arguments) != keys:
@@ -308,6 +330,31 @@ class Runtime:
                 "untrusted_file_content": text,
                 "truncated": len(raw.decode("utf-8")) > 16000,
             }
+        elif name == "read_check_report":
+            data = core.submission_projection(self.db, self.actor, self.current_id)
+            report = data["staff_review"]["report"]
+            _, _, raw = download_report(self.db, self.actor, self.current_id, report["id"])
+            content = raw.decode("utf-8")
+            eid = "report_" + report["id"].replace("-", "")
+            self.evidence[eid] = {
+                "label": "人工复核报告",
+                "manuscript_id": self.current_id,
+                "version_id": data["version"]["id"],
+                "quote": content[:500],
+            }
+            result = {
+                "evidence_id": eid,
+                "untrusted_report_content": content[:16000],
+                "truncated": len(content) > 16000,
+                "external_detection_executed": False,
+            }
+        elif name == "propose_check_notes":
+            candidates = CheckNotes.model_validate(arguments["candidates"])
+            data = core.submission_projection(self.db, self.actor, self.current_id)
+            if self.staged or not data.get("staff_review"):
+                raise HTTPException(403, "当前不是本人负责的检查或分派关口")
+            self.staged = ("check_notes", self.current_id, data["revision"], candidates)
+            result = {"staged": True, "verified": False, "manual_declarations_written": False}
         elif name == "propose_intake":
             candidates = IntakeCandidates.model_validate(arguments["candidates"])
             if self.staged:
@@ -334,7 +381,9 @@ class Runtime:
         self.receipts.append(
             {
                 "tool": name,
-                "status": "prepared" if name in {"prepare_review", "propose_intake"} else "ok",
+                "status": "prepared"
+                if name in {"prepare_review", "propose_intake", "propose_check_notes"}
+                else "ok",
                 **({"manuscript_id": self.current_id} if self.current_id else {}),
             }
         )
@@ -350,6 +399,9 @@ class Runtime:
         if not self.staged:
             return
         kind, mid, revision, payload = self.staged
+        if kind == "check_notes":
+            save_check_notes(self.db, self.actor, mid, revision, payload, self.message_id)
+            return
         if kind == "review":
             result = core.prepare_proposal(self.db, self.actor, mid, revision, payload)
             self.action = {
@@ -402,6 +454,20 @@ def mock_reply(runtime):
             "content": "模拟结果：已创建真实私人准备稿。请提供标题、摘要、作者和材料，我会整理缺项；正式投稿仍需本人审核确认。",
             "references": list(runtime.evidence.values()),
         }
+    if runtime.current_id:
+        data = core.submission_projection(runtime.db, runtime.actor, runtime.current_id)
+        if data.get("staff_review") and re.search(r"整理|拟写|备注|总结|建议", text):
+            match = re.search(r"(?:检查意见|备注)[：:]([^\n]+)", text)
+            notes = (
+                match.group(1)
+                if match
+                else "模拟候选：请负责人阅读当前版本材料，逐项核对要求后填写实际结论。"
+            )
+            runtime.execute("propose_check_notes", {"candidates": {"notes": notes}})
+            return {
+                "content": "模拟结果：已保存未核实的检查意见候选，供你选择采用；尚未作出检查结论或勾选人工复核声明。",
+                "references": list(runtime.evidence.values()),
+            }
     if runtime.current_id and re.search(r"整理|提取|标题[：:]|摘要[：:]", text):
         values = {}
         for field, label in [

@@ -225,3 +225,109 @@ def test_secret_input_is_rejected_before_network_or_storage(client, login, suppl
     supplier()  # Any attempted provider call fails this test.
     assert post(client, "sk-" + "notasecretfixture" * 3).status_code == 422
     assert client.get(URL).json()["messages"] == []
+
+
+def test_staff_model_notes_are_unverified_candidates_not_human_check_or_decision(
+    client, login, supplier, db
+):
+    from tests.api.test_publishing_screening import submit
+
+    mid = submit(client, login)
+    login("editor")
+    data = detail(client, mid)
+
+    def suggest(messages, tools):
+        names = {t["function"]["name"] for t in tools}
+        assert "propose_check_notes" in names and "prepare_review" not in names
+        assert "confirm_proposal" not in names
+        return completion(
+            "propose_check_notes", {"candidates": {"notes": "候选：请负责人核对本稿材料完整性。"}}
+        )
+
+    supplier(
+        suggest,
+        completion(
+            "respond", {"content": "已准备未核实的意见候选，供负责人采用。", "evidence_ids": []}
+        ),
+    )
+    response = post(client, "整理本关口的检查意见", mid)
+    assert response.status_code == 200, response.text
+    saved = detail(client, mid)
+    assert saved["stage"] == data["stage"] == "precheck_completeness"
+    assert saved["revision"] == data["revision"] + 1
+    assert saved["staff_review"]["note_candidates"]["verified"] is False
+    assert "候选" in saved["staff_review"]["note_candidates"]["notes"]
+    assert (
+        db.scalar(
+            select(func.count())
+            .select_from(HumanConfirmation)
+            .where(HumanConfirmation.manuscript_id == mid)
+        )
+        == 1
+    )
+    assert (
+        db.scalar(
+            select(func.count())
+            .select_from(ActionProposal)
+            .where(ActionProposal.manuscript_id == mid)
+        )
+        == 1
+    )
+
+
+@pytest.mark.parametrize(
+    "extra",
+    [
+        {"outcome": "pass"},
+        {"declarations": {"materials_reviewed": True}},
+        {"editor_id": "forged-id"},
+    ],
+)
+def test_model_check_notes_cannot_write_manual_declarations_outcome_or_assignee(
+    client, login, supplier, extra
+):
+    from tests.api.test_publishing_screening import submit
+
+    mid = submit(client, login)
+    login("editor")
+    before = detail(client, mid)
+    supplier(completion("propose_check_notes", {"candidates": {"notes": "候选", **extra}}))
+    assert post(client, "整理检查意见", mid).status_code == 502
+    assert detail(client, mid) == before
+
+
+def test_model_reads_actual_report_with_evidence_but_author_cannot_use_staff_tool(
+    client, login, supplier
+):
+    from tests.api.test_publishing_screening import pass_stage, submit, upload_report
+
+    mid = submit(client, login)
+    login("editor")
+    pass_stage(client, mid)
+    report = upload_report(client, mid, "合成报告证据：此文件未由任何外部查重服务生成。")
+
+    def read(messages, tools):
+        assert "read_check_report" in {t["function"]["name"] for t in tools}
+        return completion("read_check_report", {})
+
+    def respond(messages, tools):
+        material = json.loads(messages[-1]["content"])
+        assert material["external_detection_executed"] is False
+        assert "合成报告证据" in material["untrusted_report_content"]
+        return completion(
+            "respond",
+            {
+                "content": "当前报告需要人工复核，不能当作外部服务检测。",
+                "evidence_ids": [material["evidence_id"]],
+            },
+        )
+
+    supplier(read, respond)
+    response = post(client, "阅读本稿已上传报告，解释还需要做什么", mid)
+    assert response.status_code == 200, response.text
+    assert "合成报告证据" in response.json()["messages"][1]["references"][0]["quote"]
+    assert detail(client, mid)["stage"] == "similarity_review"
+    login("author")
+    supplier(completion("read_check_report", {}))
+    assert post(client, "读取内部报告", mid).status_code == 502
+    assert client.get(report["download_url"]).status_code == 404
