@@ -46,3 +46,11 @@
 每个任务 `telemetry.json` 记录 provider/model、成功状态、输入/输出 Token、耗时、返工次数、成本与错误码；`report` 汇总尝试数、成功率、Token、耗时、返工与未知成本覆盖率。Mock 为 0 Token / $0；真实 Token 读取供应商 usage，缺失为 null。实际账单成本未取得则为 null，不能用 0 代替。总成功率只描述已执行样本，并单列 Mock 次数，不代表模型质量。API 错误及无效工具的失败也计入；无真实供应商调用时不能报告真实供应商成功率。
 
 本轮保留 1 次 Mock 委派样本，成功 1/1、Token 0、成本 $0；真实 DeepSeek 尝试数 0。离线契约测试 7 项通过。原生跨供应商能力保持未验证，独立 API 路径已实现且可在提供新密钥后执行真实验证。
+
+## 2026-11-02 follow-up: safe delegated UI review
+
+The user requested DeepSeek for design subtasks. A credential was pasted into chat; it was not used, copied to files, tested, or logged. The existing project constraint forbids exposed credentials. A replacement is required through a trusted local environment or hidden terminal input. A presence-only environment check still found no fresh DEEPSEEK_API_KEY; live provider status remains unverified.
+
+`./scripts/delegate-deepseek.sh` now runs the independent API task executor with `deepseek-flash`. It reads an existing environment variable or asks for a new key without echo in an interactive local terminal; shell tracing is disabled, the value is not placed in process arguments, and only the child process receives it. Do not reuse a key posted in chat. The launcher never changes the root Codex model/provider or global configuration.
+
+The concrete public/synthetic review brief is `specs/tasks/hermes-ui-review.md`. CLI `--task-file` avoids large prompts in command arguments, rejects unreadable/oversized inputs, and remains mutually exclusive with `--task`. Outputs and telemetry go into private UUID directories under gitignored `artifacts/delegations`; lead review is mandatory before integration. A default Mock file-based run passed and was explicitly marked Mock. Live work is still pending a new credential; no DeepSeek success is claimed.

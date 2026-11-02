@@ -33,3 +33,13 @@
 ## ADR-008：实时代理而非构建时 API URL
 
 Next.js 使用运行时 API route 代理，避免构建时 rewrite 将 localhost 固化进容器；代理明确保留会话 cookie/CSRF，设置 no-store 与请求超时。页面、Playwright 与 HTTP 客户端共用真实 API。
+
+## ADR-009：以当前 Hermes 官网视觉为准
+
+用户将视觉参考改为新版 Hermes Agent，并强调当前官网与旧版不同。采用 2026-11-02 实时官网截图、当前官网 Desktop 预览和最新发布信息，弃用标记 v0.16 的旧 PR 截图作为视觉权威。官网蓝色 #0000f2 与蓝白对比用于产品外框和登录；聊天阅读区保持安静。字体使用 OFL 的 Barlow Condensed 5.3.0 自托管，不复制 Hermes 商业字体、标识和插图。具体证据、适配选择及限制见 DESIGN.md。
+
+用户的精简文案规则原样加入 AGENTS.md，并配置四技能分工：Frontend Design、UI/UX Pro Max、Impeccable、Web Design Guidelines。通用技能建议不替代已明确的产品与安全要求。
+
+## ADR-010：新密钥只进入独立委派进程
+
+聊天中提供的密钥按已有“不使用已暴露密钥”约束不使用；不复制密钥到仓库或日志。新增无回显本地启动器和具体 UI 审查任务文件，真实 DeepSeek 仍需新的环境密钥。这个执行器独立于原生 Codex 子 Agent，结果是待主 Agent 审查的草稿，不把 Mock 或独立 API 协作冒称原生跨提供商 Subagent。

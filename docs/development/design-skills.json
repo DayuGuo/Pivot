@@ -1,0 +1,31 @@
+{
+  "verified_on": "2026-11-02",
+  "skills": [
+    {
+      "name": "frontend-design",
+      "path": "/home/dayu/.codex/skills/frontend-design/SKILL.md",
+      "sha256": "d91970639e9f5c37682ac7ab60094d35f1c7c1f38d731bd56396563aee10c1d3",
+      "installed": true
+    },
+    {
+      "name": "ui-ux-pro-max",
+      "path": "/home/dayu/.codex/skills/ui-ux-pro-max/SKILL.md",
+      "sha256": "1bdfb422c97d5e813768af422750882b71ff1554978da0b8a43c95de242765f7",
+      "installed": true
+    },
+    {
+      "name": "impeccable",
+      "path": "/home/dayu/.codex/skills/impeccable/SKILL.md",
+      "sha256": "fab04b31f946573b00a8559db1fc070f8ea5825254d491c2b13156e5661a86d7",
+      "installed": true
+    },
+    {
+      "name": "web-design-guidelines",
+      "path": "/home/dayu/.codex/skills/web-design-guidelines/SKILL.md",
+      "sha256": "f4647ca866a3accf763777f83e7682954f0187cd6bea7eea0399796652414e8f",
+      "installed": true
+    }
+  ],
+  "global_config_modified": false,
+  "hooks_enabled_by_this_task": false
+}

@@ -29,7 +29,8 @@ test("编辑登录、对话执行真实工具、数据库持久化与审计", as
   expect(manuscript.task).toBeTruthy();
   await expect(page.getByTestId("manuscript-detail")).toContainText(manuscript.title);
   await expect(page.getByTestId("manuscript-detail").getByText("编辑初筛", { exact: true }).first()).toBeVisible();
-  await expect(page.getByText("模拟结果", { exact: true }).last()).toBeVisible();
+  expect(body.provider).toBe("mock");
+  await expect(page.getByText(/\[模拟结果 · Mock\]/).last()).toBeVisible();
   await page.screenshot({ path: "artifacts/editorial-workspace.png", fullPage: true });
   const after = await (await page.request.get("/api/workspace")).json();
   expect(after.manuscripts).toHaveLength(previousCount + 1);
@@ -71,6 +72,7 @@ test("作者与审稿人无法通过对话越权创建编辑任务", async ({ pa
 
 test("错误密码不会建立会话", async ({ page }) => {
   await page.goto("/");
+  await page.screenshot({ path: "artifacts/hermes-login.png", fullPage: true });
   await page.getByLabel("密码", { exact: true }).fill("wrong-password");
   await page.getByRole("button", { name: "进入工作台" }).click();
   await expect(page.getByRole("alert").filter({ hasText: "邮箱或密码" })).toBeVisible();
@@ -88,4 +90,31 @@ test("浏览器网关保留 CSRF 和跨站登录防护", async ({ page }) => {
     data: { email: "editor@publishing.test", password: "EditorDemo2026!" },
   });
   expect(crossSite.status()).toBe(403);
+});
+
+test("稿件面板可显隐，移动端可查看并关闭真实稿件", async ({ page }) => {
+  await login(page);
+  const pane = page.getByRole("complementary", { name: "稿件详情" });
+  await expect(pane).toBeVisible();
+  await page.getByRole("button", { name: "隐藏稿件面板" }).click();
+  await expect(pane).toHaveCount(0);
+  await page.getByRole("button", { name: "显示稿件面板" }).click();
+  await expect(pane).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(pane).toHaveCount(0);
+  await page.getByRole("button", { name: "显示稿件面板" }).click();
+  await expect(pane).toBeVisible();
+  await expect(pane).toContainText("工作台概览");
+  await page.getByRole("button", { name: "隐藏稿件面板" }).click();
+  await expect(pane).toHaveCount(0);
+  await page.getByRole("navigation").getByRole("button", { name: /稿件管理/ }).click();
+  const data = await (await page.request.get("/api/workspace")).json();
+  expect(data.manuscripts.length).toBeGreaterThan(0);
+  const manuscript = data.manuscripts[0];
+  await page.getByRole("button").filter({ hasText: manuscript.id.slice(0, 8).toUpperCase() }).first().click();
+  await expect(page.getByTestId("manuscript-detail")).toContainText(manuscript.title);
+  await page.screenshot({ path: "artifacts/hermes-mobile.png", fullPage: true });
+  await page.getByRole("button", { name: "关闭稿件详情" }).click();
+  await expect(page.getByTestId("manuscript-detail")).toHaveCount(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });

@@ -4,6 +4,8 @@
 
 **当前模型为明确标记的 Mock；真实邮件始终禁用；不包含生产部署。**
 
+当前外观依据 Hermes Agent 当前官网的新版蓝白视觉与桌面工作台布局调整，参考证据和适配取舍见 [DESIGN.md](DESIGN.md)。原样遵循 AGENTS.md 中的精简标签规则；四个设计技能的来源、分工和安装记录见 [设计技能](docs/development/design-skills.md)，本轮审查与限制见 [设计验收](docs/development/design-acceptance.md)。
+
 ## 一键启动
 
 前提：Docker Engine + Docker Compose 可用，首次构建可访问公开镜像/依赖仓库。项目默认仅本机可访问，使用公开的合成演示账号。
@@ -77,6 +79,12 @@ npm run test:e2e
 .venv/bin/python -m packages.model_gateway.delegate --kind research --task 'Inspect a synthetic editorial API boundary'
 .venv/bin/python -m packages.model_gateway.report /tmp/publishing-delegations
 .venv/bin/python evals/model_codex_probe.py
+```
+
+在本地交互终端运行下面的命令，可使用**新的、未在聊天中公开过的**密钥执行一个具体的 UI 审查子任务。脚本优先读取 DEEPSEEK_API_KEY 环境变量；未设置时无回显提示输入，只传给独立子进程，不改变主 Codex 模型，也不把密钥写入文件。结果与遥测写入 gitignored `artifacts/delegations/<UUID>/`，等待 Lead 审查集成。这是独立 API 协作，不能冒称原生跨供应商 Subagent 已验证。
+
+```bash
+./scripts/delegate-deepseek.sh
 ```
 
 逐任务记录成功、Token、成本、耗时与返工；未知成本为 null。Ollama/vLLM 预留显式 opt-in、仅 loopback 接口。真实模型接入产品还需要后续集成与评测，当前 Web 原型固定 Mock，避免环境密钥意外导致稿件外传。详见 [DeepSeek 协作验证报告](docs/research/deepseek.md)。

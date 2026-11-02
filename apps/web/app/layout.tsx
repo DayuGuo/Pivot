@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import "@fontsource/barlow-condensed/300.css";
+import "@fontsource/barlow-condensed/500.css";
 import "./globals.css";
 export const metadata: Metadata = {
   title: "Publishing OS · 编辑工作台",

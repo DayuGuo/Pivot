@@ -92,8 +92,10 @@ def run_task(
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--kind", choices=KINDS, required=True)
-    parser.add_argument(
-        "--task", required=True, help="Public/synthetic instructions; never credentials"
+    task_source = parser.add_mutually_exclusive_group(required=True)
+    task_source.add_argument("--task", help="Public/synthetic instructions; never credentials")
+    task_source.add_argument(
+        "--task-file", type=Path, help="UTF-8 public/synthetic task brief; never a credentials file"
     )
     parser.add_argument(
         "--live", action="store_true", help="Opt in to fresh-key DeepSeek API usage"
@@ -103,6 +105,14 @@ def main() -> None:
         "--output-root", type=Path, default=Path(tempfile.gettempdir()) / "publishing-delegations"
     )
     args = parser.parse_args()
+    task = args.task
+    if args.task_file is not None:
+        try:
+            if args.task_file.stat().st_size > 12000:
+                parser.error("task_file_too_large")
+            task = args.task_file.read_text(encoding="utf-8")
+        except (OSError, UnicodeError):
+            parser.error("task_file_unreadable")
     task_id = str(uuid.uuid4())
     output = args.output_root.resolve() / task_id
     output.mkdir(parents=True, mode=0o700)
@@ -112,7 +122,7 @@ def main() -> None:
         if args.live:
             provider = DeepSeekProvider(live_enabled=True)
         result, telemetry = run_task(
-            args.kind, args.task, live=args.live, rework_count=args.rework_count, provider=provider
+            args.kind, task, live=args.live, rework_count=args.rework_count, provider=provider
         )
         (output / "result.json").write_text(
             json.dumps(
