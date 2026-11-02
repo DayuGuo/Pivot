@@ -1,3 +1,13 @@
+# Design acceptance — current screenshot-led revision
+
+The user's supplied workspace screenshot supersedes the historical cobalt marketing interpretation below. DESIGN.md and ADR-011 are current authority. Four-skill responsibilities remain unchanged. Updated UI has neutral chrome, real persistent sessions, drawer/collapse controls, closed-by-default details and actual mailbox metadata/probe controls. User screenshot conversation contents were not reused.
+
+The current independent visual review found layout, palette and material faithful, with one typography concern: CJK appearance. Self-hosted Noto Sans SC Variable 5.3.1 fixed the named concern. Actual Chromium CDP reports the imported custom font on brand, conversation names and composer; an independent scoped follow-up inspected refreshed desktop/mobile/drawer/mail captures and returned ship for that fix, with no obvious layout regression. The independent backend review found no actionable material security issues in conversations, mail bindings, migration and read-only adapters. No broad accessibility certification is claimed.
+
+Final scripts/verify.sh exited0: 145 Pytest and8 Playwright; Ruff, ESLint, TypeScript, PostgreSQL migration/drift and Docker production build all passed. Actual Mailpit message count remained0. Logs: artifacts/final-screenshot-start.log and artifacts/final-screenshot-verify.log. Full current acceptance evidence is maintained in PROGRESS.md. The earlier acceptance below describes only the previous committed revision and must not be treated as current visual authority.
+
+---
+
 # Design acceptance — 2026-11-02
 
 Scope: Publishing OS login and editorial workspace, re-styled using the CURRENT official Hermes website's blue/white identity and current Desktop presentation. This is a product adaptation, not a claim that current shipping Hermes Desktop was installed or replicated pixel for pixel. Earlier v0.16 PR screenshots were excluded.

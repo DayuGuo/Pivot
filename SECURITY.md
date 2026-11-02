@@ -25,3 +25,11 @@
 单期刊演示工作区、公开测试账号、无生产 TLS、无外部身份提供商。邮件附件仅保存内容哈希约束，尚无真实附件存储/病毒扫描/传输流程。无完整审稿匿名化、利益冲突或生产恢复策略。CI 定义在仓库中；远端执行结果只有实际触发后才能声称通过。
 
 安全回归：tests/api、evals/model_gateway_test.py、tests/e2e 与 scripts/check-boundaries.py。禁止在测试中使用真实保密稿件或未经授权个人数据。
+
+## 邮箱绑定与只读验证
+
+只有本期刊编辑/主编可保存、验证和断开邮箱，所有状态变更与审计同事务。无密码/token 浏览器输入，未知请求字段拒绝；验证错误不反射原始输入、供应商响应或异常。数据库和审计只保存元数据、固定错误与状态，`credentials_configured` 仅为布尔值。重新绑定清除旧验证，不沿用“已验证”。
+
+凭据只从 `MAIL_CREDENTIAL_<REF>_PASSWORD` 或 `MAIL_CREDENTIAL_<REF>_ACCESS_TOKEN` 读取，REF 限定大写标识符，且 `MAIL_CREDENTIAL_<REF>_JOURNAL_ID` 必须与期刊 ID 一致。猜到引用名不能借用其他期刊凭据。可使用 gitignored `.env.mail`（权限600）或部署环境注入，禁止写实际凭据到模板、命令参数、日志与仓库；变更 env_file 后需重建 API 容器以加载。
+
+SMTP host/port 精确 allowlist 限制网络目标；远程 SMTP 强制验证 TLS，只有本地 Mailpit1025 可明文且禁止认证。Gmail/Outlook 固定 GET 端点，无重定向/环境代理，超时与返回大小受限。TLS 上下文不会接受 SSLKEYLOGFILE 开启会话密钥日志。仅显式“验证连接”执行探测，读取列表不访问供应商。任何探测不执行 MAIL/RCPT/DATA/sendMail 或读取正文。Gmail metadata scope 仍为受限范围；Outlook User.Read 只证明账户身份，不能证明邮箱或发送权限。OAuth consent、令牌刷新与撤销仍由管理员管理，产品尚未实现这些流程。

@@ -33,6 +33,7 @@ def message_json(item: Message) -> dict:
     return {
         "id": item.id,
         "role": item.role,
+        "conversation_id": item.conversation_id,
         "content": item.content,
         "provider": item.provider,
         "manuscript_id": item.manuscript_id,

@@ -17,6 +17,9 @@ services:
     image: axllent/mailpit:v1.27
     ports: ["127.0.0.1:8025:8025"]
   api:
+    env_file:
+      - path: .env.mail
+        required: false
     build:
       context: .
       dockerfile: infrastructure/api.Dockerfile

@@ -2,6 +2,16 @@
 
 更新：2026-11-02。首个编辑初筛纵向原型已实现并通过本地自动化验收。未真实发信、未生产部署、未更改主模型或全局 Codex 配置。
 
+## 当前更新：截图工作台、真实会话与邮箱绑定
+
+本节覆盖下方历史蓝色外框设计。视觉权威改为用户直接提供的 Hermes 工作台截图，详见 DESIGN.md 和 ADR-011。浅灰侧栏、白色对话阅读区、细蓝色选中线、底部输入框、可收起侧栏/手机抽屉均已实现；真实会话支持新建、搜索、切换、URL恢复和草稿隔离。历史消息已迁移到真实会话，回执保持旧请求重试兼容。
+
+邮箱配置支持自建 SMTP、Gmail、Outlook，具备持久状态、验证、断开与重新绑定审计。凭据只读服务器专用环境变量，并校验期刊所有权。探测与发信分离，无发信能力。实际 Mailpit EHLO 验证通过，捕获消息总数为0；真实 Gmail/Outlook 和远程 SMTP 无授权凭据，未验证。OAuth consent/refresh 与收件箱尚未实现。
+
+最终完整 `scripts/verify.sh` 退出0：**145 Pytest + 8 Playwright**，含56适配器用例及37新增会话/邮箱API用例；生产容器构建、Ruff、ESLint、TypeScript、迁移/漂移通过。实际 head 为 a99d14733f66，包含旧消息回填。日志 artifacts/final-screenshot-start.log、artifacts/final-screenshot-verify.log，JUnit artifacts/pytest.xml。Pytest有1项第三方 Starlette/httpx 弃用警告，不影响通过。
+
+独立后端安全审查未发现需处理的实质问题。独立视觉审查确认布局与配色，要求统一实际中文字体；已增加自托管 Noto Sans SC Variable 5.3.1（OFL-1.1），最终截图复核对这项修复给出 scoped ship。Chromium CDP实际报告品牌、会话名、输入区使用 NotoSansSC-Thin 的自定义变量字体（isCustomFont=true）；不是从CSS声明推断。最终截图 artifacts/hermes-desktop-chat.png、artifacts/hermes-mobile-chat.png、artifacts/hermes-mobile-drawer.png、artifacts/mail-settings.png 和 artifacts/mail-setup-guide.png。没有真实云账号或DeepSeek供应商调用、邮件发送或生产部署。
+
 ## 后续界面与设计 Harness 更新
 
 - 用户要求参考新版 Hermes Agent、与当前官网相近，明确排除旧版风格。已实际读取 2026-11-02 当前官网、官方桌面预览、源码设计文档和最新发布 v0.22.5；旧 v0.16 PR 截图不再作为视觉权威。当前官网的蓝白视觉被适配为蓝色产品外框/侧栏、安静阅读区、自托管 Barlow Condensed 字体；没有复制 Hermes 商标、商业字体或插画。证据与限制见 DESIGN.md。

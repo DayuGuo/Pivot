@@ -43,4 +43,12 @@ flowchart LR
 
 产品当前固定 Mock，避免环境变量静默向外发送稿件；真实模型仅在独立委派 CLI 明确 --live 后读取新环境密钥。代码草稿写到 UUID 隔离目录，由主 Agent 审查整合，不自动执行。协作探针结果详见 docs/research/deepseek.md。
 
-OJS/Janeway 后续走受控适配器与外部 ID 映射，不共享数据库；接口预留见 packages/integrations/contracts.py，尚未连接外部系统。Mailpit 仅本机捕获服务，应用没有外发 SMTP 传输器。本期不实施生产部署。
+OJS/Janeway 后续走受控适配器与外部 ID 映射，不共享数据库；接口预留见 packages/integrations/contracts.py，尚未连接外部系统。Mailpit 仅本机捕获服务；邮箱适配器只进行 EHLO/TLS/AUTH 或云账户 GET 身份探测，没有外发 SMTP 传输器。本期不实施生产部署。
+
+## 会话与邮箱边界
+
+`conversations.py` 管理用户+期刊归属的真实 Conversation，Message 必须归属一个会话。工作区 GET 不创建会话；命令可显式指定目标，旧客户端省略目标时在事务内选择/创建默认会话。先查原请求回执再解析默认目标，切换会话后重试仍返回原结果。迁移保留历史消息并回填会话与回执。
+
+`mail_accounts.py` 是受控的邮箱配置动作入口：角色/期刊检查、CSRF、行锁、状态更新与同事务审计。MailAccount 只存配置和安全状态；断开为软禁用，重新绑定复用 ID 并清除旧验证。`packages/mail_adapters` 不读取数据库或环境，由入口注入专用凭据和 SMTP 精确允许列表，只进行只读协议/身份探测。接口不等于 inbox、OAuth 授权流程或发送能力。
+
+服务器凭据引用必须同时匹配 `MAIL_CREDENTIAL_<REF>_JOURNAL_ID`，才读取同命名空间 PASSWORD/ACCESS_TOKEN；前端只提交引用名。Gmail/Graph 固定官方 HTTPS 地址、禁重定向和环境代理、验证证书与身份。SMTP 默认只允许 Mailpit1025，其余目标必须显式允许并使用 TLS。连接状态不能授予发信权限。配置方法见 docs/development/mail-binding.md。

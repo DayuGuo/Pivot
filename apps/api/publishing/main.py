@@ -2,6 +2,8 @@ import os
 from uuid import UUID
 
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
@@ -9,8 +11,15 @@ from sqlalchemy.orm import Session
 from packages.model_gateway import MockModelProvider
 
 from .audit import record
+from .conversations import (
+    conversation_json,
+    create_conversation,
+    latest_conversation,
+    owned_conversation,
+)
 from .db import get_db
-from .models import AuditEvent, Journal, Manuscript, Message, User, now
+from .mail_accounts import router as mail_router
+from .models import AuditEvent, Conversation, Journal, Manuscript, Message, User, now
 from .policy import EDITOR_ROLES, can_view_manuscript
 from .runtime import execute_command
 from .security import Actor, check_password, get_actor, hash_password, new_session
@@ -19,6 +28,7 @@ from .serialization import manuscript_json, message_json, user_json
 # The first product slice is explicitly mock-only. Live gateway evaluation is a separate CLI.
 provider = MockModelProvider()
 app = FastAPI(title="Publishing OS", version="0.1.0")
+app.include_router(mail_router)
 DUMMY_HASH = hash_password("invalid-password-timing-padding")
 
 
@@ -32,6 +42,24 @@ class CommandInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
     message: str = Field(min_length=1, max_length=2000)
     request_id: UUID
+    conversation_id: UUID | None = None
+
+
+class ConversationInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    title: str = Field(default="新对话", min_length=1, max_length=120)
+
+
+@app.exception_handler(RequestValidationError)
+async def safe_validation_error(request: Request, exc: RequestValidationError):
+    # Pydantic defaults echo rejected inputs, including accidentally submitted passwords.
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": "请求字段不合法，请检查输入。",
+            "errors": [{"loc": list(error["loc"]), "msg": error["msg"]} for error in exc.errors()],
+        },
+    )
 
 
 @app.middleware("http")
@@ -134,7 +162,11 @@ def logout(response: Response, actor: Actor = Depends(get_actor), db: Session = 
 
 
 @app.get("/api/workspace")
-def workspace(actor: Actor = Depends(get_actor), db: Session = Depends(get_db)):
+def workspace(
+    conversation_id: UUID | None = None,
+    actor: Actor = Depends(get_actor),
+    db: Session = Depends(get_db),
+):
     journal = db.get(Journal, actor.journal_id)
     query = select(Manuscript).where(Manuscript.journal_id == actor.journal_id)
     if actor.role == "author":
@@ -142,11 +174,25 @@ def workspace(actor: Actor = Depends(get_actor), db: Session = Depends(get_db)):
     elif actor.role not in EDITOR_ROLES:
         query = query.where(False)
     manuscripts = db.scalars(query.order_by(Manuscript.created_at.desc())).all()
-    messages = db.scalars(
-        select(Message)
-        .where(Message.user_id == actor.user.id)
-        .order_by(Message.created_at, Message.id)
+    active = (
+        owned_conversation(db, actor, str(conversation_id))
+        if conversation_id
+        else latest_conversation(db, actor)
+    )
+    conversations = db.scalars(
+        select(Conversation)
+        .where(Conversation.user_id == actor.user.id, Conversation.journal_id == actor.journal_id)
+        .order_by(Conversation.updated_at.desc(), Conversation.id.desc())
     ).all()
+    messages = (
+        db.scalars(
+            select(Message)
+            .where(Message.user_id == actor.user.id, Message.conversation_id == active.id)
+            .order_by(Message.created_at, Message.id)
+        ).all()
+        if active
+        else []
+    )
     events = []
     if actor.role in EDITOR_ROLES:
         events = db.scalars(
@@ -159,6 +205,8 @@ def workspace(actor: Actor = Depends(get_actor), db: Session = Depends(get_db)):
         "journal": {"id": journal.id, "name": journal.name},
         "manuscripts": [manuscript_json(db, m) for m in manuscripts],
         "messages": [message_json(m) for m in messages],
+        "conversations": [conversation_json(db, c) for c in conversations],
+        "active_conversation_id": active.id if active else None,
         "audit": [
             {
                 "id": e.id,
@@ -187,7 +235,14 @@ def manuscript_detail(
 @app.post("/api/conversations/commands")
 def command(body: CommandInput, actor: Actor = Depends(get_actor), db: Session = Depends(get_db)):
     try:
-        return execute_command(db, actor, body.message, str(body.request_id), provider)
+        return execute_command(
+            db,
+            actor,
+            body.message,
+            str(body.request_id),
+            provider,
+            str(body.conversation_id) if body.conversation_id else None,
+        )
     except HTTPException as exc:
         db.rollback()
         record(
@@ -199,3 +254,15 @@ def command(body: CommandInput, actor: Actor = Depends(get_actor), db: Session =
         )
         db.commit()
         raise
+
+
+@app.post("/api/conversations")
+def new_conversation(
+    body: ConversationInput, actor: Actor = Depends(get_actor), db: Session = Depends(get_db)
+):
+    title = body.title.strip()
+    if not title or any(ord(c) < 32 for c in title):
+        raise HTTPException(422, "请填写合法对话标题")
+    item = create_conversation(db, actor, title)
+    db.commit()
+    return conversation_json(db, item)

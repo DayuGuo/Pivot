@@ -43,3 +43,19 @@ Next.js 使用运行时 API route 代理，避免构建时 rewrite 将 localhost
 ## ADR-010：新密钥只进入独立委派进程
 
 聊天中提供的密钥按已有“不使用已暴露密钥”约束不使用；不复制密钥到仓库或日志。新增无回显本地启动器和具体 UI 审查任务文件，真实 DeepSeek 仍需新的环境密钥。这个执行器独立于原生 Codex 子 Agent，结果是待主 Agent 审查的草稿，不把 Mock 或独立 API 协作冒称原生跨提供商 Subagent。
+
+## ADR-011：以用户工作台截图覆盖官网营销配色
+
+最新用户截图是明确视觉权威，覆盖 ADR-009 的蓝色产品外框与 Barlow Condensed 选择。采用白色对话阅读面、浅灰侧栏、细蓝色选中线、紧凑顶部和底部输入框，默认关闭详情，手机使用可关闭抽屉。Noto Sans SC Variable 5.3.1（OFL-1.1）自托管确保中文无衬线一致；不请求外部字体服务。不复制截图内私人对话、品牌和不存在的集成按钮。
+
+## ADR-012：真实会话与兼容幂等回执
+
+增加 Conversation / 必填 Message 外键，迁移历史消息和回执。归属按用户与期刊校验；工作区读取无新建副作用。显式目标加入输入摘要，旧默认目标请求保持原摘要；查已有回执优先于解析最新会话，防止切换后重试错误执行到新会话。
+
+## ADR-013：先交付可验证的邮箱绑定，不扩大邮件权限
+
+支持自建 SMTP、Gmail、Outlook 元数据与只读验证；缺凭据返回明确状态。凭据专用环境命名空间并绑定期刊所有权，SMTP 精确允许列表，云端固定官方 GET 接口。断开/重新绑定持久审计且清除旧验证。实际本地 Mailpit 已验证；真实云账号无凭据未验证。OAuth consent/refresh、IMAP/inbox、邮件发送另行实施；连接验证不授予发信权。
+
+## ADR-014：以 Compose 构建作为验收构建
+
+当前宿主沙箱中 Next/PostCSS 工作进程绑定端口被 EPERM 拒绝，提权尝试同样受限；没有将此失败当作通过。verify 改为执行与启动一致的 `docker compose build web`，实际生产构建通过；host lint/typecheck 仍执行。失败证据 artifacts/host-build-restriction.log，成功证据见 PROGRESS。

@@ -14,7 +14,7 @@
 
 ## 3. 邮件审批与审稿邀请
 
-草稿编辑 UI、逐封人工批准、附件内容寻址存储、不可变快照与权限。持久 outbox、幂等、unknown 结果恢复与 Mailpit 端到端；再评估真实传输。EMAIL_SEND_ENABLED 继续默认 false，不自动启用。
+已交付 SMTP/Gmail/Outlook 配置与只读验证；下一步补齐 OAuth consent/refresh、按需 IMAP/inbox，再实现草稿编辑 UI、逐封人工批准、附件内容寻址存储、不可变快照与权限。持久 outbox、幂等、unknown 结果恢复与 Mailpit 端到端；再评估真实传输。EMAIL_SEND_ENABLED 继续默认 false，不自动启用。
 
 ## 4. 同行评审、编辑决策和修回
 

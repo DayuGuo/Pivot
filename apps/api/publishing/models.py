@@ -69,10 +69,21 @@ class EditorialTask(Base):
     status: Mapped[str] = mapped_column(String(30), default="pending")
 
 
+class Conversation(Base):
+    __tablename__ = "conversations"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    journal_id: Mapped[str] = mapped_column(ForeignKey("journals.id"))
+    title: Mapped[str] = mapped_column(String(120), default="新对话")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
 class Message(Base):
     __tablename__ = "messages"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    conversation_id: Mapped[str] = mapped_column(ForeignKey("conversations.id"), index=True)
     role: Mapped[str] = mapped_column(String(20))
     content: Mapped[str] = mapped_column(Text)
     provider: Mapped[str] = mapped_column(String(50))
@@ -118,3 +129,25 @@ class EmailApproval(Base):
     digest: Mapped[str] = mapped_column(String(64))
     snapshot: Mapped[dict] = mapped_column(JSON)
     valid: Mapped[bool] = mapped_column(default=True)
+
+
+class MailAccount(Base):
+    __tablename__ = "mail_accounts"
+    __table_args__ = (UniqueConstraint("journal_id", "provider", "address"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    journal_id: Mapped[str] = mapped_column(ForeignKey("journals.id"), index=True)
+    created_by: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    provider: Mapped[str] = mapped_column(String(20))
+    address: Mapped[str] = mapped_column(String(254))
+    display_name: Mapped[str] = mapped_column(String(120))
+    smtp_host: Mapped[str | None] = mapped_column(String(253))
+    smtp_port: Mapped[int | None]
+    tls_mode: Mapped[str] = mapped_column(String(20), default="starttls")
+    auth_mode: Mapped[str] = mapped_column(String(20), default="none")
+    username: Mapped[str | None] = mapped_column(String(254))
+    credential_ref: Mapped[str | None] = mapped_column(String(32))
+    status: Mapped[str] = mapped_column(String(30), default="unverified")
+    enabled: Mapped[bool] = mapped_column(default=True)
+    last_error: Mapped[str | None] = mapped_column(String(200))
+    last_checked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)

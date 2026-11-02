@@ -4,7 +4,7 @@
 
 **当前模型为明确标记的 Mock；真实邮件始终禁用；不包含生产部署。**
 
-当前外观依据 Hermes Agent 当前官网的新版蓝白视觉与桌面工作台布局调整，参考证据和适配取舍见 [DESIGN.md](DESIGN.md)。原样遵循 AGENTS.md 中的精简标签规则；四个设计技能的来源、分工和安装记录见 [设计技能](docs/development/design-skills.md)，本轮审查与限制见 [设计验收](docs/development/design-acceptance.md)。
+当前外观依据用户提供的最新 Hermes 工作台截图：浅灰侧栏、白色对话区、细蓝色选中线与底部输入框。参考证据和适配取舍见 [DESIGN.md](DESIGN.md)。原样遵循 AGENTS.md 中的精简标签规则；四个设计技能的来源、分工和安装记录见 [设计技能](docs/development/design-skills.md)，本轮审查与限制见 [设计验收](docs/development/design-acceptance.md)。
 
 ## 一键启动
 
@@ -41,6 +41,14 @@
 
 Mock 只模拟意图识别，稿件/任务/状态/审计不是前端假数据。期刊和四类用户由 bootstrap 真实写入；命令为当前编辑创建稿件与任务。当前支持一条明确指令，其他输入会保存解释而不创建稿件。
 
+## 会话与邮箱
+
+侧栏支持真实新建/搜索/切换对话，各会话消息独立持久化，刷新恢复选中会话。桌面可收起侧栏，手机使用可关闭抽屉；稿件详情按需打开。
+
+“邮件”支持自建 SMTP、Gmail、Outlook 配置保存、只读连接/身份验证、断开与重新绑定。本地 Mailpit 预设无需凭据且已真实验证。云账号需服务器端 OAuth 访问令牌；当前没有 OAuth 授权跳转、自动刷新、收件箱或发信能力。保存配置不表示已连接，验证成功也不授予发送权限。
+
+配置步骤、凭据环境引用、期刊所有权与 SMTP 允许列表见 [邮箱绑定指南](docs/development/mail-binding.md)，空模板为 `infrastructure/mail.env.example`。真实 Gmail/Outlook 账号未提供凭据，因此未实测，不声称已经连接。
+
 ## 自动验证与本地开发
 
 运行测试工具需 Node.js 22、Python 3.12+、uv 和浏览器系统依赖。先启动服务，再安装项目隔离测试环境：
@@ -51,9 +59,9 @@ Mock 只模拟意图识别，稿件/任务/状态/审计不是前端假数据。
 ./scripts/verify.sh
 ```
 
-验证包含 Ruff、模型依赖边界、真实 PostgreSQL 迁移/漂移、Pytest、ESLint、TypeScript、Next.js 生产构建和真实 API 的 Playwright。测试不会删除演示数据；普通 Pytest 使用外部事务回滚，并发测试只保留唯一命名合成数据，E2E 会保留新建演示稿件。
+验证包含 Ruff、模型依赖边界、真实 PostgreSQL 迁移/漂移、Pytest、ESLint、TypeScript、Compose 中的 Next.js 生产构建和真实 API 的 Playwright。测试不会删除演示数据；普通 Pytest 使用外部事务回滚，并发测试只保留唯一命名合成数据，E2E 会保留新建演示稿件。
 
-证据写入 `artifacts/pytest.xml`、`artifacts/playwright-report/index.html`、`artifacts/playwright-results/`；浏览器截图为 `artifacts/editorial-workspace.png` 与 `artifacts/editorial-intake.png`。最新实际执行结果见 [PROGRESS.md](PROGRESS.md)。CI 定义在 `.github/workflows/ci.yml`，本次交付不声称远端 GitHub Actions 已执行。
+证据写入 `artifacts/pytest.xml`、`artifacts/playwright-report/index.html`、`artifacts/playwright-results/`；浏览器截图为 `artifacts/hermes-desktop-chat.png`、`artifacts/hermes-mobile-chat.png` 与 `artifacts/mail-settings.png`。最新实际执行结果见 [PROGRESS.md](PROGRESS.md)。CI 定义在 `.github/workflows/ci.yml`，本次交付不声称远端 GitHub Actions 已执行。
 
 分项命令：
 
@@ -62,10 +70,12 @@ Mock 只模拟意图识别，稿件/任务/状态/审计不是前端假数据。
 .venv/bin/alembic check
 npm run lint
 npm run typecheck
-npm run build
+docker compose build web
 npm run test:e2e
 .venv/bin/python scripts/check-boundaries.py
 ```
+
+当前宿主环境 `npm run build` 的 PostCSS 内部工作进程端口被沙箱 EPERM 拒绝；验收执行与启动一致的 `docker compose build web`，没有跳过构建。
 
 热更新开发：停止 Compose 中的 Web/API（`docker compose stop web api`），运行 `./scripts/dev.sh`；该脚本继续使用同一 PostgreSQL，启动本地 API 与 Next 开发服务，退出时停止这两个进程。`DATABASE_URL` 可通过环境覆盖；默认是本机项目数据库。只允许 PostgreSQL，不使用 SQLite 替代验收。
 
@@ -93,7 +103,7 @@ npm run test:e2e
 
 - `apps/web`：现代紧凑对话工作台、稿件详情、审计、运行时同源代理。
 - `apps/api/publishing`：Domain、Runtime、Workflow、Policy、Action、Audit 与可撤销登录会话。
-- `packages/model_gateway`：模型边界、安全委派、遥测；`packages/integrations`：未来 OJS/Janeway 契约。
+- `packages/mail_adapters`：只读 SMTP/Gmail/Outlook 探测；`packages/model_gateway`：模型边界、安全委派、遥测；`packages/integrations`：未来 OJS/Janeway 契约。
 - `infrastructure`：Dockerfiles 与 Alembic 迁移；`specs`：功能/API 契约；`tests`/`evals`：安全与回归验证。
 - [PRODUCT.md](PRODUCT.md)、[ARCHITECTURE.md](ARCHITECTURE.md)、[SECURITY.md](SECURITY.md)、[DECISIONS.md](DECISIONS.md)、[ROADMAP.md](ROADMAP.md)、[研究与来源](docs/research/landscape.md)。
 
