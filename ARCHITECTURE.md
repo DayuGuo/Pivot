@@ -52,3 +52,9 @@ OJS/Janeway 后续走受控适配器与外部 ID 映射，不共享数据库；�
 `mail_accounts.py` 是受控的邮箱配置动作入口：角色/期刊检查、CSRF、行锁、状态更新与同事务审计。MailAccount 只存配置和安全状态；断开为软禁用，重新绑定复用 ID 并清除旧验证。`packages/mail_adapters` 不读取数据库或环境，由入口注入专用凭据和 SMTP 精确允许列表，只进行只读协议/身份探测。接口不等于 inbox、OAuth 授权流程或发送能力。
 
 服务器凭据引用必须同时匹配 `MAIL_CREDENTIAL_<REF>_JOURNAL_ID`，才读取同命名空间 PASSWORD/ACCESS_TOKEN；前端只提交引用名。Gmail/Graph 固定官方 HTTPS 地址、禁重定向和环境代理、验证证书与身份。SMTP 默认只允许 Mailpit1025，其余目标必须显式允许并使用 TLS。连接状态不能授予发信权限。配置方法见 docs/development/mail-binding.md。
+
+## 下一阶段数据库设计（未实施）
+
+详见 specs/003-editorial-workflow-and-assisted-intake.md。将稿件生命周期、当前步骤实例、负责人工作项、检查证据、内容分类分开建模；版本/作者快照/文件不可变引用支撑可复核的投稿与修回。负责人确认绑定不可变动作提案、输入版本和证据，在同事务内推进状态与生成下一待办。初期采用关系模型+JSONB版本化表单内容，保留当前投影与追加审计，不引入任意可执行workflow DSL或全量event sourcing。
+
+迁移须保留已有ID/消息/幂等回执，旧screening明确为legacy步骤，不能补造查重或人类确认历史。三栏通过后端投影展示同一稿件事实，AI既不生成状态真相，也不拥有最终确认工具。当前代码尚未实现上述实体与API。

@@ -2,6 +2,14 @@
 
 更新：2026-11-02。首个编辑初筛纵向原型已实现并通过本地自动化验收。未真实发信、未生产部署、未更改主模型或全局 Codex 配置。
 
+## 最新规划：数据库、三栏任务工作区与负责人审核
+
+用户本轮要求已固化到 specs/003-editorial-workflow-and-assisted-intake.md：核心步骤与标签分层、逐关负责人、版本/作者/文件/分派/任务/检查/提案/确认/轮次实体、约束索引、并发幂等、角色待办排序、AI提取与缺项表单、独立审核页、历史迁移和分批验收。复核了现有models/workflow/policy，记录了单status、必填editor_id、单author_id、任务唯一键和单role的结构缺口。实际读取OJS/Janeway官方工作流资料，来源记录在规格末尾。
+
+PRODUCT、ARCHITECTURE、SECURITY、DESIGN、DECISIONS与ROADMAP同步区分“后续设计”和“已运行能力”。本轮只更新规划文档，没有修改运行代码、数据库schema或权限，不声称三栏/作者辅助投稿/新审核页已实现。下一次优先A+B纵向切片；现有完整原型验收见下方。
+
+本轮文档变更后已实际运行 `scripts/verify.sh` 并退出0：145 Pytest、8 Playwright、Ruff/ESLint/TypeScript、PostgreSQL迁移/漂移检查与Docker生产构建通过。日志 artifacts/workflow-planning-verify.log。这仅证明现有原型回归通过，不证明新规格中的后续功能已实现。
+
 ## 当前更新：截图工作台、真实会话与邮箱绑定
 
 本节覆盖下方历史蓝色外框设计。视觉权威改为用户直接提供的 Hermes 工作台截图，详见 DESIGN.md 和 ADR-011。浅灰侧栏、白色对话阅读区、细蓝色选中线、底部输入框、可收起侧栏/手机抽屉均已实现；真实会话支持新建、搜索、切换、URL恢复和草稿隔离。历史消息已迁移到真实会话，回执保持旧请求重试兼容。

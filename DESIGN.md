@@ -29,3 +29,9 @@ Exact user rule: Avoid unnecessary secondary labels and descriptions. Let the la
 ## Review workflow
 
 Frontend Design owns aesthetic coherence with the supplied screenshot. UI/UX Pro Max provides targeted interaction/accessibility knowledge. Impeccable supplies the refinement pass; Web Design Guidelines audits the changed UI. These aids never override the user's screenshot or product security rules. Verify actual desktop/mobile renders and the real workflow, not only source scans. Preserve and extend automated tests.
+
+## Next product structure — planned, not rendered yet
+
+The latest user requirement establishes three columns: left role/assignment-based priority work, center conversation, right authorized manuscript progress. Once implemented, this supersedes the current default-closed manuscript detail behavior above. Session history becomes secondary to actionable work. Right context shows the current step, responsible person, blockers and next human checkpoint, with a real manuscript switcher. Narrow layouts expose the same context through responsive views/drawers, not three squeezed columns.
+
+Long or consequential submissions use a dedicated review route with complete content and differences. AI prepares sourced candidates and missing-field forms; the responsible user explicitly confirms each business checkpoint there. Keep the screenshot palette, quiet hierarchy and minimal labels. This section specifies future behavior only; the current app has not been changed. Full data and interaction contract: specs/003-editorial-workflow-and-assisted-intake.md.

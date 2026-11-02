@@ -99,6 +99,10 @@ npm run test:e2e
 
 逐任务记录成功、Token、成本、耗时与返工；未知成本为 null。Ollama/vLLM 预留显式 opt-in、仅 loopback 接口。真实模型接入产品还需要后续集成与评测，当前 Web 原型固定 Mock，避免环境密钥意外导致稿件外传。详见 [DeepSeek 协作验证报告](docs/research/deepseek.md)。
 
+## 后续数据库与产品规划
+
+三栏“我的工作 / 对话协作 / 稿件进度”、分阶段初审、AI辅助信息整理与独立负责人审核页已形成详细规格，见 [数据库与工作流规划](specs/003-editorial-workflow-and-assisted-intake.md)。这份规格尚未实施，不代表当前原型已具备完整投稿或评审能力。下一次优先交付数据/待办基础与作者辅助投稿的一条真实链。
+
 ## 项目地图
 
 - `apps/web`：现代紧凑对话工作台、稿件详情、审计、运行时同源代理。
