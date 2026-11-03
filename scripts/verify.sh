@@ -16,10 +16,10 @@ with httpx.Client(trust_env=False, timeout=10) as client:
 CHECK_TARGET
 .venv/bin/python scripts/check-research-library.py
 .venv/bin/python scripts/check-boundaries.py
-.venv/bin/ruff check scripts/start-local.py scripts/accept-live-publishing.py
-.venv/bin/ruff format --check scripts/start-local.py scripts/accept-live-publishing.py
-.venv/bin/ruff check apps/api packages tests/api tests/mail_adapters evals infrastructure/migrations scripts/start-live-model.py scripts/smoke-live-model.py scripts/accept-live-model.py scripts/check-research-library.py scripts/rehearse-publishing-migration.py
-.venv/bin/ruff format --check apps/api packages tests/api tests/mail_adapters evals infrastructure/migrations scripts/start-live-model.py scripts/smoke-live-model.py scripts/accept-live-model.py scripts/check-research-library.py scripts/rehearse-publishing-migration.py
+.venv/bin/ruff check --no-cache scripts/start-local.py scripts/accept-live-publishing.py
+.venv/bin/ruff format --check --no-cache scripts/start-local.py scripts/accept-live-publishing.py
+.venv/bin/ruff check --no-cache apps/api packages tests/api tests/mail_adapters evals infrastructure/migrations scripts/start-live-model.py scripts/smoke-live-model.py scripts/accept-live-model.py scripts/check-research-library.py scripts/rehearse-publishing-migration.py
+.venv/bin/ruff format --check --no-cache apps/api packages tests/api tests/mail_adapters evals infrastructure/migrations scripts/start-live-model.py scripts/smoke-live-model.py scripts/accept-live-model.py scripts/check-research-library.py scripts/rehearse-publishing-migration.py
 .venv/bin/alembic upgrade head
 .venv/bin/alembic check
 .venv/bin/python -m apps.api.publishing.bootstrap

@@ -3,9 +3,9 @@
 import base64
 
 import pytest
-from apps.api.publishing.domain.decision_models import EditorialDecision, RevisionRequest
 from sqlalchemy import func, select
 
+from apps.api.publishing.domain.decision_models import EditorialDecision, RevisionRequest
 from apps.api.publishing.domain.models import ManuscriptVersion, SubmissionWorkflow
 from apps.api.publishing.models import Membership, User
 from apps.api.publishing.security import hash_password
