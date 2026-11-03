@@ -1,6 +1,6 @@
 # Publishing OS 数据库决策：把成熟出版经验变成可验证约束
 
-更新：2026-11-03。依据 [OJS 研究](../ojs/README.md)、[Janeway 研究](../janeway/README.md)、[现有系统基线](../current-system/README.md) 和 [spec007 数据契约](../../../../specs/007-data-contract.md)。这份文件区分设计建议、静态实现绑定与已执行组件测试，**不能据此声称尚未验收的服务或UI已完成**。[机器可读映射](source-to-implementation.json) 给出每个字段组的具体上游表/类/字段、源文件、项目新增部分和验收目标；基础14类现已绑定实际源码与 `f8a12d4c6e90` 迁移；新增 CheckRun 绑定 `09b73e6a1c22` 并完成临时 schema 组件测试。D的4个模型与既有3个typed字段/关系现已绑定10c84f7a2d31，50项组件测试通过；D服务/UI集成仍待root，不能由组件证据推断端到端完成。C主链的当前已执行验收见[PROGRESS](../../../../PROGRESS.md)。
+更新：2026-11-03。依据 [OJS 研究](../ojs/README.md)、[Janeway 研究](../janeway/README.md)、[现有系统基线](../current-system/README.md) 和 [spec007 数据契约](../../../../specs/007-data-contract.md)。这份文件区分设计建议、静态实现绑定与已执行组件测试，不能据此声称尚未验收的服务或UI已完成。[机器可读映射](source-to-implementation.json) 的基础及扩展模型给出具体上游表/类/字段、源码位置、本项目加固和验收目标。现覆盖25类/323字段，基础 f8a、C09b、D10c、E11d、F12e 分层绑定；下文各节记录对应组件阶段证据，整个项目当前已执行的服务/浏览器/完整验收以 [PROGRESS](../../../../PROGRESS.md) 为准。
 
 研究固定 OJS 3.5.0-6 / `0f2de4ff3f399a65dbe5c24c035529c0ff9bc976`，以及该版本真实 gitlink 对应 PKP `c4c0aa8c5293254ad253544aea230b1b607d5249`；Janeway v1.8.4 / `e24b23bd112ff7ca08097620d8a31041a25f9d26`。OJS 表索引来自选定安装迁移，Janeway 来自模型 AST；都不是已执行迁移后的完整数据库导出。不能把“字段存在”和“数据库已有此约束”混同。
 
@@ -133,3 +133,33 @@ D的原子顺序是：opening confirmation→Round(initializing)→固定RoundFi
 当前来源映射覆盖22类/289字段、114个D/E新增列、93项命名约束、2份已验证迁移指纹和2份增量契约。研究门禁继续核验原OJS39/Janeway35材料与18项历史基线；spec009的编号/反引号类声明现在与spec008粗体声明一样进行严格完整覆盖，不能漏掉E实体。原有负向实验仍保留，新增E契约/字段/约束/迁移指纹与deferred guard目标实验另记；没有为了通过门禁弱化任何字段、FK或hash检查。
 
 E映射的标准研究门禁实际返回0：22类/289字段、114个D/E新增列、93项命名约束、7张新增表的完整命名约束集合、3个FK helper、2份合同/迁移指纹与18项采用拒绝决策全部对应；原74份上游材料/18项历史基线仍匹配。新增10项隔离门禁实验：完整副本返回0；E合同漏模型、E列错绑D迁移、漏命名FK、table_args漂移、E迁移hash变化、错误前序revision、缺deferred bundle、上游假字段、上游artifact hash篡改这9项均返回1。仅改隔离研究库副本，没有改模型/SQL来制造通过；Ruff与格式检查通过。当前实验明细在隔离树artifacts/E-research-gate-{positive,negative-tests}.json。
+
+## F 校样包、作者响应与鉴权本地预览组件（2026-11-03）
+
+正式字段和界面合同见[spec010](../../../../specs/010-production-local-preview.md)，上游观察见[制作/校样设计研究](production-preview-design.md)。本节只记录独立模型组件与研究门禁，不替代 lead 在 PROGRESS 中维护的服务、权限、浏览器及完整 verify 证据，也不宣布整个 Goal 完成。
+
+本次再次核对固定源码：[OJS OJSMigration.php](https://github.com/pkp/ojs/blob/0f2de4ff3f399a65dbe5c24c035529c0ff9bc976/classes/migration/install/OJSMigration.php#L266) 把 publications 与 publication_galleys 分开，galley 有独立 publication/file、label、is_approved；[Janeway production/models.py](https://github.com/openlibhums/janeway/blob/e24b23bd112ff7ca08097620d8a31041a25f9d26/src/production/models.py#L14) 区分制作责任、TypesetTask 的输入材料/产出文件与 editor_reviewed；[proofing/models.py](https://github.com/openlibhums/janeway/blob/e24b23bd112ff7ca08097620d8a31041a25f9d26/src/proofing/models.py#L61) 再区分 ProofingRound、ProofingTask 和 TypesetterProofingTask 更正任务。这些是复用关系的证据，不是声称两者已有与本项目完全相同的人类内容审批机制。
+
+上游的边界同样需要明确：固定 Janeway ProofingRound.number 在本库摘录中只有排序，没有 assignment/number UNIQUE；ProofingTask 把多人、多文件/galley、nullable proofreader 与可修改时间事实组合在任务中。OJS galley.submission_file_id 可空、可使用 remote_url，is_approved 默认0；该 install 定义并不提供本项目需要的“确切作者逐包确认+同版同包响应”复合关联。它们适合其完整应用语义，不能据此推断我们的 raw SQL 约束已足够。F 选择较窄的 txt/md 单校样包；保持不可变、递增 package_no 和逐包本人响应，不直接复制其任意远程载体、任务泛化或删除级联行为。
+
+| 决策/模型 | 本次采用 | 明确拒绝与约束 |
+| --- | --- | --- |
+| DB19 / ProofPackage：13字段 | 录用版与制作材料分离；独立 FileObject；package_no；同稿录用决定；安全元数据、文件、制作人和完整人工确认固定 | 不向冻结 VersionFile 追加 proof；不从 latest timestamp 或 dedup blob.original_filename 猜本稿校样；当前 production role/grant 可依法再分派，历史作者 link/邮箱冲突均拒绝 |
+| DB20 / ProofResponse：8字段 | 原投稿作者对每个确切包 approve 或 request_corrections；一包一结果；corrections 说明至少20字；确认后不可修改 | 不把更正当稿件 reject；不接受模型代勾声明；旧包/别包响应不能确认新包；完整 canonical8 包、accepted版、hash/metadata/package_digest 都须一致 |
+| DB21 / PublicationPreview：13字段 | 同包作者 approve 后，当前制作人独立确认本地预览；沿用已批准 metadata/file/name；明确 local_only | 不是公开 Publication/Galley，不注册 DOI、不设置 published、不发送通知；复合 FK 同时绑定 package/manuscript/acceptedversion 及 response/manuscript/package，不能用另一包的 approve |
+
+34个字段逐项绑定 `apps/api/publishing/domain/production_models.py` 的实际 AST 位置、类型和 mapped_column 声明，29项命名 FK/Unique/CHECK 逐项绑定模型及 `12e06b9c4f53_production_local_preview.py`（后继11d）。Package UNIQUE(id,manuscript_id,accepted_version_id) 与 Response UNIQUE(id,manuscript_id,package_id) 是 Preview 强复合 FK 的父键；独立同刊 FileObject 不授予下载权限，真实 CAS 字节、访问投影、撤权幂等重放与页面转义仍由服务验收。
+
+公开形 metadata 从冻结录用版和有序 VersionAuthor 重建，只包含 schema_version/title/abstract/language/article_type/keywords/authors/funding_statement；authors 只包含 name/orcid/affiliations/corresponding/contributions，去除邮箱、账号关联、声明/COI。冻结 file **严格5键** id/filename/sha256/byte_size/media_type，不把下载URL或验证显示字段写入材料摘要；包 **严格8键**，F envelope.version 必须 JSON null，但 ActionProposal.version_id 仍必须是真实 accepted 版。数据库独立重建安全对象，不能靠“前端隐藏额外字段”。
+
+事务顺序为创建确认→完成当前 typed 任务与 StepRun→插入不可变事实→创建下一任务。send_proof 的完成 step 同次写新 package_id 和 previous_package_id；payload 明确绑定同一个 previous_package_id。第二包开始必须来自紧邻前包的真实 request_corrections，hash 只与此前包比较，不能将所有旧 hash 永久列黑名单：组件实际验证 A→B→A 三包可合法恢复更早内容，同时相同上一包字节、缺前包、wrong previous 或已 approve 前包均被拒绝。下一 author_proof/preview_confirmation 的 active 包由 StepRun 指针固定，不是最新上传材料。
+
+组件已实际 **53 passed，37.10秒**，1项既有 Starlette/httpx 弃用 warning；JUnit 观察文件 `/tmp/production-models-final.xml` 的 SHA 和测试源码 SHA 已记录在映射。测试使用55433隔离库的随机事务 schema 并回滚，完整初始→C→D→E→F迁移链与 Base.metadata 比较为零差异。覆盖准确快照/私密字段注入、同刊实际校验类型、当前制作人再分派、历史作者邮箱冲突、逐包本人确认、更正链、非approve预览拒绝、过期 revision/policy/step/version、全部3表 UPDATE/DELETE/TRUNCATE 及有历史降级拒绝。它没有运行真实模型、外部邮件或公开发布，没有修改公共 head 或主库。
+
+独立 raw SQL 实验新增两项负向，最初确实发现 payload.stage 可伪 chief_decision、WorkItem.kind 可伪 author_proof 而 StepRun/flow 仍 production 时没有被 F guard 拦住。服务另有校验，这不是未经验证的应用漏洞声明。补 `publishing_production_confirmation` 对 payload.stage/WorkItem.kind 的严格同阶段绑定后，全部53项通过；模型签名/DDL不变。root 对已有隔离数据只替换这个精确函数，无需降级/删除数据。映射同时固定完整12e迁移 SHA、9个函数名称、6个不可变/截断 trigger 和该函数标准化 CREATE OR REPLACE 指纹（472eee871a7ab2b629202ab4071c22d4fbb7e61aff1a7c79d7430a8cb55df9af）。不能只改指纹来掩盖未经测试的 SQL 改动。
+
+研究门禁新增所有 implemented 模型的 `__tablename__` AST 精确核验、F row/truncate trigger 的事件/表/函数绑定、关键函数指纹，以及组件测试源码 hash/测试函数集合与观察证据声明核验。报告可能位于临时文件，所以离线门禁不依赖 JUnit 仍在本地、不联网或重新运行数据库；输出用 `observed_component_cases_declared_only` 标明53是已记录观察，不能把标准门禁说成再次执行了53项测试。既有上游哈希/许可、历史基线、逐字段、全量命名约束、deferred guard 和原负向实验均保留。
+
+本次 F 研究门禁标准运行实际返回0：25类/323字段、148个D/E/F增量列、122项命名约束、10张新表完整命名约束集、24个实际domain Base类全覆盖、3份增量合同/迁移与24条D/E/F row/truncate trigger 精确绑定；OJS39/Janeway35份材料与18项历史基线仍匹配，采用/拒绝决策共21项。门禁没有重新执行53项数据库测试，只校验已记录的组件测试来源与观察声明。
+
+另在隔离复制库完成 **20项门禁实验：1项完整副本成功、19项负向均按预期返回1**。负向包括F契约漏实体/整份合同移除/整个F切片映射移除、列误归E、源码字段声明漂移、漏命名FK、错物理表名、迁移hash/前序错绑、缺row trigger/错function、truncate错表、关键函数指纹变化、组件suite源码hash/测试函数集合/无效观察数、杜撰上游字段、严格旧基线漂移、上游artifact篡改。实验仅改临时研究库副本，未修改实现、迁移SQL、组件测试或真实来源；首次实验的严格基线断言用了错误预期文案（实际已正确返回1），纠正后完整重跑20项通过。详情为 `/tmp/F-research-gate-{positive,negative-tests}.json`，临时证据可清理，以上正文与映射保留实际结果。Ruff check、format检查及git diff检查通过；组件 Token/API费用遥测为 null。

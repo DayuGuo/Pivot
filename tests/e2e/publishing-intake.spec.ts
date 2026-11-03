@@ -1,7 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 
-test("常驻对话贯通真实投稿、同行评审、主编正式修回与录用制作移交", async ({ page, browser }) => {
-  test.setTimeout(150000);
+test("常驻对话贯通投稿、评审、正式修回、校样与鉴权本地预览", async ({ page, browser }) => {
+  test.setTimeout(180000);
   await page.goto("/");
   await page.getByLabel("邮箱", { exact: true }).fill("author@publishing.test");
   await page.getByLabel("密码", { exact: true }).fill("AuthorDemo2026!");
@@ -255,6 +255,93 @@ test("常驻对话贯通真实投稿、同行评审、主编正式修回与录�
   await productionTask.click();
   await expect(productionPage.getByRole("textbox", { name: "向出版助手发送消息", exact: true })).toBeVisible();
   await expect(productionPage.getByText("合成开放科学浏览器验收 · 正式修回V2", { exact: true }).first()).toBeVisible();
+
+  // F uses an actual separate proof file; frozen accepted metadata stays unchanged.
+  const productionDetail = await (await productionPage.request.get(`/api/publishing/manuscripts/${mid}`)).json();
+  expect(productionDetail.version).toBeNull();
+  const acceptedMetadata = productionDetail.production.metadata_snapshot;
+  expect(acceptedMetadata.title).toBe("合成开放科学浏览器验收 · 正式修回V2");
+  expect(acceptedMetadata.authors[0].email).toBeUndefined();
+  const proofText = "合成正文校样：本地软件验收，只更正正文，不改变冻结录用元数据。\n<script>window.__publishingProofExecuted = true</script>\n尖括号与脚本片段必须作为普通文字展示，不得执行。";
+  await productionPage.getByLabel("正文校样文件", { exact: true }).setInputFiles({ name: "synthetic-production-proof.txt", mimeType: "text/plain", buffer: Buffer.from(proofText, "utf8") });
+  await productionPage.getByRole("button", { name: "上传并保存正文校样", exact: true }).click();
+  await expect(productionPage.getByText("私人校样文件已保存，尚未交作者确认。", { exact: true })).toBeVisible();
+  const proofDraft = await (await productionPage.request.get(`/api/publishing/manuscripts/${mid}`)).json();
+  expect(proofDraft.production.metadata_snapshot).toEqual(acceptedMetadata);
+  expect(proofDraft.production.packages).toHaveLength(0);
+  expect((await page.request.get(proofDraft.production.draft_file.download_url)).status()).toBe(404);
+  expect((await reviewerPage.request.get(proofDraft.production.draft_file.download_url)).status()).toBe(404);
+  await expect(productionPage.getByRole("checkbox", { name: "我已核对冻结的录用元数据", exact: true })).not.toBeChecked();
+  await expect(productionPage.getByRole("checkbox", { name: "我已人工阅读本次正文校样", exact: true })).not.toBeChecked();
+  await productionPage.getByRole("checkbox", { name: "我已核对冻结的录用元数据", exact: true }).check();
+  await productionPage.getByRole("checkbox", { name: "我已人工阅读本次正文校样", exact: true }).check();
+  await prepareEditorial(productionPage, mid, "send_proof");
+  await expect(productionPage.getByRole("region", { name: "校样与本地预览审核", exact: true }).getByRole("link", { name: "synthetic-production-proof.txt", exact: true })).toBeVisible();
+  await approve(productionPage, "确认交作者校样");
+
+  await page.reload();
+  await expect(page.getByLabel("本包校样结果", { exact: true })).toHaveValue("");
+  await expect(page.getByRole("checkbox", { name: "我已阅读当前指定包的实际正文校样", exact: true })).not.toBeChecked();
+  await expect(page.getByLabel("正文校样文件", { exact: true })).toHaveCount(0);
+  const packageRegion = page.getByRole("region", { name: "当前指定校样包", exact: true });
+  const proofDownload = page.waitForEvent("download");
+  await packageRegion.getByRole("link", { name: "synthetic-production-proof.txt", exact: true }).click();
+  expect((await proofDownload).suggestedFilename()).toBe("synthetic-production-proof.txt");
+  await page.getByLabel("本包校样结果", { exact: true }).selectOption("approve");
+  await page.getByLabel("校样意见", { exact: true }).fill("本人已阅读并通过当前指定的合成正文校样。");
+  await page.getByRole("checkbox", { name: "我已阅读当前指定包的实际正文校样", exact: true }).check();
+  await prepareEditorial(page, mid, "confirm_proof");
+  await approve(page, "确认通过本包校样");
+
+  await productionPage.reload();
+  await expect(productionPage.getByRole("checkbox", { name: "我已核对冻结的录用元数据", exact: true })).not.toBeChecked();
+  await expect(productionPage.getByRole("checkbox", { name: "我已核对作者通过的确切校样包", exact: true })).not.toBeChecked();
+  await expect(productionPage.getByLabel("正文校样文件", { exact: true })).toHaveCount(0);
+  await productionPage.getByRole("checkbox", { name: "我已核对冻结的录用元数据", exact: true }).check();
+  await productionPage.getByRole("checkbox", { name: "我已核对作者通过的确切校样包", exact: true }).check();
+  await prepareEditorial(productionPage, mid, "prepare_local_preview");
+  await approve(productionPage, "确认生成鉴权本地预览");
+  const ready = await (await productionPage.request.get(`/api/publishing/manuscripts/${mid}`)).json();
+  expect(ready.stage).toBe("preview_ready");
+  expect(ready.production.metadata_snapshot).toEqual(acceptedMetadata);
+  const previewLink = ready.production.preview;
+  expect(previewLink.local_only).toBe(true);
+  const productionComposer = productionPage.getByRole("textbox", { name: "向出版助手发送消息", exact: true });
+  await productionComposer.fill("尚未发送的本地预览输入草稿");
+  await productionPage.getByRole("link", { name: "打开鉴权本地预览", exact: true }).click();
+  await expect(productionPage.getByRole("region", { name: "鉴权本地预览", exact: true })).toBeVisible();
+  await expect(productionComposer).toHaveValue("尚未发送的本地预览输入草稿");
+  await expect(productionPage.getByText("尚未正式发表 · 仅向获授权用户展示", { exact: true })).toBeVisible();
+  await expect(productionPage.getByTestId("local-preview-body")).toHaveText(proofText);
+  await expect(productionPage.getByTestId("local-preview-body").locator("script")).toHaveCount(0);
+  expect(await productionPage.evaluate(() => Reflect.get(window, "__publishingProofExecuted"))).toBeUndefined();
+  const previewDTO = await (await productionPage.request.get(`/api/publishing/previews/${previewLink.id}`)).json();
+  expect(previewDTO.manuscript_status).toBe("accepted");
+  expect(previewDTO.formally_published).toBe(false);
+  expect(previewDTO.metadata_snapshot).toEqual(acceptedMetadata);
+  expect(previewDTO.text).toBe(proofText);
+  expect(JSON.stringify(previewDTO)).not.toContain("PRIVATE-");
+  expect((await page.request.get(`/api/publishing/previews/${previewLink.id}`)).status()).toBe(200);
+  expect((await reviewerPage.request.get(`/api/publishing/previews/${previewLink.id}`)).status()).toBe(404);
+  const anonymous = await browser.newContext();
+  expect((await anonymous.request.get(new URL(`/api/publishing/previews/${previewLink.id}`, productionPage.url()).href)).status()).toBe(401);
+  await anonymous.close();
+  // The route query must not override the DTO's actual manuscript context.
+  await productionPage.goto(`${previewLink.url}?manuscript=${crypto.randomUUID()}`);
+  await expect(productionPage.getByTestId("local-preview-body")).toHaveText(proofText);
+  await expect(productionPage.getByRole("region", { name: "出版助手", exact: true }).getByText(new RegExp(`${ready.number}\\s*·`)).first()).toBeVisible();
+  await productionComposer.fill("说明当前本地预览对应稿件的进度");
+  const previewChatRequest = productionPage.waitForRequest(request => request.url().endsWith("/api/publishing/chat") && request.method() === "POST");
+  const previewChatResponse = productionPage.waitForResponse(response => response.url().endsWith("/api/publishing/chat") && response.request().method() === "POST");
+  await productionPage.getByRole("button", { name: "发送消息", exact: true }).click();
+  const previewContext = (await previewChatRequest).postDataJSON().context;
+  expect(previewContext.manuscript_id).toBe(mid);
+  expect(previewContext.version_id).toBe(ready.accepted_version_id);
+  expect(previewContext.view).toBe("preview");
+  expect((await previewChatResponse).status()).toBe(200);
+  await productionPage.reload();
+  await expect(productionPage.getByTestId("local-preview-body")).toHaveText(proofText);
+  await expect(productionComposer).toBeVisible();
   await production.close();
   await reviewer.close();
   await editor.close(); await chief.close();

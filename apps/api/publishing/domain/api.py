@@ -14,7 +14,7 @@ from packages.model_gateway.editorial import editorial_model_status
 from ..db import get_db
 from ..models import Journal
 from ..security import Actor, get_actor
-from . import core
+from . import core, production
 from .chat import ChatContext, ChatInput, conversation, history
 from .files import FileValidationError, read_bytes
 from .models import FileObject, ManuscriptVersion, VersionFile
@@ -237,9 +237,19 @@ def download(file_id: UUID, actor: Actor = Depends(get_actor), db: Session = Dep
     version = db.get(ManuscriptVersion, link.version_id)
     # Unsubmitted files remain private to their author; reviewer-specific file
     # access is added only with an accepted review assignment in the review slice.
-    manuscript, _ = core.load_submission(db, actor, link.manuscript_id)
+    manuscript, flow = core.load_submission(db, actor, link.manuscript_id)
     if actor.role == "reviewer" and manuscript.author_id != actor.user.id:
         raise HTTPException(404, "请使用本轮明确授权的匿名评审材料入口")
+    if (
+        actor.role == "production_editor"
+        and manuscript.author_id != actor.user.id
+        and (
+            not production.can_produce(db, actor, manuscript)
+            or link.version_id != flow.accepted_version_id
+            or link.purpose != "manuscript"
+        )
+    ):
+        raise HTTPException(404, "制作阶段仅能读取明确批准的录用稿件")
     if not version.frozen_at and manuscript.author_id != actor.user.id:
         raise HTTPException(404, "文件不存在或无权访问")
     blob = db.get(FileObject, link.file_object_id)
@@ -330,3 +340,63 @@ def review_material(
             "X-Content-SHA256": blob.sha256,
         },
     )
+
+
+@router.post("/manuscripts/{manuscript_id}/proof-files")
+def proof_upload(
+    manuscript_id: UUID,
+    body: UploadInput,
+    actor: Actor = Depends(get_actor),
+    db: Session = Depends(get_db),
+):
+    return core.run_action(
+        db,
+        actor,
+        str(body.request_id),
+        "upload_proof",
+        {
+            "manuscript_id": str(manuscript_id),
+            **body.model_dump(mode="json", exclude={"request_id"}),
+        },
+        lambda: production.upload(db, actor, str(manuscript_id), body.expected_revision, body.file),
+        revalidate_replay=lambda: production.revalidate_upload_receipt(
+            db, actor, str(manuscript_id), str(body.request_id)
+        ),
+    )
+
+
+def proof_file_response(blob, filename, content):
+    return Response(
+        content=content,
+        media_type=blob.media_type,
+        headers={
+            "Content-Disposition": f"attachment; filename*=UTF-8''{quote(filename, safe='')}",
+            "X-Content-SHA256": blob.sha256,
+        },
+    )
+
+
+@router.get("/manuscripts/{manuscript_id}/proof-files/{file_id}")
+def proof_draft_download(
+    manuscript_id: UUID,
+    file_id: UUID,
+    actor: Actor = Depends(get_actor),
+    db: Session = Depends(get_db),
+):
+    return proof_file_response(
+        *production.draft_download(db, actor, str(manuscript_id), str(file_id))
+    )
+
+
+@router.get("/proof-packages/{package_id}/file")
+def proof_package_download(
+    package_id: UUID, actor: Actor = Depends(get_actor), db: Session = Depends(get_db)
+):
+    return proof_file_response(*production.package_download(db, actor, str(package_id)))
+
+
+@router.get("/previews/{preview_id}")
+def local_preview(
+    preview_id: UUID, actor: Actor = Depends(get_actor), db: Session = Depends(get_db)
+):
+    return production.preview_projection(db, actor, str(preview_id))

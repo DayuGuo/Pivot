@@ -28,6 +28,7 @@ from .models import (
     VersionFile,
     WorkItem,
 )
+from .production_schemas import PRODUCTION_ACTIONS
 from .review_schemas import REVIEW_ACTIONS
 from .schemas import IntakeData, missing_requirements
 
@@ -799,6 +800,10 @@ def prepare_proposal(
 ):
     manuscript, flow = load_submission(db, actor, manuscript_id, write=True)
     require_revision(flow, expected_revision)
+    if action_type in PRODUCTION_ACTIONS:
+        from .production import prepare
+
+        return prepare(db, actor, manuscript, flow, action_type, action_data or {})
     if action_type in EDITORIAL_ACTIONS:
         from .decisions import prepare
 
@@ -904,6 +909,10 @@ def authorize_proposal_content(db, actor, proposal):
     caps = capabilities(db, actor, manuscript)
     if action in {"submit", "submit_revision"}:
         allowed = manuscript.author_id == actor.user.id
+    elif action == "confirm_proof":
+        allowed = manuscript.author_id == actor.user.id
+    elif action in {"send_proof", "prepare_local_preview"}:
+        allowed = "production" in caps and not is_conflicted(db, manuscript, actor.user)
     elif action == "record_decision":
         allowed = "chief" in caps and not is_conflicted(db, manuscript, actor.user)
     elif action in {"recommend_decision", "assess_revision"}:
@@ -1014,6 +1023,10 @@ def confirm_proposal(
         raise HTTPException(409, "审核内容已过期或发生变化，请重新准备")
     if db.scalar(select(HumanConfirmation).where(HumanConfirmation.proposal_id == proposal.id)):
         raise HTTPException(409, "本审核已经处理，请使用原请求编号恢复结果")
+    if proposal.action_type in PRODUCTION_ACTIONS:
+        from .production import confirm
+
+        return confirm(db, actor, manuscript, flow, proposal, reason)
     if proposal.action_type in EDITORIAL_ACTIONS:
         from .decisions import confirm
 
@@ -1191,6 +1204,11 @@ def submission_projection(db: Session, actor: Actor, manuscript_id: str, *, deta
         "peer_reports": bool(caps & {"handling_editor", "chief"}) and no_conflict,
         "editorial_private": bool(caps & {"handling_editor", "chief"}) and no_conflict,
     }
+    from .production import visibility_scope as production_scope
+
+    visibility_scope.update(production_scope(db, actor, manuscript, flow))
+    if actor.role == "production_editor" and manuscript.author_id != actor.user.id:
+        visibility_scope["manuscript_files"] = False
     result["visibility_scope"] = visibility_scope
     result["visibility_fingerprint"] = digest(visibility_scope)
     result["allowed_actions"] = []
@@ -1225,6 +1243,15 @@ def submission_projection(db: Session, actor: Actor, manuscript_id: str, *, deta
                 result["allowed_actions"] = [
                     {"action": action, "label": label, "requires_human": True}
                 ]
+            elif flow.stage in {"production", "author_proof", "preview_confirmation"}:
+                action, label = {
+                    "production": ("send_proof", "准备交作者校样审核"),
+                    "author_proof": ("confirm_proof", "准备本人校样回应审核"),
+                    "preview_confirmation": ("prepare_local_preview", "准备本地预览审核"),
+                }[flow.stage]
+                result["allowed_actions"] = [
+                    {"action": action, "label": label, "requires_human": True}
+                ]
             elif flow.stage in {
                 "precheck_completeness",
                 "similarity_review",
@@ -1245,6 +1272,7 @@ def submission_projection(db: Session, actor: Actor, manuscript_id: str, *, deta
                 result["allowed_actions"] = staff_allowed_actions(db, actor, manuscript, flow)
     if not detail:
         return result
+    producer_only = actor.role == "production_editor" and manuscript.author_id != actor.user.id
     result["versions"] = [
         {
             "id": v.id,
@@ -1258,9 +1286,10 @@ def submission_projection(db: Session, actor: Actor, manuscript_id: str, *, deta
             .where(ManuscriptVersion.manuscript_id == manuscript.id)
             .order_by(ManuscriptVersion.version_no)
         )
-        if v.frozen_at or "author" in caps
+        if (v.frozen_at or "author" in caps)
+        and (not producer_only or v.id == flow.accepted_version_id)
     ]
-    result["version"] = version_snapshot(db, version) if version else None
+    result["version"] = version_snapshot(db, version) if version and not producer_only else None
     result["missing"] = (
         missing_requirements(
             version_data(db, version), {f["purpose"] for f in files_for_version(db, version.id)}
@@ -1289,6 +1318,9 @@ def submission_projection(db: Session, actor: Actor, manuscript_id: str, *, deta
     from .decisions import projection as editorial_projection
 
     result["editorial"] = editorial_projection(db, actor, manuscript, flow)
+    from .production import projection as production_projection
+
+    result["production"] = production_projection(db, actor, manuscript, flow)
     if (
         result["can_edit_intake"]
         and result["editorial"]

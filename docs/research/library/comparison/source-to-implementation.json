@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "updated_date": "2026-11-03",
-  "scope": "Foundation14 + C1 + D4 + E3 =22 classes/289 fields. E adds confirmed chief decisions, exact anonymous releases and formal revision lineage;44 isolated model/DDL tests passed, full service/UI verification remains lead responsibility.",
+  "scope": "Foundation14 + C1 + D4 + E3 + F3 =25 classes/323 fields. F adds immutable proof packages, original-author responses and authenticated local previews;53 isolated model/DDL tests passed. Full service/UI/Goal verification is maintained by lead in PROGRESS.md.",
   "data_contract": "specs/007-data-contract.md",
   "source_manifests": {
     "ojs": "ojs/source-manifest.json",
@@ -15,7 +15,7 @@
     "current-system": "current-system/inventory.json"
   },
   "method": "Conceptual adaptation only. Upstream tables/classes/fields are verified against pinned static indexes; project_governance means no claimed upstream equivalent. Static indexes are not live DB DDL. No upstream code imported or executed.",
-  "migration_binding": "Foundation f8a12d4c6e90, C09b73e6a1c22, D10c84f7a2d31, E11d95a8b3e42. Columns/constraints/guard fingerprints are source bindings, not proof that unexecuted deployment or product flows are complete.",
+  "migration_binding": "Foundation f8a12d4c6e90, C09b73e6a1c22, D10c84f7a2d31, E11d95a8b3e42. Columns/constraints/guard fingerprints are source bindings, not proof that unexecuted deployment or product flows are complete. F12e06b9c4f53 follows E11d95a8b3e42, with34 exact source-bound columns; preview is not public publication.",
   "models": [
     {
       "class": "Manuscript",
@@ -5414,6 +5414,315 @@
       ],
       "intended_acceptance": "44PG组件中完整迁移零漂移、计划不可变、缺响应/未冻结/错owner和major旧轮复用拒绝",
       "status": "E_44_model_migration_tests_verified_lead_full_verification_pending"
+    },
+    {
+      "id": "DB19",
+      "adopted": "录用版本与制作校样包分离，安全元数据白名单、当前负责人及确切前包更正事实",
+      "rejected": "冻结版本追加proof、动态latest-file、永久绑定旧制作人、去重blob原名/邮箱/声明外泄",
+      "targets": [
+        "ProofPackage"
+      ],
+      "source_refs": [
+        {
+          "system": "janeway",
+          "source_id": "production-model-fields.txt",
+          "entity_type": "class",
+          "app": "production",
+          "entity": "ProductionAssignment",
+          "fields": [
+            "article",
+            "production_manager",
+            "editor",
+            "assigned",
+            "closed"
+          ],
+          "upstream_path": "src/production/models.py",
+          "upstream_line": 14
+        },
+        {
+          "system": "janeway",
+          "source_id": "production-model-fields.txt",
+          "entity_type": "class",
+          "app": "production",
+          "entity": "TypesetTask",
+          "fields": [
+            "assignment",
+            "typesetter",
+            "files_for_typesetting",
+            "galleys_loaded",
+            "completed",
+            "editor_reviewed"
+          ],
+          "upstream_path": "src/production/models.py",
+          "upstream_line": 55
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+          "entity_type": "table",
+          "entity": "edit_decisions",
+          "fields": [
+            "submission_id",
+            "editor_id",
+            "decision",
+            "date_decided"
+          ]
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/FilesMigration.php",
+          "entity_type": "table",
+          "entity": "files",
+          "fields": [
+            "file_id",
+            "path",
+            "mimetype"
+          ]
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/SubmissionFilesMigration.php",
+          "entity_type": "table",
+          "entity": "submission_files",
+          "fields": [
+            "submission_id",
+            "file_id",
+            "file_stage",
+            "viewable"
+          ]
+        },
+        {
+          "system": "janeway",
+          "source_id": "core-model-fields.txt",
+          "entity_type": "class",
+          "app": "core",
+          "entity": "File",
+          "fields": [
+            "article_id",
+            "mime_type",
+            "original_filename",
+            "owner",
+            "privacy",
+            "is_galley"
+          ],
+          "upstream_path": "src/core/models.py",
+          "upstream_line": 1239
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+          "entity_type": "table",
+          "entity": "authors",
+          "fields": [
+            "publication_id",
+            "seq",
+            "email"
+          ]
+        },
+        {
+          "system": "janeway",
+          "source_id": "submission-model-fields.txt",
+          "entity_type": "class",
+          "app": "submission",
+          "entity": "FrozenAuthor",
+          "fields": [
+            "article",
+            "first_name",
+            "last_name",
+            "order",
+            "frozen_orcid",
+            "frozen_email",
+            "display_email"
+          ],
+          "upstream_path": "src/submission/models.py",
+          "upstream_line": 2556
+        },
+        {
+          "system": "ojs",
+          "source_id": "ojs:schemas/galley.json",
+          "entity_type": "source"
+        }
+      ],
+      "intended_acceptance": "当前role再分派允许；跨刊/未验证文件、私密字段/错前包/同上一hash拒绝，A→B→A保留合法历史",
+      "status": "F_53_model_migration_tests_verified_lead_full_verification_in_PROGRESS"
+    },
+    {
+      "id": "DB20",
+      "adopted": "原作者逐包人工确认，approve与request_corrections分开记录并不可变",
+      "rejected": "AI代勾校样通过、更正等于拒稿、旧包结果确认新包、改删旧审批",
+      "targets": [
+        "ProofResponse"
+      ],
+      "source_refs": [
+        {
+          "system": "janeway",
+          "source_id": "proofing-model-fields.txt",
+          "entity_type": "class",
+          "app": "proofing",
+          "entity": "ProofingRound",
+          "fields": [
+            "assignment",
+            "number",
+            "date_started"
+          ],
+          "upstream_path": "src/proofing/models.py",
+          "upstream_line": 61
+        },
+        {
+          "system": "janeway",
+          "source_id": "proofing-model-fields.txt",
+          "entity_type": "class",
+          "app": "proofing",
+          "entity": "ProofingTask",
+          "fields": [
+            "round",
+            "proofreader",
+            "completed",
+            "galleys_for_proofing",
+            "proofed_files",
+            "notes"
+          ],
+          "upstream_path": "src/proofing/models.py",
+          "upstream_line": 161
+        },
+        {
+          "system": "janeway",
+          "source_id": "proofing-model-fields.txt",
+          "entity_type": "class",
+          "app": "proofing",
+          "entity": "TypesetterProofingTask",
+          "fields": [
+            "proofing_task",
+            "typesetter",
+            "galleys",
+            "files",
+            "notes",
+            "completed"
+          ],
+          "upstream_path": "src/proofing/models.py",
+          "upstream_line": 247
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-docs:production",
+          "entity_type": "source"
+        }
+      ],
+      "intended_acceptance": "一包唯一响应，错误责任/内容/hash、短更正说明拒绝；approved包不再被当correction前包",
+      "status": "F_53_model_migration_tests_verified_lead_full_verification_in_PROGRESS"
+    },
+    {
+      "id": "DB21",
+      "adopted": "作者approve确切校样包后由当前制作人独立确认鉴权本地预览",
+      "rejected": "预览自动公开发表、拿另一包的approve、篡改已批准文件/元数据、隐式DOI/邮件",
+      "targets": [
+        "PublicationPreview"
+      ],
+      "source_refs": [
+        {
+          "system": "ojs",
+          "source_id": "ojs:classes/migration/install/OJSMigration.php",
+          "entity_type": "table",
+          "entity": "publication_galleys",
+          "fields": [
+            "galley_id",
+            "publication_id",
+            "submission_file_id",
+            "label",
+            "is_approved",
+            "remote_url"
+          ]
+        },
+        {
+          "system": "ojs",
+          "source_id": "ojs:classes/migration/install/OJSMigration.php",
+          "entity_type": "table",
+          "entity": "publications",
+          "fields": [
+            "publication_id",
+            "submission_id",
+            "version",
+            "status",
+            "date_published",
+            "doi_id",
+            "issue_id"
+          ]
+        },
+        {
+          "system": "janeway",
+          "source_id": "core-model-fields.txt",
+          "entity_type": "class",
+          "app": "core",
+          "entity": "Galley",
+          "fields": [
+            "article",
+            "file",
+            "public",
+            "label",
+            "type",
+            "sequence",
+            "is_remote",
+            "remote_file"
+          ],
+          "upstream_path": "src/core/models.py",
+          "upstream_line": 1602
+        },
+        {
+          "system": "janeway",
+          "source_id": "proofing-model-fields.txt",
+          "entity_type": "class",
+          "app": "proofing",
+          "entity": "ProofingRound",
+          "fields": [
+            "assignment",
+            "number",
+            "date_started"
+          ],
+          "upstream_path": "src/proofing/models.py",
+          "upstream_line": 61
+        },
+        {
+          "system": "janeway",
+          "source_id": "proofing-model-fields.txt",
+          "entity_type": "class",
+          "app": "proofing",
+          "entity": "ProofingTask",
+          "fields": [
+            "round",
+            "proofreader",
+            "completed",
+            "galleys_for_proofing",
+            "proofed_files",
+            "notes"
+          ],
+          "upstream_path": "src/proofing/models.py",
+          "upstream_line": 161
+        },
+        {
+          "system": "janeway",
+          "source_id": "proofing-model-fields.txt",
+          "entity_type": "class",
+          "app": "proofing",
+          "entity": "TypesetterProofingTask",
+          "fields": [
+            "proofing_task",
+            "typesetter",
+            "galleys",
+            "files",
+            "notes",
+            "completed"
+          ],
+          "upstream_path": "src/proofing/models.py",
+          "upstream_line": 247
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-docs:production",
+          "entity_type": "source"
+        }
+      ],
+      "intended_acceptance": "复合FK绑定同稿/acceptedversion/package/response；local_only=true与严格人工声明，状态仍accepted",
+      "status": "F_53_model_migration_tests_verified_lead_full_verification_in_PROGRESS"
     }
   ],
   "source_limitations": [
@@ -7967,6 +8276,1152 @@
           "scope": "E strong FK/unique/check/partial index and immutable confirmation boundaries"
         }
       ]
+    },
+    {
+      "module": "apps/api/publishing/domain/production_models.py",
+      "table": "publishing_proof_packages",
+      "contract_source": "specs/010-production-local-preview.md",
+      "slice": "F",
+      "implementation_status": "implemented",
+      "migration_id": "12e06b9c4f53",
+      "migration_status": "53_isolated_component_tests_verified_lead_full_verification_recorded_in_PROGRESS",
+      "field_groups": [
+        {
+          "our_fields": [
+            "id",
+            "manuscript_id",
+            "journal_id",
+            "accepted_version_id",
+            "acceptance_decision_id",
+            "package_no",
+            "file_object_id",
+            "display_name",
+            "production_user_id",
+            "created_at"
+          ],
+          "source_refs": [
+            {
+              "system": "janeway",
+              "source_id": "production-model-fields.txt",
+              "entity_type": "class",
+              "app": "production",
+              "entity": "ProductionAssignment",
+              "fields": [
+                "article",
+                "production_manager",
+                "editor",
+                "assigned",
+                "closed"
+              ],
+              "upstream_path": "src/production/models.py",
+              "upstream_line": 14
+            },
+            {
+              "system": "janeway",
+              "source_id": "production-model-fields.txt",
+              "entity_type": "class",
+              "app": "production",
+              "entity": "TypesetTask",
+              "fields": [
+                "assignment",
+                "typesetter",
+                "files_for_typesetting",
+                "galleys_loaded",
+                "completed",
+                "editor_reviewed"
+              ],
+              "upstream_path": "src/production/models.py",
+              "upstream_line": 55
+            },
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+              "entity_type": "table",
+              "entity": "edit_decisions",
+              "fields": [
+                "submission_id",
+                "editor_id",
+                "decision",
+                "date_decided"
+              ]
+            },
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/FilesMigration.php",
+              "entity_type": "table",
+              "entity": "files",
+              "fields": [
+                "file_id",
+                "path",
+                "mimetype"
+              ]
+            },
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/SubmissionFilesMigration.php",
+              "entity_type": "table",
+              "entity": "submission_files",
+              "fields": [
+                "submission_id",
+                "file_id",
+                "file_stage",
+                "viewable"
+              ]
+            },
+            {
+              "system": "janeway",
+              "source_id": "core-model-fields.txt",
+              "entity_type": "class",
+              "app": "core",
+              "entity": "File",
+              "fields": [
+                "article_id",
+                "mime_type",
+                "original_filename",
+                "owner",
+                "privacy",
+                "is_galley"
+              ],
+              "upstream_path": "src/core/models.py",
+              "upstream_line": 1239
+            },
+            {
+              "system": "janeway",
+              "source_id": "proofing-model-fields.txt",
+              "entity_type": "class",
+              "app": "proofing",
+              "entity": "ProofingRound",
+              "fields": [
+                "assignment",
+                "number",
+                "date_started"
+              ],
+              "upstream_path": "src/proofing/models.py",
+              "upstream_line": 61
+            },
+            {
+              "system": "janeway",
+              "source_id": "proofing-model-fields.txt",
+              "entity_type": "class",
+              "app": "proofing",
+              "entity": "ProofingTask",
+              "fields": [
+                "round",
+                "proofreader",
+                "completed",
+                "galleys_for_proofing",
+                "proofed_files",
+                "notes"
+              ],
+              "upstream_path": "src/proofing/models.py",
+              "upstream_line": 161
+            },
+            {
+              "system": "janeway",
+              "source_id": "proofing-model-fields.txt",
+              "entity_type": "class",
+              "app": "proofing",
+              "entity": "TypesetterProofingTask",
+              "fields": [
+                "proofing_task",
+                "typesetter",
+                "galleys",
+                "files",
+                "notes",
+                "completed"
+              ],
+              "upstream_path": "src/proofing/models.py",
+              "upstream_line": 247
+            },
+            {
+              "system": "ojs",
+              "source_id": "pkp-docs:production",
+              "entity_type": "source"
+            }
+          ],
+          "origin": "adapted_pattern",
+          "adaptation": "制作任务、固定材料与校样轮次分离；package_no按本稿递增，每包绑定同稿同刊录用版本、accept决定和独立FileObject。不是上游类的逐字复刻，不向冻结VersionFile追加校样。",
+          "migration_id": "12e06b9c4f53"
+        },
+        {
+          "our_fields": [
+            "metadata_snapshot",
+            "material_digest",
+            "human_confirmation_id"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+              "entity_type": "table",
+              "entity": "authors",
+              "fields": [
+                "publication_id",
+                "seq",
+                "email"
+              ]
+            },
+            {
+              "system": "janeway",
+              "source_id": "submission-model-fields.txt",
+              "entity_type": "class",
+              "app": "submission",
+              "entity": "FrozenAuthor",
+              "fields": [
+                "article",
+                "first_name",
+                "last_name",
+                "order",
+                "frozen_orcid",
+                "frozen_email",
+                "display_email"
+              ],
+              "upstream_path": "src/submission/models.py",
+              "upstream_line": 2556
+            },
+            {
+              "system": "ojs",
+              "source_id": "ojs:schemas/galley.json",
+              "entity_type": "source"
+            },
+            {
+              "system": "janeway",
+              "source_id": "production-model-fields.txt",
+              "entity_type": "class",
+              "app": "production",
+              "entity": "ProductionAssignment",
+              "fields": [
+                "article",
+                "production_manager",
+                "editor",
+                "assigned",
+                "closed"
+              ],
+              "upstream_path": "src/production/models.py",
+              "upstream_line": 14
+            },
+            {
+              "system": "janeway",
+              "source_id": "production-model-fields.txt",
+              "entity_type": "class",
+              "app": "production",
+              "entity": "TypesetTask",
+              "fields": [
+                "assignment",
+                "typesetter",
+                "files_for_typesetting",
+                "galleys_loaded",
+                "completed",
+                "editor_reviewed"
+              ],
+              "upstream_path": "src/production/models.py",
+              "upstream_line": 55
+            },
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+              "entity_type": "table",
+              "entity": "edit_decisions",
+              "fields": [
+                "submission_id",
+                "editor_id",
+                "decision",
+                "date_decided"
+              ]
+            }
+          ],
+          "origin": "project_governance",
+          "adaptation": "从冻结录用版重建白名单公开形metadata，不含邮箱/linked_user/声明；严格5键file和8键package快照，payload.version必须JSON null而proposal.version指真实accepted版。当前制作role/grant且无历史作者linked/email冲突，send_proof本人确认；前包ID同时绑定payload/完成step，前包必须实际corrections且新hash只与紧邻前包不同。",
+          "migration_id": "12e06b9c4f53"
+        }
+      ],
+      "our_fields": [
+        "id",
+        "manuscript_id",
+        "journal_id",
+        "accepted_version_id",
+        "acceptance_decision_id",
+        "package_no",
+        "file_object_id",
+        "display_name",
+        "production_user_id",
+        "created_at",
+        "metadata_snapshot",
+        "material_digest",
+        "human_confirmation_id"
+      ],
+      "constraints": [
+        {
+          "rule": "same-manuscript/version/acceptance/confirmation and same-journal FileObject compound FKs; UNIQUE(manuscript_id,package_no), UNIQUE(confirmation), UNIQUE(id,manuscript,accepted_version)",
+          "intended_acceptance": "跨稿/跨刊/错录用/跳号/重复确认拒绝；FileObject必须实际validated UTF8 txt/md，绑定文件名不读取去重blob原名"
+        },
+        {
+          "rule": "append-only INSERT with current production send_proof confirmation; canonical public metadata and exact immutable content snapshot",
+          "intended_acceptance": "稿件accepted且当前任务/Step/flow/payload.stage/version/revision/policy一致；无人工声明、私密字段注入或过期快照拒绝"
+        },
+        {
+          "rule": "correction predecessor explicit and exact, not latest timestamp or global ban on repeated old hashes",
+          "intended_acceptance": "A→B→A三包可合法恢复更早内容；同上一更正包hash、缺前包、已approve前包拒绝"
+        }
+      ],
+      "intended_acceptance": [
+        "F组件53项真实PG测试通过；本记录只说明模型/迁移及静态来源一致；完整服务/权限/浏览器和verify进度以lead PROGRESS为准。",
+        "不发送邮件、不公开出版、不运行上游代码；模型不能完成作者校样或制作最终确认。"
+      ],
+      "current_baseline": {
+        "system": "current-system",
+        "source_id": "apps/api/publishing/models.py",
+        "entity_type": "class",
+        "entity": "Manuscript"
+      },
+      "component_validation": {
+        "date": "2026-11-03",
+        "suite": "tests/api/test_production_models.py",
+        "observed_passed": 53,
+        "elapsed_seconds": 37.1,
+        "warnings": [
+          "existing Starlette/httpx deprecation"
+        ],
+        "scope": "isolated full-chain model/migration/immutable proof packages, author responses, exact local preview and current-workflow guards; not CAS/service/browser or full Goal acceptance",
+        "public_database_modified_by_component_agent": false,
+        "evidence_report": "/tmp/production-models-final.xml",
+        "report_sha256": "886412120ee6e380c3768958be85f91f636573826c31bb0881b48571e86c1fe8",
+        "report_availability": "ephemeral observed JUnit; recorded hash, not required by offline gate",
+        "token_usage": null,
+        "api_cost": null
+      },
+      "source_binding": {
+        "path": "apps/api/publishing/domain/production_models.py",
+        "class_line": 27,
+        "fields": [
+          {
+            "name": "id",
+            "line": 64,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
+          },
+          {
+            "name": "manuscript_id",
+            "line": 65,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('manuscripts.id'))"
+          },
+          {
+            "name": "journal_id",
+            "line": 66,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('journals.id'))"
+          },
+          {
+            "name": "accepted_version_id",
+            "line": 67,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "acceptance_decision_id",
+            "line": 68,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "package_no",
+            "line": 69,
+            "annotation": "Mapped[int]",
+            "declaration": "mapped_column(Integer)"
+          },
+          {
+            "name": "file_object_id",
+            "line": 70,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "display_name",
+            "line": 71,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(255))"
+          },
+          {
+            "name": "metadata_snapshot",
+            "line": 72,
+            "annotation": "Mapped[dict]",
+            "declaration": "mapped_column(JSONB)"
+          },
+          {
+            "name": "material_digest",
+            "line": 73,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "production_user_id",
+            "line": 74,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
+          },
+          {
+            "name": "human_confirmation_id",
+            "line": 75,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "created_at",
+            "line": 76,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True), default=now)"
+          }
+        ],
+        "table_args": {
+          "line": 29,
+          "declaration": "(_tenant_manuscript('fk_pub_proof_package_tenant'), _same_manuscript('accepted_version_id', 'publishing_versions', 'fk_pub_proof_package_version'), _same_manuscript('acceptance_decision_id', 'publishing_editorial_decisions', 'fk_pub_proof_package_acceptance'), _same_manuscript('human_confirmation_id', 'publishing_human_confirmations', 'fk_pub_proof_package_confirmation'), ForeignKeyConstraint(['file_object_id', 'journal_id'], ['publishing_file_objects.id', 'publishing_file_objects.journal_id'], name='fk_pub_proof_package_file_tenant'), UniqueConstraint('id', 'manuscript_id', name='uq_pub_proof_package_id_manuscript'), UniqueConstraint('id', 'manuscript_id', 'accepted_version_id', name='uq_pub_proof_package_version'), UniqueConstraint('manuscript_id', 'package_no', name='uq_pub_proof_package_sequence'), UniqueConstraint('human_confirmation_id', name='uq_pub_proof_package_confirmation'), CheckConstraint('package_no>=1 AND length(btrim(display_name)) BETWEEN 1 AND 255', name='ck_pub_proof_package_sequence'), CheckConstraint(\"jsonb_typeof(metadata_snapshot)='object' AND material_digest ~ '^[0-9a-f]{64}$'\", name='ck_pub_proof_package_snapshot'))"
+        }
+      },
+      "field_revision_bindings": {
+        "id": "12e06b9c4f53",
+        "manuscript_id": "12e06b9c4f53",
+        "journal_id": "12e06b9c4f53",
+        "accepted_version_id": "12e06b9c4f53",
+        "acceptance_decision_id": "12e06b9c4f53",
+        "package_no": "12e06b9c4f53",
+        "file_object_id": "12e06b9c4f53",
+        "display_name": "12e06b9c4f53",
+        "metadata_snapshot": "12e06b9c4f53",
+        "material_digest": "12e06b9c4f53",
+        "production_user_id": "12e06b9c4f53",
+        "human_confirmation_id": "12e06b9c4f53",
+        "created_at": "12e06b9c4f53"
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "12e06b9c4f53",
+          "names": [
+            "ck_pub_proof_package_sequence",
+            "ck_pub_proof_package_snapshot",
+            "fk_pub_proof_package_acceptance",
+            "fk_pub_proof_package_confirmation",
+            "fk_pub_proof_package_file_tenant",
+            "fk_pub_proof_package_tenant",
+            "fk_pub_proof_package_version",
+            "uq_pub_proof_package_confirmation",
+            "uq_pub_proof_package_id_manuscript",
+            "uq_pub_proof_package_sequence",
+            "uq_pub_proof_package_version"
+          ],
+          "scope": "F same-version/package/tenant FK, exact human-confirmation and immutable history boundaries"
+        }
+      ],
+      "class": "ProofPackage"
+    },
+    {
+      "module": "apps/api/publishing/domain/production_models.py",
+      "table": "publishing_proof_responses",
+      "contract_source": "specs/010-production-local-preview.md",
+      "slice": "F",
+      "implementation_status": "implemented",
+      "migration_id": "12e06b9c4f53",
+      "migration_status": "53_isolated_component_tests_verified_lead_full_verification_recorded_in_PROGRESS",
+      "field_groups": [
+        {
+          "our_fields": [
+            "id",
+            "manuscript_id",
+            "package_id",
+            "author_id",
+            "outcome",
+            "notes",
+            "responded_at"
+          ],
+          "source_refs": [
+            {
+              "system": "janeway",
+              "source_id": "proofing-model-fields.txt",
+              "entity_type": "class",
+              "app": "proofing",
+              "entity": "ProofingRound",
+              "fields": [
+                "assignment",
+                "number",
+                "date_started"
+              ],
+              "upstream_path": "src/proofing/models.py",
+              "upstream_line": 61
+            },
+            {
+              "system": "janeway",
+              "source_id": "proofing-model-fields.txt",
+              "entity_type": "class",
+              "app": "proofing",
+              "entity": "ProofingTask",
+              "fields": [
+                "round",
+                "proofreader",
+                "completed",
+                "galleys_for_proofing",
+                "proofed_files",
+                "notes"
+              ],
+              "upstream_path": "src/proofing/models.py",
+              "upstream_line": 161
+            },
+            {
+              "system": "janeway",
+              "source_id": "proofing-model-fields.txt",
+              "entity_type": "class",
+              "app": "proofing",
+              "entity": "TypesetterProofingTask",
+              "fields": [
+                "proofing_task",
+                "typesetter",
+                "galleys",
+                "files",
+                "notes",
+                "completed"
+              ],
+              "upstream_path": "src/proofing/models.py",
+              "upstream_line": 247
+            },
+            {
+              "system": "ojs",
+              "source_id": "pkp-docs:production",
+              "entity_type": "source"
+            }
+          ],
+          "origin": "adapted_pattern",
+          "adaptation": "借鉴校样任务/完成时间/更正任务分离，原投稿作者对每个确切校样包单独approve或request_corrections；更正不是稿件拒绝或公开出版。",
+          "migration_id": "12e06b9c4f53"
+        },
+        {
+          "our_fields": [
+            "human_confirmation_id"
+          ],
+          "source_refs": [
+            {
+              "system": "janeway",
+              "source_id": "proofing-model-fields.txt",
+              "entity_type": "class",
+              "app": "proofing",
+              "entity": "ProofingRound",
+              "fields": [
+                "assignment",
+                "number",
+                "date_started"
+              ],
+              "upstream_path": "src/proofing/models.py",
+              "upstream_line": 61
+            },
+            {
+              "system": "janeway",
+              "source_id": "proofing-model-fields.txt",
+              "entity_type": "class",
+              "app": "proofing",
+              "entity": "ProofingTask",
+              "fields": [
+                "round",
+                "proofreader",
+                "completed",
+                "galleys_for_proofing",
+                "proofed_files",
+                "notes"
+              ],
+              "upstream_path": "src/proofing/models.py",
+              "upstream_line": 161
+            },
+            {
+              "system": "janeway",
+              "source_id": "proofing-model-fields.txt",
+              "entity_type": "class",
+              "app": "proofing",
+              "entity": "TypesetterProofingTask",
+              "fields": [
+                "proofing_task",
+                "typesetter",
+                "galleys",
+                "files",
+                "notes",
+                "completed"
+              ],
+              "upstream_path": "src/proofing/models.py",
+              "upstream_line": 247
+            },
+            {
+              "system": "ojs",
+              "source_id": "pkp-docs:production",
+              "entity_type": "source"
+            },
+            {
+              "system": "janeway",
+              "source_id": "production-model-fields.txt",
+              "entity_type": "class",
+              "app": "production",
+              "entity": "ProductionAssignment",
+              "fields": [
+                "article",
+                "production_manager",
+                "editor",
+                "assigned",
+                "closed"
+              ],
+              "upstream_path": "src/production/models.py",
+              "upstream_line": 14
+            },
+            {
+              "system": "janeway",
+              "source_id": "production-model-fields.txt",
+              "entity_type": "class",
+              "app": "production",
+              "entity": "TypesetTask",
+              "fields": [
+                "assignment",
+                "typesetter",
+                "files_for_typesetting",
+                "galleys_loaded",
+                "completed",
+                "editor_reviewed"
+              ],
+              "upstream_path": "src/production/models.py",
+              "upstream_line": 55
+            },
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+              "entity_type": "table",
+              "entity": "edit_decisions",
+              "fields": [
+                "submission_id",
+                "editor_id",
+                "decision",
+                "date_decided"
+              ]
+            }
+          ],
+          "origin": "project_governance",
+          "adaptation": "一包唯一不可变本人确认；精确绑定canonical8包快照、acceptedversion、package_digest和proof_reviewed=true。corrections理由trim至少20字符，不接受模型代勾。",
+          "migration_id": "12e06b9c4f53"
+        }
+      ],
+      "our_fields": [
+        "id",
+        "manuscript_id",
+        "package_id",
+        "author_id",
+        "outcome",
+        "notes",
+        "responded_at",
+        "human_confirmation_id"
+      ],
+      "constraints": [
+        {
+          "rule": "same-manuscript package/confirmation FKs; UNIQUE(package), UNIQUE(confirmation), UNIQUE(id,manuscript,package)",
+          "intended_acceptance": "作者、版本、文件/metadata/hash、责任确认不匹配拒绝；同包不能重复给结果"
+        },
+        {
+          "rule": "outcome approve|request_corrections; corrections notes length>=20; append-only",
+          "intended_acceptance": "未人工review、其他角色、自相矛盾包快照或短更正说明拒绝；所有改删/TRUNCATE拒绝"
+        }
+      ],
+      "intended_acceptance": [
+        "F组件53项真实PG测试通过；本记录只说明模型/迁移及静态来源一致；完整服务/权限/浏览器和verify进度以lead PROGRESS为准。",
+        "不发送邮件、不公开出版、不运行上游代码；模型不能完成作者校样或制作最终确认。"
+      ],
+      "current_baseline": {
+        "system": "current-system",
+        "source_id": "apps/api/publishing/models.py",
+        "entity_type": "class",
+        "entity": "EmailApproval"
+      },
+      "component_validation": {
+        "date": "2026-11-03",
+        "suite": "tests/api/test_production_models.py",
+        "observed_passed": 53,
+        "elapsed_seconds": 37.1,
+        "warnings": [
+          "existing Starlette/httpx deprecation"
+        ],
+        "scope": "isolated full-chain model/migration/immutable proof packages, author responses, exact local preview and current-workflow guards; not CAS/service/browser or full Goal acceptance",
+        "public_database_modified_by_component_agent": false,
+        "evidence_report": "/tmp/production-models-final.xml",
+        "report_sha256": "886412120ee6e380c3768958be85f91f636573826c31bb0881b48571e86c1fe8",
+        "report_availability": "ephemeral observed JUnit; recorded hash, not required by offline gate",
+        "token_usage": null,
+        "api_cost": null
+      },
+      "source_binding": {
+        "path": "apps/api/publishing/domain/production_models.py",
+        "class_line": 79,
+        "fields": [
+          {
+            "name": "id",
+            "line": 102,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
+          },
+          {
+            "name": "manuscript_id",
+            "line": 103,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('manuscripts.id'))"
+          },
+          {
+            "name": "package_id",
+            "line": 104,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "author_id",
+            "line": 105,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
+          },
+          {
+            "name": "outcome",
+            "line": 106,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(30))"
+          },
+          {
+            "name": "notes",
+            "line": 107,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(Text, default='', server_default='')"
+          },
+          {
+            "name": "human_confirmation_id",
+            "line": 108,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "responded_at",
+            "line": 109,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True), default=now)"
+          }
+        ],
+        "table_args": {
+          "line": 81,
+          "declaration": "(_same_manuscript('package_id', 'publishing_proof_packages', 'fk_pub_proof_response_package'), _same_manuscript('human_confirmation_id', 'publishing_human_confirmations', 'fk_pub_proof_response_confirmation'), UniqueConstraint('id', 'manuscript_id', name='uq_pub_proof_response_id_manuscript'), UniqueConstraint('id', 'manuscript_id', 'package_id', name='uq_pub_proof_response_package'), UniqueConstraint('package_id', name='uq_pub_proof_response_once'), UniqueConstraint('human_confirmation_id', name='uq_pub_proof_response_confirmation'), CheckConstraint(\"outcome IN ('approve','request_corrections')\", name='ck_pub_proof_response_outcome'), CheckConstraint(\"outcome<>'request_corrections' OR length(btrim(notes))>=20\", name='ck_pub_proof_response_notes'))"
+        }
+      },
+      "field_revision_bindings": {
+        "id": "12e06b9c4f53",
+        "manuscript_id": "12e06b9c4f53",
+        "package_id": "12e06b9c4f53",
+        "author_id": "12e06b9c4f53",
+        "outcome": "12e06b9c4f53",
+        "notes": "12e06b9c4f53",
+        "human_confirmation_id": "12e06b9c4f53",
+        "responded_at": "12e06b9c4f53"
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "12e06b9c4f53",
+          "names": [
+            "ck_pub_proof_response_notes",
+            "ck_pub_proof_response_outcome",
+            "fk_pub_proof_response_confirmation",
+            "fk_pub_proof_response_package",
+            "uq_pub_proof_response_confirmation",
+            "uq_pub_proof_response_id_manuscript",
+            "uq_pub_proof_response_once",
+            "uq_pub_proof_response_package"
+          ],
+          "scope": "F same-version/package/tenant FK, exact human-confirmation and immutable history boundaries"
+        }
+      ],
+      "class": "ProofResponse"
+    },
+    {
+      "module": "apps/api/publishing/domain/production_models.py",
+      "table": "publishing_publication_previews",
+      "contract_source": "specs/010-production-local-preview.md",
+      "slice": "F",
+      "implementation_status": "implemented",
+      "migration_id": "12e06b9c4f53",
+      "migration_status": "53_isolated_component_tests_verified_lead_full_verification_recorded_in_PROGRESS",
+      "field_groups": [
+        {
+          "our_fields": [
+            "id",
+            "manuscript_id",
+            "journal_id",
+            "accepted_version_id",
+            "package_id",
+            "proof_response_id",
+            "file_object_id",
+            "display_name",
+            "production_user_id",
+            "created_at"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "ojs:classes/migration/install/OJSMigration.php",
+              "entity_type": "table",
+              "entity": "publication_galleys",
+              "fields": [
+                "galley_id",
+                "publication_id",
+                "submission_file_id",
+                "label",
+                "is_approved",
+                "remote_url"
+              ]
+            },
+            {
+              "system": "ojs",
+              "source_id": "ojs:classes/migration/install/OJSMigration.php",
+              "entity_type": "table",
+              "entity": "publications",
+              "fields": [
+                "publication_id",
+                "submission_id",
+                "version",
+                "status",
+                "date_published",
+                "doi_id",
+                "issue_id"
+              ]
+            },
+            {
+              "system": "janeway",
+              "source_id": "core-model-fields.txt",
+              "entity_type": "class",
+              "app": "core",
+              "entity": "Galley",
+              "fields": [
+                "article",
+                "file",
+                "public",
+                "label",
+                "type",
+                "sequence",
+                "is_remote",
+                "remote_file"
+              ],
+              "upstream_path": "src/core/models.py",
+              "upstream_line": 1602
+            },
+            {
+              "system": "janeway",
+              "source_id": "production-model-fields.txt",
+              "entity_type": "class",
+              "app": "production",
+              "entity": "ProductionAssignment",
+              "fields": [
+                "article",
+                "production_manager",
+                "editor",
+                "assigned",
+                "closed"
+              ],
+              "upstream_path": "src/production/models.py",
+              "upstream_line": 14
+            },
+            {
+              "system": "janeway",
+              "source_id": "production-model-fields.txt",
+              "entity_type": "class",
+              "app": "production",
+              "entity": "TypesetTask",
+              "fields": [
+                "assignment",
+                "typesetter",
+                "files_for_typesetting",
+                "galleys_loaded",
+                "completed",
+                "editor_reviewed"
+              ],
+              "upstream_path": "src/production/models.py",
+              "upstream_line": 55
+            },
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+              "entity_type": "table",
+              "entity": "edit_decisions",
+              "fields": [
+                "submission_id",
+                "editor_id",
+                "decision",
+                "date_decided"
+              ]
+            }
+          ],
+          "origin": "adapted_pattern",
+          "adaptation": "采用最终呈现载体与稿件/材料分离的模式，但本片只做鉴权local preview，不创建上游意义Publication/Galley/DOI/期次/公开路由；稿件仍accepted。",
+          "migration_id": "12e06b9c4f53"
+        },
+        {
+          "our_fields": [
+            "metadata_snapshot",
+            "content_digest",
+            "human_confirmation_id"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "ojs:classes/migration/install/OJSMigration.php",
+              "entity_type": "table",
+              "entity": "publication_galleys",
+              "fields": [
+                "galley_id",
+                "publication_id",
+                "submission_file_id",
+                "label",
+                "is_approved",
+                "remote_url"
+              ]
+            },
+            {
+              "system": "ojs",
+              "source_id": "ojs:classes/migration/install/OJSMigration.php",
+              "entity_type": "table",
+              "entity": "publications",
+              "fields": [
+                "publication_id",
+                "submission_id",
+                "version",
+                "status",
+                "date_published",
+                "doi_id",
+                "issue_id"
+              ]
+            },
+            {
+              "system": "janeway",
+              "source_id": "core-model-fields.txt",
+              "entity_type": "class",
+              "app": "core",
+              "entity": "Galley",
+              "fields": [
+                "article",
+                "file",
+                "public",
+                "label",
+                "type",
+                "sequence",
+                "is_remote",
+                "remote_file"
+              ],
+              "upstream_path": "src/core/models.py",
+              "upstream_line": 1602
+            },
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+              "entity_type": "table",
+              "entity": "authors",
+              "fields": [
+                "publication_id",
+                "seq",
+                "email"
+              ]
+            },
+            {
+              "system": "janeway",
+              "source_id": "submission-model-fields.txt",
+              "entity_type": "class",
+              "app": "submission",
+              "entity": "FrozenAuthor",
+              "fields": [
+                "article",
+                "first_name",
+                "last_name",
+                "order",
+                "frozen_orcid",
+                "frozen_email",
+                "display_email"
+              ],
+              "upstream_path": "src/submission/models.py",
+              "upstream_line": 2556
+            },
+            {
+              "system": "ojs",
+              "source_id": "ojs:schemas/galley.json",
+              "entity_type": "source"
+            }
+          ],
+          "origin": "project_governance",
+          "adaptation": "同包作者approve是强依赖，metadata/file/name精确沿用不可变包；当前制作负责人prepare_local_preview独立确认、人工声明并local_only=true。审批的包/版本/文件复合绑定而非单列推断，真实CAS/转义/访问投影由服务负责。",
+          "migration_id": "12e06b9c4f53"
+        }
+      ],
+      "our_fields": [
+        "id",
+        "manuscript_id",
+        "journal_id",
+        "accepted_version_id",
+        "package_id",
+        "proof_response_id",
+        "file_object_id",
+        "display_name",
+        "production_user_id",
+        "created_at",
+        "metadata_snapshot",
+        "content_digest",
+        "human_confirmation_id"
+      ],
+      "constraints": [
+        {
+          "rule": "composite FK(package,manuscript,accepted_version) and (proof_response,manuscript,package); same-journal FileObject; UNIQUE(package), UNIQUE(confirmation)",
+          "intended_acceptance": "另一包/另一稿/另一版本的响应不能用来批准本包；request_corrections绝不能生成preview"
+        },
+        {
+          "rule": "exact package metadata/file/name, current production human confirmation and local_only=true; append-only",
+          "intended_acceptance": "文件替换、未经审核元数据、未勾审阅、本地标记false拒绝；生成行不把Manuscript改成published"
+        }
+      ],
+      "intended_acceptance": [
+        "F组件53项真实PG测试通过；本记录只说明模型/迁移及静态来源一致；完整服务/权限/浏览器和verify进度以lead PROGRESS为准。",
+        "不发送邮件、不公开出版、不运行上游代码；模型不能完成作者校样或制作最终确认。"
+      ],
+      "current_baseline": {
+        "system": "current-system",
+        "source_id": "apps/api/publishing/models.py",
+        "entity_type": "class",
+        "entity": "Manuscript"
+      },
+      "component_validation": {
+        "date": "2026-11-03",
+        "suite": "tests/api/test_production_models.py",
+        "observed_passed": 53,
+        "elapsed_seconds": 37.1,
+        "warnings": [
+          "existing Starlette/httpx deprecation"
+        ],
+        "scope": "isolated full-chain model/migration/immutable proof packages, author responses, exact local preview and current-workflow guards; not CAS/service/browser or full Goal acceptance",
+        "public_database_modified_by_component_agent": false,
+        "evidence_report": "/tmp/production-models-final.xml",
+        "report_sha256": "886412120ee6e380c3768958be85f91f636573826c31bb0881b48571e86c1fe8",
+        "report_availability": "ephemeral observed JUnit; recorded hash, not required by offline gate",
+        "token_usage": null,
+        "api_cost": null
+      },
+      "source_binding": {
+        "path": "apps/api/publishing/domain/production_models.py",
+        "class_line": 112,
+        "fields": [
+          {
+            "name": "id",
+            "line": 151,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
+          },
+          {
+            "name": "manuscript_id",
+            "line": 152,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('manuscripts.id'))"
+          },
+          {
+            "name": "journal_id",
+            "line": 153,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('journals.id'))"
+          },
+          {
+            "name": "accepted_version_id",
+            "line": 154,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "package_id",
+            "line": 155,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "proof_response_id",
+            "line": 156,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "metadata_snapshot",
+            "line": 157,
+            "annotation": "Mapped[dict]",
+            "declaration": "mapped_column(JSONB)"
+          },
+          {
+            "name": "file_object_id",
+            "line": 158,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "display_name",
+            "line": 159,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(255))"
+          },
+          {
+            "name": "content_digest",
+            "line": 160,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "production_user_id",
+            "line": 161,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
+          },
+          {
+            "name": "human_confirmation_id",
+            "line": 162,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "created_at",
+            "line": 163,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True), default=now)"
+          }
+        ],
+        "table_args": {
+          "line": 114,
+          "declaration": "(_tenant_manuscript('fk_pub_preview_tenant'), _same_manuscript('accepted_version_id', 'publishing_versions', 'fk_pub_preview_version'), ForeignKeyConstraint(['package_id', 'manuscript_id', 'accepted_version_id'], ['publishing_proof_packages.id', 'publishing_proof_packages.manuscript_id', 'publishing_proof_packages.accepted_version_id'], name='fk_pub_preview_package_version'), ForeignKeyConstraint(['proof_response_id', 'manuscript_id', 'package_id'], ['publishing_proof_responses.id', 'publishing_proof_responses.manuscript_id', 'publishing_proof_responses.package_id'], name='fk_pub_preview_response_package'), ForeignKeyConstraint(['file_object_id', 'journal_id'], ['publishing_file_objects.id', 'publishing_file_objects.journal_id'], name='fk_pub_preview_file_tenant'), _same_manuscript('human_confirmation_id', 'publishing_human_confirmations', 'fk_pub_preview_confirmation'), UniqueConstraint('id', 'manuscript_id', name='uq_pub_preview_id_manuscript'), UniqueConstraint('package_id', name='uq_pub_preview_package'), UniqueConstraint('human_confirmation_id', name='uq_pub_preview_confirmation'), CheckConstraint(\"jsonb_typeof(metadata_snapshot)='object' AND content_digest ~ '^[0-9a-f]{64}$'\", name='ck_pub_preview_snapshot'))"
+        }
+      },
+      "field_revision_bindings": {
+        "id": "12e06b9c4f53",
+        "manuscript_id": "12e06b9c4f53",
+        "journal_id": "12e06b9c4f53",
+        "accepted_version_id": "12e06b9c4f53",
+        "package_id": "12e06b9c4f53",
+        "proof_response_id": "12e06b9c4f53",
+        "metadata_snapshot": "12e06b9c4f53",
+        "file_object_id": "12e06b9c4f53",
+        "display_name": "12e06b9c4f53",
+        "content_digest": "12e06b9c4f53",
+        "production_user_id": "12e06b9c4f53",
+        "human_confirmation_id": "12e06b9c4f53",
+        "created_at": "12e06b9c4f53"
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "12e06b9c4f53",
+          "names": [
+            "ck_pub_preview_snapshot",
+            "fk_pub_preview_confirmation",
+            "fk_pub_preview_file_tenant",
+            "fk_pub_preview_package_version",
+            "fk_pub_preview_response_package",
+            "fk_pub_preview_tenant",
+            "fk_pub_preview_version",
+            "uq_pub_preview_confirmation",
+            "uq_pub_preview_id_manuscript",
+            "uq_pub_preview_package"
+          ],
+          "scope": "F same-version/package/tenant FK, exact human-confirmation and immutable history boundaries"
+        }
+      ],
+      "class": "PublicationPreview"
     }
   ],
   "additional_contracts": [
@@ -8019,6 +9474,17 @@
       },
       "extended_fields": {},
       "extended_constraints": {}
+    },
+    {
+      "path": "specs/010-production-local-preview.md",
+      "migration_id": "12e06b9c4f53",
+      "new_models": {
+        "ProofPackage": "publishing_proof_packages",
+        "ProofResponse": "publishing_proof_responses",
+        "PublicationPreview": "publishing_publication_previews"
+      },
+      "extended_fields": {},
+      "extended_constraints": {}
     }
   ],
   "migration_evidence": [
@@ -8044,6 +9510,70 @@
         "publishing_review_invitation_consistent",
         "publishing_review_grant_consistent",
         "publishing_review_report_consistent"
+      ],
+      "row_triggers": [
+        {
+          "name": "publishing_review_round_guard",
+          "table": "publishing_review_rounds",
+          "function": "publishing_guard_review_round"
+        },
+        {
+          "name": "publishing_review_round_file_guard",
+          "table": "publishing_review_round_files",
+          "function": "publishing_guard_review_round_file"
+        },
+        {
+          "name": "publishing_review_invitation_guard",
+          "table": "publishing_review_invitations",
+          "function": "publishing_guard_review_invitation"
+        },
+        {
+          "name": "publishing_review_report_guard",
+          "table": "publishing_review_reports",
+          "function": "publishing_guard_review_report"
+        },
+        {
+          "name": "publishing_review_assignment_guard",
+          "table": "publishing_assignments",
+          "function": "publishing_guard_review_assignment"
+        },
+        {
+          "name": "publishing_review_work_item_guard",
+          "table": "publishing_work_items",
+          "function": "publishing_guard_review_work_item"
+        }
+      ],
+      "truncate_triggers": [
+        {
+          "name": "publishing_review_assignment_truncate",
+          "table": "publishing_assignments",
+          "function": "publishing_review_guard_parent_truncate"
+        },
+        {
+          "name": "publishing_review_work_item_truncate",
+          "table": "publishing_work_items",
+          "function": "publishing_review_guard_parent_truncate"
+        },
+        {
+          "name": "publishing_review_round_truncate",
+          "table": "publishing_review_rounds",
+          "function": "publishing_review_reject_truncate"
+        },
+        {
+          "name": "publishing_review_round_file_truncate",
+          "table": "publishing_review_round_files",
+          "function": "publishing_review_reject_truncate"
+        },
+        {
+          "name": "publishing_review_invitation_truncate",
+          "table": "publishing_review_invitations",
+          "function": "publishing_review_reject_truncate"
+        },
+        {
+          "name": "publishing_review_report_truncate",
+          "table": "publishing_review_reports",
+          "function": "publishing_review_reject_truncate"
+        }
       ]
     },
     {
@@ -8065,6 +9595,100 @@
         "publishing_decision_bundle",
         "publishing_release_bundle",
         "publishing_revision_bundle"
+      ],
+      "row_triggers": [
+        {
+          "name": "publishing_editorial_decision_guard",
+          "table": "publishing_editorial_decisions",
+          "function": "publishing_guard_editorial_decision"
+        },
+        {
+          "name": "publishing_decision_release_guard",
+          "table": "publishing_decision_report_releases",
+          "function": "publishing_guard_decision_release"
+        },
+        {
+          "name": "publishing_revision_request_guard",
+          "table": "publishing_revision_requests",
+          "function": "publishing_guard_revision_request"
+        }
+      ],
+      "truncate_triggers": [
+        {
+          "name": "publishing_editorial_decision_truncate",
+          "table": "publishing_editorial_decisions",
+          "function": "publishing_editorial_reject_truncate"
+        },
+        {
+          "name": "publishing_decision_release_truncate",
+          "table": "publishing_decision_report_releases",
+          "function": "publishing_editorial_reject_truncate"
+        },
+        {
+          "name": "publishing_revision_request_truncate",
+          "table": "publishing_revision_requests",
+          "function": "publishing_editorial_reject_truncate"
+        }
+      ]
+    },
+    {
+      "revision": "12e06b9c4f53",
+      "down_revision": "11d95a8b3e42",
+      "path": "infrastructure/migrations/versions/12e06b9c4f53_production_local_preview.py",
+      "sha256": "a2d244f866a1fc2f909e961298e97327fc9c198dcd67d65e63251cc2a7d64c5f",
+      "validation_scope": "53 isolated F model/DDL tests in37.10s including observed two missing stage/task-kind bindings fixed; lead owns full product verification",
+      "sql_functions": [
+        "publishing_production_metadata",
+        "publishing_production_file",
+        "publishing_production_confirmation",
+        "publishing_production_actor",
+        "publishing_proof_package_snapshot",
+        "publishing_guard_proof_package",
+        "publishing_guard_proof_response",
+        "publishing_guard_publication_preview",
+        "publishing_production_reject_truncate"
+      ],
+      "deferred_triggers": [],
+      "row_triggers": [
+        {
+          "name": "publishing_proof_package_guard",
+          "table": "publishing_proof_packages",
+          "function": "publishing_guard_proof_package"
+        },
+        {
+          "name": "publishing_proof_response_guard",
+          "table": "publishing_proof_responses",
+          "function": "publishing_guard_proof_response"
+        },
+        {
+          "name": "publishing_publication_preview_guard",
+          "table": "publishing_publication_previews",
+          "function": "publishing_guard_publication_preview"
+        }
+      ],
+      "truncate_triggers": [
+        {
+          "name": "publishing_proof_package_truncate",
+          "table": "publishing_proof_packages",
+          "function": "publishing_production_reject_truncate"
+        },
+        {
+          "name": "publishing_proof_response_truncate",
+          "table": "publishing_proof_responses",
+          "function": "publishing_production_reject_truncate"
+        },
+        {
+          "name": "publishing_publication_preview_truncate",
+          "table": "publishing_publication_previews",
+          "function": "publishing_production_reject_truncate"
+        }
+      ],
+      "sql_function_fingerprints": [
+        {
+          "name": "publishing_production_confirmation",
+          "sha256": "472eee871a7ab2b629202ab4071c22d4fbb7e61aff1a7c79d7430a8cb55df9af",
+          "normalization": "strip_and_create_or_replace"
+        }
       ]
     }
   ],
@@ -8089,6 +9713,45 @@
       "line": 29,
       "declaration": "def _round_version(name):\n    return ForeignKeyConstraint(['round_id', 'manuscript_id', 'version_id'], ['publishing_review_rounds.id', 'publishing_review_rounds.manuscript_id', 'publishing_review_rounds.version_id'], name=name)",
       "purpose": "compound FK helper semantics backing named constraints; static source only"
+    }
+  ],
+  "component_evidence": [
+    {
+      "date": "2026-11-03",
+      "suite": "tests/api/test_production_models.py",
+      "observed_passed": 53,
+      "elapsed_seconds": 37.1,
+      "warnings": [
+        "existing Starlette/httpx deprecation"
+      ],
+      "scope": "isolated full-chain model/migration/immutable proof packages, author responses, exact local preview and current-workflow guards; not CAS/service/browser or full Goal acceptance",
+      "public_database_modified_by_component_agent": false,
+      "evidence_report": "/tmp/production-models-final.xml",
+      "report_sha256": "886412120ee6e380c3768958be85f91f636573826c31bb0881b48571e86c1fe8",
+      "report_availability": "ephemeral observed JUnit; recorded hash, not required by offline gate",
+      "token_usage": null,
+      "api_cost": null,
+      "suite_sha256": "e13ceee2ee15e796179d3831d6e4d96d5f2e3c29438fbd656a1104d174ef7d11",
+      "migration_id": "12e06b9c4f53",
+      "required_test_functions": [
+        "test_complete_chain_metadata_has_zero_drift",
+        "test_approved_local_preview_binds_same_immutable_package",
+        "test_corrections_allow_restore_older_bytes_not_same_previous",
+        "test_send_requires_exact_snapshot_and_declarations",
+        "test_proof_requires_local_same_journal_validated_text",
+        "test_send_requires_actual_production_role_and_assignment",
+        "test_current_role_reassignment_is_permitted_without_old_accept_person_binding",
+        "test_author_must_review_exact_package",
+        "test_package_only_one_author_response",
+        "test_new_package_requires_exact_returned_predecessor",
+        "test_preview_requires_approved_unchanged_local_package",
+        "test_all_production_history_is_immutable",
+        "test_downgrade_refuses_actual_proof_history",
+        "test_production_db_conflict_checks_historical_author_email",
+        "test_f_confirmation_must_bind_exact_current_workflow"
+      ],
+      "reproducible_command": "DATABASE_URL=<isolated-test-db> PYTHONPATH=. .venv/bin/pytest tests/api/test_production_models.py -q --junitxml=<local-report>",
+      "verification_policy": "offline gate checks suite source hash/functions and declared observed report metadata; it does not execute or claim to reverify PostgreSQL tests"
     }
   ]
 }

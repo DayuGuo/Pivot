@@ -561,7 +561,22 @@ def assess(w, rr, *, outcome="ready_for_chief"):
 
 def test_full_migration_metadata_and_safe_empty_downgrade(editorial_world):
     w = editorial_world
-    assert compare_metadata(MigrationContext.configure(w.conn), Base.metadata) == []
+    # This fixture stops at the E migration; F separately compares the complete
+    # latest schema, including these three later tables, against all metadata.
+    later_tables = {
+        "publishing_proof_packages",
+        "publishing_proof_responses",
+        "publishing_publication_previews",
+    }
+    context = MigrationContext.configure(
+        w.conn,
+        opts={
+            "include_object": lambda obj, name, kind, reflected, compare_to: not (
+                kind == "table" and name in later_tables
+            ),
+        },
+    )
+    assert compare_metadata(context, Base.metadata) == []
     fks = {x["name"] for x in inspect(w.conn).get_foreign_keys("publishing_editorial_decisions")}
     assert {
         "fk_pub_decision_basis_round",

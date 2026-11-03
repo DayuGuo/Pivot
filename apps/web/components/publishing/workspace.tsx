@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { createContext, useCallback, useContext, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, useSyncExternalStore, type ReactNode, type MouseEvent } from "react";
 import Glyph from "../editorial/icons";
 import type { ChatMessage, Detail, PublishingSession, Workspace } from "./types";
 import { roleLabels } from "./types";
@@ -17,6 +17,7 @@ type PublishingContext = {
 };
 const Context = createContext<PublishingContext | null>(null);
 const EMPTY_MESSAGES: ChatMessage[] = [];
+function mergeMessages(base: ChatMessage[], additional: ChatMessage[]) { const ids = new Set(base.map(message => message.id)); return [...base, ...additional.filter(message => { if (ids.has(message.id)) return false; ids.add(message.id); return true; })]; }
 export function usePublishing() { const value = useContext(Context); if (!value) throw new Error("Publishing layout required"); return value; }
 async function fetchJSON<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response;
@@ -44,7 +45,7 @@ export default function PublishingWorkspace({ children }: { children: ReactNode 
   const [refreshing, setRefreshing] = useState(true); const [drawer, setDrawer] = useState(false);
   const theme = useSyncExternalStore(subscribeTheme, themeSnapshot, () => "system");
   const dirty = useRef(false); const requests = useRef(new Map<string, string>()); const sequence = useRef(0);
-  const selectedId = pathname.includes("/review/") ? reviewContext : search.get("manuscript");
+  const selectedId = (pathname.includes("/review/") || pathname.includes("/preview/")) ? reviewContext : search.get("manuscript");
   const refresh = useCallback(async () => {
     const generation = ++sequence.current;
     try {
@@ -60,6 +61,16 @@ export default function PublishingWorkspace({ children }: { children: ReactNode 
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { void refresh(); }, [refresh]);
   const navigate = useCallback((url: string) => { if (dirty.current && !window.confirm("当前资料尚未保存。离开并放弃这些修改？")) return; dirty.current = false; setDrawer(false); router.push(url); }, [router]);
+  const setUnsaved = useCallback((value: boolean) => { dirty.current = value; }, []);
+  function guardLink(event: MouseEvent<HTMLDivElement>) {
+    if (!dirty.current || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>("a[href]") : null;
+    if (!link || link.hasAttribute("download") || (link.target && link.target !== "_self")) return;
+    const target = new URL(link.href, window.location.href);
+    if (target.origin !== window.location.origin || !["http:", "https:"].includes(target.protocol)) return;
+    if (target.pathname === window.location.pathname && target.search === window.location.search) return;
+    event.preventDefault(); event.stopPropagation(); navigate(`${target.pathname}${target.search}${target.hash}`);
+  }
   const select = useCallback((id: string | null) => navigate(id ? `/publishing?manuscript=${encodeURIComponent(id)}` : "/publishing"), [navigate]);
   const mutate = useCallback(async <T,>(path: string, data: object, method: "POST" | "PATCH" = "POST"): Promise<T> => {
     if (!session) throw new APIError(401, "请先登录。");
@@ -72,8 +83,8 @@ export default function PublishingWorkspace({ children }: { children: ReactNode 
   }, [session]);
   async function createDraft() { setError(""); setRefreshing(true); try { const result = await mutate<{ manuscript_id: string }>("/drafts", {}); select(result.manuscript_id); await refresh(); } catch (failure) { setError((failure as Error).message); } finally { setRefreshing(false); } }
   if (!session || authLost) return <div className={styles.loading}><h1>Publishing OS</h1><p role="status">{error || "正在载入工作区…"}</p>{authLost ? <Link href="/">返回登录</Link> : <button onClick={() => void refresh()} disabled={refreshing}>重新载入</button>}</div>;
-  return <Context.Provider value={{ session, workspace, detail, selectedId, error, refreshing, refresh, select, setReviewContext, setUnsaved: (value) => { dirty.current = value; }, mutate }}>
-    <div className={styles.shell} data-theme={theme}>
+  return <Context.Provider value={{ session, workspace, detail, selectedId, error, refreshing, refresh, select, setReviewContext, setUnsaved, mutate }}>
+    <div className={styles.shell} data-theme={theme} onClickCapture={guardLink}>
       <a className={styles.skip} href="#publishing-chat">跳到对话</a>
       <aside className={`${styles.sidebar} ${drawer ? styles.drawerOpen : ""}`} aria-label="我的工作">
         <div className={styles.brand}><strong>Publishing OS</strong><button className={styles.mobileOnly} onClick={() => setDrawer(false)} aria-label="关闭工作列表"><Glyph name="close" /></button></div>
@@ -91,55 +102,76 @@ export default function PublishingWorkspace({ children }: { children: ReactNode 
 function Conversation({ navigate }: { navigate: (url: string) => void }) {
   const { session, selectedId, detail, refresh } = usePublishing();
   const pathname = usePathname(); const cacheKey = `publishing-chat-input:${session.user.id}`;
-  const contextKey = selectedId ?? "journal";
-  const [transcript, setTranscript] = useState<{ key: string; messages: ChatMessage[]; loaded: boolean; error: string }>({ key: contextKey, messages: [], loaded: false, error: "" });
+  const contextKey = JSON.stringify([session.journal.id, session.user.id, session.user.role, selectedId ?? "journal"]);
+  const [transcript, setTranscript] = useState<{ key: string; messages: ChatMessage[]; loaded: boolean; error: string; historyError: string; historyLoading: boolean }>({ key: contextKey, messages: [], loaded: false, error: "", historyError: "", historyLoading: true });
   const [input, setInput] = useState(() => typeof window === "undefined" ? "" : sessionStorage.getItem(cacheKey) ?? "");
   const [busy, setBusy] = useState(false);
-  const pending = useRef<{ request_id: string; message: string; context: { manuscript_id: string | null; version_id: string | null; scope: string; view: string } } | null>(null);
+  const pending = useRef<{ scopeKey: string; request_id: string; message: string; context: { manuscript_id: string | null; version_id: string | null; scope: string; view: string } } | null>(null);
   const bottom = useRef<HTMLDivElement>(null); const composing = useRef(false); const historySequence = useRef(0);
+  const inFlightHistory = useRef<{ generation: number; key: string; messages: ChatMessage[] } | null>(null);
+  const permissionEpoch = useRef(new Map<string, number>());
   // Derive the visible transcript by context immediately, before a history response arrives.
   const messages = transcript.key === contextKey ? transcript.messages : EMPTY_MESSAGES;
   const error = transcript.key === contextKey ? transcript.error : "";
   const loaded = transcript.key === contextKey && transcript.loaded;
+  const historyError = transcript.key === contextKey ? transcript.historyError : "";
   const load = useCallback(async () => {
     const generation = ++historySequence.current;
-    setTranscript(previous => previous.key === contextKey ? previous : { key: contextKey, messages: [], loaded: false, error: "" });
+    const authorizedAtStart = permissionEpoch.current.get(contextKey) ?? 0;
+    inFlightHistory.current = { generation, key: contextKey, messages: [] };
+    setTranscript(previous => previous.key === contextKey ? { ...previous, historyError: "", historyLoading: true } : { key: contextKey, messages: [], loaded: false, error: "", historyError: "", historyLoading: true });
     try {
       const result = await fetchJSON<{ messages: ChatMessage[] }>(selectedId ? `/chat?manuscript_id=${encodeURIComponent(selectedId)}` : "/chat");
       if (generation !== historySequence.current) return;
-      setTranscript({ key: contextKey, messages: result.messages, loaded: true, error: "" });
+      if (authorizedAtStart !== (permissionEpoch.current.get(contextKey) ?? 0)) {
+        setTranscript(previous => previous.key === contextKey ? { ...previous, loaded: true, historyLoading: false } : previous); return;
+      }
+      // The server determines authorized history and ordering. Only append POST
+      // responses received during this GET, never resurrect an older local history.
+      const fresh = inFlightHistory.current?.generation === generation ? inFlightHistory.current.messages : [];
+      setTranscript(previous => previous.key === contextKey ? { ...previous, messages: mergeMessages(result.messages, fresh), loaded: true, historyError: "", historyLoading: false } : previous);
     } catch (failure) {
-      if (generation === historySequence.current) setTranscript(previous => previous.key === contextKey ? { ...previous, loaded: true, error: (failure as Error).message } : previous);
+      const denied = failure instanceof APIError && [401, 403, 404].includes(failure.status);
+      if (generation === historySequence.current) {
+        if (denied) permissionEpoch.current.set(contextKey, (permissionEpoch.current.get(contextKey) ?? 0) + 1);
+        setTranscript(previous => previous.key === contextKey ? { ...previous, messages: denied ? [] : previous.messages, loaded: true, historyError: (failure as Error).message, historyLoading: false } : previous);
+      }
+    } finally {
+      if (inFlightHistory.current?.generation === generation) inFlightHistory.current = null;
     }
   }, [selectedId, contextKey]);
   // Restore only the selected manuscript's persisted transcript, or the journal transcript.
-  useEffect(() => { void load(); return () => { historySequence.current += 1; }; }, [load]);
+  useEffect(() => { void load(); return () => { historySequence.current += 1; inFlightHistory.current = null; }; }, [load]);
   // The always-mounted composer preserves its unsent per-user draft across route changes.
   useEffect(() => { sessionStorage.setItem(cacheKey, input); }, [input, cacheKey]);
   useEffect(() => { bottom.current?.scrollIntoView({ block: "end" }); }, [messages, busy]);
   async function send(retry = false) {
     if (busy || (!retry && !input.trim())) return;
-    const context = { manuscript_id: selectedId, version_id: detail?.id === selectedId ? detail.version?.id ?? null : null, scope: selectedId ? "case" : "journal", view: pathname.includes("/review/") ? "review" : detail?.can_edit_intake ? "intake" : "work" };
-    if (!pending.current || pending.current.context.manuscript_id !== selectedId || (!retry && (pending.current.message !== input.trim() || JSON.stringify(pending.current.context) !== JSON.stringify(context)))) pending.current = { request_id: crypto.randomUUID(), message: input.trim(), context };
-    const request = pending.current; const requestKey = request.context.manuscript_id ?? "journal";
-    historySequence.current += 1; setBusy(true);
-    setTranscript(previous => previous.key === requestKey ? { ...previous, error: "" } : { key: requestKey, messages: [], loaded: true, error: "" });
+    const context = { manuscript_id: selectedId, version_id: detail?.id === selectedId ? detail.version?.id ?? detail.accepted_version_id ?? null : null, scope: selectedId ? "case" : "journal", view: pathname.includes("/preview/") ? "preview" : pathname.includes("/review/") ? "review" : detail?.can_edit_intake ? "intake" : "work" };
+    if (!pending.current || pending.current.scopeKey !== contextKey || (!retry && (pending.current.message !== input.trim() || JSON.stringify(pending.current.context) !== JSON.stringify(context)))) pending.current = { scopeKey: contextKey, request_id: crypto.randomUUID(), message: input.trim(), context };
+    const request = pending.current; const requestKey = request.scopeKey;
+    const authorizedAtStart = permissionEpoch.current.get(requestKey) ?? 0;
+    setBusy(true);
+    setTranscript(previous => previous.key === requestKey ? { ...previous, error: "" } : { key: requestKey, messages: [], loaded: false, error: "", historyError: "", historyLoading: true });
     try {
-      const result = await fetchJSON<{ messages: ChatMessage[]; state_changed: boolean }>("/chat", { method: "POST", headers: { "Content-Type": "application/json", "X-CSRF-Token": session.csrf_token }, body: JSON.stringify(request) });
+      const result = await fetchJSON<{ messages: ChatMessage[]; state_changed: boolean }>("/chat", { method: "POST", headers: { "Content-Type": "application/json", "X-CSRF-Token": session.csrf_token }, body: JSON.stringify({ request_id: request.request_id, message: request.message, context: request.context }) });
+      const stillAuthorized = authorizedAtStart === (permissionEpoch.current.get(requestKey) ?? 0);
+      if (stillAuthorized && inFlightHistory.current?.key === requestKey) inFlightHistory.current.messages = mergeMessages(inFlightHistory.current.messages, result.messages);
       // A late response from another manuscript must never enter the current transcript.
       setTranscript(previous => {
-        if (previous.key !== requestKey) return previous;
-        const ids = new Set(previous.messages.map(item => item.id));
-        return { ...previous, loaded: true, messages: [...previous.messages, ...result.messages.filter(item => !ids.has(item.id))] };
+        if (!stillAuthorized || previous.key !== requestKey) return previous;
+        return { ...previous, messages: mergeMessages(previous.messages, result.messages) };
       });
       setInput(value => value.trim() === request.message ? "" : value); if (pending.current === request) pending.current = null; if (result.state_changed) await refresh();
     } catch (failure) {
-      setTranscript(previous => previous.key === requestKey ? { ...previous, loaded: true, error: (failure as Error).message } : previous);
+      const denied = failure instanceof APIError && [401, 403, 404].includes(failure.status);
+      if (denied) permissionEpoch.current.set(requestKey, (permissionEpoch.current.get(requestKey) ?? 0) + 1);
+      setTranscript(previous => previous.key === requestKey ? denied ? { ...previous, messages: [], loaded: true, error: "", historyError: (failure as Error).message } : { ...previous, error: (failure as Error).message } : previous);
     } finally { setBusy(false); }
   }
   return <><div className={styles.chatContext}>{detail?.id === selectedId ? `${detail.number} · ${detail.stage_label}` : "期刊工作区"}<span>仅使用合成测试资料 · 邮件发送已禁用</span></div><div id="publishing-chat" className={styles.transcript} tabIndex={-1}>
     {!loaded && <p role="status" className={styles.subtle}>正在载入当前对话…</p>}{loaded && !messages.length && <div className={styles.chatEmpty}><h1>今天需要推进什么？</h1><p>告诉我你的目标，或先从左侧选择待办。你也可以先把投稿信息交给我整理。</p><p className={styles.subtle}>负责人将在独立审核页确认投稿和重要操作。</p></div>}
     {messages.map(message => <article key={message.id} className={message.role === "user" ? styles.userMessage : styles.assistantMessage}><div className={styles.messageText}>{message.content}</div>{message.role === "assistant" && <small>{message.provider === "mock" ? "Mock · 模拟结果" : message.provider}</small>}{message.references?.map((reference, index) => <div className={styles.reference} key={`${reference.manuscript_id}-${index}`}><Link href={`/publishing?manuscript=${reference.manuscript_id}`} onClick={event => { event.preventDefault(); navigate(`/publishing?manuscript=${reference.manuscript_id}`); }}>{reference.label}</Link>{reference.quote && <blockquote>{reference.quote}</blockquote>}</div>)}{message.tool_receipts?.length > 0 && <details className={styles.receipts}><summary>工具执行记录 · {message.tool_receipts.length}</summary>{message.tool_receipts.map((receipt, index) => <div key={index}>{receipt.tool} · {receipt.status}</div>)}</details>}{message.action && <Link className={styles.actionLink} href={message.action.type === "review" ? `/publishing/review/${message.action.proposal_id}` : `/publishing?manuscript=${message.action.manuscript_id}`} onClick={event => { event.preventDefault(); if (message.action) navigate(message.action.type === "review" ? `/publishing/review/${message.action.proposal_id}` : `/publishing?manuscript=${message.action.manuscript_id}`); }}>{message.action.type === "review" ? "打开负责人审核" : "查看稿件"}</Link>}</article>)}
     {busy && <p className={styles.subtle} role="status">正在理解并执行允许的工具…</p>}<div ref={bottom} />
-  </div><div className={styles.composerArea}>{error && <div className={styles.error} role="alert">{error}<button disabled={busy} onClick={() => pending.current?.context.manuscript_id === selectedId ? void send(true) : void load()}>{"重试"}</button></div>}<form className={styles.composer} onSubmit={event => { event.preventDefault(); void send(); }}><label className={styles.srOnly} htmlFor="publishing-message">向出版助手发送消息</label><textarea id="publishing-message" name="message" autoComplete="off" rows={2} maxLength={8000} placeholder="描述目标，或粘贴你的投稿信息…" value={input} onChange={event => setInput(event.target.value)} onCompositionStart={() => { composing.current = true; }} onCompositionEnd={() => { composing.current = false; }} onKeyDown={event => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing && !composing.current && event.keyCode !== 229) { event.preventDefault(); void send(); } }} /><div className={styles.composerFooter}><span>Enter 发送 · Shift+Enter 换行</span><button type="submit" disabled={busy || !input.trim()} aria-label="发送消息"><Glyph name="arrow" size={18} />{busy ? "处理中…" : "发送"}</button></div></form></div></>;
+  </div><div className={styles.composerArea}>{historyError && <div className={styles.error} role="alert">对话历史未载入：{historyError}<button disabled={transcript.historyLoading} onClick={() => void load()}>重新载入历史</button></div>}{error && <div className={styles.error} role="alert">{error}<button disabled={busy} onClick={() => void send(true)}>重试</button></div>}<form className={styles.composer} onSubmit={event => { event.preventDefault(); void send(); }}><label className={styles.srOnly} htmlFor="publishing-message">向出版助手发送消息</label><textarea id="publishing-message" name="message" autoComplete="off" rows={2} maxLength={8000} placeholder="描述目标，或粘贴你的投稿信息…" value={input} onChange={event => setInput(event.target.value)} onCompositionStart={() => { composing.current = true; }} onCompositionEnd={() => { composing.current = false; }} onKeyDown={event => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing && !composing.current && event.keyCode !== 229) { event.preventDefault(); void send(); } }} /><div className={styles.composerFooter}><span>Enter 发送 · Shift+Enter 换行</span><button type="submit" disabled={busy || !input.trim()} aria-label="发送消息"><Glyph name="arrow" size={18} />{busy ? "处理中…" : "发送"}</button></div></form></div></>;
 }

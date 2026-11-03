@@ -532,6 +532,9 @@ def test_migration_matches_metadata_and_empty_downgrade(review_db):
         "publishing_editorial_decisions",
         "publishing_decision_report_releases",
         "publishing_revision_requests",
+        "publishing_proof_packages",
+        "publishing_proof_responses",
+        "publishing_publication_previews",
     }
     context = MigrationContext.configure(
         conn,

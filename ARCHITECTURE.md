@@ -27,13 +27,13 @@ flowchart LR
 
 | 模块 | 实现 | 接口/职责 |
 | --- | --- | --- |
-| Publishing Domain Core | apps/api/publishing/models.py | 期刊、用户、期刊成员角色、稿件、编辑任务、会话、审计与邮件快照 |
+| Publishing Domain Core | apps/api/publishing/domain + models.py | 规范化版本/任务/轮次/决定/修回/校样；保留旧期刊/身份/会话/审计与邮件实体 |
 | Conversation UI | apps/web/app | 浏览器会话恢复、真实工作区、任务输入、详情与审计；运行时同源 API 代理 |
 | Agent Runtime | apps/api/publishing/runtime.py | 一次提议、最多一次白名单动作、持久消息与幂等回执；不运行模型代码 |
 | Model Gateway | packages/model_gateway | Proposal、Mock、独立 DeepSeek Chat Completions、Ollama/vLLM 可测试适配器、遥测 |
-| Workflow Engine | apps/api/publishing/workflow.py | 仅允许 draft → submitted → screening；其他转换明确拒绝 |
-| Policy Engine | apps/api/publishing/policy.py, security.py | 登录、CSRF、期刊成员、角色、记录归属 |
-| Action Gateway | apps/api/publishing/actions.py, email_gateway.py | 工具参数、事务内创建与分派；邮件快照、逐封审批撤销、禁发 |
+| Workflow Engine | apps/api/publishing/workflow.py | 旧原型只到screening；新领域core/stages/reviews/decisions/production按固定前置与人类证据推进 |
+| Policy Engine | domain/core.py、review_access.py、production.py、security.py | 身份/CSRF、期刊、角色、实际分派、归属/COI、明确DTO和文件白名单 |
+| Action Gateway | domain/core.run_action + actions.py/email_gateway.py | 稿件锁/幂等/不可变提案与确认；同事务业务和审计；邮件审批与禁发 |
 | Audit System | apps/api/publishing/audit.py, migrations | 同事务审计，数据库禁止修改、删除、清空审计 |
 
 ## 一次命令的事务
@@ -101,3 +101,9 @@ GET `/api/editorial-demo/chat/model` 是配置可用性而非远端健康保证�
 ReviewRound/ReviewRoundFile 固定冻结版本、盲稿、表单和目标数；initializing仅在开轮原子事务内，seal后禁止附加，deferred触发器拒绝半开轮/缺邀请/grant/报告。ReviewInvitation分attempt及响应/提交/取消时刻；接受确认才建立typed reviewer Assignment/WorkItem/Report草稿。未交报告私有，submitted后不可改；结束评审须编辑完整快照明确清理未完成项，不伪造提交。
 
 review_access 为UI/API/model/download提供同一显式投影；审稿人永不走通用作者Snapshot或原始VersionFile URL。消息保留细粒度曝光scope，按权限子集重验历史/重放，等待幂等锁和稿件锁后再核验；旧human proposal也按当前内容权限控制。下一片决策发布只会从独立匿名Release DTO向作者分享，D未自动开放。
+
+## F 校样与本地预览（离线验收通过）
+
+ProofPackage引用FileObject而不追加冻结VersionFile；ProofResponse固定作者逐包回应，PublicationPreview以复合FK和确定性服务绑定同一包、录用版本、批准回应、文件和安全metadata快照。制作角色不读取作者内部声明/旧修回文件；私人FormDraft和正式包分权，上传回执也在幂等锁后重验当前权限。预览只返回鉴权安全文本，status仍accepted，无公开路由。
+
+客户端历史以服务器过滤为准，GET/POST按ID合并，权限拒绝epoch及期刊/用户/角色/稿件scope阻止迟到响应恢复旧内容。独立审核单飞/Abort/序列并清理旧勾选，shell链接保留未保存保护。完整离线797+35证据及当前主服务/真实供应商状态见PROGRESS。

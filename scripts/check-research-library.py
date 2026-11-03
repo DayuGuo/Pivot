@@ -568,7 +568,94 @@ class Gate:
                     ),
                     f"migration evidence: missing deferred guard {name}",
                 )
+            for key, event, level in (
+                ("row_triggers", "INSERT OR UPDATE OR DELETE", "ROW"),
+                ("truncate_triggers", "TRUNCATE", "STATEMENT"),
+            ):
+                actual = set(
+                    re.findall(
+                        rf"CREATE TRIGGER (\w+)\s+BEFORE {event}\s+ON (\w+)\s+"
+                        rf"FOR EACH {level}\s+EXECUTE FUNCTION (\w+)\(\)",
+                        sql,
+                    )
+                )
+                declared = [
+                    (item["name"], item["table"], item["function"])
+                    for item in evidence.get(key, [])
+                ]
+                self.require(
+                    actual == set(declared) and len(declared) == len(set(declared)),
+                    f"migration evidence: incomplete {key} coverage {evidence['revision']}",
+                )
+                for trigger in evidence.get(key, []):
+                    pattern = (
+                        rf"CREATE TRIGGER {re.escape(trigger['name'])}\s+BEFORE {event}\s+"
+                        rf"ON {re.escape(trigger['table'])}\s+FOR EACH {level}\s+"
+                        rf"EXECUTE FUNCTION {re.escape(trigger['function'])}\(\)"
+                    )
+                    self.require(
+                        bool(re.search(pattern, sql)),
+                        f"migration evidence: missing exact {key} binding {trigger['name']}",
+                    )
+                    self.counts["immutable_trigger_bindings"] += 1
+            for fingerprint in evidence.get("sql_function_fingerprints", []):
+                name = fingerprint["name"]
+                self.require(
+                    fingerprint["normalization"] == "strip_and_create_or_replace",
+                    f"migration evidence: unknown function fingerprint normalization {name}",
+                )
+                # Anchor the function name at CREATE, never consume its preceding neighbor.
+                function = re.search(
+                    rf"^[ \t]*CREATE FUNCTION {re.escape(name)}\(.*?^[ \t]*END \$\$;",
+                    sql,
+                    re.M | re.S,
+                )
+                if self.require(
+                    function is not None, f"migration evidence: missing function {name}"
+                ):
+                    normalized = (
+                        function.group()
+                        .strip()
+                        .replace("CREATE FUNCTION", "CREATE OR REPLACE FUNCTION", 1)
+                    )
+                    self.digest(normalized.encode(), fingerprint["sha256"], f"function:{name}")
+                    self.counts["sql_functions_fingerprinted"] += 1
             self.counts["pinned_implementation_migrations"] += 1
+        for evidence in mapping.get("component_evidence", []):
+            path = self.local(REPOSITORY, evidence["suite"])
+            self.digest(path.read_bytes(), evidence["suite_sha256"], f"suite:{path.name}")
+            functions = {
+                node.name
+                for node in ast.parse(path.read_text()).body
+                if isinstance(node, ast.FunctionDef) and node.name.startswith("test_")
+            }
+            self.require(
+                functions == set(evidence["required_test_functions"])
+                and len(functions) == len(evidence["required_test_functions"]),
+                f"component evidence: test function coverage drift {path.name}",
+            )
+            self.require(
+                type(evidence["observed_passed"]) is int
+                and evidence["observed_passed"] > 0
+                and isinstance(evidence["elapsed_seconds"], (int, float))
+                and not isinstance(evidence["elapsed_seconds"], bool)
+                and evidence["elapsed_seconds"] > 0
+                and bool(HEX64.fullmatch(evidence["report_sha256"]))
+                and bool(DATE.fullmatch(evidence["date"]))
+                and evidence["public_database_modified_by_component_agent"] is False
+                and bool(evidence["reproducible_command"])
+                and bool(evidence["verification_policy"]),
+                f"component evidence: invalid observed validation declaration {path.name}",
+            )
+            self.require(
+                any(
+                    item["revision"] == evidence["migration_id"]
+                    for item in mapping["migration_evidence"]
+                ),
+                f"component evidence: unbound migration {evidence['migration_id']}",
+            )
+            self.counts["component_suite_sources_bound"] += 1
+            self.counts["observed_component_cases_declared_only"] += evidence["observed_passed"]
 
     def design(self) -> None:
         mapping = self.read_json(self.library / "comparison/source-to-implementation.json")
@@ -606,7 +693,32 @@ class Gate:
         names = [m["class"] for m in models]
         self.extension_contracts(mapping, models)
         self.require(len(names) == len(set(names)), "design: duplicate foundation/extension class")
+        actual_domain_models = set()
+        for path in (REPOSITORY / "apps/api/publishing/domain").glob("*.py"):
+            for node in ast.parse(path.read_text()).body:
+                if isinstance(node, ast.ClassDef) and any(
+                    isinstance(base, ast.Name) and base.id == "Base" for base in node.bases
+                ):
+                    actual_domain_models.add((node.name, str(path.relative_to(REPOSITORY))))
+        mapped_domain_models = {
+            (model["class"], model["module"])
+            for model in models
+            if model["implementation_status"] == "implemented"
+            and model["module"].startswith("apps/api/publishing/domain/")
+        }
+        self.require(
+            actual_domain_models == mapped_domain_models,
+            "design: implemented domain model coverage drift",
+        )
+        self.counts["domain_model_classes_covered"] = len(actual_domain_models)
+        additional_paths = {item["path"] for item in mapping.get("additional_contracts", [])}
+        incremental_revisions = {item["revision"] for item in mapping.get("migration_evidence", [])}
         for model in extensions:
+            self.require(
+                model["migration_id"] not in incremental_revisions
+                or model["contract_source"] in additional_paths,
+                f"{model['class']}: extension missing strict additional contract coverage",
+            )
             source = self.local(REPOSITORY, model["contract_source"]).read_text()
             self.require(
                 bool(re.search(rf"\b{re.escape(model['class'])}\b", source)),
@@ -672,6 +784,22 @@ class Gate:
                 self.require(cls is not None, f"{label}: implemented class not found")
                 if cls is not None:
                     binding = model["source_binding"]
+                    table_name = next(
+                        (
+                            node.value.value
+                            for node in cls.body
+                            if isinstance(node, ast.Assign)
+                            and isinstance(node.value, ast.Constant)
+                            and any(
+                                isinstance(target, ast.Name) and target.id == "__tablename__"
+                                for target in node.targets
+                            )
+                        ),
+                        None,
+                    )
+                    self.require(
+                        table_name == model["table"], f"{label}: implementation table name drift"
+                    )
                     actual_fields = [
                         {
                             "name": n.target.id,

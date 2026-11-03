@@ -2,6 +2,16 @@
 
 ## 活跃 Goal：OJS / Janeway 数据库研究与 v0.1 完整样本
 
+### F 离线检查点已验收，Goal进入本机集成/真实模型验收
+
+spec010已实施实际校样包/作者回应/鉴权本地预览：FileObject独立于冻结VersionFile，作者逐包确认或要求更正，保留历史且新文件不同于前包；最终preview绑定同包approve响应和制作人确认，status仍accepted，未正式发表。迁移12e06b9c4f53已在独立55433实际升级/check。53组件（37.10s）、10独立安全（33.75s）及实际服务/浏览器链通过；权限回执漏洞先复现再修，原测试未改。来源门禁25类/323字段、148增量列、122命名约束、3迁移/合同、24触发器绑定实际通过，20复制库实验符合预期。
+
+最终完整 `scripts/verify.sh` **实际退出0：797 Pytest（360.97秒）+35 Playwright（1.4m）**，含全部旧回归、11项新UI延迟/权限/角色/未保存恢复回归和实际五角色全链（30.4秒）。Ruff/format、边界、研究门禁、迁移/漂移、ESLint/TypeScript及准确API/Web镜像构建启动全部通过。日志artifacts/v01-f-full-verify.log；1项既有第三方warning。桌面/390px预览实际查看，无overflow/pageerror，正文script为纯文本未执行。
+
+回应用户代码复核时发现并修复历史并发丢消息、迟到200覆盖403、角色变化旧回合、账号入口未保存保护、审核重试、启动空env覆盖等；详见docs/development/v01-code-review.md。主库备份副本已完整迁移演练，原49篇稿件、23用户、1437审计和95旧对话ID保留且无伪审批；19项旧harness临时授权已归档撤销，未删稿件/旧审计。当前主服务还未升级，新领域真实DeepSeek仍待验收，Goal仍活跃。
+
+真实DeepSeek安全API文档子任务已实际1/1通过：561/933 Token、7263ms、成本null，lead修4处表述1轮；不是原生跨模型成功。报告docs/development/v01-deepseek-delegation.md。新启动器保护现有live runtime环境，13个模拟安全检查通过；下一步实际一键本机更新、供应商新领域工具回环及最终文档一致性。无真实邮件或生产部署。
+
 ### E 检查点已验收（Goal仍活跃）
 
 spec009已接通编辑建议/主编决定/匿名Release/正式RevisionRequest，独立worktree交付模型迁移与UI，lead整合确定性服务与权限。minor逐条追溯修回到本轮固定版本，major需新轮；共享正文须主编人工检查匿名性，录用绑定制作负责人快照。独立55433已实际升级11d95a8b3e42并check无漂移；17输入约束+4真实PG生命周期+9独立安全测试通过。包括两次minor→V3接受、major R1V1→R2V2→minorV3接受、chief改变建议后reject、跨稿报告拒绝、角色撤权及真实response字节篡改不提交。

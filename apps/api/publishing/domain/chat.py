@@ -461,11 +461,10 @@ class Runtime:
                 raise HTTPException(404, "文件不属于当前稿件")
             _, flow = core.load_submission(self.db, self.actor, link.manuscript_id)
             data = core.submission_projection(self.db, self.actor, link.manuscript_id)
-            if (
-                not data.get("version")
-                or link.version_id != data["version"]["id"]
-                or link.id not in {file["id"] for file in data["version"]["files"]}
-            ):
+            files = data["version"]["files"] if data.get("version") else []
+            if (data.get("production") or {}).get("mode") == "production":
+                files = data["production"]["accepted_materials"]
+            if link.id not in {file["id"] for file in files}:
                 raise HTTPException(404, "文件不属于当前可读版本")
             blob = self.db.get(FileObject, link.file_object_id)
             try:

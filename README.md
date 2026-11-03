@@ -2,9 +2,9 @@
 
 ## 正在迭代：真实出版 v0.1
 
-活跃目标见 [goals/publishing-v0.1.md](goals/publishing-v0.1.md)，资料库见 [docs/research/library](docs/research/library/README.md)。站内评审、主编决定和正式修回已实际贯通并完成E检查点；制作校样/预览待实施，不把现有界面演示当成完整出版系统。
+活跃目标见 [goals/publishing-v0.1.md](goals/publishing-v0.1.md)，资料库见 [docs/research/library](docs/research/library/README.md)。站内评审、正式决定/修回、实际校样/更正及鉴权本地预览已通过完整离线验收；正在本机集成与真实新领域模型验收，Goal状态见PROGRESS。
 
-新真实业务入口 `/publishing`（登录后点“出版工作台”）；现有 `/workbench` 保留演示材料。新入口的作者资料、实际UTF8 txt/md文件、版本/任务和独立人工审核使用规范化数据库。AI只能整理候选/准备审核，不能确认提交、发信或作决定。E检查点完整验证已实际通过 **686后端+24浏览器**；同篇从作者投稿贯通主编正式修回、V2复核和录用制作移交。所有邮件仍禁用，整个Goal的状态以PROGRESS为准。
+新真实业务入口 `/publishing`（登录后点“出版工作台”）；现有 `/workbench` 保留演示材料。新入口的作者资料、实际UTF8 txt/md文件、版本/任务和独立人工审核使用规范化数据库。AI只能整理候选/准备审核，不能确认提交、发信或作决定。F检查点完整验证已实际通过 **797后端+35浏览器**；同篇贯通投稿、评审、正式修回、V2录用、实际校样和鉴权本地预览。所有邮件仍禁用，整个Goal的状态以PROGRESS为准。
 
 验证新代码使用独立栈，保护当前主服务中的真实模型环境：
 
@@ -25,13 +25,13 @@ DATABASE_URL=postgresql+psycopg://publishing:publishing_local@localhost:55433/pu
 
 ## 一键启动
 
-前提：Docker Engine + Docker Compose 可用，首次构建可访问公开镜像/依赖仓库。项目默认仅本机可访问，使用公开的合成演示账号。
+前提：Python 3、Docker Engine + Docker Compose 可用，首次构建可访问公开镜像/依赖仓库。项目默认仅本机可访问，使用公开的合成演示账号。
 
 ```bash
 ./scripts/start.sh
 ```
 
-脚本启动 PostgreSQL、Mailpit、FastAPI 和 Next.js，等待健康检查；API 启动时自动执行 Alembic 迁移与幂等 demo bootstrap。不需要手工创建表或复制密钥。
+脚本启动 PostgreSQL、Mailpit、FastAPI 和 Next.js，等待健康检查；API 启动时自动执行 Alembic 迁移与幂等 demo bootstrap。不需要手工创建表或复制密钥。已有live API时，启动器只从本项目选中容器恢复模型环境并通过子进程环境保留，不落密钥文件/日志/参数；恢复失败会停止，不默认覆盖成Mock。显式 `EDITORIAL_MODEL_PROVIDER=mock ./scripts/start.sh` 才表示主动切回Mock。
 
 - [编辑工作台](http://localhost:3100)
 - [API 文档](http://localhost:8100/docs)
@@ -50,13 +50,15 @@ DATABASE_URL=postgresql+psycopg://publishing:publishing_local@localhost:55433/pu
 | 审稿人 | reviewer@publishing.test | ReviewerDemo2026! | 本人邀请响应；接受后看本轮匿名材料、提交本人报告 |
 | 第二审稿人 | reviewer2@publishing.test | Reviewer2Demo2026! | 独立合成候选，与第一审稿人权限相同 |
 | 主编 | chief@publishing.test | ChiefDemo2026! | 本稿主编任务、范围/分派、独立确认修回/录用/退稿 |
-| 制作 | production@publishing.test | ProductionDemo2026! | 仅有实际分派稿件的制作待办；校样/预览开发中 |
+| 制作 | production@publishing.test | ProductionDemo2026! | 实际分派稿件的校样上传/更正、独立确认及鉴权本地预览 |
 
 1. 作者登录后点“出版工作台”，输入“请创建一篇新投稿”；再提供标题、摘要、关键词、作者等合成信息，由AI整理缺项。
 2. 核对表单、本人回答声明，上传真实UTF8完整/匿名稿件，准备审核后在独立页确认投稿。
 3. 编辑完成材料预审、实际报告上传和人工复核、匿名材料筛选；主编核对范围并分派责任编辑。
 4. 编辑核对质量、准备站内审稿邀请并独立确认；审稿人本人接受并声明无冲突，阅读匿名材料、保存和独立提交报告。
 5. 编辑结束实际轮次并确认建议；主编选择正式修回、检查拟分享意见匿名性并独立确认。作者修改新版本、上传回复、重新回答声明并本人提交；编辑人工复核后重新建议，主编可确认录用移交制作。录用不等于公开发表。
+
+6. 制作人员上传实际正文校样并独立确认交作者；作者逐包检查、确认通过或要求更正；制作人员最后审核生成本地预览。预览需登录，仍非正式发表。
 
 新领域当前运行于隔离13100/18100/55433；主3100服务仍为此前真实模型基线，尚未迁移部署新领域。完整Goal完成时会更新实际运行入口和最终证据。
 

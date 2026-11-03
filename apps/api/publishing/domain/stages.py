@@ -335,9 +335,12 @@ def next_assignee(db, manuscript, flow, stage):
     if not row:
         raise HTTPException(409, "尚未配置下一关口的独立负责人")
     user = db.get(User, row.user_id)
-    expected = {"precheck": "editor", "chief": "chief_editor", "handling_editor": "editor"}[
-        capability
-    ]
+    expected = {
+        "precheck": "editor",
+        "chief": "chief_editor",
+        "handling_editor": "editor",
+        "production": "production_editor",
+    }[capability]
     membership = db.scalar(
         select(Membership).where(
             Membership.user_id == user.id,
