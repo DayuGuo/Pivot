@@ -1,5 +1,7 @@
 # DeepSeek 协作路径与验证报告
 
+2026-11-03最新证据覆盖下方历史无凭据状态：独立安全API文档委派已实际1/1通过，见[委派报告](../development/v01-deepseek-delegation.md)；新领域真实DeepSeek API6/6及实际浏览器文件/角色/引用/人类确认边界通过，见[恢复验收](../development/deepseek-recovery.md)。主模型和全局配置保持不变，原生跨提供商Codex子Agent仍未验证成功。以下2026-11-02记录保留为历史实验，不能据其“0次/缺凭据”推断当前运行状态。
+
 验证日期：2026-11-02；本地 CLI：`codex-cli 0.165.0`。主会话模型与全局 Codex 配置均未修改。只检查 `DEEPSEEK_API_KEY` 是否存在，结果为不存在；未读取全局认证文件、未使用旧密钥、未进行真实 DeepSeek API 调用。
 
 ## 官方资料与结论

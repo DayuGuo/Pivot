@@ -4,6 +4,7 @@ import hashlib
 import json
 import math
 import re
+import time
 from typing import Literal
 from uuid import UUID
 
@@ -14,6 +15,7 @@ from sqlalchemy.orm import Session
 
 from packages.model_gateway.editorial import (
     SAFE_ERROR_CODES,
+    TURN_TIMEOUT_SECONDS,
     editorial_model_status,
     get_editorial_provider,
     safe_error_code,
@@ -895,6 +897,7 @@ def mock_reply(runtime):
 
 
 def conversation(db: Session, actor: Actor, request_id: str, body: ChatInput) -> dict:
+    deadline = time.monotonic() + TURN_TIMEOUT_SECONDS
     authorized_context(db, actor, body.context)
     previous = db.scalar(
         select(PublishingChatTurn).where(
@@ -915,6 +918,11 @@ def conversation(db: Session, actor: Actor, request_id: str, body: ChatInput) ->
     def execute():
         provider = get_editorial_provider()
         runtime = Runtime(db, actor, body)
+        if provider.name == "deepseek":
+            provider.before_attempt = runtime.validate_scopes
+            set_deadline = getattr(provider, "set_deadline", None)
+            if set_deadline:
+                set_deadline(deadline)
         runtime.message_id = uid()
         if provider.name == "mock":
             reply = mock_reply(runtime)
@@ -946,7 +954,10 @@ def conversation(db: Session, actor: Actor, request_id: str, body: ChatInput) ->
                 try:
                     completion = provider.completion(messages, tools)
                 finally:
-                    if provider.last_telemetry is not None:
+                    attempts = getattr(provider, "last_attempt_telemetry", None)
+                    if type(attempts) is list and attempts:
+                        telemetry.extend(sanitized_telemetry(metric) for metric in attempts[:2])
+                    elif provider.last_telemetry is not None:
                         telemetry.append(sanitized_telemetry(provider.last_telemetry))
                 message = completion["choices"][0]["message"]
                 messages.append(message)
@@ -954,6 +965,9 @@ def conversation(db: Session, actor: Actor, request_id: str, body: ChatInput) ->
                 if not tool_calls:
                     raise GatewayError("publishing_respond_tool_required")
                 for call in tool_calls:
+                    check_deadline = getattr(provider, "check_deadline", None)
+                    if check_deadline:
+                        check_deadline()
                     calls += 1
                     if calls > 8:
                         raise GatewayError("publishing_tool_budget_exceeded")
@@ -976,7 +990,12 @@ def conversation(db: Session, actor: Actor, request_id: str, body: ChatInput) ->
                     break
             if not reply:
                 raise GatewayError("publishing_turn_budget_exceeded")
+        check_deadline = getattr(provider, "check_deadline", None)
+        if check_deadline:
+            check_deadline()
         runtime.apply()
+        if check_deadline:
+            check_deadline()
         timestamp = now().isoformat()
         context = {
             **body.context.model_dump(),
@@ -1037,6 +1056,8 @@ def conversation(db: Session, actor: Actor, request_id: str, body: ChatInput) ->
                 "telemetry": telemetry,
             },
         )
+        if check_deadline:
+            check_deadline()
         return result
 
     def revalidate_replay():

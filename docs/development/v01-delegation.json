@@ -51,7 +51,7 @@
     "unknown_reason": "Native helper usage and per-task durations unavailable; not inferred from project API telemetry.",
     "rework": "Lead fixes and helper follow-up: audit privacy, CAS confirmation, lock/provider reauthorization, human default values, context history/replay, negative creation intent, select labels. No tests removed."
   },
-  "deepseek": "Product live protocol previously verified at baseline354c930; new normalized-domain live acceptance not yet run. No claim that native Codex child provider was switched.",
+  "deepseek": "Safe independent API documentation delegation verified separately; normalized-domain real API 6/6 and actual browser passed. Native Codex cross-provider child remains unverified.",
   "phase_updates": [
     {
       "phase": "D",
@@ -110,6 +110,30 @@
       "token_consumption": null,
       "api_cost_usd": null,
       "wall_time_ms": null
+    },
+    {
+      "phase": "real-model-recovery",
+      "status": "integrated and verified:835 backend+35 browser, real API6/6 and actual browser passed",
+      "tasks": [
+        {
+          "agent": "janeway_database_research",
+          "isolation": "read-only official-doc and current diff review",
+          "success": true,
+          "finding": "Late apply after DB lock could save after deadline; lead added post-apply and pre-return checks."
+        },
+        {
+          "agent": "v01_gap_assessment",
+          "isolation": "/tmp/publishing-provider-recovery-tests; new API test file only",
+          "success": true,
+          "result": "14 integration cases executed and passed by lead",
+          "lead_rework_count": 1,
+          "lead_rework": "Candidate rollback experiment used existing human title; changed to empty abstract to observe actual applied bytes without weakening human-field preservation."
+        }
+      ],
+      "token_consumption": null,
+      "api_cost_usd": null,
+      "wall_time_ms": null,
+      "usage_note": "Native helper usage unavailable, not attributed to DeepSeek product calls. Main configuration unchanged."
     }
   ],
   "deepseek_api_delegation": {

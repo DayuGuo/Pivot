@@ -1,6 +1,8 @@
-# Publishing OS v0.1 — active long-running Goal
+# Publishing OS v0.1 — accepted local sample
 
-Started 2026-11-02, Europe/London. User explicitly requested Codex Goal continuation, extensive current OJS/Janeway research, a saved evidence library and a fully runnable, operable initial sample. Goal is active in this thread; this file is the recoverable engineering contract, not a replacement for persisted Goal state.
+Started 2026-11-02, Europe/London. User explicitly requested Codex Goal continuation, extensive current OJS/Janeway research, a saved evidence library and a fully runnable, operable initial sample. Acceptance completed 2026-11-03; this file is the recoverable engineering contract, not a replacement for persisted Goal state.
+
+Final evidence: scripts/verify.sh actually exited0 with835 Pytest+35 Chromium tests; static checks, pinned research mapping, PostgreSQL migrations/drift and exact API/Web image build/start passed. Full synthetic author→checks/assignment→review→revision/decision→proof/correction→authenticated local preview operates. Main service runs schema12e06b9c4f53 with original users/manuscripts/audits/old chats preserved. New-domain real DeepSeek API6/6 and actual browser file/role/citation/refresh/dangerous-request/human-review gates passed; reports and truthful recovery boundaries in docs/development/deepseek-recovery.md. Independent safe API developer delegation separately verified. Real email, confidential material, public publication and production deployment remain excluded; native cross-provider Codex children remain unverified. Historical checkpoints below retain their then-pending status.
 
 ## Outcome and boundaries
 

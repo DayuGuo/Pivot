@@ -440,15 +440,19 @@ def prompt_messages(
 
 
 def run_agent(db: Session, actor: Actor, request: ChatInput, provider) -> AgentResult:
+    start = time.monotonic()
     editor(actor)
     gateway = ToolGateway(db, actor, request)
+    provider.before_attempt = gateway.check_actor
+    set_deadline = getattr(provider, "set_deadline", None)
+    if set_deadline:
+        set_deadline(start + 55)
     messages = prompt_messages(db, actor, request, gateway)
     telemetry = []
     provider.editorial_telemetry = telemetry
     total_calls = 0
     used_ids = set()
     final = None
-    start = time.monotonic()
     for round_index in range(3):
         if time.monotonic() - start > 55:
             raise GatewayError("editorial_agent_deadline")
@@ -472,9 +476,13 @@ def run_agent(db: Session, actor: Actor, request: ChatInput, provider) -> AgentR
                 response_tool["function"]["parameters"]["properties"]["citation_ids"]["items"][
                     "enum"
                 ] = list(gateway.evidence)
+            provider.last_telemetry = None
             data = provider.completion(messages, round_tools)
         finally:
-            if provider.last_telemetry:
+            attempts = getattr(provider, "last_attempt_telemetry", None)
+            if type(attempts) is list and attempts:
+                telemetry.extend(metric.as_dict() for metric in attempts[:2])
+            elif provider.last_telemetry:
                 telemetry.append(provider.last_telemetry.as_dict())
         message = data["choices"][0]["message"]
         calls = message.get("tool_calls") or []
@@ -536,6 +544,9 @@ def run_agent(db: Session, actor: Actor, request: ChatInput, provider) -> AgentR
             {"role": "assistant", "content": message.get("content"), "tool_calls": calls}
         )
         for call_id, name, args in validated:
+            check_deadline = getattr(provider, "check_deadline", None)
+            if check_deadline:
+                check_deadline()
             result = gateway.execute(name, args)
             gateway.receipts.append(
                 {
@@ -556,7 +567,12 @@ def run_agent(db: Session, actor: Actor, request: ChatInput, provider) -> AgentR
     if any(ref not in gateway.evidence for ref in final.citation_ids):
         raise GatewayError("invalid_editorial_citation")
     references = [gateway.evidence[key] for key in dict.fromkeys(final.citation_ids)]
+    check_deadline = getattr(provider, "check_deadline", None)
+    if check_deadline:
+        check_deadline()
     changed, outcome = gateway.apply()
+    if check_deadline:
+        check_deadline()
     validate_outputs(references, gateway.action)
     # Advisory prose never substitutes for the deterministic execution receipt.
     content = "[AI 建议 · 合成稿件]\n" + final.content

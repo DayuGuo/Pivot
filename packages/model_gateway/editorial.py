@@ -6,6 +6,7 @@ Official DeepSeek compatibility is tested independently from the intake adapter.
 
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 import re
@@ -22,6 +23,10 @@ MODEL = "deepseek-flash"
 MAX_RESPONSE_BYTES = 1_048_576
 MAX_REQUEST_BYTES = 524_288
 MAX_TOOL_CALLS = 4
+TURN_TIMEOUT_SECONDS = 60
+READ_TIMEOUT_SECONDS = 30
+MAX_TRANSIENT_RETRIES = 1
+RETRY_DELAY_SECONDS = 0.5
 SAFE_ERROR_CODES = frozenset(
     {
         "invalid_editorial_model_response",
@@ -33,6 +38,7 @@ SAFE_ERROR_CODES = frozenset(
         "editorial_model_response_too_large",
         "editorial_provider_request_failed",
         "editorial_provider_timeout",
+        "editorial_provider_deadline",
         "editorial_provider_authentication_failed",
         "editorial_provider_insufficient_balance",
         "editorial_provider_rate_limited",
@@ -160,7 +166,9 @@ class EditorialDeepSeekProvider:
     name = "deepseek"
     model = MODEL
 
-    def __init__(self, *, live_enabled: bool = False, transport: httpx.BaseTransport | None = None):
+    def __init__(
+        self, *, live_enabled: bool = False, transport: httpx.AsyncBaseTransport | None = None
+    ):
         if not live_enabled:
             raise GatewayError("editorial_live_access_requires_opt_in")
         key = os.environ.get("DEEPSEEK_API_KEY", "")
@@ -175,11 +183,127 @@ class EditorialDeepSeekProvider:
         self._key = key
         self._transport = transport
         self.last_telemetry: Telemetry | None = None
+        self.last_attempt_telemetry: list[Telemetry] = []
+        self._deadline: float | None = None
+        self._retries = 0
+        self.before_attempt = None
+
+    def check_deadline(self):
+        if self._deadline is not None and time.monotonic() >= self._deadline:
+            raise GatewayError("editorial_provider_deadline")
+
+    def set_deadline(self, deadline: float):
+        self._deadline = min(self._deadline or deadline, deadline)
+
+    def _metric(self, started, success, usage, code=None):
+        input_tokens, output_tokens = _usage(usage)
+        self.last_telemetry = Telemetry(
+            self.name,
+            self.model,
+            success,
+            int((time.monotonic() - started) * 1000),
+            input_tokens,
+            output_tokens,
+            error_code=code,
+        )
+        self.last_attempt_telemetry.append(self.last_telemetry)
+
+    async def _attempt(self, payload: bytes) -> dict:
+        self.check_deadline()
+        remaining = self._deadline - time.monotonic()
+        # Read timeout alone can be kept alive indefinitely by blank heartbeat
+        # chunks. Cancellation bounds the complete network attempt, including
+        # connection setup, headers and body, by the shared turn deadline.
+        async with asyncio.timeout(remaining):
+            async with httpx.AsyncClient(
+                timeout=httpx.Timeout(
+                    min(READ_TIMEOUT_SECONDS, remaining), connect=5, write=5, pool=5
+                ),
+                verify=_tls_context(),
+                trust_env=False,
+                follow_redirects=False,
+                transport=self._transport,
+            ) as client:
+                async with client.stream(
+                    "POST",
+                    ENDPOINT,
+                    headers={
+                        "Content-Type": "application/json",
+                        "Authorization": f"Bearer {self._key}",
+                    },
+                    content=payload,
+                ) as response:
+                    response.raise_for_status()
+                    body = bytearray()
+                    async for chunk in response.aiter_bytes():
+                        if len(body) + len(chunk) > MAX_RESPONSE_BYTES:
+                            raise GatewayError("editorial_model_response_too_large")
+                        body.extend(chunk)
+        return json.loads(body)
+
+    async def _completion(self, payload: bytes) -> dict:
+        while True:
+            # Business authorization errors stay business errors, rather than
+            # being translated into a retryable provider transport failure.
+            if self.before_attempt is not None:
+                self.before_attempt()
+            started = time.monotonic()
+            usage = {}
+            try:
+                data = await self._attempt(payload)
+                usage = data if isinstance(data, dict) else {}
+                result = validate_completion(data)
+                self.check_deadline()
+                self._metric(started, True, usage)
+                return result
+            except (
+                httpx.HTTPError,
+                TimeoutError,
+                ValueError,
+                TypeError,
+                RecursionError,
+                GatewayError,
+            ) as error:
+                code = safe_error_code(error)
+                retryable = isinstance(
+                    error, (httpx.TimeoutException, httpx.NetworkError, httpx.RemoteProtocolError)
+                )
+                if isinstance(error, TimeoutError):
+                    code = "editorial_provider_deadline"
+                elif isinstance(error, httpx.TimeoutException):
+                    code = "editorial_provider_timeout"
+                elif isinstance(error, httpx.HTTPStatusError):
+                    status = error.response.status_code
+                    retryable = status in {500, 502, 503, 504}
+                    code = {
+                        401: "editorial_provider_authentication_failed",
+                        402: "editorial_provider_insufficient_balance",
+                        429: "editorial_provider_rate_limited",
+                        500: "editorial_provider_unavailable",
+                        502: "editorial_provider_unavailable",
+                        503: "editorial_provider_unavailable",
+                        504: "editorial_provider_unavailable",
+                    }.get(status, "editorial_provider_request_failed")
+                self._metric(started, False, usage, code)
+                if (
+                    retryable
+                    and self._retries < MAX_TRANSIENT_RETRIES
+                    and self._deadline - time.monotonic() > RETRY_DELAY_SECONDS + 1
+                ):
+                    # Only inference is repeated, with byte-identical input.
+                    # No backend tool has executed for this failed attempt.
+                    self._retries += 1
+                    await asyncio.sleep(RETRY_DELAY_SECONDS)
+                    continue
+                raise GatewayError(code) from None
 
     def completion(self, messages: list[dict], tools: list[dict]) -> dict:
+        """Sync worker entry point; one instance and one recovery retry per turn."""
         self.last_telemetry = None
+        self.last_attempt_telemetry = []
+        if self._deadline is None:
+            self._deadline = time.monotonic() + TURN_TIMEOUT_SECONDS
         started = time.monotonic()
-        raw_usage: dict = {}
         try:
             payload = json.dumps(
                 {
@@ -196,64 +320,11 @@ class EditorialDeepSeekProvider:
             ).encode()
             if len(payload) > MAX_REQUEST_BYTES:
                 raise GatewayError("editorial_model_request_too_large")
-            with httpx.Client(
-                timeout=httpx.Timeout(15, connect=5, pool=5),
-                verify=_tls_context(),
-                trust_env=False,
-                follow_redirects=False,
-                transport=self._transport,
-            ) as client:
-                with client.stream(
-                    "POST",
-                    ENDPOINT,
-                    headers={
-                        "Content-Type": "application/json",
-                        "Authorization": f"Bearer {self._key}",
-                    },
-                    content=payload,
-                ) as response:
-                    response.raise_for_status()
-                    body = bytearray()
-                    for chunk in response.iter_bytes(chunk_size=8192):
-                        if len(body) + len(chunk) > MAX_RESPONSE_BYTES:
-                            raise GatewayError("editorial_model_response_too_large")
-                        body.extend(chunk)
-            data = json.loads(body)
-            raw_usage = data if isinstance(data, dict) else {}
-            result = validate_completion(data)
-            input_tokens, output_tokens = _usage(result)
-            self.last_telemetry = Telemetry(
-                self.name,
-                self.model,
-                True,
-                int((time.monotonic() - started) * 1000),
-                input_tokens,
-                output_tokens,
-            )
-            return result
-        except (httpx.HTTPError, ValueError, TypeError, RecursionError, GatewayError) as exc:
-            code = safe_error_code(exc)
-            if isinstance(exc, httpx.TimeoutException):
-                code = "editorial_provider_timeout"
-            elif isinstance(exc, httpx.HTTPStatusError):
-                code = {
-                    401: "editorial_provider_authentication_failed",
-                    402: "editorial_provider_insufficient_balance",
-                    429: "editorial_provider_rate_limited",
-                    500: "editorial_provider_unavailable",
-                    503: "editorial_provider_unavailable",
-                }.get(exc.response.status_code, "editorial_provider_request_failed")
-            input_tokens, output_tokens = _usage(raw_usage)
-            self.last_telemetry = Telemetry(
-                self.name,
-                self.model,
-                False,
-                int((time.monotonic() - started) * 1000),
-                input_tokens,
-                output_tokens,
-                error_code=code,
-            )
+        except (ValueError, TypeError, RecursionError, GatewayError) as error:
+            code = safe_error_code(error)
+            self._metric(started, False, {}, code)
             raise GatewayError(code) from None
+        return asyncio.run(self._completion(payload))
 
 
 def get_editorial_provider() -> EditorialMockProvider | EditorialDeepSeekProvider:

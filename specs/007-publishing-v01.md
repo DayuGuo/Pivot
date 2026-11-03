@@ -1,6 +1,6 @@
 # Publishing OS v0.1 implementation contract
 
-Active Goal: goals/publishing-v0.1.md. This specification is implementation scope, not a claim of completion. Research root docs/research/library/: OJS3.5.0-6/PKP pinned dependency, Janeway1.8.4, static source manifests/field dictionaries and current-code audit. Consult both upstream analyses at each milestone and append decisions/acceptance evidence.
+Goal contract: goals/publishing-v0.1.md. The bounded local implementation is now accepted (835 backend+35 browser; real new-domain API6/6 and actual browser). Exact review/decision/production contracts are refined by specs008/009/010; this is not production readiness or public publication. Research root docs/research/library/: OJS3.5.0-6/PKP pinned dependency, Janeway1.8.4, static source manifests/field dictionaries and current-code audit. Consult both upstream analyses at each milestone and append decisions/acceptance evidence.
 
 ## Incremental architecture
 

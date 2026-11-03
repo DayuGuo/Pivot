@@ -1,12 +1,14 @@
 # 架构
 
-## v0.1 规范化领域（离线样本已实现，真实模型验收未通过）
+## v0.1 规范化领域（本地样本与真实模型已验收）
 
 `publishing.domain` 与旧fixture工作台分离，保留同一Manuscript UUID；workflow_kind明确路由边界，旧接口不读取新领域稿件/审计。SubmissionWorkflow持当前进度/修订，ManuscriptVersion持可冻结作者/文件快照，StepRun/WorkItem持历史/责任，ActionProposal+HumanConfirmation持不可变独立审核证据。迁移/字段精确合同见spec007，实际状态见PROGRESS。
 
 文件采用期刊边界的FileObject+版本用途关系、私有内容寻址存储，真实校验UTF8/大小/哈希，不宣称病毒或外部查重扫描。Compose以独立volume持久保存。模型读/写走相同对象策略，已有稿件写入等待完整工具回合结束再锁定重校修订和身份；最终确认从不进入工具注册表。对话历史及UUID重放按所有已暴露对象重新鉴权。
 
-E/F离线已验收：EditorialDecision/DecisionReportRelease/RevisionRequest与现有Proposal/Confirmation/Step分层。建议不决定状态，作者只能读主编明确批准的安全反馈；minor逐步验证修回链，大修需要本版新轮。录用绑定版本和制作负责人；独立ProofPackage/ProofResponse绑定鉴权本地PublicationPreview，仍未公开发表。主服务已迁移至12e06b9c4f53，结构检查通过；新领域真实模型因超时/503尚未验收，见PROGRESS。
+E/F离线已验收：EditorialDecision/DecisionReportRelease/RevisionRequest与现有Proposal/Confirmation/Step分层。建议不决定状态，作者只能读主编明确批准的安全反馈；minor逐步验证修回链，大修需要本版新轮。录用绑定版本和制作负责人；独立ProofPackage/ProofResponse绑定鉴权本地PublicationPreview，仍未公开发表。主服务已迁移至12e06b9c4f53，结构检查通过；新领域真实DeepSeek API 6/6与浏览器实际文件/角色/引用/人工关口已验收，见PROGRESS。
+
+真实传输用同步worker内的可取消AsyncClient，conversation入口共享60秒期限，read idle30秒，connect/write/pool5秒；3轮/8工具之外每turn仅额外重试1次推理。短退避、完全相同输入、每次前重新鉴权，不重跑工具；失败/成功attempt分别脱敏计量。apply后与成功返回前重验期限，迟到业务回滚；数据库锁等待/COMMIT本身不承诺硬取消。旧/workbench采用同一transport并保留55秒预算，Next代理75秒。详见ADR-022与docs/development/deepseek-recovery.md。
 
 
 本期采用 Next.js/React/TypeScript/Tailwind + FastAPI/SQLAlchemy + PostgreSQL，Docker Compose 启动，Alembic 管理迁移。小型模块化单体使业务事务保持简单，后续证据表明有必要时再拆服务。

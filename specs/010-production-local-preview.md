@@ -1,6 +1,6 @@
 # F：实际校样与鉴权本地预览
 
-2026-11-03 F离线检查点已验收：797后端+35浏览器通过，主服务更新/真实新领域模型验收另见PROGRESS，Goal仍活跃。来源与边界见 `docs/research/library/comparison/production-preview-design.md`。不扩大成公开出版平台。
+2026-11-03 F已实施并验收；最终835后端+35浏览器及真实新领域API6/6/实际浏览器通过，主服务已更新，详见PROGRESS。来源与边界见 `docs/research/library/comparison/production-preview-design.md`。不扩大成公开出版平台。
 
 ## 主链
 
@@ -8,7 +8,7 @@ E主编accept固定version/production负责人 → production：制作人员上�
 
 所有修改走现有run_action、稿件锁、revision、actor/assignment/COI检查、audit/receipt；每次确认绑定不可变完整proposal及实际文件hash。模型无以上最终确认工具；仅查询授权状态/建议。
 
-## 实体（未来migration接E）
+## 实体（migration12e06b9c4f53已接E实施）
 
 1. `ProofPackage` / publishing_proof_packages：id, manuscript_id, journal_id, accepted_version_id, acceptance_decision_id, package_no, file_object_id, display_name, metadata_snapshot(JSONB白名单从version_snapshot.data构造), material_digest（metadata+file/hash+acceptedversion/sourceDecision）, production_user_id, human_confirmation_id, created_at。unique稿件/package_no、confirmation、(id,manuscript_id)，同稿同刊FK。全部不可变，录用源必须accept/同版，本稿production人工send_proof确认。**不向冻结VersionFile追加校样**。
 2. `ProofResponse` / publishing_proof_responses：id, manuscript_id, package_id UNIQUE, author_id, outcome approve|request_corrections, notes, human_confirmation_id UNIQUE, responded_at。same稿FK、不可变。原投稿作者本人confirm_proof确认，包/version/hash/元数据绑定；corrections notes>=20。approve不能仅凭聊天候选产生。

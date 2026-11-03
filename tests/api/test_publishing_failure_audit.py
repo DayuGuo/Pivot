@@ -86,11 +86,11 @@ def test_partial_created_draft_is_rolled_back_but_failed_supplier_telemetry_is_c
     client, login, db, world, monkeypatch
 ):
     login("author")
-    adapter, requests = transport(monkeypatch, [[call("create_draft")], 503])
+    adapter, requests = transport(monkeypatch, [[call("create_draft")], 503, 503])
     prompt = "创建一个私人测试准备稿。PRIVATE-PROMPT-CANARY"
     rid, response = post(client, prompt)
     assert response.status_code == 502, response.text
-    assert len(requests) == 2 and adapter.last_telemetry.success is False
+    assert len(requests) == 3 and adapter.last_telemetry.success is False
     assert (
         db.scalar(
             select(func.count())
@@ -101,7 +101,7 @@ def test_partial_created_draft_is_rolled_back_but_failed_supplier_telemetry_is_c
     )
     details = failed(db, world, rid)
     assert details["error_code"] == "editorial_provider_unavailable"
-    assert [item["success"] for item in details["telemetry"]] == [True, False]
+    assert [item["success"] for item in details["telemetry"]] == [True, False, False]
     assert details["telemetry"][0]["input_tokens"] == 17
     assert details["telemetry"][1]["error_code"] == "editorial_provider_unavailable"
     db.expire_all()
@@ -138,12 +138,15 @@ def test_timeout_has_distinct_safe_code_and_no_sensitive_exception_text(
     client, login, db, world, monkeypatch
 ):
     login("author")
-    transport(monkeypatch, [httpx.ReadTimeout("PRIVATE-TIMEOUT session=secret prompt=private")])
+    transport(
+        monkeypatch,
+        [httpx.ReadTimeout("PRIVATE-TIMEOUT session=secret prompt=private")] * 2,
+    )
     rid, response = post(client)
     assert response.status_code == 502
     details = failed(db, world, rid)
     assert details["error_code"] == "editorial_provider_timeout"
-    assert len(details["telemetry"]) == 1
+    assert len(details["telemetry"]) == 2
     assert details["telemetry"][0]["success"] is False
     assert details["telemetry"][0]["error_code"] == "editorial_provider_timeout"
     assert "PRIVATE-TIMEOUT" not in json.dumps(details) and "PRIVATE-TIMEOUT" not in response.text
@@ -157,7 +160,11 @@ def test_staged_intake_candidate_is_not_saved_when_later_provider_call_fails(
     before = detail(client, mid)
     transport(
         monkeypatch,
-        [[call("propose_intake", {"candidates": {"title": "PRIVATE-UNSAVED-CANDIDATE"}})], 503],
+        [
+            [call("propose_intake", {"candidates": {"title": "PRIVATE-UNSAVED-CANDIDATE"}})],
+            503,
+            503,
+        ],
     )
     rid, response = post(client, "整理我提供的私人资料", mid)
     assert response.status_code == 502

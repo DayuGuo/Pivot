@@ -1,6 +1,6 @@
 # F：制作、作者校样与本地预览的边界
 
-2026-11-03 再次阅读本库固定来源。这里只记录后续设计，E/F尚未验收。
+2026-11-03再次阅读本库固定来源。本文记录当时设计取舍；E/F随后已按spec009/010实施并完成离线验收，新领域真实模型也已通过，当前证据以PROGRESS与docs/development/deepseek-recovery.md为准。
 
 OJS3.5[官方制作指南](https://github.com/pkp/pkp-docs/blob/44b289e7c27094f1c2003e69bf30c8b832b85f35/learning-ojs/editorial-workflow/en/production.md)区分制作材料、最终载体galley与作者校样；本库 `ojs/sources/pkp-docs/production.md` 是中文研究摘要，非上游全文。Janeway1.8.4 [production/models.py](https://github.com/openlibhums/janeway/blob/e24b23bd112ff7ca08097620d8a31041a25f9d26/src/production/models.py) 分开ProductionAssignment、TypesetTask、files_for_typesetting和galleys_loaded；[proofing/models.py](https://github.com/openlibhums/janeway/blob/e24b23bd112ff7ca08097620d8a31041a25f9d26/src/proofing/models.py) 分开ProofingRound、ProofingTask及CorrectionTask。相应字段摘录已在本库带许可/哈希归档，上游代码没有运行。
 

@@ -155,7 +155,7 @@ def test_http_errors_and_redirects_are_sanitized_not_followed(monkeypatch, statu
     }.get(status, "editorial_provider_request_failed")
     with pytest.raises(GatewayError, match=f"^{expected}$") as error:
         adapter.completion([{"role": "user", "content": "private-prompt"}], [])
-    assert calls == [ENDPOINT]
+    assert calls == [ENDPOINT] * (2 if status in {500, 503} else 1)
     assert error.value.__cause__ is None
     assert not adapter.last_telemetry.success
     assert "secret-body" not in str(error.value)
@@ -202,8 +202,8 @@ def test_outbound_request_bound_prevents_network(monkeypatch):
         adapter.completion([{"role": "user", "content": "x" * MAX_REQUEST_BYTES}], [])
 
 
-class ChunkedBody(httpx.SyncByteStream):
-    def __iter__(self):
+class ChunkedBody(httpx.AsyncByteStream):
+    async def __aiter__(self):
         for _ in range((MAX_RESPONSE_BYTES // 8192) + 2):
             yield b" " * 8192
 
@@ -271,19 +271,22 @@ def test_only_assistant_protocol_fields_returned_and_usage_validated():
 
 def test_client_disables_proxy_environment_and_tls_key_logging(monkeypatch):
     captured = {}
-    original = httpx.Client
+    original = httpx.AsyncClient
 
     def client(*args, **kwargs):
         captured.update(kwargs)
         return original(*args, **kwargs)
 
-    monkeypatch.setattr(httpx, "Client", client)
+    monkeypatch.setattr(httpx, "AsyncClient", client)
     monkeypatch.setenv("SSLKEYLOGFILE", "/tmp/editorial-must-not-create-tls-keylog")
     adapter = provider(monkeypatch, lambda request: httpx.Response(200, json=reply()))
     adapter.completion([], [])
     assert captured["trust_env"] is False
     assert captured["follow_redirects"] is False
-    assert captured["timeout"].read <= 20
+    assert captured["timeout"].read <= 30
+    assert captured["timeout"].connect <= 5
+    assert captured["timeout"].write <= 5
+    assert captured["timeout"].pool <= 5
     tls = captured["verify"]
     assert tls.check_hostname
     assert tls.verify_mode == ssl.CERT_REQUIRED

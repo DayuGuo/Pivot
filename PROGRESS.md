@@ -1,6 +1,16 @@
 # 开发状态
 
-## 最新复核：2026-11-03，真实模型验收仍未通过
+## 最新进展：2026-11-03，真实新领域对话与工具端到端通过
+
+本轮未改代码的真实重跑6/6通过（29.155秒），此前503/读超时属于间歇性故障，不能推断为schema不兼容。已实际修复本地恢复缺口：同步worker内可取消AsyncClient，新领域从conversation入口共享60秒期限、read idle30秒/其他5秒；跨3轮最多额外1次相同推理重试，重验授权、不重复已执行工具。每attempt独立脱敏计量，无Mock回退。等锁后的apply与成功返回前再次检查期限，迟到候选整体回滚，不宣称数据库锁/COMMIT有硬取消。独立审查提出的该边界已修，新增14 API/12传输回归通过。
+
+主服务已实际更新，三个关键模块源码SHA256与运行容器一致。修复后真实API **6/6，35.178秒**：创建私人稿件、保存未核实候选、读取真实文件随机标记并引用、识别编号/作者角色/步骤、UUID重放、prepare_review只留pending、危险发信/录用不改状态、未分派审稿人详情/chat404。实际Chromium通过主3100同源代理调用真实模型，文件/角色/状态引用、刷新恢复及危险请求拒绝均通过（7.402/3.460秒）；独立审核页对话可见、复核框未勾选、提交disabled、确认POST0、pageerror0、Mailpit前后0。报告artifacts/live-publishing-recovery-final.json及live-publishing-browser.json，详见docs/development/deepseek-recovery.md。
+
+所列四份真实报告（包括未改代码基线及首次/最终浏览器）共16回合/31次供应商请求，返回usage输入156185/输出8835Token，成本null，本轮均无503/timeout；恢复是独立离线故障注入证据，不混称真实503后恢复。每回合数据库恰1Turn/Receipt/完成审计，遥测一致。两篇验收稿author_draft未冻结，人类确认/决定/预览均0；原23用户/49稿件/1437审计/95旧对话ID全部保留。无真实邮件、关键决定、公开发布或生产部署。主模型/全局配置不变，原生跨提供商子Agent仍未验证成功。
+
+最终完整scripts/verify.sh **实际退出0：835 Pytest（371.58秒）+35 Playwright（1.4m）**，含同篇投稿→预审/分派→评审→修回/录用→校样/更正→鉴权本地预览。静态/边界/研究门禁、迁移/漂移、ESLint/TypeScript、浏览器脚本语法及准确前后端构建启动通过；1项既有Starlette/httpx warning。日志artifacts/deepseek-recovery-full-verify.log。本地单期刊合成v0.1的全部验收条件已满足，原生跨模型/多格式解析/真实邮件/公开出版/生产部署仍明确排除；最终Goal状态由工具确认。下方均为历史检查点，旧“未通过/主服务未更新/blocked”等不代表当前验收结果。
+
+## 上一轮复核：2026-11-03，当时真实模型验收未通过
 
 用户要求复核上一轮。主服务已实际升级到新领域F与失败诊断补丁，入口http://localhost:3100/publishing；API/Web/PostgreSQL/Mailpit均healthy，主库head为12e06b9c4f53且alembic check无漂移。下方“主服务未升级”等为历史检查点，不代表当前状态。整个Goal未完成，当前Goal工具状态为blocked；本次复核没有提前标完成。
 
