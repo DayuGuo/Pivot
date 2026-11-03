@@ -22,6 +22,34 @@ MODEL = "deepseek-flash"
 MAX_RESPONSE_BYTES = 1_048_576
 MAX_REQUEST_BYTES = 524_288
 MAX_TOOL_CALLS = 4
+SAFE_ERROR_CODES = frozenset(
+    {
+        "invalid_editorial_model_response",
+        "editorial_mock_runtime_required",
+        "editorial_live_access_requires_opt_in",
+        "fresh_deepseek_key_required",
+        "unknown_editorial_model_provider",
+        "editorial_model_request_too_large",
+        "editorial_model_response_too_large",
+        "editorial_provider_request_failed",
+        "editorial_provider_timeout",
+        "editorial_provider_authentication_failed",
+        "editorial_provider_insufficient_balance",
+        "editorial_provider_rate_limited",
+        "editorial_provider_unavailable",
+    }
+)
+
+
+def safe_error_code(value: object) -> str:
+    """Only exact internal codes may cross into persisted diagnostics or status."""
+    if isinstance(value, GatewayError):
+        value = value.args[0] if len(value.args) == 1 else None
+    return (
+        value
+        if type(value) is str and value in SAFE_ERROR_CODES
+        else "editorial_provider_request_failed"
+    )
 
 
 def _unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
@@ -149,6 +177,7 @@ class EditorialDeepSeekProvider:
         self.last_telemetry: Telemetry | None = None
 
     def completion(self, messages: list[dict], tools: list[dict]) -> dict:
+        self.last_telemetry = None
         started = time.monotonic()
         raw_usage: dict = {}
         try:
@@ -203,10 +232,10 @@ class EditorialDeepSeekProvider:
             )
             return result
         except (httpx.HTTPError, ValueError, TypeError, RecursionError, GatewayError) as exc:
-            code = (
-                str(exc) if isinstance(exc, GatewayError) else "editorial_provider_request_failed"
-            )
-            if isinstance(exc, httpx.HTTPStatusError):
+            code = safe_error_code(exc)
+            if isinstance(exc, httpx.TimeoutException):
+                code = "editorial_provider_timeout"
+            elif isinstance(exc, httpx.HTTPStatusError):
                 code = {
                     401: "editorial_provider_authentication_failed",
                     402: "editorial_provider_insufficient_balance",
@@ -257,5 +286,5 @@ def editorial_model_status() -> dict[str, Any]:
             "provider": provider_name,
             "model": model,
             "available": False,
-            "error_code": str(exc),
+            "error_code": safe_error_code(exc),
         }

@@ -1,5 +1,15 @@
 # 开发状态
 
+## 最新复核：2026-11-03，真实模型验收仍未通过
+
+用户要求复核上一轮。主服务已实际升级到新领域F与失败诊断补丁，入口http://localhost:3100/publishing；API/Web/PostgreSQL/Mailpit均healthy，主库head为12e06b9c4f53且alembic check无漂移。下方“主服务未升级”等为历史检查点，不代表当前状态。整个Goal未完成，当前Goal工具状态为blocked；本次复核没有提前标完成。
+
+新领域DeepSeek实际验收仍失败：请求ec75d599-ac2e-4ac7-afa1-d7ebf161e559第一轮成功（1523输入/17输出Token、12013ms），第二轮15367ms读超时；后续30秒read timeout仅进程内实验也遇503（362ms），并未修复可用性。运行服务仍15秒read timeout、3轮/8工具/2048输出限制。密钥能成功调用，不需要重发凭据；不能以旧/workbench或开发委派的成功代替新领域通过。报告artifacts/live-publishing-acceptance-final.json明确live_verified=false。
+
+补齐失败诊断：全业务rollback后，重新检查原身份/会话/角色和上下文，再独立追加publishing.chat_failed；仅固定错误码和脱敏数值遥测，每轮清空并finally收集。新增8项失败审计回归，聚焦108项通过；独立作者代码审查未发现新的可复现P1/P2。最终完整scripts/verify.sh实际退出0：**809 Pytest（346.77秒）+35 Playwright（1.4m）**，静态/边界/研究门禁、迁移/漂移、ESLint/TypeScript及准确API/Web镜像构建启动通过；1项既有第三方Starlette/httpx warning。日志artifacts/v01-review-final-verify.log，未删除旧测试。
+
+主库实际保存检查：升级前23用户/49稿件/1437审计/95旧对话ID全部保留，现25用户/49稿件/1452审计/95旧对话。最近两次失败没有PublishingChatTurn或ActionReceipt；EMAIL_SEND_ENABLED=false，Mailpit总数0。证据artifacts/v01-main-post-update-review.json与v01-review-runtime.json。未发真实邮件或作关键决定。README、架构、安全与路线图已纠正过时状态；详细复核见docs/development/v01-code-review.md。
+
 ## 活跃 Goal：OJS / Janeway 数据库研究与 v0.1 完整样本
 
 ### F 离线检查点已验收，Goal进入本机集成/真实模型验收

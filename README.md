@@ -2,9 +2,11 @@
 
 ## 正在迭代：真实出版 v0.1
 
-活跃目标见 [goals/publishing-v0.1.md](goals/publishing-v0.1.md)，资料库见 [docs/research/library](docs/research/library/README.md)。站内评审、正式决定/修回、实际校样/更正及鉴权本地预览已通过完整离线验收；正在本机集成与真实新领域模型验收，Goal状态见PROGRESS。
+目标见 [goals/publishing-v0.1.md](goals/publishing-v0.1.md)，资料库见 [docs/research/library](docs/research/library/README.md)。站内评审、正式决定/修回、实际校样/更正及鉴权本地预览已通过完整离线验收并更新至本机主服务；新领域真实模型验收仍失败，Goal状态见PROGRESS。
 
 新真实业务入口 `/publishing`（登录后点“出版工作台”）；现有 `/workbench` 保留演示材料。新入口的作者资料、实际UTF8 txt/md文件、版本/任务和独立人工审核使用规范化数据库。AI只能整理候选/准备审核，不能确认提交、发信或作决定。F检查点完整验证已实际通过 **797后端+35浏览器**；同篇贯通投稿、评审、正式修回、V2录用、实际校样和鉴权本地预览。所有邮件仍禁用，整个Goal的状态以PROGRESS为准。
+
+2026-11-03续轮复核及失败诊断补丁的完整验证：**809 Pytest +35 Playwright**，scripts/verify.sh退出0；静态检查、PostgreSQL迁移/结构检查及前后端构建通过。详细发现与限制见 [代码复核](docs/development/v01-code-review.md)。
 
 验证新代码使用独立栈，保护当前主服务中的真实模型环境：
 
@@ -19,7 +21,7 @@ DATABASE_URL=postgresql+psycopg://publishing:publishing_local@localhost:55433/pu
 
 以对话与 AI Agent 为入口的科研期刊出版操作系统原型。首条业务链真实运行于 PostgreSQL：登录 → 对话创建合成测试稿件 → 提交并分派编辑初筛 → 状态、待办、对话、审计持久化 → 刷新恢复。
 
-**默认模型为明确标记的 Mock；工作台可显式启用 DeepSeek，真实供应商工具回环已通过本地验收；真实邮件始终禁用；不包含生产部署。**
+**默认模型为明确标记的 Mock。旧 `/workbench` 的真实 DeepSeek 回环曾通过；新 `/publishing` 的真实模型验收目前失败（超时/供应商503），不能将旧结果当作新入口已验收。真实邮件始终禁用，不包含生产部署。**
 
 当前外观依据用户提供的最新 Hermes 工作台截图：浅灰侧栏、白色对话区、细蓝色选中线与底部输入框。参考证据和适配取舍见 [DESIGN.md](DESIGN.md)。原样遵循 AGENTS.md 中的精简标签规则；四个设计技能的来源、分工和安装记录见 [设计技能](docs/development/design-skills.md)，本轮审查与限制见 [设计验收](docs/development/design-acceptance.md)。
 
@@ -60,7 +62,7 @@ DATABASE_URL=postgresql+psycopg://publishing:publishing_local@localhost:55433/pu
 
 6. 制作人员上传实际正文校样并独立确认交作者；作者逐包检查、确认通过或要求更正；制作人员最后审核生成本地预览。预览需登录，仍非正式发表。
 
-新领域当前运行于隔离13100/18100/55433；主3100服务仍为此前真实模型基线，尚未迁移部署新领域。完整Goal完成时会更新实际运行入口和最终证据。
+新领域已更新至主服务 http://localhost:3100/publishing，主库迁移为12e06b9c4f53，结构检查通过；隔离Mock验证栈仍为13100/18100/55433。主服务保留真实模型配置，但供应商可用性不由健康检查保证；新领域真实对话目前未通过验收，详见PROGRESS。
 
 ### 保留的旧版初筛演示
 
@@ -126,7 +128,7 @@ npm run test:e2e
 
 ## 模型协作
 
-主模型配置保持不变。DeepSeek 目标为 **DeepSeek-V4.1-Flash-1017 / deepseek-flash**。当前工作台真实DeepSeek API回环已通过本地验收；开发委派/原生跨提供商子Agent仍未进行真实DeepSeek工具实验，保持**未验证**。已通过隔离 Codex CLI → loopback 假 Responses 服务 → 真实无副作用 shell 工具 → 工具结果回传实验；这不代表真实 DeepSeek 通过。
+主模型配置保持不变。DeepSeek 目标为 **DeepSeek-V4.1-Flash-1017 / deepseek-flash**。旧工作台真实回环、安全API文档子任务分别实际通过；新领域真实对话仍未通过。开发委派实测见 [v0.1委派报告](docs/development/v01-deepseek-delegation.md)。原生跨提供商子Agent未验证成功；隔离Codex CLI与loopback假Responses实验不能证明真实DeepSeek原生兼容。
 
 可测试替代路径：安全 API 委派器，默认 Mock，草稿仅写入 UUID 隔离目录，由主 Agent 审查集成，不执行生成代码。支持 research/api/react/tests/documentation。只在明确加 `--live` 后从可信环境读取新 `DEEPSEEK_API_KEY`；不要将密钥放进命令参数、Git 或日志。
 
@@ -142,11 +144,11 @@ npm run test:e2e
 ./scripts/delegate-deepseek.sh
 ```
 
-逐任务记录成功、Token、成本、耗时与返工；未知成本为 null。Ollama/vLLM 预留显式 opt-in、仅 loopback 接口。开发协作路径与产品运行时独立。原投稿链固定Mock；当前工作台已实现真实模型显式接入和工具评测，已完成真实供应商回环验收，仅允许授权合成材料出域。详见 [DeepSeek 协作验证报告](docs/research/deepseek.md)。
+逐任务记录成功、Token、成本、耗时与返工；未知成本为 null。Ollama/vLLM 预留显式 opt-in、仅 loopback 接口。开发协作路径与产品运行时独立。原投稿链固定Mock；旧工作台已通过真实回环，新领域仍未通过，仅允许授权合成材料出域。详见 [DeepSeek 协作验证报告](docs/research/deepseek.md)。
 
 ## 后续数据库与产品规划
 
-三栏“我的工作 / 对话协作 / 稿件进度”、分阶段初审、AI辅助信息整理与独立负责人审核页已形成详细规格，见 [数据库与工作流规划](specs/003-editorial-workflow-and-assisted-intake.md)。这份规格尚未实施，不代表当前原型已具备完整投稿或评审能力。下一次优先交付数据/待办基础与作者辅助投稿的一条真实链。
+三栏“我的工作 / 对话协作 / 稿件进度”、分阶段初审、作者辅助投稿、评审、决定、修回与校样已在单期刊合成样本实现。规格与实际边界见 [数据库与工作流规划](specs/003-editorial-workflow-and-assisted-intake.md)、spec007至010、PROGRESS；后续六阶段路线见ROADMAP。
 
 ## 项目地图
 
@@ -156,7 +158,7 @@ npm run test:e2e
 - `infrastructure`：Dockerfiles 与 Alembic 迁移；`specs`：功能/API 契约；`tests`/`evals`：安全与回归验证。
 - [PRODUCT.md](PRODUCT.md)、[ARCHITECTURE.md](ARCHITECTURE.md)、[SECURITY.md](SECURITY.md)、[DECISIONS.md](DECISIONS.md)、[ROADMAP.md](ROADMAP.md)、[研究与来源](docs/research/landscape.md)。
 
-安全约束由代码强制：确定性权限/状态、请求幂等、事务审计、审计不可改写、审批快照修订失效、真实邮件无传输器。完整评审、决策、制作和公开出版属于下一阶段，不能从本地原型推断生产能力。
+安全约束由代码强制：确定性权限/状态、请求幂等、事务审计、审计不可改写、审批快照修订失效、真实邮件无传输器。已实现的站内评审/决定/制作仍是本地合成样本；公开出版未实现，不能据此推断生产能力。
 
 ## 工作台真实模型接入
 

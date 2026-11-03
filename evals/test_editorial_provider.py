@@ -162,14 +162,35 @@ def test_http_errors_and_redirects_are_sanitized_not_followed(monkeypatch, statu
     assert "private-prompt" not in str(adapter.last_telemetry)
 
 
-def test_timeout_is_sanitized(monkeypatch):
+@pytest.mark.parametrize(
+    "timeout", [httpx.ReadTimeout, httpx.ConnectTimeout, httpx.WriteTimeout, httpx.PoolTimeout]
+)
+def test_timeout_is_sanitized(monkeypatch, timeout):
     def handle(request):
-        raise httpx.ReadTimeout("sensitive timeout details", request=request)
+        raise timeout("sensitive timeout details", request=request)
 
     adapter = provider(monkeypatch, handle)
-    with pytest.raises(GatewayError, match="^editorial_provider_request_failed$"):
+    with pytest.raises(GatewayError, match="^editorial_provider_timeout$") as error:
+        adapter.completion([], [])
+    assert adapter.last_telemetry.error_code == "editorial_provider_timeout"
+    assert "sensitive timeout details" not in str(error.value)
+    assert "sensitive timeout details" not in str(adapter.last_telemetry)
+
+
+def test_unknown_gateway_failure_cannot_persist_or_return_sensitive_error(monkeypatch):
+    from packages.model_gateway import editorial
+
+    secret = "private-provider-body synthetic-credential cookie=session-value"
+
+    def reject(data):
+        raise GatewayError(secret)
+
+    monkeypatch.setattr(editorial, "validate_completion", reject)
+    adapter = provider(monkeypatch, lambda request: httpx.Response(200, json=reply()))
+    with pytest.raises(GatewayError, match="^editorial_provider_request_failed$") as error:
         adapter.completion([], [])
     assert adapter.last_telemetry.error_code == "editorial_provider_request_failed"
+    assert secret not in str(error.value) and secret not in str(adapter.last_telemetry)
 
 
 def test_outbound_request_bound_prevents_network(monkeypatch):

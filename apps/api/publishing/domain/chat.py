@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import math
 import re
 from typing import Literal
 from uuid import UUID
@@ -11,7 +12,12 @@ from pydantic import Field, ValidationError, field_validator
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from packages.model_gateway.editorial import editorial_model_status, get_editorial_provider
+from packages.model_gateway.editorial import (
+    SAFE_ERROR_CODES,
+    editorial_model_status,
+    get_editorial_provider,
+    safe_error_code,
+)
 from packages.model_gateway.gateway import GatewayError
 
 from ..models import now, uid
@@ -29,6 +35,74 @@ from .review_schemas import (
 from .reviews import save_report_candidates
 from .schemas import IntakeCandidates, IntakeData, StrictInput
 from .stages import CheckNotes, download_report, save_check_notes
+
+SAFE_TURN_ERROR_CODES = frozenset(
+    {
+        "publishing_tool_not_allowed",
+        "publishing_tool_arguments_invalid",
+        "publishing_response_evidence_invalid",
+        "publishing_mutation_limit",
+        "publishing_respond_tool_required",
+        "publishing_tool_budget_exceeded",
+        "publishing_final_tool_required",
+        "publishing_response_must_be_last",
+        "publishing_turn_budget_exceeded",
+    }
+)
+
+
+def failure_code(error):
+    value = error.args[0] if isinstance(error, GatewayError) and len(error.args) == 1 else None
+    if type(value) is str and value in SAFE_ERROR_CODES | SAFE_TURN_ERROR_CODES:
+        return value
+    return "publishing_turn_failed"
+
+
+def sanitized_telemetry(metric):
+    """Provider/body-defined strings never become diagnostic fields."""
+    provider = getattr(metric, "provider", None)
+    models = {"deepseek": "deepseek-flash", "mock": "contextual-simulator-v1"}
+    provider = provider if type(provider) is str and provider in models else "unavailable"
+
+    def counter(name, default=None):
+        value = getattr(metric, name, None)
+        return value if type(value) is int and 0 <= value <= 10**12 else default
+
+    success = getattr(metric, "success", None) is True
+    cost = getattr(metric, "cost_usd", None)
+    return {
+        "provider": provider,
+        "model": models.get(provider, "unknown"),
+        "success": success,
+        "duration_ms": counter("duration_ms"),
+        "input_tokens": counter("input_tokens"),
+        "output_tokens": counter("output_tokens"),
+        "cost_usd": cost
+        if type(cost) in {int, float} and 0 <= cost <= 10**6 and math.isfinite(cost)
+        else None,
+        "cost_basis": "unknown; reconcile provider invoice",
+        "rework_count": counter("rework_count", 0),
+        "error_code": None if success else safe_error_code(getattr(metric, "error_code", None)),
+    }
+
+
+def record_failure(db, actor, request_id, body, error, telemetry):
+    """Use a new transaction only after business rollback and original-authority checks."""
+    try:
+        db.rollback()
+        core.ensure_actor(db, actor)
+        authorized_context(db, actor, body.context)
+        core.event(
+            db,
+            actor,
+            actor.journal_id,
+            "chat_failed",
+            {"request_id": request_id, "error_code": failure_code(error), "telemetry": telemetry},
+        )
+        db.commit()
+    except Exception:
+        # Diagnostics cannot restore lost authority or expose the original error.
+        db.rollback()
 
 
 class ChatContext(StrictInput):
@@ -836,11 +910,12 @@ def conversation(db: Session, actor: Actor, request_id: str, body: ChatInput) ->
             core.load_submission(db, actor, mid)
         verify_visibility(db, actor, previous.context_snapshot.get("visibility_scopes", {}))
 
+    telemetry = []
+
     def execute():
         provider = get_editorial_provider()
         runtime = Runtime(db, actor, body)
         runtime.message_id = uid()
-        telemetry = []
         if provider.name == "mock":
             reply = mock_reply(runtime)
         else:
@@ -867,11 +942,12 @@ def conversation(db: Session, actor: Actor, request_id: str, body: ChatInput) ->
             for round_no in range(3):
                 runtime.validate_scopes()
                 tools = runtime.tools(final=round_no == 2)
-                completion = provider.completion(messages, tools)
-                if provider.last_telemetry:
-                    from dataclasses import asdict
-
-                    telemetry.append(asdict(provider.last_telemetry))
+                provider.last_telemetry = None
+                try:
+                    completion = provider.completion(messages, tools)
+                finally:
+                    if provider.last_telemetry is not None:
+                        telemetry.append(sanitized_telemetry(provider.last_telemetry))
                 message = completion["choices"][0]["message"]
                 messages.append(message)
                 tool_calls = message.get("tool_calls", [])
@@ -954,6 +1030,7 @@ def conversation(db: Session, actor: Actor, request_id: str, body: ChatInput) ->
             runtime.current_id or actor.journal_id,
             "chat_completed",
             {
+                "request_id": request_id,
                 "provider": provider.name,
                 "tools": [r["tool"] for r in runtime.receipts],
                 "state_changed": result["state_changed"],
@@ -989,6 +1066,6 @@ def conversation(db: Session, actor: Actor, request_id: str, body: ChatInput) ->
             execute,
             revalidate_replay=revalidate_replay,
         )
-    except (GatewayError, ValidationError, TypeError, KeyError, ValueError):
-        db.rollback()
+    except (GatewayError, ValidationError, TypeError, KeyError, ValueError) as error:
+        record_failure(db, actor, request_id, body, error, telemetry)
         raise HTTPException(502, "模型未能完成安全工具回合，未保存部分操作；请重试") from None

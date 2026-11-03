@@ -1,12 +1,12 @@
 # 架构
 
-## v0.1 规范化领域增量（进行中）
+## v0.1 规范化领域（离线样本已实现，真实模型验收未通过）
 
 `publishing.domain` 与旧fixture工作台分离，保留同一Manuscript UUID；workflow_kind明确路由边界，旧接口不读取新领域稿件/审计。SubmissionWorkflow持当前进度/修订，ManuscriptVersion持可冻结作者/文件快照，StepRun/WorkItem持历史/责任，ActionProposal+HumanConfirmation持不可变独立审核证据。迁移/字段精确合同见spec007，实际状态见PROGRESS。
 
 文件采用期刊边界的FileObject+版本用途关系、私有内容寻址存储，真实校验UTF8/大小/哈希，不宣称病毒或外部查重扫描。Compose以独立volume持久保存。模型读/写走相同对象策略，已有稿件写入等待完整工具回合结束再锁定重校修订和身份；最终确认从不进入工具注册表。对话历史及UUID重放按所有已暴露对象重新鉴权。
 
-E已验收：EditorialDecision/DecisionReportRelease/RevisionRequest与现有Proposal/Confirmation/Step分层。建议不决定状态，作者只能读主编明确批准的安全反馈；minor服务逐步验证修回链，大修需要本版新轮。录用绑定版本和制作负责人，仍未公开发表。迁移11d95a8b3e42及E全量686+24证据见PROGRESS；F制作/校样/本地预览是下一片，当前主服务尚未迁移新领域。
+E/F离线已验收：EditorialDecision/DecisionReportRelease/RevisionRequest与现有Proposal/Confirmation/Step分层。建议不决定状态，作者只能读主编明确批准的安全反馈；minor逐步验证修回链，大修需要本版新轮。录用绑定版本和制作负责人；独立ProofPackage/ProofResponse绑定鉴权本地PublicationPreview，仍未公开发表。主服务已迁移至12e06b9c4f53，结构检查通过；新领域真实模型因超时/503尚未验收，见PROGRESS。
 
 
 本期采用 Next.js/React/TypeScript/Tailwind + FastAPI/SQLAlchemy + PostgreSQL，Docker Compose 启动，Alembic 管理迁移。小型模块化单体使业务事务保持简单，后续证据表明有必要时再拆服务。
@@ -29,7 +29,7 @@ flowchart LR
 | --- | --- | --- |
 | Publishing Domain Core | apps/api/publishing/domain + models.py | 规范化版本/任务/轮次/决定/修回/校样；保留旧期刊/身份/会话/审计与邮件实体 |
 | Conversation UI | apps/web/app | 浏览器会话恢复、真实工作区、任务输入、详情与审计；运行时同源 API 代理 |
-| Agent Runtime | apps/api/publishing/runtime.py | 一次提议、最多一次白名单动作、持久消息与幂等回执；不运行模型代码 |
+| Agent Runtime | domain/chat.py、editorial_agent.py、runtime.py | 新领域有界工具回合与授权证据；旧初筛一次白名单动作；持久消息与幂等回执，不运行模型代码 |
 | Model Gateway | packages/model_gateway | Proposal、Mock、独立 DeepSeek Chat Completions、Ollama/vLLM 可测试适配器、遥测 |
 | Workflow Engine | apps/api/publishing/workflow.py | 旧原型只到screening；新领域core/stages/reviews/decisions/production按固定前置与人类证据推进 |
 | Policy Engine | domain/core.py、review_access.py、production.py、security.py | 身份/CSRF、期刊、角色、实际分派、归属/COI、明确DTO和文件白名单 |
@@ -46,7 +46,7 @@ flowchart LR
 
 随机 256-bit bearer cookie 仅保存于 HttpOnly/SameSite=Strict cookie；数据库仅存 token hash。会话八小时后过期，可注销撤销；独立随机 CSRF token 随登录或 /auth/me 返回。浏览器同源代理不缓存。密码为随机 salt 的 scrypt；本地演示 HTTP cookie 可通过 COOKIE_SECURE=true 切换 HTTPS 安全标记。
 
-角色存于 Membership，不信任浏览器或模型。首期一个用户一个工作期刊，尚无多期刊选择。编辑可看本期刊，作者须匹配 author_id，审稿人尚无被分派的读取能力。审计只有本期刊编辑/主编可读。API schema 通过 /docs 和 /openapi.json 暴露。
+角色存于Membership，不信任浏览器或模型。首期一个用户一个工作期刊，尚无多期刊选择。旧入口编辑可看本期刊旧稿件，作者须匹配author_id；新领域按实际分派/阶段及匿名文件grant投影，审稿人接受本人邀请后才能读本轮盲稿。通用审计只有本期刊编辑/主编可读，新领域私人审计另外隔离。API schema通过/docs和/openapi.json暴露。
 
 ## 外部边界
 
@@ -62,11 +62,11 @@ OJS/Janeway 后续走受控适配器与外部 ID 映射，不共享数据库；�
 
 服务器凭据引用必须同时匹配 `MAIL_CREDENTIAL_<REF>_JOURNAL_ID`，才读取同命名空间 PASSWORD/ACCESS_TOKEN；前端只提交引用名。Gmail/Graph 固定官方 HTTPS 地址、禁重定向和环境代理、验证证书与身份。SMTP 默认只允许 Mailpit1025，其余目标必须显式允许并使用 TLS。连接状态不能授予发信权限。配置方法见 docs/development/mail-binding.md。
 
-## 下一阶段数据库设计（未实施）
+## 数据库演进（原规划，已按spec007至010实施本地样本）
 
 详见 specs/003-editorial-workflow-and-assisted-intake.md。将稿件生命周期、当前步骤实例、负责人工作项、检查证据、内容分类分开建模；版本/作者快照/文件不可变引用支撑可复核的投稿与修回。负责人确认绑定不可变动作提案、输入版本和证据，在同事务内推进状态与生成下一待办。初期采用关系模型+JSONB版本化表单内容，保留当前投影与追加审计，不引入任意可执行workflow DSL或全量event sourcing。
 
-迁移须保留已有ID/消息/幂等回执，旧screening明确为legacy步骤，不能补造查重或人类确认历史。三栏通过后端投影展示同一稿件事实，AI既不生成状态真相，也不拥有最终确认工具。当前代码尚未实现上述实体与API。
+迁移保留已有ID/消息/幂等回执，旧screening明确为legacy步骤，不补造查重或人类确认历史。三栏通过后端投影展示同一稿件事实，AI既不生成状态真相，也不拥有最终确认工具。当前已实现上述领域实体与API，实际验收范围见PROGRESS；旧/workbench仍使用独立合成演示投影。
 
 ## 四页编辑工作台（独立合成数据边界）
 

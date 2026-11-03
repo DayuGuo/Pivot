@@ -23,3 +23,13 @@
 ## 验证边界
 
 本轮未发现可绕过服务端人类确认的路径；这不是生产安全认证。真实并发覆盖现有请求/材料seal等专项，F未声称额外完成全面stress。浏览器实测为Linux Chromium（桌面/390px及原有缩放场景），未声称其他浏览器/OS/手机键盘全部通过。真实邮件和生产部署始终未执行。新领域真实DeepSeek及本机主服务更新另外记录，不能由离线验证推断。
+
+## 本次续轮复核：真实模型失败与诊断
+
+不能把上一轮判断为全部正常。新领域实际验收在创建私人准备稿时返回502，报告 `artifacts/live-publishing-acceptance-final.json` 的 `live_verified=false`。数据库可关联失败请求 ec75d599-ac2e-4ac7-afa1-d7ebf161e559：第一次供应商调用成功（1523输入/17输出Token、12013ms），第二次ReadTimeout（15367ms）；整回合未提交。随后仅在独立诊断进程把read timeout改为30秒，仍收到供应商不可用错误（503，362ms），不能认为加长超时已经解决。运行服务仍保留原15秒read timeout、3轮/8工具/2048输出预算；没有自动重试或Mock回退。
+
+已修复诊断缺口：原来失败遥测随业务事务一起丢失，现在先回滚全部业务，再重新验证原始身份/会话/角色及上下文，在独立事务追加 `publishing.chat_failed`。每轮清空lastTelemetry并在finally收集，避免丢失失败或重复前轮用量；错误码精确白名单和数值类型/范围检查避免供应商正文、异常字符串、提示或凭据进入审计。撤权后不借旧身份补记；成功审计也绑定request_id。失败没有成功动作回执，重试仍按原幂等合同处理。这里的15秒是HTTP读等待，不声称是严格的整回合墙钟截止时间。
+
+新增8项数据库失败审计回归，覆盖已创建稿件后供应商失败的完整回滚、候选不落库、脱敏、超时分类、逐轮遥测及成员/会话撤销；网关另覆盖4类timeout和任意GatewayError。聚焦108项已通过；最终完整scripts/verify.sh实际退出0：809 Pytest（346.77秒）+35 Playwright（1.4m），静态检查、迁移/漂移、前后端构建及准确镜像启动通过。日志artifacts/v01-review-final-verify.log。另一位非补丁作者仅只读复核四个代码/测试文件，未发现新的实质P1/P2；不将只读审查当作额外真实供应商或并发实测。
+
+主服务现已实际升级12e06b9c4f53且alembic check通过，API/Web/DB/Mailpit均healthy。`artifacts/v01-main-post-update-review.json` 实际比对升级前ID：23用户、49稿件、1437审计、95旧对话全部保留；现25用户（新增评审/制作演示角色）、49稿件、1452审计、95旧对话。最近两次失败请求的PublishingChatTurn和ActionReceipt均为0，EMAIL_SEND_ENABLED仍false。README/架构/安全文档的过时“新领域未实施/主服务未更新”描述已更正。供应商故障仍是未解决验收项，不标记Goal完成。
