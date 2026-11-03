@@ -169,3 +169,30 @@
   .composer { margin-block: 6px; }
   .composer textarea { min-height: 40px; }
 }
+.materialView { display: flex; flex: 1; min-height: 0; min-width: 0; flex-direction: column; }
+.materialView[hidden] { display: none; }
+.claim { margin-block: 16px 22px; }
+.claim .answer { margin-bottom: 8px; }
+.citations { display: flex; flex-wrap: wrap; gap: 6px; }
+.workspace .citations button { border-color: transparent; background: #f5f7fc; color: #2457c7; padding: 4px 8px; text-align: left; font-size: 12px; overflow-wrap: anywhere; max-width: 100%; }
+.workspace .citations button:hover { border-color: #cad5ed; background: #eaf0fd; }
+.coverage { color: var(--muted); font-size: 12px; line-height: 1.65; margin-top: 12px; }
+.references { margin-block: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+.references h3 { font-size: 14px; }
+.references .hint { margin-block: 6px 12px; }
+.reference { margin-block: 14px; font-size: 13px; overflow-wrap: anywhere; }
+.reference > a { line-height: 1.6; }
+.reference p { margin-block: 4px; color: var(--muted); font-size: 12px; }
+.reference > div { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 12px; }
+.reference > div span { color: var(--muted); }
+.evidencePanel { display: flex; flex: 1; min-height: 0; min-width: 0; flex-direction: column; }
+.evidenceBody { padding: 20px; overflow: auto; min-height: 0; overscroll-behavior: contain; }
+.evidenceBody h3 { margin-block: 20px 8px; font-size: 15px; }
+.evidenceBody details { margin-top: 24px; }
+.locatedText { font: inherit; font-size: 15px; line-height: 1.9; white-space: pre-wrap; overflow-wrap: anywhere; margin-block: 20px; }
+.locatedText mark { color: #30343b; background: #fff0b2; padding-block: 2px; scroll-margin-block: 40px; }
+.locatedText mark:focus { outline: 2px solid #2463ff; outline-offset: 3px; }
+.sourceError { margin: 0 !important; padding: 12px 20px; background: #fff5f5; color: #9e2f3e; font-size: 13px; }
+@media (max-width: 650px) { .workspace .citations button { min-height: 44px; padding: 8px; } .evidenceBody { padding: 16px; } }
+
+.boundary { margin: 8px 4px 0 !important; color: var(--muted); font-size: 12px; line-height: 1.6; }

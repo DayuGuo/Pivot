@@ -529,6 +529,7 @@ def test_migration_matches_metadata_and_empty_downgrade(review_db):
     # This historical migration fixture deliberately stops at D (10c). E has
     # its own complete-head metadata comparison, so exclude only its new tables.
     later_tables = {
+        "publishing_dossier_answers",
         "publishing_editorial_decisions",
         "publishing_decision_report_releases",
         "publishing_revision_requests",

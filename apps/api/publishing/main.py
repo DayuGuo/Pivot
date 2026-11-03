@@ -20,6 +20,7 @@ from .conversations import (
 )
 from .db import get_db
 from .domain.api import router as publishing_router
+from .domain.dossier_chat import router as dossier_chat_router
 from .domain.dossiers import router as dossier_router
 from .editorial_chat import router as editorial_chat_router
 from .editorial_demo import router as editorial_demo_router
@@ -35,6 +36,7 @@ provider = MockModelProvider()
 app = FastAPI(title="Publishing OS", version="0.1.0")
 app.include_router(publishing_router)
 app.include_router(dossier_router)
+app.include_router(dossier_chat_router)
 app.include_router(mail_router)
 app.include_router(editorial_demo_router)
 app.include_router(editorial_chat_router)

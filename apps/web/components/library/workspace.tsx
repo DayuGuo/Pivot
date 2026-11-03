@@ -7,8 +7,9 @@ import Glyph from "../editorial/icons";
 import { LibraryError, readJSON } from "./api";
 import DossierEditor from "./editor";
 import DossierReview from "./review";
+import { citationText, EvidencePanel, MessageTurn } from "./evidence";
 import { OriginalText, VersionList } from "./viewers";
-import type { Dossier, DossierData, DossierItem, Message, Session, Upload } from "./types";
+import type { Citation, Dossier, DossierData, DossierItem, Message, Session, Upload } from "./types";
 import styles from "./library.module.css";
 
 export default function LibraryWorkspace({ reviewVersionId }: { reviewVersionId?: string }) {
@@ -28,6 +29,11 @@ export default function LibraryWorkspace({ reviewVersionId }: { reviewVersionId?
   const [question, setQuestion] = useState("");
   const [query, setQuery] = useState("");
   const [dirty, setDirty] = useState(false);
+  const [sourcePreview, setSourcePreview] = useState<{ snapshot: Dossier; citation: Citation } | null>(null);
+  const [sourceError, setSourceError] = useState("");
+  const [locating, setLocating] = useState<string | null>(null);
+  const citationRequest = useRef(0);
+  const citationTrigger = useRef<HTMLButtonElement | null>(null);
   const [retry, setRetry] = useState<null | (() => Promise<void>)>(null);
   const epoch = useRef(0);
   const dirtyRef = useRef(false);
@@ -38,10 +44,12 @@ export default function LibraryWorkspace({ reviewVersionId }: { reviewVersionId?
 
   const clearPrivate = useCallback((clearSession: boolean) => {
     setDetail(null); setItems([]); setQuestion(""); setNewDossier(false); changeDirty(false);
+    ++citationRequest.current; setSourcePreview(null); setSourceError(""); setLocating(null);
     if (clearSession) { setSession(null); requests.current.clear(); setRetry(null); }
   }, [changeDirty]);
   const load = useCallback(async () => {
     const current = ++epoch.current;
+    ++citationRequest.current; setSourcePreview(null); setSourceError(""); setLocating(null);
     setLoading(true); setError(""); setItems([]); setDetail(null); setQuestion(""); setNotice(""); setRetry(null); changeDirty(false);
     try {
       const nextSession = await readJSON<Session>("/api/publishing/session");
@@ -82,11 +90,11 @@ export default function LibraryWorkspace({ reviewVersionId }: { reviewVersionId?
     if (sameRoute && !newDossier) return;
     if (!leaveAllowed()) { event.preventDefault(); return; }
     if (sameRoute) { event.preventDefault(); setNewDossier(false); setDrawer(false); void load(); return; }
-    ++epoch.current; setDetail(null); setQuestion(""); setDrawer(false); setNewDossier(false); setRetry(null); changeDirty(false);
+    ++epoch.current; ++citationRequest.current; setSourcePreview(null); setSourceError(""); setLocating(null); setDetail(null); setQuestion(""); setDrawer(false); setNewDossier(false); setRetry(null); changeDirty(false);
   }
   function startNew() {
     if (!leaveAllowed()) return;
-    ++epoch.current; setNewDossier(true); setDrawer(false); setError(""); setNotice(""); setRetry(null); changeDirty(false);
+    ++epoch.current; ++citationRequest.current; setSourcePreview(null); setSourceError(""); setLocating(null); setNewDossier(true); setDrawer(false); setError(""); setNotice(""); setRetry(null); changeDirty(false);
   }
   async function post<T>(path: string, data: object): Promise<T> {
     if (!session) throw new LibraryError(401, "请先登录。");
@@ -107,7 +115,7 @@ export default function LibraryWorkspace({ reviewVersionId }: { reviewVersionId?
       if ([401, 403, 404].includes(status)) clearPrivate(status !== 404);
       if (status === 0) {
         // Hide stale private documents and transcript until authorization can be checked again.
-        setDetail(null); setQuestion("");
+        setDetail(null); setQuestion(""); setSourcePreview(null); setSourceError(""); ++citationRequest.current; setLocating(null);
       }
       setError((failure as Error).message);
       if (status === 0 || status >= 500) setRetry(() => () => run(label, action));
@@ -119,7 +127,7 @@ export default function LibraryWorkspace({ reviewVersionId }: { reviewVersionId?
       readJSON<{ items: DossierItem[] }>("/api/dossiers"),
     ]);
     if (current !== epoch.current) return;
-    setDetail(next); setItems(list.items); changeDirty(false);
+    setDetail(next); setItems(list.items); setSourcePreview(null); setSourceError(""); changeDirty(false);
   }
   async function save(data: DossierData, file: Upload | null) {
     if (!detail) return;
@@ -143,7 +151,7 @@ export default function LibraryWorkspace({ reviewVersionId }: { reviewVersionId?
     event.preventDefault(); if (!detail || !question.trim()) return;
     const snapshot = detail; const message = question.trim(); const current = epoch.current;
     await run("assist", async () => {
-      const reply = await post<Message>(`/api/dossiers/${snapshot.id}/assist`, { expected_revision: snapshot.revision, version_id: snapshot.version_id, message });
+      const reply = await post<Message>(`/api/dossiers/${snapshot.id}/chat`, { expected_revision: snapshot.revision, version_id: snapshot.version_id, message });
       if (current !== epoch.current) return;
       setDetail(previous => {
         const base = previous ?? snapshot;
@@ -151,6 +159,22 @@ export default function LibraryWorkspace({ reviewVersionId }: { reviewVersionId?
       });
       setQuestion("");
     });
+  }
+  async function locateCitation(citation: Citation, trigger: HTMLButtonElement) {
+    if (!detail) return;
+    const dossierId = detail.id; const current = epoch.current; const request = ++citationRequest.current;
+    citationTrigger.current = trigger;
+    setLocating(`${citation.version_id}:${citation.source_id}`); setSourcePreview(null); setSourceError("");
+    try {
+      const snapshot = await readJSON<Dossier>(`/api/dossiers/${encodeURIComponent(dossierId)}/versions/${encodeURIComponent(citation.version_id)}`);
+      if (current !== epoch.current || request !== citationRequest.current) return;
+      if (snapshot.id !== dossierId || citationText(snapshot, citation) === null) throw new LibraryError(409, "引用与原版内容不匹配，请重新载入资料后再定位。");
+      setSourcePreview({ snapshot, citation });
+    } catch (failure) {
+      if (current !== epoch.current || request !== citationRequest.current) return;
+      if (failure instanceof LibraryError && [401, 403, 404].includes(failure.status)) clearPrivate(failure.status !== 404);
+      setSourceError((failure as Error).message);
+    } finally { if (current === epoch.current && request === citationRequest.current) setLocating(null); }
   }
   async function confirm() {
     if (!detail) return;
@@ -165,6 +189,10 @@ export default function LibraryWorkspace({ reviewVersionId }: { reviewVersionId?
   if (loading && !session) return <main className={styles.gate}><p role="status">正在恢复登录…</p></main>;
   if (!session) return <main className={styles.gate}><h1>内部资料</h1><p role="alert">{error || "请先登录后打开内部资料。"}</p><Link href="/">返回登录</Link><button type="button" onClick={() => void load()}>重试连接</button></main>;
 
+  const configuredModel = detail?.model;
+  const modelLabel = configuredModel?.provider === "deepseek" ? "DeepSeek · 只读审阅" : configuredModel?.provider === "mock" ? "Mock · 模拟审阅" : "模型状态待确认";
+  const modelBlocked = configuredModel?.ready === false;
+  const historicalVersion = detail !== null && !detail.is_current;
   return <div className={styles.workspace} onClickCapture={guardLinks}>
     <a href="#library-main" className={styles.skip}>跳到对话</a>
     <aside className={`${styles.sidebar} ${drawer ? styles.drawerOpen : ""}`} aria-label="我的资料">
@@ -183,19 +211,23 @@ export default function LibraryWorkspace({ reviewVersionId }: { reviewVersionId?
       {notice && <p className={styles.notice} role="status">{notice}</p>}
       <div className={styles.columns}>
         <main className={styles.chat} id="library-main" tabIndex={-1}>
-          <div className={styles.chatHeader}><h2>{detail?.data.title || "资料对话"}</h2><p>规则引导 · 未调用模型</p></div>
+          <div className={styles.chatHeader}><h2>{detail?.data.title || "资料对话"}</h2><p>{modelBlocked ? "模型未就绪，请检查服务配置后重新载入。" : `${modelLabel} · 结论待人工复核`}</p></div>
           <div className={styles.transcript} aria-label="资料对话历史" aria-busy={busy === "assist"}>
-            {loading ? <p role="status">正在载入资料…</p> : !detail ? <div className={styles.empty}><Glyph name="file" size={28} /><h2>从资料开始</h2><p>选择或新建资料，再查看缺项与下一步。</p></div> : !detail.messages.length ? <div className={styles.empty}><h2>还需要补充什么？</h2><p>可询问缺项、资料状态、版本和下一步。规则引导不进行全文科学审阅。</p><button onClick={() => setQuestion("这份资料还缺少什么？")}>查看当前缺项</button></div> : detail.messages.map(message => <article className={styles.turn} key={message.id}><p className={styles.userQuestion}>{message.question}</p><small>v{message.version_no} · 规则引导 · 未调用模型</small><div className={styles.answer}>{message.answer}</div></article>)}
+            {loading ? <p role="status">正在载入资料…</p> : !detail ? <div className={styles.empty}><Glyph name="file" size={28} /><h2>从资料开始</h2><p>选择或新建资料，围绕已保存的全文与作者信息提问。</p></div> : !detail.messages.length ? <div className={styles.empty}><h2>从哪一处开始审阅？</h2><p>回答依据当前已保存资料。点击结论后的引用，可核对原版全文或作者字段；资料不足时不会补造结论。</p><button onClick={() => setQuestion("请概括这份全文的研究方法，并引用原文。")}>审阅研究方法</button></div> : detail.messages.map(message => <MessageTurn key={message.id} message={message} currentVersionId={detail.version_id} locating={locating} onCitation={(citation, trigger) => void locateCitation(citation, trigger)} />)}
             <div ref={chatEnd} />
           </div>
-          <form className={styles.composer} onSubmit={send}><label htmlFor="library-question" className={styles.srOnly}>询问当前资料</label><textarea id="library-question" name="question" value={question} maxLength={2000} onChange={event => setQuestion(event.target.value)} disabled={!detail || newDossier || !!busy || loading} rows={3} placeholder="询问缺项、资料状态、版本或下一步…" /><div><span>{detail ? `当前 v${detail.version_no}${dirty ? " · 有未保存修改，回答依据已保存版本" : ""}` : "先选择资料"}</span><button type="submit" className={styles.primary} disabled={!detail || newDossier || !question.trim() || !!busy || loading}>{busy === "assist" ? "回复中…" : "发送"}<Glyph name="arrow" size={16} /></button></div></form>
+          <form className={styles.composer} onSubmit={send}><label htmlFor="library-question" className={styles.srOnly}>询问当前资料</label><textarea id="library-question" name="question" value={question} maxLength={2000} onChange={event => setQuestion(event.target.value)} disabled={!detail || newDossier || !!busy || loading || modelBlocked || historicalVersion} rows={3} placeholder={historicalVersion ? "历史版本只读，请返回当前资料提问" : "询问当前全文、作者或文献来源…"} /><div><span>{detail ? `${detail.is_current ? "当前" : "历史"} v${detail.version_no}${dirty ? " · 有未保存修改，回答依据已保存版本" : ""}` : "先选择资料"}</span><button type="submit" className={styles.primary} disabled={!detail || newDossier || !question.trim() || !!busy || loading || modelBlocked || historicalVersion}>{busy === "assist" ? "回复中…" : "发送"}<Glyph name="arrow" size={16} /></button></div><p className={styles.boundary}>邮件与关键决定须负责人确认。</p></form>
         </main>
         <section className={styles.material} aria-label={reviewVersionId ? "独立版本核对" : "资料内容"}>
+          {sourceError && <p className={styles.sourceError} role="alert">{sourceError}</p>}
+          <div className={styles.materialView} hidden={sourcePreview !== null}>
           {newDossier ? <><div className={styles.materialHeader}><h2>新建资料</h2><button disabled={!!busy} onClick={() => { if (leaveAllowed()) { setNewDossier(false); changeDirty(false); } }}>取消</button></div><form className={styles.form} onSubmit={create} onChange={() => changeDirty(true)}><label>题名<input name="title" required maxLength={500} autoComplete="off" /></label><label>资料类型<select name="source_kind" defaultValue="synthetic"><option value="synthetic">合成资料</option><option value="public_authorized">公开 / 已获授权资料</option></select></label><label>来源与授权说明<textarea name="source_note" required minLength={5} maxLength={2000} rows={4} /></label><label className={styles.checkbox}><input type="checkbox" name="authorized_material" required /><span>我确认仅录入合成或公开已获授权资料，不包含保密稿件。</span></label><button className={styles.primary} disabled={!!busy}>{busy === "create" ? "创建中…" : "创建资料"}</button></form></> : detail ? reviewVersionId ? <DossierReview key={detail.version_id} detail={detail} busy={!!busy} confirming={busy === "confirm"} onConfirm={confirm} /> : <><div className={styles.materialHeader}><div role="tablist" aria-label="资料视图">{([['metadata', '资料'], ['text', '原文'], ['versions', '版本']] as const).map(([id, label]) => <button key={id} id={`library-tab-${id}`} role="tab" aria-selected={tab === id} aria-controls={`library-panel-${id}`} tabIndex={tab === id ? 0 : -1} onKeyDown={event => { const all = ["metadata", "text", "versions"] as const; const index = all.indexOf(tab); if (event.key === "ArrowRight" || event.key === "ArrowLeft") { event.preventDefault(); const next = all[(index + (event.key === "ArrowRight" ? 1 : 2)) % 3]; setTab(next); document.getElementById(`library-tab-${next}`)?.focus(); } }} onClick={() => setTab(id)}>{label}</button>)}</div><span>v{detail.version_no} · {detail.verified ? "已核对" : "待核对"}</span></div><div role="tabpanel" id={`library-panel-${tab}`} aria-labelledby={`library-tab-${tab}`} className={styles.materialBody}>
             <DossierEditor key={`${detail.id}:${detail.version_id}`} detail={detail} hidden={tab !== "metadata"} busy={!!busy} saving={busy === "save"} onDirty={changeDirty} onSave={save} />
             {tab === "text" && <OriginalText detail={detail} />}
             {tab === "versions" && <VersionList detail={detail} />}
           </div><footer className={styles.materialFooter}><span>{dirty ? "有未保存修改" : detail.missing.length ? `${detail.missing.length} 项待补充` : "资料已齐全"}</span>{dirty ? <span>保存后可核对新版本</span> : <Link href={`/library/review/${detail.version_id}?dossier=${detail.id}`}>核对本版资料<Glyph name="arrow" size={16} /></Link>}</footer></> : <div className={styles.empty}><h2>资料内容</h2><p>题名、作者和原文会显示在这里。</p>{!loading && <button onClick={startNew}>新建资料</button>}</div>}
+          </div>
+          {sourcePreview && detail && <EvidencePanel snapshot={sourcePreview.snapshot} citation={sourcePreview.citation} currentVersionId={detail.version_id} onClose={() => { setSourcePreview(null); const trigger = citationTrigger.current; requestAnimationFrame(() => { if (trigger?.isConnected) trigger.focus({ preventScroll: true }); }); }} />}
         </section>
       </div>
     </div>

@@ -573,7 +573,7 @@ def test_database_cannot_rewrite_or_erase_version_and_check_evidence(client, log
 
 def test_complete_migration_chain_matches_all_metadata_and_empty_dossier_downgrade_is_safe():
     chain = list(reversed(list(migrations().walk_revisions(base="base", head="heads"))))
-    assert chain[-1].revision == "13f17cad5064"
+    assert chain[-1].revision == "14a28dbe6175"
     dossier_tables = {
         Dossier.__tablename__,
         DossierVersion.__tablename__,
@@ -588,14 +588,24 @@ def test_complete_migration_chain_matches_all_metadata_and_empty_dossier_downgra
             connection.execute(text(f'SET LOCAL search_path TO "{schema}"'))
             context = MigrationContext.configure(connection)
             with Operations.context(context):
-                for revision in chain[:-1]:
+                for revision in chain[:-2]:
                     revision.module.upgrade()
                 prior_tables = set(inspect(connection).get_table_names())
-                assert prior_tables == set(Base.metadata.tables) - dossier_tables
+                assert prior_tables == set(Base.metadata.tables) - dossier_tables - {
+                    "publishing_dossier_answers"
+                }
+                chain[-2].module.upgrade()
+                assert set(inspect(connection).get_table_names()) == set(Base.metadata.tables) - {
+                    "publishing_dossier_answers"
+                }
                 chain[-1].module.upgrade()
                 assert set(inspect(connection).get_table_names()) == set(Base.metadata.tables)
                 assert compare_metadata(context, Base.metadata) == []
                 chain[-1].module.downgrade()
+                assert set(inspect(connection).get_table_names()) == set(Base.metadata.tables) - {
+                    "publishing_dossier_answers"
+                }
+                chain[-2].module.downgrade()
                 assert set(inspect(connection).get_table_names()) == prior_tables
                 assert not dossier_tables & set(inspect(connection).get_table_names())
         finally:

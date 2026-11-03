@@ -26,11 +26,14 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB, insert
 from sqlalchemy.orm import Mapped, Session, mapped_column
 
+from packages.model_gateway.editorial import editorial_model_status
+
 from ..audit import record
 from ..db import get_db
 from ..models import Base, now, uid
 from ..security import Actor, get_actor
 from .core import digest, ensure_actor, run_action
+from .dossier_chat_models import DossierAnswer
 from .files import FileValidationError, read_bytes, store_bytes, validate_upload
 from .models import FileObject
 from .schemas import AuthorInput, Keyword, StrictInput, _email_format_valid
@@ -309,11 +312,12 @@ def snapshot_digest(data: dict, blob_hash: str | None, filename: str | None, med
 
 def turn_projection(db: Session, turn: DossierTurn):
     item = db.get(DossierVersion, turn.version_id)
+    answer = db.get(DossierAnswer, turn.id)
     return {
+        **(answer.result_json if answer else {"provider": "rules"}),
         "id": turn.id,
         "question": turn.question,
         "answer": turn.answer,
-        "provider": "rules",
         "version_id": turn.version_id,
         "version_no": item.version_no,
     }
@@ -339,6 +343,7 @@ def projection(db: Session, actor: Actor, dossier_id: str, version_id: str | Non
         .order_by(DossierTurn.created_at.desc(), DossierTurn.id.desc())
         .limit(50)
     ).all()
+    status = editorial_model_status()
     return {
         "id": row.id,
         "revision": row.revision,
@@ -373,6 +378,11 @@ def projection(db: Session, actor: Actor, dossier_id: str, version_id: str | Non
             for v in versions
         ],
         "messages": [turn_projection(db, t) for t in reversed(turns)],
+        "model": {
+            "provider": status["provider"],
+            "model": status["model"],
+            "ready": status["available"],
+        },
     }
 
 

@@ -1,0 +1,12 @@
+{
+  "date": "2026-11-03",
+  "executor": "native Codex subagents with disjoint file scopes",
+  "main_model_configuration_changed": false,
+  "tasks": [
+    {"task":"dossier_external_sources","scope":"Crossref adapter/protocol tests, official-source research, spec014 and exact migration mapping","status":"delivered","rework":"malformed HTML parser assertion handled; old AST positions mechanically refreshed; current production evidence bound to actually executed combined JUnit","tokens":null,"api_cost":null,"elapsed_seconds":null},
+    {"task":"dossier_live_ui","scope":"library grounded message/citation UI and browser tests","status":"delivered","rework":"preserved dirty form during historical citation preview; readonly boundary, metadata-only coverage and hidden clarification questions corrected","tokens":null,"api_cost":null,"elapsed_seconds":null},
+    {"task":"dossier_grounded_tests","scope":"independent real-DB regression and readonly backend review","status":"delivered","rework":"review prompted byte-budget guard, partial-coverage claims restriction, exclusion of credentials in legacy question history, and bounded strict-schema correction after actual supplier evidence","tokens":null,"api_cost":null,"elapsed_seconds":null}
+  ],
+  "delivered_task_ratio": "3/3",
+  "measurement_limits": "Native agent tool does not expose token use, billed cost or per-task wall duration. null means unavailable, not zero. Live DeepSeek request metrics are measured separately by acceptance reports; token and cost fields never inferred from a model's prose."
+}

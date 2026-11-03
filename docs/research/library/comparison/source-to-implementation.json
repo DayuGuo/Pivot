@@ -5747,6 +5747,27 @@
           "entity_type": "source"
         }
       ]
+    },
+    {
+      "id": "DB23",
+      "targets": [
+        "DossierAnswer"
+      ],
+      "adopted": "在13f不可变版本/对话上追加只读模型证据快照，精确绑定每条结论的本轮已发放原文/字段和coverage；外部DOI仅作独立书目元数据来源。",
+      "rejected": "不以模型Answer代替DossierCheck/负责人确认，不把HTTP200/DOI存在/精确引文升级为科学结论或ORCID身份认证，不让模型挑选业务权限、任意URL、期刊或他人资料。",
+      "intended_acceptance": "逐字quote及版本/文件SHA复验，外部DOI来源allowlist，部分阅读明确标记；失败不静默Mock，撤权/并发修改不落旧回答，所有邮件与关键决定保持既有人类关口。实际验收见PROGRESS。",
+      "source_refs": [
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+          "entity_type": "source"
+        },
+        {
+          "system": "janeway",
+          "source_id": "submission-model-fields.txt",
+          "entity_type": "source"
+        }
+      ]
     }
   ],
   "source_limitations": [
@@ -9511,53 +9532,53 @@
       },
       "source_binding": {
         "path": "apps/api/publishing/domain/dossiers.py",
-        "class_line": 39,
+        "class_line": 42,
         "fields": [
           {
             "name": "id",
-            "line": 57,
+            "line": 60,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
           },
           {
             "name": "journal_id",
-            "line": 58,
+            "line": 61,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('journals.id'))"
           },
           {
             "name": "created_by",
-            "line": 59,
+            "line": 62,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
           },
           {
             "name": "revision",
-            "line": 60,
+            "line": 63,
             "annotation": "Mapped[int]",
             "declaration": "mapped_column(Integer)"
           },
           {
             "name": "current_version_id",
-            "line": 61,
+            "line": 64,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "created_at",
-            "line": 62,
+            "line": 65,
             "annotation": "Mapped[datetime]",
             "declaration": "mapped_column(DateTime(timezone=True), default=now)"
           },
           {
             "name": "updated_at",
-            "line": 63,
+            "line": 66,
             "annotation": "Mapped[datetime]",
             "declaration": "mapped_column(DateTime(timezone=True), default=now)"
           }
         ],
         "table_args": {
-          "line": 41,
+          "line": 44,
           "declaration": "(UniqueConstraint('id', 'journal_id', name='uq_dossier_tenant'), CheckConstraint('revision >= 1', name='ck_dossier_revision'), ForeignKeyConstraint(['current_version_id', 'id', 'journal_id'], ['publishing_dossier_versions.id', 'publishing_dossier_versions.dossier_id', 'publishing_dossier_versions.journal_id'], name='fk_dossier_current', use_alter=True, deferrable=True, initially='DEFERRED'))"
         }
       },
@@ -9654,77 +9675,77 @@
       },
       "source_binding": {
         "path": "apps/api/publishing/domain/dossiers.py",
-        "class_line": 66,
+        "class_line": 69,
         "fields": [
           {
             "name": "id",
-            "line": 83,
+            "line": 86,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
           },
           {
             "name": "dossier_id",
-            "line": 84,
+            "line": 87,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "journal_id",
-            "line": 85,
+            "line": 88,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "version_no",
-            "line": 86,
+            "line": 89,
             "annotation": "Mapped[int]",
             "declaration": "mapped_column(Integer)"
           },
           {
             "name": "data_json",
-            "line": 87,
+            "line": 90,
             "annotation": "Mapped[dict]",
             "declaration": "mapped_column(JSONB)"
           },
           {
             "name": "file_object_id",
-            "line": 88,
+            "line": 91,
             "annotation": "Mapped[str | None]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "file_name",
-            "line": 89,
+            "line": 92,
             "annotation": "Mapped[str | None]",
             "declaration": "mapped_column(String(255))"
           },
           {
             "name": "file_media_type",
-            "line": 90,
+            "line": 93,
             "annotation": "Mapped[str | None]",
             "declaration": "mapped_column(String(100))"
           },
           {
             "name": "content_digest",
-            "line": 91,
+            "line": 94,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(64))"
           },
           {
             "name": "created_by",
-            "line": 92,
+            "line": 95,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
           },
           {
             "name": "created_at",
-            "line": 93,
+            "line": 96,
             "annotation": "Mapped[datetime]",
             "declaration": "mapped_column(DateTime(timezone=True), default=now)"
           }
         ],
         "table_args": {
-          "line": 68,
+          "line": 71,
           "declaration": "(UniqueConstraint('id', 'dossier_id', 'journal_id', name='uq_dossier_version_tenant'), UniqueConstraint('dossier_id', 'version_no', name='uq_dossier_version_number'), ForeignKeyConstraint(['dossier_id', 'journal_id'], ['publishing_dossiers.id', 'publishing_dossiers.journal_id'], name='fk_dossier_version_parent'), ForeignKeyConstraint(['file_object_id', 'journal_id'], ['publishing_file_objects.id', 'publishing_file_objects.journal_id'], name='fk_dossier_version_file'), CheckConstraint('version_no >= 1', name='ck_dossier_version_number'))"
         }
       },
@@ -9821,59 +9842,59 @@
       },
       "source_binding": {
         "path": "apps/api/publishing/domain/dossiers.py",
-        "class_line": 96,
+        "class_line": 99,
         "fields": [
           {
             "name": "id",
-            "line": 110,
+            "line": 113,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
           },
           {
             "name": "dossier_id",
-            "line": 111,
+            "line": 114,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "journal_id",
-            "line": 112,
+            "line": 115,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "version_id",
-            "line": 113,
+            "line": 116,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "content_digest",
-            "line": 114,
+            "line": 117,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(64))"
           },
           {
             "name": "checked_by",
-            "line": 115,
+            "line": 118,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
           },
           {
             "name": "session_hash",
-            "line": 116,
+            "line": 119,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(64))"
           },
           {
             "name": "checked_at",
-            "line": 117,
+            "line": 120,
             "annotation": "Mapped[datetime]",
             "declaration": "mapped_column(DateTime(timezone=True), default=now)"
           }
         ],
         "table_args": {
-          "line": 98,
+          "line": 101,
           "declaration": "(ForeignKeyConstraint(['version_id', 'dossier_id', 'journal_id'], ['publishing_dossier_versions.id', 'publishing_dossier_versions.dossier_id', 'publishing_dossier_versions.journal_id'], name='fk_dossier_check_version'), UniqueConstraint('version_id', name='uq_dossier_checked_version'))"
         }
       },
@@ -9964,59 +9985,59 @@
       },
       "source_binding": {
         "path": "apps/api/publishing/domain/dossiers.py",
-        "class_line": 120,
+        "class_line": 123,
         "fields": [
           {
             "name": "id",
-            "line": 133,
+            "line": 136,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
           },
           {
             "name": "dossier_id",
-            "line": 134,
+            "line": 137,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "journal_id",
-            "line": 135,
+            "line": 138,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "version_id",
-            "line": 136,
+            "line": 139,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "user_id",
-            "line": 137,
+            "line": 140,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
           },
           {
             "name": "question",
-            "line": 138,
+            "line": 141,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(2000))"
           },
           {
             "name": "answer",
-            "line": 139,
+            "line": 142,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(6000))"
           },
           {
             "name": "created_at",
-            "line": 140,
+            "line": 143,
             "annotation": "Mapped[datetime]",
             "declaration": "mapped_column(DateTime(timezone=True), default=now)"
           }
         ],
         "table_args": {
-          "line": 122,
+          "line": 125,
           "declaration": "(ForeignKeyConstraint(['version_id', 'dossier_id', 'journal_id'], ['publishing_dossier_versions.id', 'publishing_dossier_versions.dossier_id', 'publishing_dossier_versions.journal_id'], name='fk_dossier_turn_version'),)"
         }
       },
@@ -10037,6 +10058,131 @@
             "fk_dossier_turn_version"
           ],
           "scope": "自有内部资料准备的同包同刊/版本唯一/当前指针约束；运行结果见PROGRESS"
+        }
+      ]
+    },
+    {
+      "class": "DossierAnswer",
+      "module": "apps/api/publishing/domain/dossier_chat_models.py",
+      "table": "publishing_dossier_answers",
+      "contract_source": "specs/014-grounded-dossier-review.md",
+      "slice": "grounded_private_dossier_review",
+      "implementation_status": "implemented",
+      "migration_id": "14a28dbe6175",
+      "migration_status": "static_source_binding_only_runtime_verification_recorded_by_lead_in_PROGRESS",
+      "field_groups": [
+        {
+          "our_fields": [
+            "id",
+            "dossier_id",
+            "journal_id",
+            "version_id",
+            "result_json",
+            "created_at"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+              "entity_type": "source"
+            },
+            {
+              "system": "janeway",
+              "source_id": "submission-model-fields.txt",
+              "entity_type": "source"
+            }
+          ],
+          "origin": "project_governance",
+          "adaptation": "新增只读模型结果/逐字证据/阅读覆盖快照，复用13f私有版本与对话；模型Answer独立于负责人的DossierCheck。OJS/Janeway仅作身份、版本及出版事实分离的比较，不声称上游有同名LLM结果表或同等引用/权限保证。",
+          "migration_id": "14a28dbe6175"
+        }
+      ],
+      "our_fields": [
+        "id",
+        "dossier_id",
+        "journal_id",
+        "version_id",
+        "result_json",
+        "created_at"
+      ],
+      "constraints": [
+        {
+          "rule": "与既有Turn一一对应；同包同刊版本三列FK；有界dossier_answer.v1 JSONB保留claims/coverage/provider，DB guard绑定当前版本和实际角色，历史不可修改/删除/TRUNCATE。逐字quote和CAS一致性由应用额外重验。",
+          "intended_acceptance": "未知source_id/改写quote/任意外部网址、旧版或撤权回答不能保存；新增Answer不创建人工核对或正式业务事实。静态来源绑定不代替运行测试。"
+        }
+      ],
+      "intended_acceptance": [
+        "spec014所列模型/引用/元数据/全文阅读覆盖、期刊/录入者/版本/字节/会话重验、供应商故障回滚、幂等与浏览器定位；实际运行由Lead记PROGRESS。",
+        "结果是模型辅助不是负责人确认；Crossref只核验DOI书目元数据，不等于读取全文、证明研究或认证ORCID。"
+      ],
+      "current_baseline": {
+        "system": "current-system",
+        "source_id": "apps/api/publishing/models.py",
+        "entity_type": "class",
+        "entity": "Manuscript"
+      },
+      "source_binding": {
+        "path": "apps/api/publishing/domain/dossier_chat_models.py",
+        "class_line": 12,
+        "fields": [
+          {
+            "name": "id",
+            "line": 34,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('publishing_dossier_turns.id'), primary_key=True)"
+          },
+          {
+            "name": "dossier_id",
+            "line": 37,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "journal_id",
+            "line": 38,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "version_id",
+            "line": 39,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "result_json",
+            "line": 40,
+            "annotation": "Mapped[dict]",
+            "declaration": "mapped_column(JSONB)"
+          },
+          {
+            "name": "created_at",
+            "line": 41,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True), default=now)"
+          }
+        ],
+        "table_args": {
+          "line": 14,
+          "declaration": "(ForeignKeyConstraint(['version_id', 'dossier_id', 'journal_id'], ['publishing_dossier_versions.id', 'publishing_dossier_versions.dossier_id', 'publishing_dossier_versions.journal_id'], name='fk_dossier_answer_version'), CheckConstraint(\"COALESCE(jsonb_typeof(result_json)='object' AND result_json->>'schema'='dossier_answer.v1' AND result_json->>'provider' IN ('mock','deepseek') AND jsonb_typeof(result_json->'claims')='array' AND jsonb_typeof(result_json->'coverage')='object', false) AND octet_length(result_json::text)<=131072\", name='ck_dossier_answer_result'))"
+        }
+      },
+      "field_revision_bindings": {
+        "id": "14a28dbe6175",
+        "dossier_id": "14a28dbe6175",
+        "journal_id": "14a28dbe6175",
+        "version_id": "14a28dbe6175",
+        "result_json": "14a28dbe6175",
+        "created_at": "14a28dbe6175"
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "14a28dbe6175",
+          "names": [
+            "fk_dossier_answer_version",
+            "ck_dossier_answer_result"
+          ],
+          "scope": "自有资料模型审阅的同包同刊版本及有界JSONB结果合同；不将模型结果升级为人类核对/正式出版决定，运行结果见PROGRESS"
         }
       ]
     }
@@ -10111,6 +10257,15 @@
         "DossierVersion": "publishing_dossier_versions",
         "DossierCheck": "publishing_dossier_checks",
         "DossierTurn": "publishing_dossier_turns"
+      },
+      "extended_fields": {},
+      "extended_constraints": {}
+    },
+    {
+      "path": "specs/014-grounded-dossier-review.md",
+      "migration_id": "14a28dbe6175",
+      "new_models": {
+        "DossierAnswer": "publishing_dossier_answers"
       },
       "extended_fields": {},
       "extended_constraints": {}
@@ -10353,6 +10508,32 @@
           "function": "publishing_dossier_immutable"
         }
       ]
+    },
+    {
+      "revision": "14a28dbe6175",
+      "down_revision": "13f17cad5064",
+      "path": "infrastructure/migrations/versions/14a28dbe6175_dossier_grounded_answers.py",
+      "sha256": "70736e58c8c31d566e67bd8c5cce049bd26e164a38d87776725832321465717d",
+      "validation_scope": "Static migration/field/constraint/function binding only. Lead records actual database, browser and real-provider validation in PROGRESS.md; this mapping is not execution evidence.",
+      "sql_functions": [
+        "publishing_dossier_answer_guard"
+      ],
+      "deferred_triggers": [],
+      "row_triggers": [],
+      "truncate_triggers": [
+        {
+          "name": "dossier_answer_truncate",
+          "table": "publishing_dossier_answers",
+          "function": "publishing_dossier_immutable"
+        }
+      ],
+      "sql_function_fingerprints": [
+        {
+          "name": "publishing_dossier_answer_guard",
+          "normalization": "strip_and_create_or_replace",
+          "sha256": "2d8c4958f41726d51e1a026f4524a6815186408feaeafb8fd9b25b912f7eb3c7"
+        }
+      ]
     }
   ],
   "implementation_helper_bindings": [
@@ -10383,18 +10564,18 @@
       "date": "2026-11-03",
       "suite": "tests/api/test_production_models.py",
       "observed_passed": 53,
-      "elapsed_seconds": 34.96,
+      "elapsed_seconds": 36.638,
       "warnings": [
         "existing Starlette/httpx deprecation"
       ],
-      "scope": "isolated immutable production contracts and complete-head metadata including 13f dossier migration; historical F fixture remains unchanged; not browser or full Goal acceptance",
+      "scope": "isolated immutable production contracts and complete-head metadata including 14a grounded dossier answers; this XML jointly records 53 production-model and 28 intake cases (81 total), not 81 production cases; not browser or real-model or full Goal acceptance",
       "public_database_modified_by_component_agent": false,
-      "evidence_report": "artifacts/dossier-production-regression.xml",
-      "report_sha256": "a58ba45eecf7b9aa1b5ace8eba51a1b1b74e7a39f557d19635c1407f94e2bd2b",
+      "evidence_report": "artifacts/grounded-migration-regression.xml",
+      "report_sha256": "4314318281f1a16e18617925306eb31c91a01987077f0feba8e05be22a0d3697",
       "report_availability": "ephemeral observed JUnit; recorded hash, not required by offline gate",
       "token_usage": null,
       "api_cost": null,
-      "suite_sha256": "55620739c439b4140b51866364c761b381d09616605312474fcca571a9525192",
+      "suite_sha256": "f4817405e19c564a8d4ad97e411b4a758f10e450c57ae0a1794e324e09956e26",
       "migration_id": "12e06b9c4f53",
       "required_test_functions": [
         "test_complete_chain_metadata_has_zero_drift",
@@ -10413,7 +10594,7 @@
         "test_production_db_conflict_checks_historical_author_email",
         "test_f_confirmation_must_bind_exact_current_workflow"
       ],
-      "reproducible_command": "DATABASE_URL=<isolated-test-db> PYTHONPATH=. .venv/bin/pytest tests/api/test_production_models.py -q --junitxml=<local-report>",
+      "reproducible_command": "DATABASE_URL=<isolated-test-db> PYTHONPATH=. .venv/bin/pytest tests/api/test_production_models.py tests/api/test_dossiers.py -q --junitxml=<local-report>",
       "verification_policy": "offline gate checks suite source hash/functions and declared observed report metadata; it does not execute or claim to reverify PostgreSQL tests",
       "previous_observation": {
         "date": "2026-11-03",
@@ -10421,6 +10602,57 @@
         "elapsed_seconds": 37.1,
         "suite_sha256": "e13ceee2ee15e796179d3831d6e4d96d5f2e3c29438fbd656a1104d174ef7d11",
         "report_sha256": "886412120ee6e380c3768958be85f91f636573826c31bb0881b48571e86c1fe8"
+      },
+      "prior_observations": [
+        {
+          "date": "2026-11-03",
+          "suite": "tests/api/test_production_models.py",
+          "observed_passed": 53,
+          "elapsed_seconds": 34.96,
+          "warnings": [
+            "existing Starlette/httpx deprecation"
+          ],
+          "scope": "isolated immutable production contracts and complete-head metadata including 13f dossier migration; historical F fixture remains unchanged; not browser or full Goal acceptance",
+          "public_database_modified_by_component_agent": false,
+          "evidence_report": "artifacts/dossier-production-regression.xml",
+          "report_sha256": "a58ba45eecf7b9aa1b5ace8eba51a1b1b74e7a39f557d19635c1407f94e2bd2b",
+          "report_availability": "ephemeral observed JUnit; recorded hash, not required by offline gate",
+          "token_usage": null,
+          "api_cost": null,
+          "suite_sha256": "55620739c439b4140b51866364c761b381d09616605312474fcca571a9525192",
+          "migration_id": "12e06b9c4f53",
+          "required_test_functions": [
+            "test_complete_chain_metadata_has_zero_drift",
+            "test_approved_local_preview_binds_same_immutable_package",
+            "test_corrections_allow_restore_older_bytes_not_same_previous",
+            "test_send_requires_exact_snapshot_and_declarations",
+            "test_proof_requires_local_same_journal_validated_text",
+            "test_send_requires_actual_production_role_and_assignment",
+            "test_current_role_reassignment_is_permitted_without_old_accept_person_binding",
+            "test_author_must_review_exact_package",
+            "test_package_only_one_author_response",
+            "test_new_package_requires_exact_returned_predecessor",
+            "test_preview_requires_approved_unchanged_local_package",
+            "test_all_production_history_is_immutable",
+            "test_downgrade_refuses_actual_proof_history",
+            "test_production_db_conflict_checks_historical_author_email",
+            "test_f_confirmation_must_bind_exact_current_workflow"
+          ],
+          "reproducible_command": "DATABASE_URL=<isolated-test-db> PYTHONPATH=. .venv/bin/pytest tests/api/test_production_models.py -q --junitxml=<local-report>",
+          "verification_policy": "offline gate checks suite source hash/functions and declared observed report metadata; it does not execute or claim to reverify PostgreSQL tests",
+          "previous_observation": {
+            "date": "2026-11-03",
+            "observed_passed": 53,
+            "elapsed_seconds": 37.1,
+            "suite_sha256": "e13ceee2ee15e796179d3831d6e4d96d5f2e3c29438fbd656a1104d174ef7d11",
+            "report_sha256": "886412120ee6e380c3768958be85f91f636573826c31bb0881b48571e86c1fe8"
+          }
+        }
+      ],
+      "elapsed_basis": "sum of the 53 JUnit testcase time attributes with classname=tests.api.test_production_models; not a standalone wall-clock duration",
+      "report_suite_counts": {
+        "tests.api.test_production_models": 53,
+        "tests.api.test_dossiers": 28
       }
     }
   ]

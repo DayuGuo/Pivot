@@ -1,5 +1,21 @@
 # 开发状态
 
+## 最新增量：2026-11-03，资料区真实DeepSeek与逐字证据已验收
+
+spec014已落地并更新本机`/library`：以当前保存版本的全文/作者信息为范围，通过read_dossier/search_dossier/lookup_reference/respond四个只读工具生成结论；每条claim至少有一条后端逐字校验的本轮来源引用，可点击定位原文行/作者字段，Unicode码点、版本digest与原文件SHA256均复核。长稿完整索引、有限读取，明确显示实际覆盖；未完整覆盖拒绝明确虚假的“已通读”句，无全文只按元数据回答。结论仍须人工复核，不把准确引用当作科学结论已被证实。
+
+**最终scripts/verify.sh退出0：996 Pytest（387.65秒）＋59 Playwright（1.8m）**。研究映射/架构边界、Ruff/ESLint/TypeScript、完整迁移与结构检查、前后端构建通过，证据artifacts/grounded-full-verify-final.log。新增51项chat、82项外部协议；旧历史迁移范围按新表适配，最新完整Base结构不排除任何表。DossierAnswer与人类DossierCheck分开，数据库防嫁接/UPDATE/DELETE/TRUNCATE，有历史拒绝回退。
+
+**真实DeepSeek API 4/4（3.228/6.369/6.717/2.989秒）**：全文+作者/贡献、真实Crossref DOI书目、危险操作不改变状态、新版本36条替换旧24条；逐字引文、当前版本、幂等重放无重复推理、刷新恢复全部实际检查。邮件草稿/批准、编辑决定、人类确认及资料核对计数前后相等。入口实际走deepseek-flash，不是Mock，不读取主机密钥；使用全新合成资料，没有调用用户既有稿件做外发验收。报告artifacts/dossier-live-acceptance.json。
+
+**真实Chromium端到端通过**：输入问题→实际DeepSeek→响应→点击引用精确高亮→刷新→真实DOI链接保留，375px无横向溢出、页面错误0、确认/发信/决定请求0。报告artifacts/dossier-live-browser.json及桌面/手机截图。随后实际重启本机API/Web，同一登录会话恢复7条成功回合、完整作者/原文件/版本和全部引文逐项相等；provider仍deepseek，当前v3仍未人工核对。报告artifacts/dossier-live-restart.json。
+
+首轮完整离线993+59通过后，真实首轮2次模型HTTP正常但终答参数未过校验，业务全部回滚；新增已读来源后的终答参数纠正最多1次，仍限3轮/8工具，最终完整校验不放宽。后续实测观察到citations过多/结论文本带URL，纠正后成功；51专项和最终全量覆盖该行为。安全诊断仅已知字段路径/固定类型，不含input/原始供应商输出。历史旧规则问题中的疑似密钥被排除，全部待发上下文再次检查。畸形Crossref HTML安全转unavailable。
+
+真实遥测包含初次失败和浏览器脚本重复定位检查造成的全部调用：18个provider attempts均HTTP成功，业务成功回合7、失败回合1，输入38,724/输出3,667 tokens，2次工具参数纠正；费用未知为null，未把成功HTTP冒称成功业务，也不宣称实际发生过供应商503恢复。浏览器脚本曾修正同名引用按钮与重复DOI链接的选择器，追加模型回合已计入统计。artifacts/dossier-live-telemetry-summary.json；原生委派Token/费用不可获得见docs/development/dossier-grounded-delegation.json。
+
+本机已安全更新且保持原DeepSeek模型环境，主Codex全局模型/认证配置未改，EMAIL_SEND_ENABLED=false。公网静态Demo未更新，不部署VPS。README/架构/安全/ADR-024/spec014及docs/development/dossier-grounded-review.md与实际行为同步。外部目前仅对资料或问题已提供的DOI做Crossref书目匹配，不读取外部全文、不做全网检索或ORCID认证；真实验收为合成短稿，长稿检索/预算/权限由自动测试覆盖。下一步为多样化公开稿件评测和人工反馈、外部全文授权/版本证据；正式受控试点仍须专业工程师复核。
+
 ## 最新增量：2026-11-03，真实内部审阅资料包已本地验收
 
 用户同意先试第一切片，合同见spec013。`/library`提供左侧私有资料、中心规则对话、右侧完整录入/原文/版本；独立核对位于`/library/review/[versionId]?dossier=...`。四张真实PostgreSQL表保存全文CAS引用、有序作者/机构/通讯邮箱/ORCID/贡献/来源快照、不可变版本与人工核对、规则回合；复用登录、Action Gateway与审计。仅录入者且当前仍为本刊editor/chief_editor可访问，主编无默认全局权限；不创建正式稿件、不改author_draft，不冒充已认证ORCID。

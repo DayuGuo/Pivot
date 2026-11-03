@@ -1,5 +1,15 @@
 # 架构
 
+## 版本证据问答（spec014）
+
+`dossier_chat.py`复用现有DeepSeek传输、60秒共享期限和一次仅推理重试；资料区模型工具仅为read_dossier、search_dossier、lookup_reference和respond，不注册编辑动作或人类确认。`dossier_evidence.py`扫描当前版全部实际正文与作者元数据，按Unicode码点建立有界分段；分页读取/全文检索返回本轮可引用source集合。每条claim至少引用一个已发放来源，quote必须逐字匹配；引用保留版本、digest、原文件SHA256、行号/字段路径和码点范围。长文只传必要片段，实际覆盖明确返回，不能从局部检索声称全文无其他问题。
+
+`packages/review_sources.py`只向固定Crossref HTTPS端点查询本版材料或问题提供的DOI，不接收自由URL或检索全文/邮箱。精确DOI匹配后生成规范doi.org链接和书目记录，状态为verified_metadata，范围bibliographic_metadata_only。超时、不匹配、未找到等不会生成“已核验”链接；未取得外部全文。
+
+追加式DossierAnswer与DossierTurn同ID，复合外键和插入触发器确保资料/期刊/版本一致；result_json冻结模型身份、结构化结论、逐字引用、外部记录、覆盖与脱敏遥测。它不创建DossierCheck，不能代替负责人声明。原规则历史无Answer，继续显示rules。数据库禁止Answer UPDATE/DELETE/TRUNCATE，有历史不允许迁移回退。14a迁移不改写旧消息。
+
+模型网络等待期间只持幂等请求锁，不持资料写锁；工具/回包后重验原授权和revision，最终锁资料再复核CAS字节及完整digest。过期、换版、撤权或证据不合法均不保存结论/回执；成功保存后刷新可恢复完整引用。输入材料与历史中的疑似密钥不得进入模型上下文。引文的准确定位不是科学正确性或语义蕴含证明，结论仍由编辑复核。
+
 ## 内部审阅资料包（spec013）
 
 `domain/dossiers.py`作为准备材料边界复用登录、Action Gateway与私有CAS。Dossier记录期刊、录入者、当前版与乐观锁修订；DossierVersion保存有序作者/机构/来源JSON快照和实际文件引用、原文件名、内容digest；DossierCheck绑定人工核对者、登录会话摘要及确切不可变版本；DossierTurn保存该版的规则问答。四表不创建Manuscript/SubmissionWorkflow，也不放宽author_draft权限。将来转为正式投稿必须另立明确映射与授权合同。

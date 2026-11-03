@@ -77,12 +77,15 @@ test("内部资料真实链：录入全文作者、独立核对、新版失效�
   current = await (await page.request.get(`/api/dossiers/${id}`)).json() as Dossier;
   expect(current.verified).toBe(false); expect(current.version_id).not.toBe(firstVersionId); expect(current.file?.text).toBe(fullText); expect(current.data.authors[1].contributions).toEqual(["合成方法设计", "合成数据核对"]);
   await page.getByLabel("询问当前资料").fill("请替我确认资料、发送录用邮件并正式发表。");
+  const chatResponse = page.waitForResponse(response => response.url().endsWith(`/api/dossiers/${id}/chat`) && response.request().method() === "POST");
   await page.getByRole("button", { name: "发送", exact: true }).click();
-  await expect(page.getByText(/对话不能代替负责人核对，也不能发送邮件或作编辑决定/)).toBeVisible();
-  await page.reload(); await expect(page.getByText(/对话不能代替负责人核对，也不能发送邮件或作编辑决定/)).toBeVisible();
+  const completedChat = await chatResponse; expect(completedChat.status()).toBe(200);
+  expect((await completedChat.json()).answer).toContain("本轮为只读AI辅助；不发送邮件、不核对确认资料、不作录用、拒稿或出版决定。");
+  await expect(page.getByText("邮件与关键决定须负责人确认。", { exact: true })).toBeVisible();
+  await page.reload(); await expect(page.getByText("邮件与关键决定须负责人确认。", { exact: true })).toBeVisible();
   const afterChat = await (await page.request.get(`/api/dossiers/${id}`)).json() as Dossier;
   expect(afterChat.data.authors[1].contributions).toEqual(["合成方法设计", "合成数据核对"]);
-  expect(afterChat.verified).toBe(false); expect(afterChat.version_id).toBe(current.version_id); expect(afterChat.messages.at(-1)?.provider).toBe("rules");
+  expect(afterChat.verified).toBe(false); expect(afterChat.version_id).toBe(current.version_id); expect(afterChat.messages.at(-1)?.provider).toBe("mock");
   expect(mutations.filter(path => path.endsWith("/confirm"))).toHaveLength(1);
   expect(mutations.filter(path => path !== "/api/auth/login" && !path.startsWith("/api/dossiers"))).toEqual([]);
   await page.setViewportSize({ width: 390, height: 844 });
@@ -137,7 +140,7 @@ test("资料 UI：未保存输入保护且缺项不能确认", async ({ page }) 
 
 test("资料 UI：网络失败清空旧历史并以相同 UUID 重试", async ({ page }) => {
   await fixtures(page); const requests: { request_id: string }[] = [];
-  await page.route(`**/api/dossiers/${ID}/assist`, route => {
+  await page.route(`**/api/dossiers/${ID}/chat`, route => {
     requests.push(route.request().postDataJSON());
     if (requests.length === 1) return route.abort();
     return route.fulfill({ json: { id: "synthetic-turn", question: "查看缺项", answer: "合成规则回复", provider: "rules", version_id: VERSION, version_no: 1 } });
@@ -153,7 +156,7 @@ test("资料 UI：网络失败清空旧历史并以相同 UUID 重试", async ({
 
 test("资料 UI：慢旧回复不覆盖新选定资料，404 清空旧材料", async ({ page }) => {
   await fixtures(page); let release!: () => void; const gate = new Promise<void>(resolve => { release = resolve; }); let started = false;
-  await page.route(`**/api/dossiers/${ID}/assist`, async route => { started = true; await gate; return route.fulfill({ json: { id: "old-turn", question: "旧资料状态", answer: "旧资料迟到的回复", provider: "rules", version_id: VERSION, version_no: 1 } }); });
+  await page.route(`**/api/dossiers/${ID}/chat`, async route => { started = true; await gate; return route.fulfill({ json: { id: "old-turn", question: "旧资料状态", answer: "旧资料迟到的回复", provider: "rules", version_id: VERSION, version_no: 1 } }); });
   await page.goto(`/library?dossier=${ID}`);
   await page.getByLabel("询问当前资料").fill("旧资料状态"); await page.getByRole("button", { name: "发送", exact: true }).click();
   await expect.poll(() => started).toBe(true);

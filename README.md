@@ -12,7 +12,7 @@
 
 打开 [内部审阅资料](http://localhost:3100/library)，未登录时先用 `editor@publishing.test` / `EditorDemo2026!` 登录，再从“内部审阅资料”进入。上传合成或授权公开的完整 TXT/Markdown（UTF-8、≤1 MiB），填写摘要、有序作者/机构/通讯邮箱与来源，保存后进入独立核对页逐项检查并确认。修改后创建新版本，当前版必须重新核对；刷新和重启可恢复。
 
-这是本地真实 PostgreSQL/CAS 资料功能，与公网静态 Demo 分开。资料对话目前为明确标记的规则引导，不做真实模型科学审阅或联网核验。ORCID为手工录入、格式检查，不等于身份认证。权限、字段、验收与下一步见 [spec013](specs/013-internal-review-dossiers.md) 和 [交付记录](docs/development/internal-dossiers.md)。
+这是本地真实 PostgreSQL/CAS 资料功能，与公网静态 Demo 分开。资料对话沿服务端配置使用DeepSeek或明确标记的Mock，基于当前版本的全文/作者字段生成带逐字定位的审阅建议。外部引用目前仅核验资料或问题已给出的DOI书目元数据，不做全网检索或读取外部全文；结论仍须人工复核。ORCID为手工录入、格式检查，不等于身份认证。权限、字段、验收与下一步见 [spec013](specs/013-internal-review-dossiers.md) 、[基础交付记录](docs/development/internal-dossiers.md) 和 [真实问答](docs/development/dossier-grounded-review.md)。
 
 ## 先体验产品 Demo
 
