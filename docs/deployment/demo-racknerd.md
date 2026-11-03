@@ -1,5 +1,7 @@
 # 本机展示与 RackNerd 安装
 
+最新部署：用户已自行上线[Pivot Demo](https://pivot.anotherdayu.com/)，2026-11-03公开页面11项浏览器验收通过。以下未连接/未安装说明属于此前发行时的检查点，本轮没有SSH级服务器审查或配置修改。
+
 当前产品定名Pivot，交付独立静态Demo，不是生产投审稿平台。用户已授权公开发布到[DayuGuo/Pivot](https://github.com/DayuGuo/Pivot)，部署包放GitHub Releases；实际VPS仍未连接、安装或公网验收。机房`Test IP`不是安装目标。
 
 ## 直接使用Release安装包

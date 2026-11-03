@@ -1,5 +1,7 @@
 # Pivot
 
+当前公开展示地址：[pivot.anotherdayu.com](https://pivot.anotherdayu.com/)。由用户自行部署，已完成公开页面的11项浏览器回归；这是明确模拟与合成资料的Demo展示面，不据此宣称真实稿件数据库/模型/权限已部署至该域名。
+
 产品已于2026-11-03暂定名 **Pivot**（原Publishing OS）。用户已授权上传到本人公开GitHub仓库，并发布VPS展示包；未授权生产部署。内部Python包、数据库/缓存命名及既有Compose身份保持兼容。
 
 最新执行顺序：先交付[可安装的GitHub展示Demo](specs/012-showcase-demo.md)，本机演示与公开GitHub发行优先，不连接VPS。`./scripts/demo.sh`提供独立静态交互，合成稿件/日历/双层对话/资料编辑与来源展示；没有API、认证、模型或业务数据库。演示评审后再细化spec011真实单刊审阅；不能把本地浏览器状态当作后端权限/工作流。

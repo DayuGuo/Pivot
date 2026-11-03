@@ -1,5 +1,13 @@
 # 开发状态
 
+## 最新部署：2026-11-03，用户已上线公网Demo
+
+用户已自行完成部署：https://pivot.anotherdayu.com/ 。本轮未登录或修改VPS，仅对公开页面使用正常TLS校验的HTTP客户端和隔离Chromium验证。HTTPS返回200，标题Pivot · 产品演示；页面/资源错误0、脚本错误0，375px无横向溢出。
+
+现有Demo 11项浏览器回归在该公网域名实际全部通过（34.5秒）：会话切换与刷新、日历、作者/正文编辑、新稿录入、来源定位及变更失效、长正文保留、键盘/窄屏、HTML纯文本和危险请求边界。测试拦截全部业务API请求，实际API请求0；改动仅位于一次性浏览器的合成资料/localStorage，不写服务器业务数据。证据artifacts/pivot-public-site-e2e.log、pivot-public-site-smoke.json及桌面/窄屏截图。
+
+README和GitHub homepage同步在线入口。本轮没有应用代码修改或真实模型/邮件操作，不以网页可访问替代SSH级OS/容器/防火墙/备份/生产安全验收；下方VPS未实装等为前次发行时的历史状态。
+
 ## 最新交付：2026-11-03，Pivot公开仓库与VPS发行包
 
 按用户明确授权，项目定名 **Pivot**，源码已公开至https://github.com/DayuGuo/Pivot，首个预发行版https://github.com/DayuGuo/Pivot/releases/tag/v0.1.0-demo 已发布。4附件：完整amd64 VPS包（约34 MiB）、离线镜像、架构无关静态网页和SHA256。安装器核对平台/文件/已有容器/health，默认环回8080，可显式公网绑定；不安装OS组件或修改防火墙。界面/页签/README/归档改名，旧DB/缓存/Compose身份保留兼容。
