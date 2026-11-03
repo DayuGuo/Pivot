@@ -40,7 +40,7 @@ function Icon({ name, size = 18 }: { name: string; size?: number }) {
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name] || paths.file}</svg>;
 }
 function Brand({ small = false }: { small?: boolean }) {
-  return <div className={`brand ${small ? "brand-small" : ""}`} translate="no"><span>Publishing OS</span></div>;
+  return <div className={`brand ${small ? "brand-small" : ""}`} translate="no"><span>Pivot</span></div>;
 }
 function date(value: string) { return new Date(value).toLocaleString("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }); }
 function shortId(id: string) { return id.slice(0, 8).toUpperCase(); }

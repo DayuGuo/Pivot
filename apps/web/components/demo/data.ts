@@ -38,7 +38,7 @@ export function initialState(): DemoState {
         { id: "abstract", heading: "摘要", text: "本合成研究比较开放数据规范对研究可复现性的影响。在三个虚构研究中心的128项模拟任务中，记录数据整理、代码共享及结果复现情况，探索透明报告与复现结果之间的关系。" },
         { id: "methods", heading: "方法", text: "本研究在三个虚构中心构建128项模拟任务，按是否提供结构化元数据划分两组。两位研究人员独立尝试复现分析结果；发生分歧时共同复核。现有材料尚未列出任务纳入与排除标准，也未报告数据划分的随机种子。" },
         { id: "results", heading: "结果", text: "提供结构化元数据的64项任务中有51项完成复现，另一组64项中有38项完成复现。此处数据均为演示构造，不能作为科学证据，也不能从组间差异推断因果关系。" },
-        { id: "availability", heading: "数据与声明", text: "本文是 Publishing OS 的原创合成稿件。未上传研究数据、分析代码或伦理审批材料；作者利益冲突声明和贡献信息待补充。所有作者、机构与邮箱均为虚构示例。" },
+        { id: "availability", heading: "数据与声明", text: "本文是 Pivot 的原创合成稿件。未上传研究数据、分析代码或伦理审批材料；作者利益冲突声明和贡献信息待补充。所有作者、机构与邮箱均为虚构示例。" },
         { id: "references", heading: "参考文献", text: "Wilkinson, M. D. et al. The FAIR Guiding Principles for scientific data management and stewardship. Scientific Data 3, 160018 (2016). DOI: 10.1038/sdata.2016.18。该公开文献是参考资料，并非上述合成研究的验证。" },
       ] },
     { id: "POS-2026-0018", short: "城市热岛与绿色空间", title: "城市绿色空间对夏季热环境的影响：一项模拟观察研究", stage: "寻找审稿人", task: "准备审稿邀请草稿", due: due(1), authors: [{ name: "林清", email: "lin@example.test", affiliation: "示例大学 · 环境学院", orcid: "" }], abstract: "通过虚构城市的模拟观测展示稿件审阅流程，不报告真实研究结论。", paragraphs: [{ id: "abstract", heading: "摘要", text: "通过虚构城市的模拟观测展示稿件审阅流程，不报告真实研究结论。" }, { id: "methods", heading: "方法", text: "在20个合成观测点比较模拟温度。尚需补充采样时段和混杂因素说明。" }, { id: "availability", heading: "材料说明", text: "这是原创演示资料，没有真实研究参与者。尚未提供数据文件、作者ORCID或参考文献。" }] },

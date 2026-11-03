@@ -116,7 +116,7 @@ export default function DemoWorkspace() {
 
   function sidebar() {
     const visible = state.manuscripts.filter(m => (!dayFilter || m.due === dayFilter) && `${m.title} ${m.id}`.toLowerCase().includes(search.toLowerCase()));
-    return <><div className={s.brand}><span className={s.brandIcon}><Glyph name="layers" size={18}/></span>Publishing OS<button aria-label="演示说明" onClick={() => setPanel("about")}><Glyph name="settings" size={16}/></button></div>
+    return <><div className={s.brand}><span className={s.brandIcon}><Glyph name="layers" size={18}/></span>Pivot<button aria-label="演示说明" onClick={() => setPanel("about")}><Glyph name="settings" size={16}/></button></div>
       <div className={s.journal}>开放研究 · 演示期刊</div>
       <nav aria-label="工作导航"><button className={`${s.nav} ${!selected ? s.navActive : ""}`} onClick={() => choose("main")}><Glyph name="spark"/>主对话</button><button className={s.nav} onClick={() => setPanel("new")}><Glyph name="file"/>录入演示稿件</button></nav>
       <label className={s.search}><Glyph name="search" size={15}/><input name="manuscript-search" autoComplete="off" aria-label="搜索演示稿件" placeholder="搜索稿件…" value={search} onChange={e => setSearch(e.target.value)}/></label>
@@ -145,7 +145,7 @@ export default function DemoWorkspace() {
     </>;
   }
 
-  if (!ready) return <main className={s.loading}>正在打开 Publishing OS 演示…</main>;
+  if (!ready) return <main className={s.loading}>正在打开 Pivot 演示…</main>;
   return <div className={s.workspace}>
     <aside className={s.sidebar} aria-label="我的工作与日历">{sidebar()}</aside>
     <a href="#demo-message" className={s.skip}>跳到对话输入框</a>
@@ -153,7 +153,7 @@ export default function DemoWorkspace() {
       <header className={s.topbar}><button className={s.mobileTasks} aria-label="打开我的工作" onClick={() => setPanel("tasks")}><Glyph name="layers"/></button><span className={s.activeTitle}>{selected ? selected.short : "主对话"}</span><button className={s.demoTag} onClick={() => setPanel("about")}>交互演示</button><button className={s.mobileMaterial} onClick={() => setPanel("material")}><Glyph name="file" size={16}/>资料</button></header>
       <div className={s.transcript} ref={transcript} role="log" aria-label={selected ? `${selected.id}稿件对话` : "主对话记录"} aria-live="polite" aria-relevant="additions">
         <div className={s.threadHeading}><h1>{selected ? "一起读懂这篇稿件" : "从今天的工作开始"}</h1></div>
-        {messages.map((m: Message) => <article key={m.id} className={m.role === "user" ? s.userMessage : s.assistantMessage}><div className={s.messageAuthor}>{m.role === "user" ? "你" : <><Glyph name="spark" size={15}/>Publishing OS <span>模拟回答</span></>}</div><div className={s.messageText}>{m.text}</div>{!!m.sources?.length && <div className={s.citations}>{m.sources.map(c => <button key={c} onClick={() => { if(m.evidence?.[c === "external" ? "references" : c] !== selected?.paragraphs.find(p => p.id === (c === "external" ? "references" : c))?.text) {setNotice("这条历史回答引用的资料已修改，不能把当前正文当作原依据。请重新提问。"); return;} source(c); }}><Glyph name={c === "external" ? "search" : "file"} size={13}/>{c === "external" ? "公开文献" : selected?.paragraphs.find(p => p.id === c)?.heading || "原文"}</button>)}</div>}</article>)}
+        {messages.map((m: Message) => <article key={m.id} className={m.role === "user" ? s.userMessage : s.assistantMessage}><div className={s.messageAuthor}>{m.role === "user" ? "你" : <><Glyph name="spark" size={15}/>Pivot <span>模拟回答</span></>}</div><div className={s.messageText}>{m.text}</div>{!!m.sources?.length && <div className={s.citations}>{m.sources.map(c => <button key={c} onClick={() => { if(m.evidence?.[c === "external" ? "references" : c] !== selected?.paragraphs.find(p => p.id === (c === "external" ? "references" : c))?.text) {setNotice("这条历史回答引用的资料已修改，不能把当前正文当作原依据。请重新提问。"); return;} source(c); }}><Glyph name={c === "external" ? "search" : "file"} size={13}/>{c === "external" ? "公开文献" : selected?.paragraphs.find(p => p.id === c)?.heading || "原文"}</button>)}</div>}</article>)}
       </div>
       <div className={s.composerWrap}>{notice && <div className={s.notice} role="status"><span>{notice}</span><button aria-label="关闭提示" onClick={() => setNotice("")}><Glyph name="close" size={14}/></button></div>}{storageError && <p role="alert" className={s.notice}>浏览器无法保存演示资料。请允许本地存储或复制需要保留的文字；刷新可能丢失改动。</p>}
         <div className={s.suggestions}>{(selected ? ["概括这篇稿件","检查方法","核对作者信息","查看参考文献"] : ["今天有哪些工作？","下一步先处理什么？"]).map(q => <button key={q} onClick={() => send(q)}>{q}</button>)}</div>

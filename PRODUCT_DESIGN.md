@@ -1,4 +1,4 @@
-# Publishing OS 核心产品设计
+# Pivot 核心产品设计
 
 当前执行优先级（2026-11-03）：先按[spec012](specs/012-showcase-demo.md)交付本机/可安装的GitHub展示Demo，再细化[spec011](specs/011-single-journal-review-pilot.md)真实单刊资料审阅。演示的日历、双层对话和资料操作仅用明确合成数据，不等于下述完整权限/数据库能力上线。
 

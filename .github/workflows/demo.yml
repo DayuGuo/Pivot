@@ -23,26 +23,27 @@ jobs:
         run: E2E_BASE_URL=http://127.0.0.1:3110 DEMO_PATH=/ npm run test:e2e -- tests/e2e/demo.spec.ts
       - name: Package amd64 VPS image
         run: ./scripts/build-demo.sh --image
+      - name: Assemble VPS installation bundle
+        run: ./scripts/package-vps-demo.sh
       - name: Verify amd64 offline image on x86 runner
         run: |
-          docker load -i artifacts/publishing-os-demo-image-linux-amd64.tar.gz
-          docker run -d --name publishing-os-offline-demo-verification --platform linux/amd64 \
-            --label org.publishing-os.surface=offline-demo-verification \
-            --memory=128m --cpus=0.5 --read-only \
-            --tmpfs /var/cache/nginx --tmpfs /var/run --tmpfs /tmp \
-            -p 127.0.0.1:3112:80 publishing-os-demo:linux-amd64
-          curl --fail --retry 15 --retry-connrefused --retry-delay 1 http://127.0.0.1:3112/health
+          mkdir -p artifacts/vps-install-check
+          tar -xzf artifacts/pivot-vps-linux-amd64.tar.gz -C artifacts/vps-install-check
+          PIVOT_PORT=3112 bash artifacts/vps-install-check/pivot-demo-linux-amd64/install.sh
+          curl --fail http://127.0.0.1:3112/health
           E2E_BASE_URL=http://127.0.0.1:3112 DEMO_PATH=/ npm run test:e2e -- tests/e2e/demo.spec.ts
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: static-demo-and-evidence
           path: |
-            artifacts/publishing-os-demo-static.tar.gz
-            artifacts/publishing-os-demo-image-linux-amd64.tar.gz
+            artifacts/pivot-demo-static.tar.gz
+            artifacts/pivot-demo-image-linux-amd64.tar.gz
+            artifacts/pivot-vps-linux-amd64.tar.gz
+            artifacts/pivot-demo-SHA256SUMS
             artifacts/static-demo-playwright-report/
             artifacts/static-demo-playwright-results/
       - if: always()
         run: |
           ./scripts/demo.sh stop
-          docker ps -aq --filter label=org.publishing-os.surface=offline-demo-verification | xargs -r docker rm -f
+          docker ps -aq --filter label=org.pivot.surface=demo-release | xargs -r docker rm -f

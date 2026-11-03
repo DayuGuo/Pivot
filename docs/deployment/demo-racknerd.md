@@ -1,6 +1,20 @@
 # 本机展示与 RackNerd 安装
 
-当前交付是独立静态 Demo，不是生产投审稿平台。用户要求先本机配置；实际 VPS 未连接、未安装、没有公网验收。本仓库未创建/推送 GitHub 远端。机房 `Test IP` 不是安装目标。
+当前产品定名Pivot，交付独立静态Demo，不是生产投审稿平台。用户已授权公开发布到[DayuGuo/Pivot](https://github.com/DayuGuo/Pivot)，部署包放GitHub Releases；实际VPS仍未连接、安装或公网验收。机房`Test IP`不是安装目标。
+
+## 直接使用Release安装包
+
+从[Releases](https://github.com/DayuGuo/Pivot/releases)下载`pivot-vps-linux-amd64.tar.gz`及`pivot-demo-SHA256SUMS`。包内附带镜像、静态网页、安装脚本、中文README与内部SHA256；独立校验文件也覆盖外层归档。
+
+```bash
+tar -xzf pivot-vps-linux-amd64.tar.gz
+cd pivot-demo-linux-amd64
+bash install.sh
+```
+
+在已安装Docker的Linux amd64执行，脚本核对Docker平台、校验包内文件、加载离线镜像并等待health。默认127.0.0.1:8080供HTTPS反向代理。若明确要用实际公网IP演示，首次运行改为 `PIVOT_BIND=0.0.0.0 PIVOT_PORT=8080 bash install.sh`，并在已有防火墙规则中放行所选端口；脚本不修改OS或防火墙。已有同名`pivot-demo`容器时拒绝覆盖，保留用户现有服务。
+
+以下为开发机重新构建与单独静态归档的补充说明。原开发脚本继续管理兼容名`publishing-os-static-demo`，Release安装器使用独立名`pivot-demo`，均不触碰原业务Compose身份。
 
 ## 本机，一条命令
 
@@ -44,8 +58,8 @@ RackNerd洛杉矶到国内的实际体验取决于线路；公网部署前再从
 
 生成：
 
-- `artifacts/publishing-os-demo-static.tar.gz`：可交给已有Nginx/其他静态主机。
-- `artifacts/publishing-os-demo-image-linux-amd64.tar.gz`：显式amd64离线Docker运行镜像，不包含源码、Node、Python、数据库或密钥。本机预览使用本机原生架构的`:local`标签，彼此分开。
+- `artifacts/pivot-demo-static.tar.gz`：可交给已有Nginx/其他静态主机。
+- `artifacts/pivot-demo-image-linux-amd64.tar.gz`：显式amd64离线Docker运行镜像，不包含源码、Node、Python、数据库或密钥。本机预览使用本机原生架构的`:local`标签，彼此分开。
 
 未来先在VPS执行 `uname -m` 确认：`x86_64`对应默认`linux/amd64`；如果是`aarch64`则在构建机执行 `DEMO_PLATFORM=linux/arm64 ./scripts/build-demo.sh --image`，使用`linux-arm64`包和标签。Node构建阶段使用构建机原生平台，只有Nginx运行层采用目标平台；不能把`docker load`成功当作架构可执行的证明。
 
@@ -54,12 +68,12 @@ RackNerd洛杉矶到国内的实际体验取决于线路；公网部署前再从
 使用已验证SSH目标传输镜像。在VPS有可用Docker的前提下加载并先监听本机环回，**不用在2.5 GB内存中编译**：
 
 ```bash
-docker load -i publishing-os-demo-image-linux-amd64.tar.gz
+docker load -i pivot-demo-image-linux-amd64.tar.gz
 docker run -d --name publishing-os-static-demo \
   --label org.publishing-os.surface=static-demo --restart unless-stopped \
   --memory=128m --cpus=0.5 --read-only \
   --tmpfs /var/cache/nginx --tmpfs /var/run --tmpfs /tmp \
-  -p 127.0.0.1:3110:80 publishing-os-demo:linux-amd64
+  -p 127.0.0.1:3110:80 pivot-demo:linux-amd64
 curl --fail http://127.0.0.1:3110/health
 ```
 

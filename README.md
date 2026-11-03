@@ -1,4 +1,4 @@
-# Publishing OS
+# Pivot
 
 以稿件资料为基础的对话式科研出版工作台。编辑从自己的待办进入稿件，在中心对话中审阅，随时在右侧核对原文、作者资料和引用；正式操作保留负责人的确认权。
 
@@ -10,7 +10,7 @@
 
 打开 **[localhost:3110](http://localhost:3110)**。只需Docker，无需账号、数据库或模型密钥。停止：`./scripts/demo.sh stop`。
 
-![Publishing OS 产品演示](docs/preview/demo-desktop.png)
+![Pivot 产品演示](docs/preview/demo-desktop.png)
 
 - 三栏工作台：本人待办、常驻对话、稿件材料与当前步骤。
 - 主对话与稿件会话独立，左下角日历可按截止日筛选工作。
@@ -19,7 +19,15 @@
 
 **这是明确标记的模拟交互，使用合成稿件与当前浏览器存储，不调用模型或业务API，不发送邮件，不作正式决定。** 新导入资料不冒充已被AI分析，ORCID手填不等于认证；真实可运行的后端样本另见下方 `/publishing`。
 
-本机构建安装包：`./scripts/build-demo.sh --image`。可在2核/2.5 GB的RackNerd VPS上仅运行Nginx镜像，服务器无需编译或部署完整业务栈。[五分钟演示与安装说明](docs/deployment/demo-racknerd.md) · [本阶段范围](specs/012-showcase-demo.md) · [实际验证记录](docs/development/demo-delivery.md)。当前已本机部署，尚未上传GitHub或连接VPS。
+已定名 **Pivot**（原Publishing OS）。[GitHub Releases部署包](https://github.com/DayuGuo/Pivot/releases)将提供`pivot-vps-linux-amd64.tar.gz`，含离线镜像、静态网页、安装器和校验和。解压后：
+
+```bash
+tar -xzf pivot-vps-linux-amd64.tar.gz
+cd pivot-demo-linux-amd64
+bash install.sh
+```
+
+前提为Linux amd64与Docker；默认监听环回8080，可通过HTTPS代理访问。明确需要公网IP直接演示时用`PIVOT_BIND=0.0.0.0 PIVOT_PORT=8080 bash install.sh`并自行放行端口。本机构建：`./scripts/build-demo.sh --image && ./scripts/package-vps-demo.sh`，VPS无需编译、数据库或模型密钥。[五分钟演示与完整安装说明](docs/deployment/demo-racknerd.md) · [本阶段范围](specs/012-showcase-demo.md) · [实际验证记录](docs/development/demo-delivery.md)。上传与CI最终结果见PROGRESS.md，尚未连接用户VPS。
 
 核心产品设计：[PRODUCT_DESIGN.md](PRODUCT_DESIGN.md)。日历/双层对话当前只在独立Demo展示；真实数据库中的聚合、多身份、多刊邀请与邮箱/ORCID注册仍待实施，不能从截图推断上线。
 

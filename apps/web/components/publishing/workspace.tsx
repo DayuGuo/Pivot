@@ -82,12 +82,12 @@ export default function PublishingWorkspace({ children }: { children: ReactNode 
     } catch (failure) { if (failure instanceof APIError && failure.status === 401) setAuthLost(true); throw failure; }
   }, [session]);
   async function createDraft() { setError(""); setRefreshing(true); try { const result = await mutate<{ manuscript_id: string }>("/drafts", {}); select(result.manuscript_id); await refresh(); } catch (failure) { setError((failure as Error).message); } finally { setRefreshing(false); } }
-  if (!session || authLost) return <div className={styles.loading}><h1>Publishing OS</h1><p role="status">{error || "正在载入工作区…"}</p>{authLost ? <Link href="/">返回登录</Link> : <button onClick={() => void refresh()} disabled={refreshing}>重新载入</button>}</div>;
+  if (!session || authLost) return <div className={styles.loading}><h1>Pivot</h1><p role="status">{error || "正在载入工作区…"}</p>{authLost ? <Link href="/">返回登录</Link> : <button onClick={() => void refresh()} disabled={refreshing}>重新载入</button>}</div>;
   return <Context.Provider value={{ session, workspace, detail, selectedId, error, refreshing, refresh, select, setReviewContext, setUnsaved, mutate }}>
     <div className={styles.shell} data-theme={theme} onClickCapture={guardLink}>
       <a className={styles.skip} href="#publishing-chat">跳到对话</a>
       <aside className={`${styles.sidebar} ${drawer ? styles.drawerOpen : ""}`} aria-label="我的工作">
-        <div className={styles.brand}><strong>Publishing OS</strong><button className={styles.mobileOnly} onClick={() => setDrawer(false)} aria-label="关闭工作列表"><Glyph name="close" /></button></div>
+        <div className={styles.brand}><strong>Pivot</strong><button className={styles.mobileOnly} onClick={() => setDrawer(false)} aria-label="关闭工作列表"><Glyph name="close" /></button></div>
         <p className={styles.journal}>{session.journal.name}</p>
         <div className={styles.sidebarActions}><button onClick={() => select(null)}>我的工作 <span>{workspace?.counts.actionable ?? 0}</span></button>{session.user.role === "author" && <button onClick={() => void createDraft()} disabled={refreshing}><Glyph name="file" size={16} />新建投稿</button>}</div>
         <div className={styles.taskList}>{workspace?.tasks.length ? workspace.tasks.map(task => <Link key={task.id} href={`/publishing?manuscript=${task.manuscript_id}`} onClick={event => { event.preventDefault(); select(task.manuscript_id); }} className={selectedId === task.manuscript_id ? styles.selected : ""}><strong>{task.label}</strong><span>{task.title || "未命名投稿"}</span><small>{task.number}{task.status === "waiting" ? " · 等待处理" : task.blocking ? " · 需要你处理" : ""}</small></Link>) : <p className={styles.emptySmall}>目前没有分派给你的待办。</p>}</div>

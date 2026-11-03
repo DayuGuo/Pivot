@@ -25,7 +25,7 @@ if docker container inspect "$demo_name" --format '{{.Id}}' >/dev/null 2>&1; the
 docker run -d --name "$demo_name" --label org.publishing-os.surface=static-demo \
   --restart unless-stopped --memory=128m --cpus=0.5 --read-only \
   --tmpfs /var/cache/nginx --tmpfs /var/run --tmpfs /tmp \
-  -p "127.0.0.1:${demo_port}:80" publishing-os-demo:local >/dev/null
+  -p "127.0.0.1:${demo_port}:80" pivot-demo:local >/dev/null
 demo_ready=false
 for demo_attempt in {1..40}; do
   if docker exec "$demo_name" wget -q -O - http://127.0.0.1/health >/dev/null 2>&1; then demo_ready=true; break; fi

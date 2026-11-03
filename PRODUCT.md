@@ -1,4 +1,6 @@
-# Publishing OS
+# Pivot
+
+产品已于2026-11-03暂定名 **Pivot**（原Publishing OS）。用户已授权上传到本人公开GitHub仓库，并发布VPS展示包；未授权生产部署。内部Python包、数据库/缓存命名及既有Compose身份保持兼容。
 
 最新执行顺序：先交付[可安装的GitHub展示Demo](specs/012-showcase-demo.md)，本机配置，不连接VPS或创建公开仓库。`./scripts/demo.sh`提供独立静态交互，合成稿件/日历/双层对话/资料编辑与来源展示；没有API、认证、模型或业务数据库。演示评审后再细化spec011真实单刊审阅；不能把本地浏览器状态当作后端权限/工作流。
 
