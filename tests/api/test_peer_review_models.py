@@ -526,7 +526,22 @@ def submit(w, i, p, t):
 
 def test_migration_matches_metadata_and_empty_downgrade(review_db):
     db, conn = review_db
-    assert compare_metadata(MigrationContext.configure(conn), Base.metadata) == []
+    # This historical migration fixture deliberately stops at D (10c). E has
+    # its own complete-head metadata comparison, so exclude only its new tables.
+    later_tables = {
+        "publishing_editorial_decisions",
+        "publishing_decision_report_releases",
+        "publishing_revision_requests",
+    }
+    context = MigrationContext.configure(
+        conn,
+        opts={
+            "include_object": lambda obj, name, kind, reflected, compare_to: not (
+                kind == "table" and name in later_tables
+            ),
+        },
+    )
+    assert compare_metadata(context, Base.metadata) == []
     assert {"fk_pub_review_round_file_round", "fk_pub_review_round_file_version_file"} <= {
         x["name"] for x in inspect(conn).get_foreign_keys("publishing_review_round_files")
     }

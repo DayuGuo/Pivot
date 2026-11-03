@@ -13,6 +13,7 @@ DEMO_USERS = [
     ("reviewer@publishing.test", "周审稿人", "reviewer", "ReviewerDemo2026!"),
     ("reviewer2@publishing.test", "刘审稿人", "reviewer", "Reviewer2Demo2026!"),
     ("chief@publishing.test", "许主编", "chief_editor", "ChiefDemo2026!"),
+    ("production@publishing.test", "叶制作", "production_editor", "ProductionDemo2026!"),
 ]
 
 

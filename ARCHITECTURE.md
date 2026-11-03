@@ -6,6 +6,8 @@
 
 文件采用期刊边界的FileObject+版本用途关系、私有内容寻址存储，真实校验UTF8/大小/哈希，不宣称病毒或外部查重扫描。Compose以独立volume持久保存。模型读/写走相同对象策略，已有稿件写入等待完整工具回合结束再锁定重校修订和身份；最终确认从不进入工具注册表。对话历史及UUID重放按所有已暴露对象重新鉴权。
 
+E已验收：EditorialDecision/DecisionReportRelease/RevisionRequest与现有Proposal/Confirmation/Step分层。建议不决定状态，作者只能读主编明确批准的安全反馈；minor服务逐步验证修回链，大修需要本版新轮。录用绑定版本和制作负责人，仍未公开发表。迁移11d95a8b3e42及E全量686+24证据见PROGRESS；F制作/校样/本地预览是下一片，当前主服务尚未迁移新领域。
+
 
 本期采用 Next.js/React/TypeScript/Tailwind + FastAPI/SQLAlchemy + PostgreSQL，Docker Compose 启动，Alembic 管理迁移。小型模块化单体使业务事务保持简单，后续证据表明有必要时再拆服务。
 

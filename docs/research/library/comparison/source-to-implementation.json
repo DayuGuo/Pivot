@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "updated_date": "2026-11-03",
-  "scope": "Foundation14 + C CheckRun + D four fixed-round peer-review models; existing Assignment/WorkItem typed fields and VersionFile triple key extended. D model/migration component50 tests passed; service/API/UI integration remains pending root.",
+  "scope": "Foundation14 + C1 + D4 + E3 =22 classes/289 fields. E adds confirmed chief decisions, exact anonymous releases and formal revision lineage;44 isolated model/DDL tests passed, full service/UI verification remains lead responsibility.",
   "data_contract": "specs/007-data-contract.md",
   "source_manifests": {
     "ojs": "ojs/source-manifest.json",
@@ -15,7 +15,7 @@
     "current-system": "current-system/inventory.json"
   },
   "method": "Conceptual adaptation only. Upstream tables/classes/fields are verified against pinned static indexes; project_governance means no claimed upstream equivalent. Static indexes are not live DB DDL. No upstream code imported or executed.",
-  "migration_binding": "Foundation bound f8a12d4c6e90; C CheckRun09b73e6a1c22; D tables/typed relation additions and seal guards10c84f7a2d31. Source AST and revision declarations verified statically; only reported component test scopes are claimed.",
+  "migration_binding": "Foundation f8a12d4c6e90, C09b73e6a1c22, D10c84f7a2d31, E11d95a8b3e42. Columns/constraints/guard fingerprints are source bindings, not proof that unexecuted deployment or product flows are complete.",
   "models": [
     {
       "class": "Manuscript",
@@ -5187,6 +5187,233 @@
       ],
       "intended_acceptance": "精确全内容确认/不可变/soft due；服务匿名DTO和E chief release待实施",
       "status": "D_model_migration_component_50_tests_verified_service_ui_pending"
+    },
+    {
+      "id": "DB16",
+      "adopted": "当前版本编辑推荐与主编最终确认分离，支持真实minor一跳/服务全链的旧轮证据",
+      "rejected": "LLM或reviewer建议直接决定、chief必须照抄editor recommendation、把V3 base错误绑到R1V1",
+      "targets": [
+        "EditorialDecision"
+      ],
+      "source_refs": [
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+          "entity_type": "table",
+          "entity": "edit_decisions",
+          "fields": [
+            "edit_decision_id",
+            "submission_id",
+            "review_round_id",
+            "stage_id",
+            "editor_id",
+            "decision",
+            "date_decided"
+          ]
+        },
+        {
+          "system": "janeway",
+          "source_id": "review-model-fields.txt",
+          "entity_type": "class",
+          "app": "review",
+          "entity": "DecisionDraft",
+          "fields": [
+            "article",
+            "editor",
+            "section_editor",
+            "decision",
+            "email_message",
+            "editor_decision",
+            "editor_decline_rationale"
+          ],
+          "upstream_path": "src/review/models.py",
+          "upstream_line": 785
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/decision/Repository.php",
+          "entity_type": "source"
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/RolesAndUserGroupsMigration.php",
+          "entity_type": "table",
+          "entity": "stage_assignments",
+          "fields": [
+            "recommend_only"
+          ]
+        },
+        {
+          "system": "janeway",
+          "source_id": "review-model-fields.txt",
+          "entity_type": "class",
+          "app": "review",
+          "entity": "DecisionDraft",
+          "fields": [
+            "drafted",
+            "editor_decision"
+          ],
+          "upstream_path": "src/review/models.py",
+          "upstream_line": 785
+        }
+      ],
+      "intended_acceptance": "完成当前推荐/主编独立选择、生产负责人快照与COI、两次minor V3旧R1通过/major旧R1拒绝",
+      "status": "E_44_model_migration_tests_verified_lead_full_verification_pending"
+    },
+    {
+      "id": "DB17",
+      "adopted": "作者只读chief批准的精确匿名report release源投影，不开放原始报告",
+      "rejected": "批准快照或前端serializer误加身份/私密字段、自动公开submitted报告、假称自动匿名化",
+      "targets": [
+        "DecisionReportRelease"
+      ],
+      "source_refs": [
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+          "entity_type": "table",
+          "entity": "edit_decisions",
+          "fields": [
+            "submission_id",
+            "review_round_id",
+            "decision",
+            "date_decided"
+          ]
+        },
+        {
+          "system": "janeway",
+          "source_id": "review-model-fields.txt",
+          "entity_type": "class",
+          "app": "review",
+          "entity": "ReviewAssignment",
+          "fields": [
+            "for_author_consumption",
+            "display_review_file",
+            "permission_to_make_public",
+            "display_public"
+          ],
+          "upstream_path": "src/review/models.py",
+          "upstream_line": 197
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/ReviewsMigration.php",
+          "entity_type": "table",
+          "entity": "review_form_responses",
+          "fields": [
+            "review_form_element_id",
+            "review_id",
+            "response_value"
+          ]
+        },
+        {
+          "system": "janeway",
+          "source_id": "review-model-fields.txt",
+          "entity_type": "class",
+          "app": "review",
+          "entity": "ReviewAssignmentAnswer",
+          "fields": [
+            "answer",
+            "edited_answer",
+            "author_can_see"
+          ],
+          "upstream_path": "src/review/models.py",
+          "upstream_line": 523
+        },
+        {
+          "system": "janeway",
+          "source_id": "review-model-fields.txt",
+          "entity_type": "class",
+          "app": "review",
+          "entity": "BaseReviewFormElement",
+          "fields": [
+            "name",
+            "kind",
+            "required",
+            "default_visibility"
+          ],
+          "upstream_path": "src/review/models.py",
+          "upstream_line": 470
+        },
+        {
+          "system": "janeway",
+          "source_id": "review-model-fields.txt",
+          "entity_type": "class",
+          "app": "review",
+          "entity": "FrozenReviewFormElement",
+          "fields": [
+            "form_element",
+            "answer"
+          ],
+          "upstream_path": "src/review/models.py",
+          "upstream_line": 639
+        }
+      ],
+      "intended_acceptance": "即使批准snapshot带私密字段且hash匹配仍拒绝，显式人工匿名复核，批准集合不能漏提交",
+      "status": "E_44_model_migration_tests_verified_lead_full_verification_pending"
+    },
+    {
+      "id": "DB18",
+      "adopted": "正式修回Request/新draft/owner冻结提交/实际response分离记录，不覆盖旧稿",
+      "rejected": "上传即完成修回、旧审批用于新版本、删改原请求或把major当minor桥接",
+      "targets": [
+        "RevisionRequest"
+      ],
+      "source_refs": [
+        {
+          "system": "janeway",
+          "source_id": "review-model-fields.txt",
+          "entity_type": "class",
+          "app": "review",
+          "entity": "RevisionRequest",
+          "fields": [
+            "article",
+            "editor",
+            "editor_note",
+            "author_note",
+            "actions",
+            "type",
+            "response_letter",
+            "date_requested",
+            "date_due",
+            "date_completed"
+          ],
+          "upstream_path": "src/review/models.py",
+          "upstream_line": 712
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/decision/Repository.php",
+          "entity_type": "source"
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+          "entity_type": "table",
+          "entity": "edit_decisions",
+          "fields": [
+            "submission_id",
+            "editor_id",
+            "decision",
+            "date_decided"
+          ]
+        },
+        {
+          "system": "janeway",
+          "source_id": "review-model-fields.txt",
+          "entity_type": "class",
+          "app": "review",
+          "entity": "RevisionRequest",
+          "fields": [
+            "date_completed",
+            "response_letter"
+          ],
+          "upstream_path": "src/review/models.py",
+          "upstream_line": 712
+        }
+      ],
+      "intended_acceptance": "44PG组件中完整迁移零漂移、计划不可变、缺响应/未冻结/错owner和major旧轮复用拒绝",
+      "status": "E_44_model_migration_tests_verified_lead_full_verification_pending"
     }
   ],
   "source_limitations": [
@@ -6884,6 +7111,862 @@
           "scope": "D table compound FK/check/unique/index declarations"
         }
       ]
+    },
+    {
+      "class": "EditorialDecision",
+      "module": "apps/api/publishing/domain/decision_models.py",
+      "table": "publishing_editorial_decisions",
+      "contract_source": "specs/009-decisions-and-revisions.md",
+      "slice": "E",
+      "implementation_status": "implemented",
+      "migration_id": "11d95a8b3e42",
+      "migration_status": "44_isolated_component_tests_verified_lead_full_verification_pending",
+      "field_groups": [
+        {
+          "our_fields": [
+            "id",
+            "manuscript_id",
+            "journal_id",
+            "version_id",
+            "step_run_id",
+            "basis_round_id",
+            "decision_code",
+            "revision_kind",
+            "rationale_private",
+            "author_letter",
+            "policy_version",
+            "chief_id",
+            "decided_at"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+              "entity_type": "table",
+              "entity": "edit_decisions",
+              "fields": [
+                "edit_decision_id",
+                "submission_id",
+                "review_round_id",
+                "stage_id",
+                "editor_id",
+                "decision",
+                "date_decided"
+              ]
+            },
+            {
+              "system": "janeway",
+              "source_id": "review-model-fields.txt",
+              "entity_type": "class",
+              "app": "review",
+              "entity": "DecisionDraft",
+              "fields": [
+                "article",
+                "editor",
+                "section_editor",
+                "decision",
+                "email_message",
+                "editor_decision",
+                "editor_decline_rationale"
+              ],
+              "upstream_path": "src/review/models.py",
+              "upstream_line": 785
+            }
+          ],
+          "origin": "adapted_pattern",
+          "adaptation": "只存主编确认事实，推荐/草稿复用已有Proposal+Confirmation+StepRun；chief可选与编辑推荐不同的决定。basisRound只同稿，不强制同version，minor可经明确修回/复核链沿用旧轮。",
+          "migration_id": "11d95a8b3e42"
+        },
+        {
+          "our_fields": [
+            "recommendation_confirmation_id",
+            "reassessment_confirmation_id",
+            "human_confirmation_id",
+            "payload_digest"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/decision/Repository.php",
+              "entity_type": "source"
+            },
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/RolesAndUserGroupsMigration.php",
+              "entity_type": "table",
+              "entity": "stage_assignments",
+              "fields": [
+                "recommend_only"
+              ]
+            },
+            {
+              "system": "janeway",
+              "source_id": "review-model-fields.txt",
+              "entity_type": "class",
+              "app": "review",
+              "entity": "DecisionDraft",
+              "fields": [
+                "drafted",
+                "editor_decision"
+              ],
+              "upstream_path": "src/review/models.py",
+              "upstream_line": 785
+            }
+          ],
+          "origin": "project_governance",
+          "adaptation": "当前版本完成推荐、主编record_decision的完整载荷/任务/版本/revision/policy必须匹配；跨版只在DB验证一跳minor submitted请求+当前ready_for_chief，完整归纳链由服务遍历；sha/confirmation为本项目加固。",
+          "migration_id": "11d95a8b3e42"
+        }
+      ],
+      "our_fields": [
+        "id",
+        "manuscript_id",
+        "journal_id",
+        "version_id",
+        "step_run_id",
+        "basis_round_id",
+        "decision_code",
+        "revision_kind",
+        "rationale_private",
+        "author_letter",
+        "policy_version",
+        "chief_id",
+        "decided_at",
+        "recommendation_confirmation_id",
+        "reassessment_confirmation_id",
+        "human_confirmation_id",
+        "payload_digest"
+      ],
+      "constraints": [
+        {
+          "rule": "UNIQUE(confirmation)、UNIQUE(step)、同稿FK/tenant，revision_kind与code一致，决定不可改删/TRUNCATE",
+          "intended_acceptance": "错误动作/责任/版本/摘要/过期修订拒绝；编辑推荐不创建决定"
+        },
+        {
+          "rule": "record_decision绑定当前chief任务；accept精确production_assignee；历史作者linked_user或邮箱COI信号都拒绝",
+          "intended_acceptance": "原DDL仅linked_user的两例raw模型负向先失败、补邮箱后通过；角色/会话完整策略由服务负责"
+        },
+        {
+          "rule": "deferred bundle保证全部批准release及planned RevisionRequest同事务完成；sha绑定payload.decision_digest",
+          "intended_acceptance": "遗漏匿名反馈或请求不能commit；不递归复制服务归纳链"
+        }
+      ],
+      "intended_acceptance": [
+        "E组件44项真实PG测试通过；主线服务/权限投影/浏览器和完整verify仍由root验收。",
+        "不发送邮件，不公开出版；编辑推荐不是决定，模型没有确认权限。"
+      ],
+      "current_baseline": {
+        "system": "current-system",
+        "source_id": "apps/api/publishing/models.py",
+        "entity_type": "class",
+        "entity": "Manuscript"
+      },
+      "component_validation": {
+        "date": "2026-11-03",
+        "suite": "tests/api/test_editorial_decision_models.py",
+        "observed_passed": 44,
+        "elapsed_seconds": 26.76,
+        "warnings": [
+          "existing Starlette/httpx deprecation"
+        ],
+        "scope": "isolated full-chain model/migration/confirmation/immutability/privacy-source and minor lineage tests, not full product acceptance",
+        "public_database_modified_by_component_agent": false,
+        "evidence_worktree": "/tmp/publishing-v01-decision-models/artifacts/editorial-decision-models.xml"
+      },
+      "source_binding": {
+        "path": "apps/api/publishing/domain/decision_models.py",
+        "class_line": 30,
+        "fields": [
+          {
+            "name": "id",
+            "line": 74,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
+          },
+          {
+            "name": "manuscript_id",
+            "line": 75,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('manuscripts.id'))"
+          },
+          {
+            "name": "journal_id",
+            "line": 76,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('journals.id'))"
+          },
+          {
+            "name": "version_id",
+            "line": 77,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "step_run_id",
+            "line": 78,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "basis_round_id",
+            "line": 79,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "recommendation_confirmation_id",
+            "line": 80,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "reassessment_confirmation_id",
+            "line": 81,
+            "annotation": "Mapped[str | None]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "decision_code",
+            "line": 82,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(30))"
+          },
+          {
+            "name": "revision_kind",
+            "line": 83,
+            "annotation": "Mapped[str | None]",
+            "declaration": "mapped_column(String(20))"
+          },
+          {
+            "name": "rationale_private",
+            "line": 84,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(Text)"
+          },
+          {
+            "name": "author_letter",
+            "line": 85,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(Text)"
+          },
+          {
+            "name": "policy_version",
+            "line": 86,
+            "annotation": "Mapped[int]",
+            "declaration": "mapped_column(Integer)"
+          },
+          {
+            "name": "chief_id",
+            "line": 87,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
+          },
+          {
+            "name": "human_confirmation_id",
+            "line": 88,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "decided_at",
+            "line": 89,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True), default=now)"
+          },
+          {
+            "name": "payload_digest",
+            "line": 90,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          }
+        ],
+        "table_args": {
+          "line": 32,
+          "declaration": "(_tenant_manuscript('fk_pub_decision_tenant'), _same_manuscript('version_id', 'publishing_versions', 'fk_pub_decision_version'), _same_manuscript('step_run_id', 'publishing_step_runs', 'fk_pub_decision_step'), _same_manuscript('basis_round_id', 'publishing_review_rounds', 'fk_pub_decision_basis_round'), _same_manuscript('recommendation_confirmation_id', 'publishing_human_confirmations', 'fk_pub_decision_recommendation'), _same_manuscript('reassessment_confirmation_id', 'publishing_human_confirmations', 'fk_pub_decision_reassessment'), _same_manuscript('human_confirmation_id', 'publishing_human_confirmations', 'fk_pub_decision_confirmation'), UniqueConstraint('id', 'manuscript_id', name='uq_pub_decision_id_manuscript'), UniqueConstraint('human_confirmation_id', name='uq_pub_decision_confirmation'), UniqueConstraint('step_run_id', name='uq_pub_decision_step'), CheckConstraint(\"decision_code IN ('request_revision','accept','reject')\", name='ck_pub_decision_code'), CheckConstraint(\"(decision_code='request_revision' AND revision_kind IS NOT NULL AND revision_kind IN ('minor','major')) OR (decision_code IN ('accept','reject') AND revision_kind IS NULL)\", name='ck_pub_decision_revision_kind'), CheckConstraint('length(btrim(rationale_private)) BETWEEN 20 AND 8000 AND length(btrim(author_letter)) BETWEEN 20 AND 12000', name='ck_pub_decision_text'), CheckConstraint(\"policy_version >= 1 AND payload_digest ~ '^[0-9a-f]{64}$'\", name='ck_pub_decision_digest'), Index('ix_pub_decision_history', 'manuscript_id', 'decided_at'))"
+        }
+      },
+      "field_revision_bindings": {
+        "id": "11d95a8b3e42",
+        "manuscript_id": "11d95a8b3e42",
+        "journal_id": "11d95a8b3e42",
+        "version_id": "11d95a8b3e42",
+        "step_run_id": "11d95a8b3e42",
+        "basis_round_id": "11d95a8b3e42",
+        "decision_code": "11d95a8b3e42",
+        "revision_kind": "11d95a8b3e42",
+        "rationale_private": "11d95a8b3e42",
+        "author_letter": "11d95a8b3e42",
+        "policy_version": "11d95a8b3e42",
+        "chief_id": "11d95a8b3e42",
+        "decided_at": "11d95a8b3e42",
+        "recommendation_confirmation_id": "11d95a8b3e42",
+        "reassessment_confirmation_id": "11d95a8b3e42",
+        "human_confirmation_id": "11d95a8b3e42",
+        "payload_digest": "11d95a8b3e42"
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "11d95a8b3e42",
+          "names": [
+            "ck_pub_decision_code",
+            "ck_pub_decision_digest",
+            "ck_pub_decision_revision_kind",
+            "ck_pub_decision_text",
+            "fk_pub_decision_basis_round",
+            "fk_pub_decision_confirmation",
+            "fk_pub_decision_reassessment",
+            "fk_pub_decision_recommendation",
+            "fk_pub_decision_step",
+            "fk_pub_decision_tenant",
+            "fk_pub_decision_version",
+            "ix_pub_decision_history",
+            "uq_pub_decision_confirmation",
+            "uq_pub_decision_id_manuscript",
+            "uq_pub_decision_step"
+          ],
+          "scope": "E strong FK/unique/check/partial index and immutable confirmation boundaries"
+        }
+      ]
+    },
+    {
+      "class": "DecisionReportRelease",
+      "module": "apps/api/publishing/domain/decision_models.py",
+      "table": "publishing_decision_report_releases",
+      "contract_source": "specs/009-decisions-and-revisions.md",
+      "slice": "E",
+      "implementation_status": "implemented",
+      "migration_id": "11d95a8b3e42",
+      "migration_status": "44_isolated_component_tests_verified_lead_full_verification_pending",
+      "field_groups": [
+        {
+          "our_fields": [
+            "id",
+            "manuscript_id",
+            "decision_id",
+            "report_id",
+            "ordinal",
+            "created_at"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+              "entity_type": "table",
+              "entity": "edit_decisions",
+              "fields": [
+                "submission_id",
+                "review_round_id",
+                "decision",
+                "date_decided"
+              ]
+            },
+            {
+              "system": "janeway",
+              "source_id": "review-model-fields.txt",
+              "entity_type": "class",
+              "app": "review",
+              "entity": "ReviewAssignment",
+              "fields": [
+                "for_author_consumption",
+                "display_review_file",
+                "permission_to_make_public",
+                "display_public"
+              ],
+              "upstream_path": "src/review/models.py",
+              "upstream_line": 197
+            }
+          ],
+          "origin": "adapted_pattern",
+          "adaptation": "报告submitted不等于作者可读；只对本次basisRound提交报告建立显式chief批准release，ordinal>=1；作者DTO不暴露report/reviewer ID。",
+          "migration_id": "11d95a8b3e42"
+        },
+        {
+          "our_fields": [
+            "author_snapshot",
+            "snapshot_digest"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/ReviewsMigration.php",
+              "entity_type": "table",
+              "entity": "review_form_responses",
+              "fields": [
+                "review_form_element_id",
+                "review_id",
+                "response_value"
+              ]
+            },
+            {
+              "system": "janeway",
+              "source_id": "review-model-fields.txt",
+              "entity_type": "class",
+              "app": "review",
+              "entity": "ReviewAssignmentAnswer",
+              "fields": [
+                "answer",
+                "edited_answer",
+                "author_can_see"
+              ],
+              "upstream_path": "src/review/models.py",
+              "upstream_line": 523
+            },
+            {
+              "system": "janeway",
+              "source_id": "review-model-fields.txt",
+              "entity_type": "class",
+              "app": "review",
+              "entity": "BaseReviewFormElement",
+              "fields": [
+                "name",
+                "kind",
+                "required",
+                "default_visibility"
+              ],
+              "upstream_path": "src/review/models.py",
+              "upstream_line": 470
+            },
+            {
+              "system": "janeway",
+              "source_id": "review-model-fields.txt",
+              "entity_type": "class",
+              "app": "review",
+              "entity": "FrozenReviewFormElement",
+              "fields": [
+                "form_element",
+                "answer"
+              ],
+              "upstream_path": "src/review/models.py",
+              "upstream_line": 639
+            }
+          ],
+          "origin": "project_governance",
+          "adaptation": "精确safe {author_text,answers,questions}，仅原表单audience=author；questions只key/label/kind/required，禁止私密答案/推荐/身份。源投影必须匹配，即使chief快照本身错误批准了私密字段也拒绝；人工匿名检查标记不可代勾，不假称自动文本去标识。",
+          "migration_id": "11d95a8b3e42"
+        }
+      ],
+      "our_fields": [
+        "id",
+        "manuscript_id",
+        "decision_id",
+        "report_id",
+        "ordinal",
+        "created_at",
+        "author_snapshot",
+        "snapshot_digest"
+      ],
+      "constraints": [
+        {
+          "rule": "同稿decision/report FK；UNIQUE(decision,report)/(decision,ordinal)；ordinal>=1；immutable",
+          "intended_acceptance": "非basisRound、未提交报告或错序/错hash/额外私密字段拒绝"
+        },
+        {
+          "rule": "Row完全匹配public_reports批准项与源报告safe投影；sharing必须share_reports_anonymity_reviewed=true；deferred数量完整",
+          "intended_acceptance": "批准payload含private_answer/reviewer_id/editor_private_text且配套hash也拒绝，绝不靠前端隐藏"
+        }
+      ],
+      "intended_acceptance": [
+        "E组件44项真实PG测试通过；主线服务/权限投影/浏览器和完整verify仍由root验收。",
+        "不发送邮件，不公开出版；编辑推荐不是决定，模型没有确认权限。"
+      ],
+      "current_baseline": {
+        "system": "current-system",
+        "source_id": "apps/api/publishing/models.py",
+        "entity_type": "class",
+        "entity": "EmailApproval"
+      },
+      "component_validation": {
+        "date": "2026-11-03",
+        "suite": "tests/api/test_editorial_decision_models.py",
+        "observed_passed": 44,
+        "elapsed_seconds": 26.76,
+        "warnings": [
+          "existing Starlette/httpx deprecation"
+        ],
+        "scope": "isolated full-chain model/migration/confirmation/immutability/privacy-source and minor lineage tests, not full product acceptance",
+        "public_database_modified_by_component_agent": false,
+        "evidence_worktree": "/tmp/publishing-v01-decision-models/artifacts/editorial-decision-models.xml"
+      },
+      "source_binding": {
+        "path": "apps/api/publishing/domain/decision_models.py",
+        "class_line": 93,
+        "fields": [
+          {
+            "name": "id",
+            "line": 109,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
+          },
+          {
+            "name": "manuscript_id",
+            "line": 110,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('manuscripts.id'))"
+          },
+          {
+            "name": "decision_id",
+            "line": 111,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "report_id",
+            "line": 112,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "ordinal",
+            "line": 113,
+            "annotation": "Mapped[int]",
+            "declaration": "mapped_column(Integer)"
+          },
+          {
+            "name": "author_snapshot",
+            "line": 114,
+            "annotation": "Mapped[dict]",
+            "declaration": "mapped_column(JSONB)"
+          },
+          {
+            "name": "snapshot_digest",
+            "line": 115,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "created_at",
+            "line": 116,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True), default=now)"
+          }
+        ],
+        "table_args": {
+          "line": 95,
+          "declaration": "(_same_manuscript('decision_id', 'publishing_editorial_decisions', 'fk_pub_release_decision'), _same_manuscript('report_id', 'publishing_review_reports', 'fk_pub_release_report'), UniqueConstraint('id', 'manuscript_id', name='uq_pub_release_id_manuscript'), UniqueConstraint('decision_id', 'report_id', name='uq_pub_release_decision_report'), UniqueConstraint('decision_id', 'ordinal', name='uq_pub_release_order'), CheckConstraint('ordinal >= 1', name='ck_pub_release_order'), CheckConstraint(\"jsonb_typeof(author_snapshot)='object' AND snapshot_digest ~ '^[0-9a-f]{64}$'\", name='ck_pub_release_snapshot'))"
+        }
+      },
+      "field_revision_bindings": {
+        "id": "11d95a8b3e42",
+        "manuscript_id": "11d95a8b3e42",
+        "decision_id": "11d95a8b3e42",
+        "report_id": "11d95a8b3e42",
+        "ordinal": "11d95a8b3e42",
+        "created_at": "11d95a8b3e42",
+        "author_snapshot": "11d95a8b3e42",
+        "snapshot_digest": "11d95a8b3e42"
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "11d95a8b3e42",
+          "names": [
+            "ck_pub_release_order",
+            "ck_pub_release_snapshot",
+            "fk_pub_release_decision",
+            "fk_pub_release_report",
+            "uq_pub_release_decision_report",
+            "uq_pub_release_id_manuscript",
+            "uq_pub_release_order"
+          ],
+          "scope": "E strong FK/unique/check/partial index and immutable confirmation boundaries"
+        }
+      ]
+    },
+    {
+      "class": "RevisionRequest",
+      "module": "apps/api/publishing/domain/decision_models.py",
+      "table": "publishing_revision_requests",
+      "contract_source": "specs/009-decisions-and-revisions.md",
+      "slice": "E",
+      "implementation_status": "implemented",
+      "migration_id": "11d95a8b3e42",
+      "migration_status": "44_isolated_component_tests_verified_lead_full_verification_pending",
+      "field_groups": [
+        {
+          "our_fields": [
+            "id",
+            "manuscript_id",
+            "journal_id",
+            "decision_id",
+            "request_no",
+            "base_version_id",
+            "draft_version_id",
+            "submitted_version_id",
+            "kind",
+            "rereview_required",
+            "author_instructions",
+            "due_at",
+            "status",
+            "requested_at",
+            "submitted_at"
+          ],
+          "source_refs": [
+            {
+              "system": "janeway",
+              "source_id": "review-model-fields.txt",
+              "entity_type": "class",
+              "app": "review",
+              "entity": "RevisionRequest",
+              "fields": [
+                "article",
+                "editor",
+                "editor_note",
+                "author_note",
+                "actions",
+                "type",
+                "response_letter",
+                "date_requested",
+                "date_due",
+                "date_completed"
+              ],
+              "upstream_path": "src/review/models.py",
+              "upstream_line": 712
+            },
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/decision/Repository.php",
+              "entity_type": "source"
+            }
+          ],
+          "origin": "adapted_pattern",
+          "adaptation": "正式request_revision与新作者草稿同事务；base/draft/submitted版本分开，修回不覆盖原稿；major必重审，minor允许V2/V3沿用R1(V1)，但需本次owner提交与编辑复核，不要求baseVersion等于轮次版本。",
+          "migration_id": "11d95a8b3e42"
+        },
+        {
+          "our_fields": [
+            "author_confirmation_id"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+              "entity_type": "table",
+              "entity": "edit_decisions",
+              "fields": [
+                "submission_id",
+                "editor_id",
+                "decision",
+                "date_decided"
+              ]
+            },
+            {
+              "system": "janeway",
+              "source_id": "review-model-fields.txt",
+              "entity_type": "class",
+              "app": "review",
+              "entity": "RevisionRequest",
+              "fields": [
+                "date_completed",
+                "response_letter"
+              ],
+              "upstream_path": "src/review/models.py",
+              "upstream_line": 712
+            }
+          ],
+          "origin": "project_governance",
+          "adaptation": "只有本人submit_revision确认精确请求、冻结新版本与实际response文件才能requested→submitted；没有session FK，注销不破坏历史；字节/完整声明由gateway双重校验。",
+          "migration_id": "11d95a8b3e42"
+        }
+      ],
+      "our_fields": [
+        "id",
+        "manuscript_id",
+        "journal_id",
+        "decision_id",
+        "request_no",
+        "base_version_id",
+        "draft_version_id",
+        "submitted_version_id",
+        "kind",
+        "rereview_required",
+        "author_instructions",
+        "due_at",
+        "status",
+        "requested_at",
+        "submitted_at",
+        "author_confirmation_id"
+      ],
+      "constraints": [
+        {
+          "rule": "同稿sourceDecision/base/draft/submitted/confirmation FK；decision与request_no唯一、单requested partial UNIQUE；draft!=base",
+          "intended_acceptance": "不能借非修回决定创建请求，不能重用旧版本或并行开放两个请求"
+        },
+        {
+          "rule": "除requested→submitted的4个字段外不可改；终态不可改删/TRUNCATE；major总rereview_required",
+          "intended_acceptance": "未冻结/无真实response/非owner/错误提案或原plan改写拒绝"
+        },
+        {
+          "rule": "planned draft必须存在且未冻结；提交先freeze→Requestsubmitted→更新flow.current，SQL检查flow.draft指针",
+          "intended_acceptance": "完整两次minor到V3沿用R1的真实关系测试通过；major禁止跨旧轮桥接"
+        }
+      ],
+      "intended_acceptance": [
+        "E组件44项真实PG测试通过；主线服务/权限投影/浏览器和完整verify仍由root验收。",
+        "不发送邮件，不公开出版；编辑推荐不是决定，模型没有确认权限。"
+      ],
+      "current_baseline": {
+        "system": "current-system",
+        "source_id": "apps/api/publishing/models.py",
+        "entity_type": "class",
+        "entity": "EditorialTask"
+      },
+      "component_validation": {
+        "date": "2026-11-03",
+        "suite": "tests/api/test_editorial_decision_models.py",
+        "observed_passed": 44,
+        "elapsed_seconds": 26.76,
+        "warnings": [
+          "existing Starlette/httpx deprecation"
+        ],
+        "scope": "isolated full-chain model/migration/confirmation/immutability/privacy-source and minor lineage tests, not full product acceptance",
+        "public_database_modified_by_component_agent": false,
+        "evidence_worktree": "/tmp/publishing-v01-decision-models/artifacts/editorial-decision-models.xml"
+      },
+      "source_binding": {
+        "path": "apps/api/publishing/domain/decision_models.py",
+        "class_line": 119,
+        "fields": [
+          {
+            "name": "id",
+            "line": 158,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
+          },
+          {
+            "name": "manuscript_id",
+            "line": 159,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('manuscripts.id'))"
+          },
+          {
+            "name": "journal_id",
+            "line": 160,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('journals.id'))"
+          },
+          {
+            "name": "decision_id",
+            "line": 161,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "request_no",
+            "line": 162,
+            "annotation": "Mapped[int]",
+            "declaration": "mapped_column(Integer)"
+          },
+          {
+            "name": "base_version_id",
+            "line": 163,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "draft_version_id",
+            "line": 164,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "submitted_version_id",
+            "line": 165,
+            "annotation": "Mapped[str | None]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "kind",
+            "line": 166,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(20))"
+          },
+          {
+            "name": "rereview_required",
+            "line": 167,
+            "annotation": "Mapped[bool]",
+            "declaration": "mapped_column(Boolean)"
+          },
+          {
+            "name": "author_instructions",
+            "line": 168,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(Text)"
+          },
+          {
+            "name": "due_at",
+            "line": 169,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True))"
+          },
+          {
+            "name": "status",
+            "line": 170,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(20), default='requested', server_default='requested')"
+          },
+          {
+            "name": "requested_at",
+            "line": 171,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True), default=now)"
+          },
+          {
+            "name": "submitted_at",
+            "line": 172,
+            "annotation": "Mapped[datetime | None]",
+            "declaration": "mapped_column(DateTime(timezone=True))"
+          },
+          {
+            "name": "author_confirmation_id",
+            "line": 173,
+            "annotation": "Mapped[str | None]",
+            "declaration": "mapped_column(String(36))"
+          }
+        ],
+        "table_args": {
+          "line": 121,
+          "declaration": "(_tenant_manuscript('fk_pub_revision_tenant'), _same_manuscript('decision_id', 'publishing_editorial_decisions', 'fk_pub_revision_decision'), _same_manuscript('base_version_id', 'publishing_versions', 'fk_pub_revision_base'), _same_manuscript('draft_version_id', 'publishing_versions', 'fk_pub_revision_draft'), _same_manuscript('submitted_version_id', 'publishing_versions', 'fk_pub_revision_submitted'), _same_manuscript('author_confirmation_id', 'publishing_human_confirmations', 'fk_pub_revision_confirmation'), UniqueConstraint('id', 'manuscript_id', name='uq_pub_revision_id_manuscript'), UniqueConstraint('decision_id', name='uq_pub_revision_decision'), UniqueConstraint('manuscript_id', 'request_no', name='uq_pub_revision_sequence'), CheckConstraint(\"request_no >= 1 AND kind IN ('minor','major')\", name='ck_pub_revision_kind'), CheckConstraint(\"kind <> 'major' OR rereview_required=true\", name='ck_pub_revision_major'), CheckConstraint('draft_version_id <> base_version_id AND length(btrim(author_instructions))>=20', name='ck_pub_revision_material'), CheckConstraint(\"(status='requested' AND submitted_version_id IS NULL AND submitted_at IS NULL AND author_confirmation_id IS NULL) OR (status='submitted' AND submitted_version_id IS NOT NULL AND submitted_version_id=draft_version_id AND submitted_at IS NOT NULL AND author_confirmation_id IS NOT NULL)\", name='ck_pub_revision_submission'), Index('uq_pub_revision_requested', 'manuscript_id', unique=True, postgresql_where=text(\"status='requested'\")))"
+        }
+      },
+      "field_revision_bindings": {
+        "id": "11d95a8b3e42",
+        "manuscript_id": "11d95a8b3e42",
+        "journal_id": "11d95a8b3e42",
+        "decision_id": "11d95a8b3e42",
+        "request_no": "11d95a8b3e42",
+        "base_version_id": "11d95a8b3e42",
+        "draft_version_id": "11d95a8b3e42",
+        "submitted_version_id": "11d95a8b3e42",
+        "kind": "11d95a8b3e42",
+        "rereview_required": "11d95a8b3e42",
+        "author_instructions": "11d95a8b3e42",
+        "due_at": "11d95a8b3e42",
+        "status": "11d95a8b3e42",
+        "requested_at": "11d95a8b3e42",
+        "submitted_at": "11d95a8b3e42",
+        "author_confirmation_id": "11d95a8b3e42"
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "11d95a8b3e42",
+          "names": [
+            "ck_pub_revision_kind",
+            "ck_pub_revision_major",
+            "ck_pub_revision_material",
+            "ck_pub_revision_submission",
+            "fk_pub_revision_base",
+            "fk_pub_revision_confirmation",
+            "fk_pub_revision_decision",
+            "fk_pub_revision_draft",
+            "fk_pub_revision_submitted",
+            "fk_pub_revision_tenant",
+            "uq_pub_revision_decision",
+            "uq_pub_revision_id_manuscript",
+            "uq_pub_revision_requested",
+            "uq_pub_revision_sequence"
+          ],
+          "scope": "E strong FK/unique/check/partial index and immutable confirmation boundaries"
+        }
+      ]
     }
   ],
   "additional_contracts": [
@@ -6925,6 +8008,17 @@
           "uq_pub_work_item_review_report"
         ]
       }
+    },
+    {
+      "path": "specs/009-decisions-and-revisions.md",
+      "migration_id": "11d95a8b3e42",
+      "new_models": {
+        "EditorialDecision": "publishing_editorial_decisions",
+        "DecisionReportRelease": "publishing_decision_report_releases",
+        "RevisionRequest": "publishing_revision_requests"
+      },
+      "extended_fields": {},
+      "extended_constraints": {}
     }
   ],
   "migration_evidence": [
@@ -6950,6 +8044,27 @@
         "publishing_review_invitation_consistent",
         "publishing_review_grant_consistent",
         "publishing_review_report_consistent"
+      ]
+    },
+    {
+      "revision": "11d95a8b3e42",
+      "down_revision": "10c84f7a2d31",
+      "path": "infrastructure/migrations/versions/11d95a8b3e42_editorial_decisions.py",
+      "sha256": "d704e187f2369465cd61e9cde104bdae03068df7b069dc25c370eb4c5e80312b",
+      "validation_scope": "44 isolated PG component tests; full service/UI verify remains lead responsibility",
+      "sql_functions": [
+        "publishing_editorial_confirmation",
+        "publishing_editorial_author_snapshot",
+        "publishing_guard_editorial_decision",
+        "publishing_guard_decision_release",
+        "publishing_guard_revision_request",
+        "publishing_require_decision_bundle",
+        "publishing_editorial_reject_truncate"
+      ],
+      "deferred_triggers": [
+        "publishing_decision_bundle",
+        "publishing_release_bundle",
+        "publishing_revision_bundle"
       ]
     }
   ],

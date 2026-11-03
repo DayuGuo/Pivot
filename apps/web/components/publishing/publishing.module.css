@@ -142,7 +142,7 @@
 .snapshotAuthors strong, .snapshotAuthors span { display: block; }
 .snapshotAuthors strong { font-weight: 550; }
 .snapshotAuthors span { font-size: 12px; }
-.preserve { white-space: pre-wrap; }
+.preserve { white-space: pre-wrap; overflow-wrap: anywhere; }
 .json { white-space: pre-wrap; overflow-wrap: anywhere; max-width: 100%; font-size: 11px; line-height: 1.7; padding: 10px 0; }
 .reviewHeading { margin: 0 0 18px; }
 .reviewHeading h2 { margin-top: 0; }

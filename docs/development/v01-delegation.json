@@ -1,6 +1,6 @@
 {
   "goal": "publishing-v0.1",
-  "date": "2026-11-02",
+  "date": "2026-11-03",
   "main_configuration_changed": false,
   "native_cross_provider_verified": false,
   "native_model_override": null,
@@ -51,5 +51,47 @@
     "unknown_reason": "Native helper usage and per-task durations unavailable; not inferred from project API telemetry.",
     "rework": "Lead fixes and helper follow-up: audit privacy, CAS confirmation, lock/provider reauthorization, human default values, context history/replay, negative creation intent, select labels. No tests removed."
   },
-  "deepseek": "Product live protocol previously verified at baseline354c930; new normalized-domain live acceptance not yet run. No claim that native Codex child provider was switched."
+  "deepseek": "Product live protocol previously verified at baseline354c930; new normalized-domain live acceptance not yet run. No claim that native Codex child provider was switched.",
+  "phase_updates": [
+    {
+      "phase": "D",
+      "status": "full verified checkpoint c7fa2d9",
+      "backend_tests": 612,
+      "browser_tests": 24,
+      "isolation": [
+        "/tmp/publishing-v01-review-models",
+        "/tmp/publishing-v01-review-ui",
+        "dedicated security test modules"
+      ],
+      "rework": "Lead integrated scoped anonymous reads, immutable round materials, historical proposal access, context visibility and two lock-wait races; independent six-case review passed."
+    },
+    {
+      "phase": "E",
+      "status": "integrated full verification passed; Goal still active",
+      "isolation": [
+        "/tmp/publishing-v01-decision-models",
+        "/tmp/publishing-v01-decision-ui",
+        "tests/api/test_publishing_decision_security.py"
+      ],
+      "component_tests": 44,
+      "independent_security_tests": 9,
+      "focused_browser_tests": 1,
+      "preliminary_all_backend_tests": 642,
+      "rework": "Chief may change suggestions, complete minor lineage traversal, frozen production assignee, explicit anonymity review, strict boolean and UUID duplicate rejection; DB email COI aligned with API after actual negative experiments. Browser final locator scoped to unique real task.",
+      "delegated_component_metrics": {
+        "scope": "E isolated model, UI and security components; integrated full verification passed",
+        "attempted": 3,
+        "completed": 3,
+        "failed": 0,
+        "success_rate": 1.0,
+        "token_consumption": null,
+        "api_cost_usd": null,
+        "wall_time_ms": null,
+        "unknown_reason": "Native helper accounting unavailable; component validation duration is not task elapsed time."
+      },
+      "backend_tests": 686,
+      "browser_tests": 24,
+      "backend_duration_seconds": 251.01
+    }
+  ]
 }

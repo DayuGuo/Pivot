@@ -381,7 +381,11 @@ class Runtime:
                     )
                 # Manual staff review declarations are entered in the responsible
                 # person's form; the model cannot assert they read a report.
-                model_actions = [a for a in data["allowed_actions"] if a["action"] == "submit"]
+                model_actions = [
+                    a
+                    for a in data["allowed_actions"]
+                    if a["action"] in {"submit", "submit_revision"}
+                ]
                 if model_actions:
                     tools.append(
                         function(
@@ -577,7 +581,9 @@ class Runtime:
             if self.staged or not self.current_id:
                 raise GatewayError("publishing_mutation_limit")
             data = core.submission_projection(self.db, self.actor, self.current_id)
-            if arguments["action_type"] not in [a["action"] for a in data["allowed_actions"]]:
+            if arguments["action_type"] not in {"submit", "submit_revision"} or arguments[
+                "action_type"
+            ] not in [a["action"] for a in data["allowed_actions"]]:
                 raise HTTPException(403, "当前关口不允许此审核动作")
             self.staged = ("review", self.current_id, data["revision"], arguments["action_type"])
             result = {"staged": True, "requires_human_confirmation": True}
@@ -787,7 +793,17 @@ def mock_reply(runtime):
             "references": list(runtime.evidence.values()),
         }
     if runtime.current_id and re.search(r"准备.*审核|准备.*投稿|prepare.*review", text, re.I):
-        runtime.execute("prepare_review", {"action_type": "submit"})
+        action = (
+            "submit_revision"
+            if any(
+                a["action"] == "submit_revision"
+                for a in core.submission_projection(runtime.db, runtime.actor, runtime.current_id)[
+                    "allowed_actions"
+                ]
+            )
+            else "submit"
+        )
+        runtime.execute("prepare_review", {"action_type": action})
         return {
             "content": "模拟结果：已准备完整资料快照，请进入独立审核页逐项核对并由本人确认。",
             "references": list(runtime.evidence.values()),

@@ -2,6 +2,16 @@
 
 ## 活跃 Goal：OJS / Janeway 数据库研究与 v0.1 完整样本
 
+### E 检查点已验收（Goal仍活跃）
+
+spec009已接通编辑建议/主编决定/匿名Release/正式RevisionRequest，独立worktree交付模型迁移与UI，lead整合确定性服务与权限。minor逐条追溯修回到本轮固定版本，major需新轮；共享正文须主编人工检查匿名性，录用绑定制作负责人快照。独立55433已实际升级11d95a8b3e42并check无漂移；17输入约束+4真实PG生命周期+9独立安全测试通过。包括两次minor→V3接受、major R1V1→R2V2→minorV3接受、chief改变建议后reject、跨稿报告拒绝、角色撤权及真实response字节篡改不提交。
+
+完整 `scripts/verify.sh` **实际退出0：686 Pytest（251.01秒）+24 Playwright（1.2m）**，全部旧回归保留，迁移/结构漂移、Ruff/format、依赖边界、ESLint/TypeScript及准确API+Web镜像构建启动通过。日志artifacts/v01-e-full-verify.log。E独立模型44项（26.76秒）含完整新head metadata对比、不可变/跨稿/同版本人类证据及deferred原子bundle。最初raw-model实验发现chief/production历史作者邮箱未link时DDL不拦，而API已拦；已补SQL并在隔离public仅CREATE OR REPLACE对应函数、不删数据/不降级，后续完整回归通过。具体sha见artifacts/v01-e-guard-refresh.json。
+
+聚焦完整浏览器先通过21.4秒；全量中同篇链22.7秒：作者→预审/分派→评审→编辑建议→主编minor/匿名分享→作者V2/声明/response→编辑复核/新建议→chiefaccept→production实际待办。首轮最后两个合法链接导致strict locator失败，现限定左侧本人任务唯一链接后通过，没有删断言。四张桌面/390实际打开复核，对话输入可见、无overflow/pageerror。研究门禁随后独立扩展并实际通过22类/289字段、114个D/E列/93约束、两迁移和2合同指纹；10项复制库实验1正+9负均符合预期，应用代码无后改。证据artifacts/v01-e-research-gate.json和E-research-gate-*。
+
+F规格/制作来源取舍为设计，尚未实施；Goal不完成。下一片实际校样、更正循环、作者确认与鉴权本地预览；随后新领域真实DeepSeek/安全API委派验收及保护主服务环境的本地集成。主3100/8100仍为旧live基线，当前新领域只运行于隔离13100/18100；无真实API/邮件/主库修改。
+
 ### D 检查点已验收（2026-11-03，Goal仍活跃）
 
 真实主链继续到：责任编辑确认站内轮次/邀请→审稿人仅见匿名摘要→本人声明无冲突并接受→固定匿名材料/本人草稿→AI未核实文字候选→本人独立确认提交报告→编辑明确结束本轮→编辑汇总建议。拒绝邀请不等于拒稿，重邀保留attempt；报告草稿不向编辑/作者公开，已交报告仍不自动给作者。新角色账号 reviewer2@publishing.test / Reviewer2Demo2026! 为纯合成候选；原账号保持。

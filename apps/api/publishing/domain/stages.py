@@ -220,7 +220,18 @@ def prepare_stage(db, actor, manuscript, flow, task, version, action_type, data)
     }
 
 
-def clone_for_return(db, actor, manuscript, flow, version, reason, return_to):
+def clone_for_return(
+    db,
+    actor,
+    manuscript,
+    flow,
+    version,
+    reason,
+    return_to,
+    *,
+    planned_id=None,
+    formal_request_id=None,
+):
     number = (
         db.scalar(
             select(func.max(ManuscriptVersion.version_no)).where(
@@ -232,7 +243,7 @@ def clone_for_return(db, actor, manuscript, flow, version, reason, return_to):
     metadata = deepcopy(version.metadata_json)
     metadata["declarations"] = DeclarationsInput().model_dump()
     draft = ManuscriptVersion(
-        id=uid(),
+        id=planned_id or uid(),
         manuscript_id=manuscript.id,
         version_no=number,
         title=version.title,
@@ -291,10 +302,11 @@ def clone_for_return(db, actor, manuscript, flow, version, reason, return_to):
     )
     step = db.get(StepRun, task.step_run_id)
     step.outcome_json = {
-        "return_to": "precheck_completeness",
+        "return_to": "revision_assessment" if formal_request_id else "precheck_completeness",
         "returned_from": return_to,
         "reason": reason,
-        "revision_kind": "screening_return",
+        "revision_kind": "decision_revision" if formal_request_id else "screening_return",
+        **({"revision_request_id": formal_request_id} if formal_request_id else {}),
     }
     db.add(
         FormDraft(

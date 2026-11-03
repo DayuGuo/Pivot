@@ -1,7 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 
-test("作者通过常驻对话创建真实投稿，核对资料后独立确认，编辑获得预审待办", async ({ page, browser }) => {
-  test.setTimeout(90000);
+test("常驻对话贯通真实投稿、同行评审、主编正式修回与录用制作移交", async ({ page, browser }) => {
+  test.setTimeout(150000);
   await page.goto("/");
   await page.getByLabel("邮箱", { exact: true }).fill("author@publishing.test");
   await page.getByLabel("密码", { exact: true }).fill("AuthorDemo2026!");
@@ -147,9 +147,128 @@ test("作者通过常驻对话创建真实投稿，核对资料后独立确认�
   await reviewerPage.reload();
   await expect(reviewerPage.getByRole("button", { name: "保存审稿报告草稿", exact: true })).toHaveCount(0);
   await expect(reviewerPage.getByRole("link", { name: "review-manuscript.txt", exact: true })).toHaveCount(0);
+
+  // E starts from the actual closed D round above; no final state is seeded.
+  await expect(editorPage.getByLabel("编辑建议", { exact: true })).toHaveValue("");
+  await editorPage.getByLabel("编辑建议", { exact: true }).selectOption("request_revision");
+  await editorPage.getByLabel("修回类型", { exact: true }).selectOption("minor");
+  await editorPage.getByLabel("内部决定依据", { exact: true }).fill("PRIVATE-E-RECOMMENDATION：责任编辑依据已确认评审报告提出合成小修建议，建议不能代替主编决定。");
+  await editorPage.getByLabel("给作者的决定信建议稿", { exact: true }).fill("请进一步说明合成研究的数据来源、方法与测试边界，并按本次匿名评审意见完善稿件后提交正式修回。");
+  await prepareEditorial(editorPage, mid, "recommend_decision");
+  await approve(editorPage, "确认并提交编辑建议");
+  await chiefPage.reload();
+  await expect(chiefPage.getByLabel("主编决定", { exact: true })).toHaveValue("");
+  await chiefPage.getByLabel("主编决定", { exact: true }).selectOption("request_revision");
+  await chiefPage.getByLabel("修回类型", { exact: true }).selectOption("minor");
+  await chiefPage.getByLabel("内部决定依据", { exact: true }).fill("PRIVATE-E-DECISION：主编本人核对实际版本、编辑建议与固定评审报告，要求作者完成此次合成小修。");
+  const revisionLetter = "本稿件需要完成正式小修。请依据以下匿名评审反馈，澄清合成数据来源、方法限制和评估过程，再提交修回说明。";
+  const revisionInstructions = "请逐项回答匿名评审意见，补充合成研究的可复现细节与局限，并上传实际修回说明文件；全部仅用于本地软件验收。";
+  await chiefPage.getByLabel("给作者的正式决定信", { exact: true }).fill(revisionLetter);
+  await chiefPage.getByLabel("正式修回要求", { exact: true }).fill(revisionInstructions);
+  await chiefPage.getByLabel("修回期限（天）", { exact: true }).fill("14");
+  const share = chiefPage.getByRole("checkbox", { name: "向作者共享第 1 份匿名评审意见", exact: true });
+  await expect(share).not.toBeChecked();
+  await share.check();
+  const anonymity = chiefPage.getByRole("checkbox", { name: "已检查拟分享意见正文不含审稿人身份和保密内容", exact: true });
+  await expect(anonymity).not.toBeChecked();
+  await anonymity.check();
+  await prepareEditorial(chiefPage, mid, "record_decision");
+  await expect(chiefPage.getByRole("region", { name: "拟确认的主编决定", exact: true }).getByText(revisionLetter, { exact: true })).toBeVisible();
+  await approve(chiefPage, "确认要求作者修回");
+
+  await page.reload();
+  await expect(page.getByRole("region", { name: "正式编辑反馈", exact: true }).getByText(revisionLetter, { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "匿名评审意见 1", exact: true })).toBeVisible();
+  await expect(page.getByText("PRIVATE-BROWSER-COMMENT", { exact: false })).toHaveCount(0);
+  await expect(page.getByText("PRIVATE-BROWSER-ANSWER", { exact: false })).toHaveCount(0);
+  await expect(page.getByText("PRIVATE-E-RECOMMENDATION", { exact: false })).toHaveCount(0);
+  await expect(page.getByText("PRIVATE-E-DECISION", { exact: false })).toHaveCount(0);
+  await expect(page.getByText("周审稿人", { exact: false })).toHaveCount(0);
+  const authorDetail = await (await page.request.get(`/api/publishing/manuscripts/${mid}`)).json();
+  expect(authorDetail.version.version_no).toBe(2);
+  expect(authorDetail.versions[0].frozen_at).toBeTruthy();
+  expect(authorDetail.editorial.revision_request.status).toBe("requested");
+  const staffDetail = await (await chiefPage.request.get(`/api/publishing/manuscripts/${mid}`)).json();
+  for (const report of staffDetail.editorial.reports) expect(JSON.stringify(authorDetail)).not.toContain(report.id);
+  await expect(page.getByLabel("我确认稿件为原创", { exact: false })).not.toBeChecked();
+  await expect(page.getByLabel("我确认拥有投稿所需的版权或授权", { exact: false })).not.toBeChecked();
+  await expect(page.getByLabel("利益冲突", { exact: true })).toHaveValue("unanswered");
+  await expect(page.getByLabel("伦理审批适用性", { exact: true })).toHaveValue("unanswered");
+  await page.getByLabel("标题", { exact: true }).fill("合成开放科学浏览器验收 · 正式修回V2");
+  await page.getByLabel("我确认稿件为原创", { exact: false }).check();
+  await page.getByLabel("我确认拥有投稿所需的版权或授权", { exact: false }).check();
+  await page.getByLabel("利益冲突", { exact: true }).selectOption("none");
+  await page.getByLabel("伦理审批适用性", { exact: true }).selectOption("not_applicable");
+  await page.getByRole("button", { name: "保存资料", exact: true }).click();
+  await expect(page.getByText("资料已保存。", { exact: true })).toBeVisible();
+  await page.getByLabel("文件用途", { exact: true }).selectOption("response");
+  await page.getByLabel("选择文件", { exact: true }).setInputFiles({ name: "synthetic-formal-response.txt", mimeType: "text/plain", buffer: Buffer.from("正式合成修回说明：已逐项核对匿名评审意见，补充合成研究的方法、复现条件和局限。\n不包含真实保密研究资料。", "utf8") });
+  await page.getByRole("button", { name: "上传并保存", exact: true }).click();
+  await expect(page.getByRole("link", { name: "synthetic-formal-response.txt", exact: true })).toBeVisible();
+  await prepareEditorial(page, mid, "submit_revision");
+  await expect(page.getByRole("link", { name: "synthetic-formal-response.txt", exact: true })).toBeVisible();
+  await approve(page, "确认并提交正式修回");
+
+  await editorPage.reload();
+  await expect(editorPage.getByLabel("修回复核结果", { exact: true })).toHaveValue("");
+  await expect(editorPage.getByRole("checkbox", { name: "我已人工检查当前修回版本", exact: true })).not.toBeChecked();
+  await expect(editorPage.getByRole("checkbox", { name: "我已人工阅读本次修回说明", exact: true })).not.toBeChecked();
+  await editorPage.getByLabel("修回复核结果", { exact: true }).selectOption("ready_for_chief");
+  await editorPage.getByLabel("修回复核意见", { exact: true }).fill("责任编辑本人已阅读当前V2修回版本与实际修回说明，合成小修要求已得到逐项回应，可重新形成编辑建议供主编审核。");
+  await editorPage.getByRole("checkbox", { name: "我已人工检查当前修回版本", exact: true }).check();
+  await editorPage.getByRole("checkbox", { name: "我已人工阅读本次修回说明", exact: true }).check();
+  await prepareEditorial(editorPage, mid, "assess_revision");
+  await approve(editorPage, "确认复核并进入编辑建议");
+  await expect(editorPage.getByLabel("编辑建议", { exact: true })).toHaveValue("");
+  await editorPage.getByLabel("编辑建议", { exact: true }).selectOption("accept");
+  await editorPage.getByLabel("内部决定依据", { exact: true }).fill("PRIVATE-E-ACCEPT-RECOMMENDATION：V2已完成正式小修并由责任编辑复核，现依据同一固定评审轮与有效修回链建议录用。");
+  await editorPage.getByLabel("给作者的决定信建议稿", { exact: true }).fill("稿件已根据匿名评审反馈完成正式修回，方法与评估边界更清晰，现建议主编审核后决定是否录用本次合成稿件。");
+  await prepareEditorial(editorPage, mid, "recommend_decision");
+  await approve(editorPage, "确认并提交编辑建议");
+  await chiefPage.reload();
+  await expect(chiefPage.getByLabel("主编决定", { exact: true })).toHaveValue("");
+  await expect(chiefPage.getByRole("region", { name: "已确认主编决定历史", exact: true }).getByText(revisionLetter, { exact: true })).toBeVisible();
+  await chiefPage.getByLabel("主编决定", { exact: true }).selectOption("accept");
+  await chiefPage.getByLabel("内部决定依据", { exact: true }).fill("PRIVATE-E-ACCEPT-DECISION：主编核对V2、正式小修提交与责任编辑复核及新建议，确认录用当前合成版本并交实际制作负责人。");
+  const acceptanceLetter = "本稿件已完成正式小修并通过责任编辑复核。主编现确认录用当前合成版本，后续交出版制作处理；此决定不发送邮件、不公开发布。";
+  await chiefPage.getByLabel("给作者的正式决定信", { exact: true }).fill(acceptanceLetter);
+  await prepareEditorial(chiefPage, mid, "record_decision");
+  await expect(chiefPage.getByRole("heading", { name: "出版制作负责人", exact: true })).toBeVisible();
+  await approve(chiefPage, "确认录用本稿件");
+  const accepted = await (await chiefPage.request.get(`/api/publishing/manuscripts/${mid}`)).json();
+  expect(accepted.stage).toBe("production");
+  expect(accepted.accepted_version_id).toBe(accepted.current_version_id);
+  expect(accepted.editorial.decisions.map((decision: { decision_code: string }) => decision.decision_code)).toEqual(["request_revision", "accept"]);
+  await page.reload();
+  await expect(page.getByRole("region", { name: "正式编辑反馈", exact: true }).getByText(acceptanceLetter, { exact: true })).toBeVisible();
+  await expect(page.getByText("PRIVATE-E-ACCEPT", { exact: false })).toHaveCount(0);
+  await expect(page.getByText("周审稿人", { exact: false })).toHaveCount(0);
+  const production = await browser.newContext(); const productionPage = await production.newPage();
+  await productionPage.goto("/");
+  await productionPage.getByLabel("邮箱", { exact: true }).fill("production@publishing.test");
+  await productionPage.getByLabel("密码", { exact: true }).fill("ProductionDemo2026!");
+  await productionPage.getByRole("button", { name: "进入工作台", exact: true }).click();
+  await productionPage.getByRole("button", { name: "出版工作台", exact: true }).click();
+  const productionTask = productionPage.getByRole("complementary", { name: "我的工作", exact: true }).locator(`a[href="/publishing?manuscript=${mid}"]`).filter({ hasText: "出版制作" });
+  await expect(productionTask).toHaveCount(1);
+  await expect(productionTask).toBeVisible();
+  await productionTask.click();
+  await expect(productionPage.getByRole("textbox", { name: "向出版助手发送消息", exact: true })).toBeVisible();
+  await expect(productionPage.getByText("合成开放科学浏览器验收 · 正式修回V2", { exact: true }).first()).toBeVisible();
+  await production.close();
   await reviewer.close();
   await editor.close(); await chief.close();
 });
+
+async function prepareEditorial(page: Page, manuscriptId: string, action: string) {
+  const response = await page.request.get(`/api/publishing/manuscripts/${manuscriptId}`);
+  expect(response.ok()).toBeTruthy();
+  const detail = await response.json();
+  const permitted = detail.allowed_actions.find((candidate: { action: string; label: string }) => candidate.action === action);
+  expect(permitted).toBeTruthy();
+  await page.getByRole("button", { name: permitted.label, exact: true }).click();
+  await page.getByRole("link", { name: "打开完整资料并由负责人确认", exact: true }).click();
+}
 
 async function approve(page: Page, label: string) {
   const confirm = page.getByRole("button", { name: label, exact: true });

@@ -112,3 +112,9 @@ OJS/Janeway均以轮次/固定文件保留评审证据。本项目的分段预�
 依据两系统固定源码与comparison/review-revision-design：用attempt和active partial UNIQUE保留拒邀/重邀，RoleReviewer只在本人接受后获得本轮匿名文件grant。Round初始化seal及deferred完整性防半轮，ReviewReport原文/编辑私密字段分列，草稿私有、submitted不可变。Reviewer推荐不直接决定稿件；D终点是editor_recommendation，作者反馈/主编决定另片实现。
 
 模型、API、下载统一后端allowlist DTO，原始文件ID即使同版本也必须在授权文件集；独立审核只展示适合该角色的完整内容。历史消息按曝光权限子集而非仅稿件存在性过滤，旧prepared/confirmed proposal同样重验。幂等锁/稿件锁后的scope复核是已用真实PG可控调度复现并修正的要求，不仅静态推断。新类型组件在Git worktree隔离，lead整合权限与最终回归。
+
+## ADR-020：决定、反馈与正式修回分开存储（E已验收）
+
+编辑建议沿用不可变Proposal/HumanConfirmation/StepRun，主编最终决定另存EditorialDecision；主编可改变建议，建议不能成为最终状态。作者仅通过DecisionReportRelease得到负责人明确审核过的作者字段快照，原始报告及身份/私密字段仍无权限。白名单不能消除自由正文中的签名，分享必须由主编另外检查匿名性。
+
+RevisionRequest绑定来源决定、冻结base版、新draft及作者正式提交确认；大修必须新开实际轮次。小修可使用旧轮次，但确定性服务逐步追溯每个已提交请求与该版人工复核，直到本轮固定版本，不能错误要求每个base版都等于Round.version。录用准备同时冻结制作负责人身份，确认重验同人权限，不能事后改派。后续校样文件独立于已冻结的VersionFile，本地预览与正式公开出版分离。实际验收见PROGRESS，不从设计推断完成。

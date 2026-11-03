@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { Snapshot } from "./intake";
+import { EditorialSnapshot, editorialConfirmationLabel } from "./decisions";
 import { StageReviewSummary, confirmationLabel, stageLabels } from "./stage-actions";
 import { PeerReviewSnapshot, peerReviewConfirmationLabel, peerReviewAcknowledgment } from "./review-snapshot";
 import type { Proposal } from "./types";
@@ -24,10 +25,11 @@ export default function ProposalReview({ proposalId }: { proposalId: string }) {
     try { await mutate(`/proposals/${proposal.id}/confirmations`, { expected_revision: proposal.base_revision, digest: proposal.digest, acknowledged: true }); setConfirmed(true); await refresh(); await load(); }
     catch (failure) { setError((failure as Error).message); if (failure instanceof APIError && failure.status === 409) setStale(true); } finally { setBusy(false); }
   }
-  const peerLabel = proposal ? peerReviewConfirmationLabel(proposal) : null;
+  const peerLabel = proposal ? editorialConfirmationLabel(proposal) ?? peerReviewConfirmationLabel(proposal) : null;
   const reviewerOperation = proposal?.action_type === "respond_review_invitation" || proposal?.action_type === "submit_review";
   const title = peerLabel ?? (proposal?.action_type === "submit" ? "确认投稿" : proposal?.action_type === "assign_editor" ? "确认分派责任编辑" : proposal?.payload.check ? `${stageLabels[proposal.payload.check.kind] ?? "当前关口"}审核` : "确认业务操作");
   return <section className={styles.panel}><header className={styles.panelHeader}><h1>负责人审核</h1>{proposal && <Link href={`/publishing?manuscript=${proposal.manuscript_id}`}>返回稿件</Link>}</header>{error && <div className={styles.error} role="alert">{error}{!stale && <button onClick={() => void load()} disabled={busy}>重新载入</button>}</div>}{!proposal ? <p role="status">{error ? "材料未载入。请重试或从左侧选择工作。" : "正在载入不可变审核快照…"}</p> : <><div className={styles.reviewHeading}><h2>{proposal.number} · {title}</h2><p>当前负责人：{session.user.name} · 基于修订 {proposal.base_revision}</p><p>有效至 {dateText(proposal.expires_at)}</p></div>{confirmed ? <p className={styles.success} role="status">此操作已由负责人确认，结果已保存。{proposal.confirmation && `确认时间：${dateText(proposal.confirmation.confirmed_at)}`}</p> : stale ? <div className={styles.notice} role="alert">此快照已失效，不能继续确认。请返回稿件检查最新资料并重新准备审核。<Link href={`/publishing?manuscript=${proposal.manuscript_id}`}>返回稿件并重新准备</Link></div> : <p className={styles.notice}>请核对以下完整资料与文件。确认会执行此业务操作；对话中的建议不等于你的确认。</p>}
+    <EditorialSnapshot proposal={proposal} />
     <PeerReviewSnapshot proposal={proposal} />
     <StageReviewSummary proposal={proposal} />
     {!reviewerOperation && proposal.payload.version && <Snapshot version={proposal.payload.version} reviewSnapshot />}

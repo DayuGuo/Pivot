@@ -467,6 +467,11 @@ class Gate:
         for contract in mapping.get("additional_contracts", []):
             text = self.local(REPOSITORY, contract["path"]).read_text()
             declared = dict(re.findall(r"\*\*(\w+) / (publishing_\w+)\*\*", text))
+            for name, table in re.findall(r"\d+\.\s+`(\w+)`\s*/\s*(publishing_\w+)", text):
+                self.require(
+                    name not in declared, f"extension contract: duplicate model declaration {name}"
+                )
+                declared[name] = table
             self.require(
                 declared == contract["new_models"], "extension contract: new-model coverage drift"
             )
@@ -729,6 +734,39 @@ class Gate:
                         if table_args
                         else set()
                     )
+                    if set(model.get("field_revision_bindings", {})) == set(model["our_fields"]):
+                        named = set()
+                        for call in ast.walk(table_args) if table_args else []:
+                            if not isinstance(call, ast.Call):
+                                continue
+                            named.update(
+                                keyword.value.value
+                                for keyword in call.keywords
+                                if keyword.arg == "name" and isinstance(keyword.value, ast.Constant)
+                            )
+                            if isinstance(call.func, ast.Name):
+                                position = {
+                                    "_same_manuscript": 2,
+                                    "_tenant_manuscript": 0,
+                                    "_round_version": 0,
+                                    "Index": 0,
+                                }.get(call.func.id)
+                                if (
+                                    position is not None
+                                    and len(call.args) > position
+                                    and isinstance(call.args[position], ast.Constant)
+                                ):
+                                    named.add(call.args[position].value)
+                        bound = {
+                            name
+                            for item in model.get("constraint_revision_bindings", [])
+                            for name in item["names"]
+                        }
+                        self.require(
+                            named == bound,
+                            f"{label}: new-table named constraint coverage incomplete",
+                        )
+                        self.counts["complete_new_table_constraint_sets"] += 1
                     for item in model.get("constraint_revision_bindings", []):
                         definition = self.migration_definition(item["revision"])
                         for name in item["names"]:

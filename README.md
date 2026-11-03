@@ -2,9 +2,9 @@
 
 ## 正在迭代：真实出版 v0.1
 
-活跃目标见 [goals/publishing-v0.1.md](goals/publishing-v0.1.md)，资料库见 [docs/research/library](docs/research/library/README.md)。站内评审已完成，完整决定/修回/制作闭环尚在开发，不把现有界面演示当成完整出版系统。
+活跃目标见 [goals/publishing-v0.1.md](goals/publishing-v0.1.md)，资料库见 [docs/research/library](docs/research/library/README.md)。站内评审、主编决定和正式修回已实际贯通并完成E检查点；制作校样/预览待实施，不把现有界面演示当成完整出版系统。
 
-新真实业务入口 `/publishing`（登录后点“出版工作台”）；现有 `/workbench` 保留演示材料。新入口的作者资料、实际UTF8 txt/md文件、版本/任务和独立人工审核使用规范化数据库。AI只能整理候选/准备审核，不能确认提交、发信或作决定。整个Goal的验收状态以PROGRESS为准。 当前真实主链已到编辑结轮/汇总建议，D检查点612后端+24浏览器通过；所有邮件仍禁用。第二名合成审稿人 reviewer2@publishing.test / Reviewer2Demo2026! 可用于并行评审测试。
+新真实业务入口 `/publishing`（登录后点“出版工作台”）；现有 `/workbench` 保留演示材料。新入口的作者资料、实际UTF8 txt/md文件、版本/任务和独立人工审核使用规范化数据库。AI只能整理候选/准备审核，不能确认提交、发信或作决定。E检查点完整验证已实际通过 **686后端+24浏览器**；同篇从作者投稿贯通主编正式修回、V2复核和录用制作移交。所有邮件仍禁用，整个Goal的状态以PROGRESS为准。
 
 验证新代码使用独立栈，保护当前主服务中的真实模型环境：
 
@@ -41,14 +41,26 @@ DATABASE_URL=postgresql+psycopg://publishing:publishing_local@localhost:55433/pu
 
 停止：`./scripts/stop.sh`。该命令保留 PostgreSQL 卷；再次启动仍保留数据。不要使用 `docker compose down -v`，除非明确要删除全部本项目数据。
 
-## 测试账号与演示
+## 测试账号与真实出版样本
 
 | 角色 | 邮箱 | 密码 | 当前权限 |
 | --- | --- | --- | --- |
-| 编辑 | editor@publishing.test | EditorDemo2026! | 创建测试稿件、分派初筛、查看本期刊稿件/审计 |
-| 作者 | author@publishing.test | AuthorDemo2026! | 仅查看本人稿件，不能执行编辑工具 |
-| 审稿人 | reviewer@publishing.test | ReviewerDemo2026! | 尚无分派，不能读取稿件或执行编辑工具 |
-| 主编 | chief@publishing.test | ChiefDemo2026! | 本期与编辑相同；正式决定工具尚未开放 |
+| 编辑 | editor@publishing.test | EditorDemo2026! | 本稿预审/责任编辑分派任务、送审与编辑建议；不能最终决定 |
+| 作者 | author@publishing.test | AuthorDemo2026! | 创建本人投稿、补齐资料、独立确认及正式修回；仅看负责人已分享反馈 |
+| 审稿人 | reviewer@publishing.test | ReviewerDemo2026! | 本人邀请响应；接受后看本轮匿名材料、提交本人报告 |
+| 第二审稿人 | reviewer2@publishing.test | Reviewer2Demo2026! | 独立合成候选，与第一审稿人权限相同 |
+| 主编 | chief@publishing.test | ChiefDemo2026! | 本稿主编任务、范围/分派、独立确认修回/录用/退稿 |
+| 制作 | production@publishing.test | ProductionDemo2026! | 仅有实际分派稿件的制作待办；校样/预览开发中 |
+
+1. 作者登录后点“出版工作台”，输入“请创建一篇新投稿”；再提供标题、摘要、关键词、作者等合成信息，由AI整理缺项。
+2. 核对表单、本人回答声明，上传真实UTF8完整/匿名稿件，准备审核后在独立页确认投稿。
+3. 编辑完成材料预审、实际报告上传和人工复核、匿名材料筛选；主编核对范围并分派责任编辑。
+4. 编辑核对质量、准备站内审稿邀请并独立确认；审稿人本人接受并声明无冲突，阅读匿名材料、保存和独立提交报告。
+5. 编辑结束实际轮次并确认建议；主编选择正式修回、检查拟分享意见匿名性并独立确认。作者修改新版本、上传回复、重新回答声明并本人提交；编辑人工复核后重新建议，主编可确认录用移交制作。录用不等于公开发表。
+
+新领域当前运行于隔离13100/18100/55433；主3100服务仍为此前真实模型基线，尚未迁移部署新领域。完整Goal完成时会更新实际运行入口和最终证据。
+
+### 保留的旧版初筛演示
 
 1. 用编辑账号登录。
 2. 输入 **“创建一篇测试稿件，并交给编辑初筛。”** 并发送，也可使用可操作的快捷指令。

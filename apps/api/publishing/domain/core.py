@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from ..audit import record
 from ..models import LoginSession, Manuscript, Membership, User, now, uid
 from ..security import Actor
+from .decision_schemas import EDITORIAL_ACTIONS
 from .files import FileValidationError, read_bytes
 from .models import (
     ActionProposal,
@@ -798,10 +799,19 @@ def prepare_proposal(
 ):
     manuscript, flow = load_submission(db, actor, manuscript_id, write=True)
     require_revision(flow, expected_revision)
+    if action_type in EDITORIAL_ACTIONS:
+        from .decisions import prepare
+
+        return prepare(db, actor, manuscript, flow, action_type, action_data or {})
     if action_type in REVIEW_ACTIONS:
         from .reviews import prepare
 
         return prepare(db, actor, manuscript, flow, action_type, action_data or {})
+    if flow.stage == "author_revision" and flow.draft_version_id:
+        from .decisions import latest_request
+
+        if latest_request(db, manuscript.id, draft_id=flow.draft_version_id):
+            raise HTTPException(422, "正式修回必须准备修回审核，不能按预审退回投稿提交")
     task = require_task(db, actor, manuscript, flow)
     if flow.stage in {"author_draft", "author_revision"} and action_type != "submit":
         raise HTTPException(422, "当前准备阶段只能准备投稿审核")
@@ -892,8 +902,12 @@ def authorize_proposal_content(db, actor, proposal):
     manuscript, _ = load_submission(db, actor, proposal.manuscript_id)
     action = proposal.action_type
     caps = capabilities(db, actor, manuscript)
-    if action == "submit":
+    if action in {"submit", "submit_revision"}:
         allowed = manuscript.author_id == actor.user.id
+    elif action == "record_decision":
+        allowed = "chief" in caps and not is_conflicted(db, manuscript, actor.user)
+    elif action in {"recommend_decision", "assess_revision"}:
+        allowed = "handling_editor" in caps and not is_conflicted(db, manuscript, actor.user)
     elif action in {"record_check", "assign_editor"}:
         required = CAPABILITIES.get(proposal.payload_snapshot["stage"])
         allowed = required in caps and not is_conflicted(db, manuscript, actor.user)
@@ -1000,6 +1014,10 @@ def confirm_proposal(
         raise HTTPException(409, "审核内容已过期或发生变化，请重新准备")
     if db.scalar(select(HumanConfirmation).where(HumanConfirmation.proposal_id == proposal.id)):
         raise HTTPException(409, "本审核已经处理，请使用原请求编号恢复结果")
+    if proposal.action_type in EDITORIAL_ACTIONS:
+        from .decisions import confirm
+
+        return confirm(db, actor, manuscript, flow, proposal, reason)
     if proposal.action_type in REVIEW_ACTIONS:
         from .reviews import confirm
 
@@ -1171,6 +1189,7 @@ def submission_projection(db: Session, actor: Actor, manuscript_id: str, *, deta
         "manuscript_files": True,
         "staff_reports": bool(caps & {"precheck", "handling_editor", "chief"}) and no_conflict,
         "peer_reports": bool(caps & {"handling_editor", "chief"}) and no_conflict,
+        "editorial_private": bool(caps & {"handling_editor", "chief"}) and no_conflict,
     }
     result["visibility_scope"] = visibility_scope
     result["visibility_fingerprint"] = digest(visibility_scope)
@@ -1184,6 +1203,27 @@ def submission_projection(db: Session, actor: Actor, manuscript_id: str, *, deta
             if flow.stage in {"author_draft", "author_revision"}:
                 result["allowed_actions"] = [
                     {"action": "submit", "label": "准备投稿审核", "requires_human": True}
+                ]
+                if flow.stage == "author_revision":
+                    from .decisions import latest_request
+
+                    formal = latest_request(db, manuscript.id, draft_id=flow.draft_version_id)
+                    if formal and formal.status == "requested":
+                        result["allowed_actions"] = [
+                            {
+                                "action": "submit_revision",
+                                "label": "准备修回审核",
+                                "requires_human": True,
+                            }
+                        ]
+            elif flow.stage in {"editor_recommendation", "chief_decision", "revision_assessment"}:
+                action, label = {
+                    "editor_recommendation": ("recommend_decision", "准备编辑建议审核"),
+                    "chief_decision": ("record_decision", "准备主编决定审核"),
+                    "revision_assessment": ("assess_revision", "准备修回复核审核"),
+                }[flow.stage]
+                result["allowed_actions"] = [
+                    {"action": action, "label": label, "requires_human": True}
                 ]
             elif flow.stage in {
                 "precheck_completeness",
@@ -1246,6 +1286,18 @@ def submission_projection(db: Session, actor: Actor, manuscript_id: str, *, deta
     from .review_access import staff_projection as peer_projection
 
     result["review"] = peer_projection(db, actor, manuscript, flow)
+    from .decisions import projection as editorial_projection
+
+    result["editorial"] = editorial_projection(db, actor, manuscript, flow)
+    if (
+        result["can_edit_intake"]
+        and result["editorial"]
+        and result["editorial"].get("revision_request")
+        and not any(f["purpose"] == "response" for f in result["version"]["files"])
+    ):
+        result["missing"].append(
+            {"field": "files.response", "message": "请上传逐项回应修回要求的实际回复文件"}
+        )
     current_step = db.get(StepRun, flow.current_step_id) if flow.current_step_id else None
     result["return_request"] = (
         {

@@ -25,11 +25,15 @@
 | DB14 邀请尝试和grant分开 | OJS assignment有请求/确认/拒绝/取消及普通reviewer-round index；Janeway对应时间/COI | attempt_no加有效占位partial UNIQUE；接受后才有reviewer typed grant；重邀新任务，不改旧attempt | 拒邀不退稿；submitted不能同轮重邀；响应硬截止、报告soft due；服务访问投影另行验收 |
 | DB15 报告和最终决定分开 | Janeway逐题快照、原答/编辑版/可见性/私密评论；OJS form responses和decision分层 | Report固定本轮表单；作者/编辑私密文本分列；完整人类提交后冻结 | draft不计完成；D没有chief决定/作者release/真实发信；匿名DTO与UI服务集成仍待root |
 
+| DB16 主编决定与minor依据链 | OJS recommend_only/decision分离，Janeway DecisionDraft及RevisionRequest | 当前版本完成编辑建议后主编独立选择；basis_round只同稿，旧轮通过正式minor提交与当前复核桥接 | 不强制主编照抄建议，不误令V3 base等于R1V1；DB查一跳，完整minor归纳由服务遍历 |
+| DB17 匿名发布快照 | Janeway逐题作者可见/私密与FrozenReviewFormElement，OJS responses | 显式chief批准的精确author-only源投影；共享需本人声明已检查文本匿名 | 即使批准payload含私密字段且hash匹配仍拒绝；不自动去标识或开放原始report |
+| DB18 正式修回 | Janeway RevisionRequest请求/截止/回应/完成、OJS修回决定及文件轮次 | 新Request+新draft同事务；owner确认真实response和新冻结版本后提交；major必新轮 | 不覆盖原稿/删改计划，不把上传即当完成，不用旧确认批准新内容 |
+
 完整来源定位在 JSON 的 `decisions[].source_refs` 和 `models[].field_groups[].source_refs`，并由离线脚本逐表、逐字段比对。DB09 后续现代制作选择还应复查 Janeway [typesetting 源码证据](../janeway/sources/typesetting-model-fields.txt) 与 [旧 production 证据](../janeway/sources/production-model-fields.txt)，避免在下一切片混用。
 
 ## 首批 14 个模型的边界
 
-这里的 14 是“既有 Manuscript 扩展 + 13 个新模型”，不是 14 张全新表。C 切片增加 CheckRun，D增加4个审稿实体，JSON 放在 `extension_models`；当前总映射19类/248字段。原基础14类在D增补Assignment/WorkItem的3个typed字段，并给VersionFile加triple parent key。所有 `publishing_` 子表关联真实 Manuscript，旧 `/workbench` fixture 不升级为正式数据源。
+这里的 14 是“既有 Manuscript 扩展 + 13 个新模型”，不是 14 张全新表。C 切片增加 CheckRun，D增加4个审稿实体，JSON 放在 `extension_models`；当前总映射22类/289字段，含E的EditorialDecision、DecisionReportRelease与RevisionRequest。原基础14类在D增补Assignment/WorkItem的3个typed字段，并给VersionFile加triple parent key。所有 `publishing_` 子表关联真实 Manuscript，旧 `/workbench` fixture 不升级为正式数据源。
 
 | 项目类 | 关键来源与字段 | 本项目关键约束/区别 |
 | --- | --- | --- |
@@ -109,3 +113,23 @@ D的原子顺序是：opening confirmation→Round(initializing)→固定RoundFi
 研究门禁还固定本轮已验证D迁移SHA-256与down_revision，核对9个关键SQL函数及4个deferred trigger；它是静态来源/实现一致性检查，不能替代运行数据库约束/匿名API/模型history/replay或浏览器验收。之后若修改SQL/关系，应重新测试并显式更新对应映射，不可仅改hash来让检查变绿。
 
 本次D映射更新实际运行研究门禁返回0：OJS39/Janeway35来源与18项历史基线仍通过；19类/248字段、73个D列revision绑定、57项D命名约束、3个复合FK helper语义快照、1份spec008及已验证D迁移通过静态一致性检查，采用/拒绝决策共15项。保留原10项负向并新增9项D负向，共20项隔离实验：完整副本返回0，其余19项分别对篡改/缺失/未知许可/假源字段/CSV与索引漂移/基线或实现字段漂移/错误revision/严格基线漂移、D table_args、typed列错迁移、缺或假FK/Unique、spec覆盖/路径、迁移hash、字段组归属矛盾、FK helper语义篡改返回1。没有为实验改写任何应用或SQL文件；只改隔离研究库副本。Ruff check与format检查通过。详细临时输出为 `/tmp/publishing-ojs-research/D-research-gate-{positive,negative-tests}.json`；正文为持久记录，临时缓存不承担后续运行依赖。
+
+## E 主编决定、匿名反馈与正式修回组件（2026-11-03）
+
+依据[spec009](../../../../specs/009-decisions-and-revisions.md)，增加3类/41字段，绑定真实 `decision_models.py` 与 `11d95a8b3e42_editorial_decisions.py`（后继10c），在domain/__init__只做无DB IO的metadata注册。组件只在 `/tmp/publishing-v01-decision-models` 工作树开发，用55433随机事务schema演练，未升级public head。主线服务/浏览器/完整verify由root另行验收；本节的44项组件证据不能等同E/F或整个Goal完成。
+
+| 模型 | 上游字段/关系模式 | 本项目落地边界 |
+| --- | --- | --- |
+| EditorialDecision：17字段 | OJS edit_decisions的submission/round/stage/editor/decision/date，recommend_only与决定校验；Janeway DecisionDraft、RevisionRequest | unique human confirmation和chief step，同稿version/basisRound/推荐/复核FK；只插入record_decision人类确认；主编可以不同于编辑建议；接受绑定实际production负责人完整快照 |
+| DecisionReportRelease：8字段 | Janeway for_author_consumption、逐答案author_can_see、冻结题目与私密文本分离；OJS review_form_responses | unique(decision,report)/(decision,ordinal)，ordinal>=1；仅basisRound已交报告；精确safe{author_text,answers,questions}源投影，questions只key/label/kind/required；不可改删/截断 |
+| RevisionRequest：16字段 | Janeway article/editor/type/notes/response_letter/requested/due/completed，OJS当前有效修回决定与轮次文件 | 同稿决定/base/draft/submitted/author确认FK；一稿仅一requested；请求与planned新draft同人类决定事务，major必rereview；除requested→submitted4字段外不可改，无session FK |
+
+初始决定与所有批准release/planned请求由deferred bundle保证同事务齐全。Release不是“允许作者读原始Report”的标志，作者只能读负责人的安全反馈DTO。即使approved payload自己包含reviewer_id、editor_private_text或private answer并配套重算hash，数据库也会根据原报告与固定表单重建safe source投影而拒绝。结构隔离不宣称已自动清除自由文本里的身份，因此共享必须有 `share_reports_anonymity_reviewed=true` 的人类声明，服务还需实际审核正文。
+
+提交修回顺序是确认完整新版本→完成当前owner任务→freeze新版本→Request submitted→更新flow.current/draft指针。DB检查本人/同稿/准确request计划/真实response VersionFile与批准文件hash，实际CAS bytes与完整声明仍由gateway重校。minor V2及再次minor V3都可使用R1(V1)，只要有本次submitted minor请求、来源决定仍指R1、当前ready_for_chief复核和当前编辑建议；不得把V3 base V2错误强制等于R1 V1。数据库只校验一跳事实，服务完整遍历链；major不能靠这个桥接绕过新轮。
+
+本次实际 **44 passed，26.76秒**，1项既有Starlette/httpx弃用warning；保留完整初始→C→D→E迁移链与Base.metadata零漂移比较、空表downgrade/有历史拒绝downgrade、精确动作/任务/角色/版本/revision/载荷、两次minor到V3、major旧轮拒绝、真实response缺失/未冻结/非owner、计划/决定/反馈不可改删/TRUNCATE、审批集合缺失不能commit及批准payload私密注入负向。原DDL只检查linked_user的chief/production历史作者邮箱两例先实际失败；只补该决定guard两处历史邮箱冲突信号后通过。邮箱只作冲突信号，绝不凭邮箱授予访问。模型和签名未变；root对已有隔离数据只重装该函数，没有downgrade/删数据，这不代表component agent做了public迁移。
+
+当前来源映射覆盖22类/289字段、114个D/E新增列、93项命名约束、2份已验证迁移指纹和2份增量契约。研究门禁继续核验原OJS39/Janeway35材料与18项历史基线；spec009的编号/反引号类声明现在与spec008粗体声明一样进行严格完整覆盖，不能漏掉E实体。原有负向实验仍保留，新增E契约/字段/约束/迁移指纹与deferred guard目标实验另记；没有为了通过门禁弱化任何字段、FK或hash检查。
+
+E映射的标准研究门禁实际返回0：22类/289字段、114个D/E新增列、93项命名约束、7张新增表的完整命名约束集合、3个FK helper、2份合同/迁移指纹与18项采用拒绝决策全部对应；原74份上游材料/18项历史基线仍匹配。新增10项隔离门禁实验：完整副本返回0；E合同漏模型、E列错绑D迁移、漏命名FK、table_args漂移、E迁移hash变化、错误前序revision、缺deferred bundle、上游假字段、上游artifact hash篡改这9项均返回1。仅改隔离研究库副本，没有改模型/SQL来制造通过；Ruff与格式检查通过。当前实验明细在隔离树artifacts/E-research-gate-{positive,negative-tests}.json。
