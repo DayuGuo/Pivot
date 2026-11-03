@@ -1,6 +1,29 @@
 # Publishing OS
 
-核心产品设计：[PRODUCT_DESIGN.md](PRODUCT_DESIGN.md)。它汇总历次问答及新的日历、双层对话、多身份、跨刊审稿邀请与邮箱/ORCID注册需求；新增部分为规划，当前实现与验证见下文和PROGRESS。
+以稿件资料为基础的对话式科研出版工作台。编辑从自己的待办进入稿件，在中心对话中审阅，随时在右侧核对原文、作者资料和引用；正式操作保留负责人的确认权。
+
+## 先体验产品 Demo
+
+```bash
+./scripts/demo.sh
+```
+
+打开 **[localhost:3110](http://localhost:3110)**。只需Docker，无需账号、数据库或模型密钥。停止：`./scripts/demo.sh stop`。
+
+![Publishing OS 产品演示](docs/preview/demo-desktop.png)
+
+- 三栏工作台：本人待办、常驻对话、稿件材料与当前步骤。
+- 主对话与稿件会话独立，左下角日历可按截止日筛选工作。
+- 问方法、核对作者、点击原文与真实公开文献；编辑资料或录入新演示稿后刷新保留。
+- 手机可打开工作/资料抽屉，对话输入始终可达。
+
+**这是明确标记的模拟交互，使用合成稿件与当前浏览器存储，不调用模型或业务API，不发送邮件，不作正式决定。** 新导入资料不冒充已被AI分析，ORCID手填不等于认证；真实可运行的后端样本另见下方 `/publishing`。
+
+本机构建安装包：`./scripts/build-demo.sh --image`。可在2核/2.5 GB的RackNerd VPS上仅运行Nginx镜像，服务器无需编译或部署完整业务栈。[五分钟演示与安装说明](docs/deployment/demo-racknerd.md) · [本阶段范围](specs/012-showcase-demo.md) · [实际验证记录](docs/development/demo-delivery.md)。当前已本机部署，尚未上传GitHub或连接VPS。
+
+核心产品设计：[PRODUCT_DESIGN.md](PRODUCT_DESIGN.md)。日历/双层对话当前只在独立Demo展示；真实数据库中的聚合、多身份、多刊邀请与邮箱/ORCID注册仍待实施，不能从截图推断上线。
+
+Demo反馈后：[单人＋Codex单刊审阅第一阶段](specs/011-single-journal-review-pilot.md)。包含8周计划、约3万元现金准备及真实试点前的专业复核关口；新增资料解析/实时证据核验未实现。展示Demo沿用现有电脑/Codex/已购VPS，不需要这笔真实试点预算或新增模型消费。
 
 ## 可运行的真实出版 v0.1 样本
 
@@ -8,7 +31,7 @@
 
 新真实业务入口 `/publishing`（登录后点“出版工作台”）；现有 `/workbench` 保留演示材料。新入口的作者资料、实际UTF8 txt/md文件、版本/任务和独立人工审核使用规范化数据库。AI只能整理候选/准备审核，不能确认提交、发信或作决定。F检查点完整验证已实际通过 **797后端+35浏览器**；同篇贯通投稿、评审、正式修回、V2录用、实际校样和鉴权本地预览。所有邮件仍禁用，整个Goal的状态以PROGRESS为准。
 
-2026-11-03最终完整验证：**835 Pytest +35 Playwright**，scripts/verify.sh退出0；静态检查、PostgreSQL迁移/结构检查及前后端构建通过。新领域真实API **6/6（35.178秒）** 与实际浏览器通过；[恢复验收](docs/development/deepseek-recovery.md)与[代码复核](docs/development/v01-code-review.md)记录发现、修复及限制。
+真实v0.1基线为835 Pytest +35 Playwright；2026-11-03展示增量后的完整验证为 **835 Pytest +46 Playwright**，scripts/verify.sh退出0，静态检查、PostgreSQL迁移/结构检查及前后端构建通过。独立原生静态包另通过11项；amd64运行、VPS与远端CI未通过实际验收，边界见[展示交付记录](docs/development/demo-delivery.md)。既有新领域真实API **6/6（35.178秒）** 与实际浏览器通过；[恢复验收](docs/development/deepseek-recovery.md)与[代码复核](docs/development/v01-code-review.md)记录此前发现、修复及限制，本轮Demo未调用真实模型。
 
 验证新代码使用独立栈，保护当前主服务中的真实模型环境：
 

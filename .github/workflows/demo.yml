@@ -1,0 +1,48 @@
+name: static-demo
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run lint && npm run typecheck
+      - run: ./scripts/demo.sh
+      - name: Verify isolated static artifact
+        run: E2E_BASE_URL=http://127.0.0.1:3110 DEMO_PATH=/ npm run test:e2e -- tests/e2e/demo.spec.ts
+      - name: Package amd64 VPS image
+        run: ./scripts/build-demo.sh --image
+      - name: Verify amd64 offline image on x86 runner
+        run: |
+          docker load -i artifacts/publishing-os-demo-image-linux-amd64.tar.gz
+          docker run -d --name publishing-os-offline-demo-verification --platform linux/amd64 \
+            --label org.publishing-os.surface=offline-demo-verification \
+            --memory=128m --cpus=0.5 --read-only \
+            --tmpfs /var/cache/nginx --tmpfs /var/run --tmpfs /tmp \
+            -p 127.0.0.1:3112:80 publishing-os-demo:linux-amd64
+          curl --fail --retry 15 --retry-connrefused --retry-delay 1 http://127.0.0.1:3112/health
+          E2E_BASE_URL=http://127.0.0.1:3112 DEMO_PATH=/ npm run test:e2e -- tests/e2e/demo.spec.ts
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: static-demo-and-evidence
+          path: |
+            artifacts/publishing-os-demo-static.tar.gz
+            artifacts/publishing-os-demo-image-linux-amd64.tar.gz
+            artifacts/static-demo-playwright-report/
+            artifacts/static-demo-playwright-results/
+      - if: always()
+        run: |
+          ./scripts/demo.sh stop
+          docker ps -aq --filter label=org.publishing-os.surface=offline-demo-verification | xargs -r docker rm -f

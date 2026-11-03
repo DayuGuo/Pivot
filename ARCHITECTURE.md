@@ -1,5 +1,11 @@
 # 架构
 
+## 独立展示面（spec012）
+
+`apps/web/components/demo`的同一套组件同时用于主Web的`/demo`和`infrastructure/demo/site`的静态首页。独立多阶段Docker只复制这套UI与图标，构建结果进Nginx；运行时无Node/FastAPI/PostgreSQL/密钥。浏览器localStorage是明确合成资料与私有本机演示状态，不是Publishing Domain Core。模型回答是预设规则，外部链接由开发时已核对的DOI记录提供，不做实时检索。修改被引用文字使旧引用提示失效；摘要和正文分别存储，编辑不截断正文。
+
+`scripts/demo.sh`仅管理带专用label的Demo容器、监听环回3110；`build-demo.sh --image`产生静态及离线镜像包。该展示隔离面不绕开后端策略，而是不接入业务系统；真实业务仍走以下Action Gateway/Policy/数据库。不把无登录演示投作真实期刊服务。
+
 ## v0.1 规范化领域（本地样本与真实模型已验收）
 
 `publishing.domain` 与旧fixture工作台分离，保留同一Manuscript UUID；workflow_kind明确路由边界，旧接口不读取新领域稿件/审计。SubmissionWorkflow持当前进度/修订，ManuscriptVersion持可冻结作者/文件快照，StepRun/WorkItem持历史/责任，ActionProposal+HumanConfirmation持不可变独立审核证据。迁移/字段精确合同见spec007，实际状态见PROGRESS。

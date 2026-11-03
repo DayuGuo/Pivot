@@ -1,5 +1,15 @@
 # 架构决策记录
 
+## ADR-023：产品展示先于真实单刊增量，复用UI独立静态交付
+
+2026-11-03。用户选择先本机配置，阶段目标为可GitHub展示且能安装到RackNerd 2核/2.5GB/AlmaLinux8的Demo。当前不连接VPS、不创建公开仓库。spec012置于spec011之前，后者的8周/专业复核预算仍是后续真实试点成本，不作为展示版前置支出。
+
+同一组件同时挂主工程`/demo`和隔离静态构建首页。只用合成稿件、浏览器localStorage和明确预设回答，保持中心对话、本人待办、期限日历与来源面板可实际操作；不仿造真实身份授权、数据库审计、通用模型或ORCID认证。Nginx运行时无后端和密钥，开发机预构建/离线镜像避免VPS编译内存压力。真实权限、邮件和决定继续留在现有Action Gateway，不连到无登录展示面。
+
+独立复核发现新稿摘要与正文复用造成截断、重复点来源不定位、重复标签，均纳入修复与回归；摘要和全文独立、本地段落可编辑、旧引用变更后拒绝定位为现文。静态包与完整栈分别测试；远端CI、RackNerd安装和公网访问在实际执行前不宣称完成。
+
+安装复核另发现本机Docker为arm64，最初离线镜像不应直接交给常见amd64 VPS。改为原生BUILDPLATFORM构建静态UI，运行层单独按目标平台打包；`--image`默认linux/amd64，标签/文件名显式标识架构，支持DEMO_PLATFORM=linux/arm64。本机预览仍为原生`:local`，实际VPS以后按uname确认。
+
 ## ADR-015：以成熟系统研究驱动真实 v0.1（2026-11-02，实施中）
 
 保留稳定Manuscript身份，以规范化workflow/version/authors/files/assignments/steps/tasks/proposals/confirmations扩展；不把fixture JSON扩大为出版数据库。来源固定OJS3.5.0-6与实际PKP依赖、Janeway1.8.4，证据/许可/字段映射在docs/research/library。采用两者版本/署名快照/轮次分离的经验；对弱普通整数关联、可绕过状态和未显式唯一的字段不盲从，以复合FK/冻结触发器加强。
