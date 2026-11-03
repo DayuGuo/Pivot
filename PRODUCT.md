@@ -1,5 +1,7 @@
 # Publishing OS
 
+核心产品蓝图见 [PRODUCT_DESIGN.md](PRODUCT_DESIGN.md)：统一历次讨论，新增左下角日历、主对话与稿件对话、多身份、出版社范围本人审稿邀请、邮箱/ORCID注册。本文件继续描述当前已运行的v0.1；上述新增设计尚未实施，不从文档推断能力上线。
+
 以对话与AI Agent为入口的科研期刊出版操作系统：Conversation-first、Agent-driven、Workflow-backed、Human-governed。左侧是本人任务，中间是始终可见的对话，右侧展示当前稿件材料、实际步骤和负责人的独立审核入口。采用用户提供的Hermes工作台截图风格，详见DESIGN.md。
 
 ## 当前 v0.1 样本（2026-11-03）

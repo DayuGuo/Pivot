@@ -1,5 +1,7 @@
 # Publishing OS
 
+核心产品设计：[PRODUCT_DESIGN.md](PRODUCT_DESIGN.md)。它汇总历次问答及新的日历、双层对话、多身份、跨刊审稿邀请与邮箱/ORCID注册需求；新增部分为规划，当前实现与验证见下文和PROGRESS。
+
 ## 可运行的真实出版 v0.1 样本
 
 目标见 [goals/publishing-v0.1.md](goals/publishing-v0.1.md)，资料库见 [docs/research/library](docs/research/library/README.md)。站内评审、正式决定/修回、实际校样/更正及鉴权本地预览已通过完整离线验收并更新至本机主服务；新领域真实DeepSeek API 6/6及实际浏览器已通过，最终Goal状态见PROGRESS。
