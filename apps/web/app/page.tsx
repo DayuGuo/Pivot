@@ -136,13 +136,15 @@ export default function Home() {
   async function switchConversation(id: string) {
     if (busy) return;
     if (id === workspace?.active_conversation_id) { navigate("chat"); return; }
+    const previousId = workspace?.active_conversation_id || null;
+    rememberConversation(id);
     setBusy(true); setError("");
     try {
       const data = await api<Workspace>(workspacePath(id));
       setDrafts(current => ({ ...current, [workspace?.active_conversation_id || "new"]: message }));
-      setMessage(drafts[id] || ""); setWorkspace(data); rememberConversation(id);
+      setMessage(drafts[id] || ""); setWorkspace(data);
       setSelectedId(null); setDetailsVisible(false); navigate("chat"); pendingRequest.current = null;
-    } catch (cause) { setError(cause instanceof Error ? cause.message : "无法打开对话"); }
+    } catch (cause) { rememberConversation(previousId); setError(cause instanceof Error ? cause.message : "无法打开对话"); }
     finally { setBusy(false); }
   }
   async function newConversation() {

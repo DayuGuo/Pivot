@@ -257,3 +257,117 @@ test("侧栏收起恢复和移动抽屉键盘与布局", async ({ page }) => {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.screenshot({ path: "artifacts/hermes-mobile-chat.png", fullPage: true });
 });
+
+async function createRecoveryConversation(page: Page) {
+  const created = page.waitForResponse(response => response.url().endsWith("/api/conversations") && response.request().method() === "POST");
+  await page.getByRole("button", { name: "新对话", exact: true }).click();
+  const response = await created;
+  expect(response.status()).toBe(200);
+  const conversation = await response.json();
+  await expect(page.locator(`[data-conversation-id="${conversation.id}"]`)).toHaveAttribute("aria-current", "true");
+  return conversation.id as string;
+}
+
+async function sendRecoveryCommand(page: Page) {
+  await page.getByLabel("对话指令", { exact: true }).fill(command);
+  const executed = page.waitForResponse(response => response.url().endsWith("/api/conversations/commands") && response.request().method() === "POST");
+  await page.getByRole("button", { name: "发送指令" }).click();
+  const response = await executed;
+  expect(response.status()).toBe(200);
+  const result = await response.json();
+  const marker = result.manuscript.id.slice(0, 8).toUpperCase() as string;
+  await expect(page.getByLabel("对话记录")).toContainText(marker);
+  return marker;
+}
+
+function recoveryGate() {
+  let release!: () => void;
+  const promise = new Promise<void>(resolve => { release = resolve; });
+  return { promise, release };
+}
+
+test("会话切换请求未完成时刷新仍恢复点击的目标会话", async ({ page }) => {
+  await login(page);
+  const first = await createRecoveryConversation(page);
+  const marker = await sendRecoveryCommand(page);
+  const second = await createRecoveryConversation(page);
+  await expect(page.getByLabel("对话记录")).not.toContainText(marker);
+  expect(new URL(page.url()).searchParams.get("conversation")).toBe(second);
+
+  const requested = recoveryGate();
+  const pending = recoveryGate();
+  let requests = 0;
+  await page.route(`**/api/workspace?conversation_id=${first}`, async route => {
+    requests++;
+    if (requests === 1) {
+      requested.release();
+      await pending.promise;
+      return route.abort("aborted");
+    }
+    return route.continue();
+  });
+
+  try {
+    await page.locator(`[data-conversation-id="${first}"]`).click();
+    await requested.promise;
+    // The target must be persisted before the held response can commit UI state.
+    expect(new URL(page.url()).searchParams.get("conversation")).toBe(first);
+    await expect(page.locator(`[data-conversation-id="${first}"]`)).toBeDisabled();
+    await page.reload();
+    await expect(page.locator(`[data-conversation-id="${first}"]`)).toHaveAttribute("aria-current", "true");
+    await expect(page.getByLabel("对话记录")).toContainText(marker);
+    expect(new URL(page.url()).searchParams.get("conversation")).toBe(first);
+    expect(requests).toBeGreaterThan(1);
+  } finally {
+    pending.release();
+  }
+});
+
+test("会话切换失败恢复原URL、消息和草稿，随后可成功重试", async ({ page }) => {
+  await login(page);
+  const first = await createRecoveryConversation(page);
+  const second = await createRecoveryConversation(page);
+  const marker = await sendRecoveryCommand(page);
+  const draft = "切换失败后应保留的第二会话草稿";
+  await page.getByLabel("对话指令", { exact: true }).fill(draft);
+
+  const requested = recoveryGate();
+  const failed = recoveryGate();
+  let requests = 0;
+  await page.route(`**/api/workspace?conversation_id=${first}`, async route => {
+    requests++;
+    if (requests === 1) {
+      requested.release();
+      await failed.promise;
+      return route.fulfill({ status: 500, json: { detail: "合成会话切换故障" } });
+    }
+    return route.continue();
+  });
+
+  try {
+    await page.locator(`[data-conversation-id="${first}"]`).click();
+    await requested.promise;
+    expect(new URL(page.url()).searchParams.get("conversation")).toBe(first);
+    failed.release();
+    await expect(page.getByRole("alert").filter({ hasText: "合成会话切换故障" })).toBeVisible();
+    await expect(page.locator(`[data-conversation-id="${first}"]`)).toBeEnabled();
+    expect(new URL(page.url()).searchParams.get("conversation")).toBe(second);
+    await expect(page.locator(`[data-conversation-id="${second}"]`)).toHaveAttribute("aria-current", "true");
+    await expect(page.getByLabel("对话记录")).toContainText(marker);
+    await expect(page.getByLabel("对话指令", { exact: true })).toHaveValue(draft);
+
+    await page.locator(`[data-conversation-id="${first}"]`).click();
+    await expect(page.locator(`[data-conversation-id="${first}"]`)).toHaveAttribute("aria-current", "true");
+    expect(new URL(page.url()).searchParams.get("conversation")).toBe(first);
+    await expect(page.getByLabel("对话记录")).not.toContainText(marker);
+    await expect(page.getByLabel("对话指令", { exact: true })).toHaveValue("");
+    await expect(page.getByRole("alert").filter({ hasText: "合成会话切换故障" })).toHaveCount(0);
+    expect(requests).toBe(2);
+
+    await page.locator(`[data-conversation-id="${second}"]`).click();
+    await expect(page.getByLabel("对话记录")).toContainText(marker);
+    await expect(page.getByLabel("对话指令", { exact: true })).toHaveValue(draft);
+  } finally {
+    failed.release();
+  }
+});
