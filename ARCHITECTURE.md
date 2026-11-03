@@ -93,3 +93,9 @@ spec005将编辑对话作为跨四页不卸载的主组件，右侧仅切换工�
 GET `/api/editorial-demo/chat/model` 是配置可用性而非远端健康保证。供应商错误显式返回安全错误，无Mock回退；代理/浏览器对话超时匹配有界多轮调用。健康接口另返回editorial_model，不改变原投稿链model_provider=mock语义。配置/真实调用未验证项见docs/development/live-editorial-model.md。
 
 真实供应商验收后，非思考请求要求工具选择，最后一轮只暴露respond；来源ID按本轮后端证据枚举，无来源时强制空引用。已实际读取后可在原3轮/8工具预算内一次纠正错误ID，最终仍逐项验证，失败不提交草稿。历史提示不重复注入后端附加执行说明。独立Mock栈隔离端口/卷/模型密钥，完整回归不重置用户真实服务配置。
+
+## D 固定轮次与匿名权限（已验收）
+
+ReviewRound/ReviewRoundFile 固定冻结版本、盲稿、表单和目标数；initializing仅在开轮原子事务内，seal后禁止附加，deferred触发器拒绝半开轮/缺邀请/grant/报告。ReviewInvitation分attempt及响应/提交/取消时刻；接受确认才建立typed reviewer Assignment/WorkItem/Report草稿。未交报告私有，submitted后不可改；结束评审须编辑完整快照明确清理未完成项，不伪造提交。
+
+review_access 为UI/API/model/download提供同一显式投影；审稿人永不走通用作者Snapshot或原始VersionFile URL。消息保留细粒度曝光scope，按权限子集重验历史/重放，等待幂等锁和稿件锁后再核验；旧human proposal也按当前内容权限控制。下一片决策发布只会从独立匿名Release DTO向作者分享，D未自动开放。

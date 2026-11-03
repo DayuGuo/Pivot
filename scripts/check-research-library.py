@@ -380,6 +380,191 @@ class Gate:
         )
         self.counts["field_references"] += len(ref.get("fields", []))
 
+    def migration_definition(self, revision: str) -> dict:
+        """Read our Alembic AST only; never import migrations or application modules."""
+        self.require(bool(re.fullmatch(r"[A-Za-z0-9_]+", revision)), "invalid bound revision")
+        definitions = []
+        for path in (REPOSITORY / "infrastructure/migrations/versions").glob("*.py"):
+            tree = ast.parse(path.read_text())
+            assignments = {
+                target.id: node.value.value
+                for node in tree.body
+                if isinstance(node, ast.Assign) and isinstance(node.value, ast.Constant)
+                for target in node.targets
+                if isinstance(target, ast.Name)
+            }
+            if assignments.get("revision") == revision:
+                definitions.append((path, tree, assignments))
+        if len(definitions) != 1:
+            raise ValueError(f"revision {revision}: expected exactly one local declaration")
+        path, tree, assignments = definitions[0]
+        columns: dict[str, set[str]] = {}
+        constraints: dict[str, set[str]] = {}
+
+        def literal(node):
+            return (
+                node.value
+                if isinstance(node, ast.Constant) and isinstance(node.value, str)
+                else None
+            )
+
+        for function in tree.body:
+            if not isinstance(function, ast.FunctionDef) or function.name == "downgrade":
+                continue
+            for call in ast.walk(function):
+                if not isinstance(call, ast.Call) or not isinstance(call.func, ast.Attribute):
+                    continue
+                operation = call.func.attr
+                if operation == "create_table" and call.args and (table := literal(call.args[0])):
+                    for child in call.args[1:]:
+                        if not isinstance(child, ast.Call):
+                            continue
+                        if (
+                            isinstance(child.func, ast.Attribute)
+                            and child.func.attr == "Column"
+                            and child.args
+                            and (name := literal(child.args[0]))
+                        ):
+                            columns.setdefault(table, set()).add(name)
+                        for keyword in child.keywords:
+                            if keyword.arg == "name" and (name := literal(keyword.value)):
+                                constraints.setdefault(table, set()).add(name)
+                elif (
+                    operation == "add_column"
+                    and len(call.args) > 1
+                    and (table := literal(call.args[0]))
+                ):
+                    child = call.args[1]
+                    if (
+                        isinstance(child, ast.Call)
+                        and child.args
+                        and (name := literal(child.args[0]))
+                    ):
+                        columns.setdefault(table, set()).add(name)
+                elif (
+                    operation
+                    in {
+                        "create_index",
+                        "create_foreign_key",
+                        "create_unique_constraint",
+                        "create_check_constraint",
+                    }
+                    and len(call.args) > 1
+                ):
+                    name, table = literal(call.args[0]), literal(call.args[1])
+                    if name and table:
+                        constraints.setdefault(table, set()).add(name)
+        return {
+            "path": path,
+            "tree": tree,
+            "assignments": assignments,
+            "columns": columns,
+            "constraints": constraints,
+        }
+
+    def extension_contracts(self, mapping: dict, models: list[dict]) -> None:
+        by_name = {model["class"]: model for model in models}
+        for contract in mapping.get("additional_contracts", []):
+            text = self.local(REPOSITORY, contract["path"]).read_text()
+            declared = dict(re.findall(r"\*\*(\w+) / (publishing_\w+)\*\*", text))
+            self.require(
+                declared == contract["new_models"], "extension contract: new-model coverage drift"
+            )
+            revision = contract["migration_id"]
+            for name, table in declared.items():
+                model = by_name.get(name)
+                if self.require(model is not None, f"extension contract: unmapped {name}"):
+                    self.require(
+                        model["table"] == table
+                        and model["migration_id"] == revision
+                        and model["contract_source"] == contract["path"],
+                        f"{name}: extension table/revision mismatch",
+                    )
+                    self.require(
+                        model.get("field_revision_bindings")
+                        == {field: revision for field in model["our_fields"]},
+                        f"{name}: extension fields missing exact revision mapping",
+                    )
+            for name, fields in contract["extended_fields"].items():
+                section = re.search(
+                    rf"\*\*{re.escape(name)}\*\*:(.*?)(?=\n\n\*\*|\n\n##|\Z)", text, re.S
+                )
+                self.require(section is not None, f"{name}: missing extension contract section")
+                if section:
+                    declared_fields = set(re.findall(r"\breview_[a-z_]+_id\b", section.group(1)))
+                    self.require(
+                        declared_fields == set(fields), f"{name}: extension field coverage drift"
+                    )
+                model = by_name.get(name)
+                if self.require(model is not None, f"extension contract: unmapped relation {name}"):
+                    self.require(
+                        all(
+                            model.get("field_revision_bindings", {}).get(field) == revision
+                            for field in fields
+                        ),
+                        f"{name}: missing altered-field revision binding",
+                    )
+            for name, required in contract["extended_constraints"].items():
+                model = by_name.get(name)
+                if self.require(
+                    model is not None, f"extension contract: unmapped constraint relation {name}"
+                ):
+                    bound = {
+                        constraint
+                        for item in model.get("constraint_revision_bindings", [])
+                        if item["revision"] == revision
+                        for constraint in item["names"]
+                    }
+                    self.require(
+                        set(required) <= bound,
+                        f"{name}: missing altered-constraint revision binding",
+                    )
+            self.counts["additional_contracts_checked"] += 1
+        for binding in mapping.get("implementation_helper_bindings", []):
+            tree = ast.parse(self.local(REPOSITORY, binding["path"]).read_text())
+            function = next(
+                (
+                    node
+                    for node in tree.body
+                    if isinstance(node, ast.FunctionDef) and node.name == binding["name"]
+                ),
+                None,
+            )
+            self.require(
+                function is not None
+                and function.lineno == binding["line"]
+                and ast.unparse(function) == binding["declaration"],
+                f"implementation FK helper drift: {binding['name']}",
+            )
+            self.counts["implementation_fk_helpers_bound"] += 1
+        for evidence in mapping.get("migration_evidence", []):
+            definition = self.migration_definition(evidence["revision"])
+            path = self.local(REPOSITORY, evidence["path"])
+            self.require(path == definition["path"], "migration evidence: wrong source path")
+            self.digest(path.read_bytes(), evidence["sha256"], f"migration:{evidence['revision']}")
+            self.require(
+                definition["assignments"].get("down_revision") == evidence["down_revision"],
+                "migration evidence: wrong predecessor revision",
+            )
+            sql = path.read_text()
+            for name in evidence["sql_functions"]:
+                self.require(
+                    bool(re.search(rf"CREATE FUNCTION {re.escape(name)}\(", sql)),
+                    f"migration evidence: missing SQL function {name}",
+                )
+            for name in evidence["deferred_triggers"]:
+                self.require(
+                    bool(
+                        re.search(
+                            rf"CREATE CONSTRAINT TRIGGER {re.escape(name)}\b[^;]*DEFERRABLE INITIALLY DEFERRED",
+                            sql,
+                            re.S,
+                        )
+                    ),
+                    f"migration evidence: missing deferred guard {name}",
+                )
+            self.counts["pinned_implementation_migrations"] += 1
+
     def design(self) -> None:
         mapping = self.read_json(self.library / "comparison/source-to-implementation.json")
         self.require(
@@ -414,6 +599,7 @@ class Gate:
         )
         models = [*foundation, *extensions]
         names = [m["class"] for m in models]
+        self.extension_contracts(mapping, models)
         self.require(len(names) == len(set(names)), "design: duplicate foundation/extension class")
         for model in extensions:
             source = self.local(REPOSITORY, model["contract_source"]).read_text()
@@ -441,6 +627,14 @@ class Gate:
                     and group["adaptation"],
                     f"{label}: unspecified adaptation/origin",
                 )
+                if revision := group.get("migration_id"):
+                    self.require(
+                        all(
+                            model.get("field_revision_bindings", {}).get(field) == revision
+                            for field in group["our_fields"]
+                        ),
+                        f"{label}: field group/revision binding mismatch",
+                    )
                 for ref in group["source_refs"]:
                     covered.add(ref["system"])
                     self.reference(ref, label)
@@ -495,6 +689,58 @@ class Gate:
                         set(model["our_fields"]) == {f["name"] for f in actual_fields},
                         f"{label}: implementation fields not fully mapped",
                     )
+                    table_args = next(
+                        (
+                            n
+                            for n in cls.body
+                            if isinstance(n, ast.Assign)
+                            and any(
+                                isinstance(t, ast.Name) and t.id == "__table_args__"
+                                for t in n.targets
+                            )
+                        ),
+                        None,
+                    )
+                    actual_args = (
+                        None
+                        if table_args is None
+                        else {
+                            "line": table_args.lineno,
+                            "declaration": ast.unparse(table_args.value),
+                        }
+                    )
+                    self.require(
+                        binding.get("table_args") == actual_args,
+                        f"{label}: implementation constraint declaration drift",
+                    )
+                    for field, revision in model.get("field_revision_bindings", {}).items():
+                        definition = self.migration_definition(revision)
+                        self.require(
+                            field in definition["columns"].get(model["table"], set()),
+                            f"{label}.{field}: bound revision does not create/add field",
+                        )
+                        self.counts["revision_bound_fields"] += 1
+                    source_literals = (
+                        {
+                            n.value
+                            for n in ast.walk(table_args)
+                            if isinstance(n, ast.Constant) and isinstance(n.value, str)
+                        }
+                        if table_args
+                        else set()
+                    )
+                    for item in model.get("constraint_revision_bindings", []):
+                        definition = self.migration_definition(item["revision"])
+                        for name in item["names"]:
+                            self.require(
+                                name in source_literals,
+                                f"{label}: constraint {name} absent from model AST",
+                            )
+                            self.require(
+                                name in definition["constraints"].get(model["table"], set()),
+                                f"{label}: bound revision does not declare constraint {name}",
+                            )
+                            self.counts["revision_bound_constraints"] += 1
                     self.counts["implementation_fields_bound"] += len(actual_fields)
             else:
                 self.require(

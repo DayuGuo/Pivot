@@ -2,9 +2,9 @@
 
 ## 正在迭代：真实出版 v0.1
 
-活跃目标见 [goals/publishing-v0.1.md](goals/publishing-v0.1.md)，资料库见 [docs/research/library](docs/research/library/README.md)。完整评审/修回/制作闭环尚在开发，不把现有界面演示当成完整出版系统。
+活跃目标见 [goals/publishing-v0.1.md](goals/publishing-v0.1.md)，资料库见 [docs/research/library](docs/research/library/README.md)。站内评审已完成，完整决定/修回/制作闭环尚在开发，不把现有界面演示当成完整出版系统。
 
-新真实业务入口 `/publishing`（登录后点“出版工作台”）；现有 `/workbench` 保留演示材料。新入口的作者资料、实际UTF8 txt/md文件、版本/任务和独立人工审核使用规范化数据库。AI只能整理候选/准备审核，不能确认提交、发信或作决定。整个Goal的验收状态以PROGRESS为准。
+新真实业务入口 `/publishing`（登录后点“出版工作台”）；现有 `/workbench` 保留演示材料。新入口的作者资料、实际UTF8 txt/md文件、版本/任务和独立人工审核使用规范化数据库。AI只能整理候选/准备审核，不能确认提交、发信或作决定。整个Goal的验收状态以PROGRESS为准。 当前真实主链已到编辑结轮/汇总建议，D检查点612后端+24浏览器通过；所有邮件仍禁用。第二名合成审稿人 reviewer2@publishing.test / Reviewer2Demo2026! 可用于并行评审测试。
 
 验证新代码使用独立栈，保护当前主服务中的真实模型环境：
 

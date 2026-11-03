@@ -27,6 +27,7 @@ from .models import (
     VersionFile,
     WorkItem,
 )
+from .review_schemas import REVIEW_ACTIONS
 from .schemas import IntakeData, missing_requirements
 
 STAGE_LABELS = {
@@ -39,6 +40,8 @@ STAGE_LABELS = {
     "editor_quality": "责任编辑质量评估",
     "reviewer_selection": "寻找审稿人",
     "peer_review": "同行评审",
+    "respond_review_invitation": "回应审稿邀请",
+    "submit_review": "提交审稿报告",
     "editor_recommendation": "编辑汇总建议",
     "chief_decision": "负责人决定",
     "author_revision": "作者修回",
@@ -62,6 +65,7 @@ CAPABILITIES = {
     "chief_decision": "chief",
     "editor_quality": "handling_editor",
     "reviewer_selection": "handling_editor",
+    "peer_review": "handling_editor",
     "editor_recommendation": "handling_editor",
     "revision_assessment": "handling_editor",
     "production": "production",
@@ -126,6 +130,8 @@ def run_action(
     action_type: str,
     payload: dict,
     execute: Callable[[], dict],
+    *,
+    revalidate_replay: Callable[[], None] | None = None,
 ) -> dict:
     ensure_actor(db, actor)
     lock_request(db, actor, request_id)
@@ -141,6 +147,15 @@ def run_action(
     if old:
         if old.action_type != action_type or old.input_digest != fingerprint:
             raise HTTPException(409, "此请求编号已用于不同内容")
+        if revalidate_replay:
+            revalidate_replay()
+        proposal_id = payload.get("proposal_id") or old.response.get("proposal_id")
+        if proposal_id:
+            previous = db.get(ActionProposal, proposal_id)
+            if previous:
+                authorize_proposal_content(db, actor, previous)
+        elif payload.get("manuscript_id"):
+            load_submission(db, actor, payload["manuscript_id"])
         return old.response
     try:
         result = execute()
@@ -177,7 +192,7 @@ def capabilities(db: Session, actor: Actor, manuscript: Manuscript) -> set[str]:
         "editor": {"author", "precheck", "handling_editor"},
         "chief_editor": {"author", "chief"},
         "production_editor": {"author", "production"},
-        "reviewer": {"author"},
+        "reviewer": {"author", "reviewer"},
     }.get(actor.role, set())
     found = {row.capability for row in rows if row.capability in allowed_for_role}
     if manuscript.author_id == actor.user.id:
@@ -192,6 +207,11 @@ def can_view(db: Session, actor: Actor, manuscript: Manuscript, flow: Submission
         return True
     if flow.stage == "author_draft":
         return False
+    if actor.role == "reviewer":
+        from .review_access import own_invitation
+
+        if own_invitation(db, actor, manuscript.id):
+            return True
     if actor.role == "chief_editor":
         return True
     return bool(
@@ -237,13 +257,33 @@ def require_task(
         WorkItem.manuscript_id == manuscript.id,
         WorkItem.journal_id == actor.journal_id,
         WorkItem.assignee_id == actor.user.id,
-        WorkItem.status == "pending",
+        or_(
+            WorkItem.status == "pending",
+            and_(WorkItem.kind == "peer_review", WorkItem.status == "waiting"),
+        ),
     )
     if task_id:
         query = query.where(WorkItem.id == task_id)
     else:
         query = query.where(WorkItem.step_run_id == flow.current_step_id)
     task = db.scalar(query)
+    if task and task.kind in {"respond_review_invitation", "submit_review"}:
+        from . import review_access
+
+        if task.kind == "respond_review_invitation":
+            from .review_models import ReviewRound
+
+            invitation = review_access.require_invitation(
+                db, actor, task.review_invitation_id, manuscript.id
+            )
+            if (
+                invitation.status != "pending"
+                or db.get(ReviewRound, invitation.round_id).status != "open"
+            ):
+                raise HTTPException(403, "此邀请已经处理或轮次已结束")
+        else:
+            review_access.require_report(db, actor, task.review_report_id, write=True)
+        return task
     required = CAPABILITIES.get(task.kind if task else "")
     if not task or not required or required not in capabilities(db, actor, manuscript):
         raise HTTPException(403, "当前账号不是此关口的负责人")
@@ -758,6 +798,10 @@ def prepare_proposal(
 ):
     manuscript, flow = load_submission(db, actor, manuscript_id, write=True)
     require_revision(flow, expected_revision)
+    if action_type in REVIEW_ACTIONS:
+        from .reviews import prepare
+
+        return prepare(db, actor, manuscript, flow, action_type, action_data or {})
     task = require_task(db, actor, manuscript, flow)
     if flow.stage in {"author_draft", "author_revision"} and action_type != "submit":
         raise HTTPException(422, "当前准备阶段只能准备投稿审核")
@@ -796,6 +840,13 @@ def prepare_proposal(
         **extra,
     }
     evidence = snapshot_evidence(snapshot)
+    return store_proposal(
+        db, actor, manuscript, flow, task, version, action_type, payload, evidence
+    )
+
+
+def store_proposal(db, actor, manuscript, flow, task, version, action_type, payload, evidence):
+    """Only the gateway stores immutable proposal envelopes; never confirms them."""
     proposal = ActionProposal(
         id=uid(),
         manuscript_id=manuscript.id,
@@ -837,6 +888,35 @@ def prepare_proposal(
     }
 
 
+def authorize_proposal_content(db, actor, proposal):
+    manuscript, _ = load_submission(db, actor, proposal.manuscript_id)
+    action = proposal.action_type
+    caps = capabilities(db, actor, manuscript)
+    if action == "submit":
+        allowed = manuscript.author_id == actor.user.id
+    elif action in {"record_check", "assign_editor"}:
+        required = CAPABILITIES.get(proposal.payload_snapshot["stage"])
+        allowed = required in caps and not is_conflicted(db, manuscript, actor.user)
+    elif action in {"open_review", "invite_reviewers", "finish_review", "cancel_review_invitation"}:
+        allowed = bool(caps & {"handling_editor", "chief"}) and not is_conflicted(
+            db, manuscript, actor.user
+        )
+    elif action in {"respond_review_invitation", "submit_review"}:
+        from .review_access import require_invitation, require_report
+
+        if action == "respond_review_invitation":
+            require_invitation(
+                db, actor, proposal.payload_snapshot["response"]["invitation_id"], manuscript.id
+            )
+        else:
+            require_report(db, actor, proposal.payload_snapshot["review_report"]["id"])
+        allowed = True
+    else:
+        allowed = False
+    if not allowed:
+        raise HTTPException(404, "当前权限已不允许读取该审核快照")
+
+
 def proposal_projection(db: Session, actor: Actor, proposal_id: str) -> dict:
     proposal = db.get(ActionProposal, proposal_id)
     if (
@@ -846,6 +926,7 @@ def proposal_projection(db: Session, actor: Actor, proposal_id: str) -> dict:
     ):
         raise HTTPException(404, "审核材料不存在或不属于当前负责人")
     manuscript, flow = load_submission(db, actor, proposal.manuscript_id)
+    authorize_proposal_content(db, actor, proposal)
     confirmation = db.scalar(
         select(HumanConfirmation).where(HumanConfirmation.proposal_id == proposal.id)
     )
@@ -919,6 +1000,10 @@ def confirm_proposal(
         raise HTTPException(409, "审核内容已过期或发生变化，请重新准备")
     if db.scalar(select(HumanConfirmation).where(HumanConfirmation.proposal_id == proposal.id)):
         raise HTTPException(409, "本审核已经处理，请使用原请求编号恢复结果")
+    if proposal.action_type in REVIEW_ACTIONS:
+        from .reviews import confirm
+
+        return confirm(db, actor, manuscript, flow, proposal, reason)
     task = require_task(db, actor, manuscript, flow, proposal.work_item_id)
     version = db.get(ManuscriptVersion, proposal.version_id)
     snapshot = version_snapshot(db, version)
@@ -1044,6 +1129,10 @@ def task_projection(task: WorkItem, flow: SubmissionWorkflow, manuscript: Manusc
 
 def submission_projection(db: Session, actor: Actor, manuscript_id: str, *, detail=True) -> dict:
     manuscript, flow = load_submission(db, actor, manuscript_id)
+    if actor.role == "reviewer" and manuscript.author_id != actor.user.id and not flow.is_legacy:
+        from .review_access import reviewer_projection
+
+        return reviewer_projection(db, actor, manuscript, flow, detail=detail)
     caps = capabilities(db, actor, manuscript)
     active = db.scalars(
         select(WorkItem)
@@ -1076,6 +1165,15 @@ def submission_projection(db: Session, actor: Actor, manuscript_id: str, *, deta
         "created_at": flow.created_at.isoformat(),
         "submitted_at": flow.submitted_at.isoformat() if flow.submitted_at else None,
     }
+    no_conflict = not is_conflicted(db, manuscript, actor.user)
+    visibility_scope = {
+        "role": actor.role,
+        "manuscript_files": True,
+        "staff_reports": bool(caps & {"precheck", "handling_editor", "chief"}) and no_conflict,
+        "peer_reports": bool(caps & {"handling_editor", "chief"}) and no_conflict,
+    }
+    result["visibility_scope"] = visibility_scope
+    result["visibility_fingerprint"] = digest(visibility_scope)
     result["allowed_actions"] = []
     if not flow.is_legacy and own_tasks:
         try:
@@ -1101,6 +1199,10 @@ def submission_projection(db: Session, actor: Actor, manuscript_id: str, *, deta
                 result["allowed_actions"] = [
                     {"action": "assign_editor", "label": "准备编辑分派审核", "requires_human": True}
                 ]
+            elif flow.stage in {"reviewer_selection", "peer_review"}:
+                from .reviews import staff_allowed_actions
+
+                result["allowed_actions"] = staff_allowed_actions(db, actor, manuscript, flow)
     if not detail:
         return result
     result["versions"] = [
@@ -1141,6 +1243,9 @@ def submission_projection(db: Session, actor: Actor, manuscript_id: str, *, deta
     from .stages import staff_projection
 
     result["staff_review"] = staff_projection(db, actor, manuscript, flow, version)
+    from .review_access import staff_projection as peer_projection
+
+    result["review"] = peer_projection(db, actor, manuscript, flow)
     current_step = db.get(StepRun, flow.current_step_id) if flow.current_step_id else None
     result["return_request"] = (
         {
@@ -1169,10 +1274,13 @@ def submission_projection(db: Session, actor: Actor, manuscript_id: str, *, deta
 
 
 def workspace(db: Session, actor: Actor):
+    from .review_access import visible_condition
+
     role_caps = {
         "editor": {"precheck", "handling_editor"},
         "chief_editor": {"chief"},
         "production_editor": {"production"},
+        "reviewer": {"reviewer"},
     }.get(actor.role, set())
     explicit_access = exists(
         select(Assignment.id).where(
@@ -1188,7 +1296,7 @@ def workspace(db: Session, actor: Actor):
         Manuscript.author_id == actor.user.id,
         and_(
             SubmissionWorkflow.stage != "author_draft",
-            or_(actor.role == "chief_editor", explicit_access),
+            or_(actor.role == "chief_editor", explicit_access, visible_condition(actor)),
         ),
     )
     rows = db.execute(
@@ -1200,6 +1308,7 @@ def workspace(db: Session, actor: Actor):
     ).all()
     visible = [(m, w) for m, w in rows if can_view(db, actor, m, w)]
     submissions = [submission_projection(db, actor, m.id, detail=False) for m, _ in visible]
+    projection_titles = {s["id"]: s["title"] for s in submissions}
     allowed = {m.id: (m, w) for m, w in visible}
     tasks = []
     for task in db.scalars(
@@ -1218,7 +1327,7 @@ def workspace(db: Session, actor: Actor):
     ):
         if task.manuscript_id in allowed and not allowed[task.manuscript_id][1].is_legacy:
             m, flow = allowed[task.manuscript_id]
-            tasks.append(task_projection(task, flow, m))
+            tasks.append({**task_projection(task, flow, m), "title": projection_titles[m.id]})
     return {
         "submissions": submissions,
         "tasks": tasks,

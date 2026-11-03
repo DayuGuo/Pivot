@@ -146,7 +146,7 @@ def test_full_screening_chief_assignment_editor_quality_are_real_confirmed_gates
     assert confirm(client, before, proposal)["stage"] == "editor_quality"
     login("editor")
     assert pass_stage(client, mid)["stage"] == "reviewer_selection"
-    assert detail(client, mid)["allowed_actions"] == []  # Next slice is not a fake button.
+    assert [a["action"] for a in detail(client, mid)["allowed_actions"]] == ["open_review"]
     checks = db.scalars(select(CheckRun).where(CheckRun.manuscript_id == mid)).all()
     assert len(checks) == 5 and all(c.finalized_at and c.human_confirmation_id for c in checks)
     assert all(c.check_method == "manual_review" for c in checks)

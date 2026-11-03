@@ -1,6 +1,6 @@
 # Publishing OS 数据库决策：把成熟出版经验变成可验证约束
 
-日期：2026-11-02。依据 [OJS 研究](../ojs/README.md)、[Janeway 研究](../janeway/README.md)、[现有系统基线](../current-system/README.md) 和 [spec007 数据契约](../../../../specs/007-data-contract.md)。这份文件描述设计与预期验收，**不是新功能已经实现或测试通过的报告**。[机器可读映射](source-to-implementation.json) 给出每个字段组的具体上游表/类/字段、源文件、项目新增部分和验收目标；基础14类现已绑定实际源码与 `f8a12d4c6e90` 迁移；新增 CheckRun 绑定 `09b73e6a1c22` 并完成临时 schema 组件测试。绑定不是整条工作流已完成接线的声明。
+更新：2026-11-03。依据 [OJS 研究](../ojs/README.md)、[Janeway 研究](../janeway/README.md)、[现有系统基线](../current-system/README.md) 和 [spec007 数据契约](../../../../specs/007-data-contract.md)。这份文件区分设计建议、静态实现绑定与已执行组件测试，**不能据此声称尚未验收的服务或UI已完成**。[机器可读映射](source-to-implementation.json) 给出每个字段组的具体上游表/类/字段、源文件、项目新增部分和验收目标；基础14类现已绑定实际源码与 `f8a12d4c6e90` 迁移；新增 CheckRun 绑定 `09b73e6a1c22` 并完成临时 schema 组件测试。D的4个模型与既有3个typed字段/关系现已绑定10c84f7a2d31，50项组件测试通过；D服务/UI集成仍待root，不能由组件证据推断端到端完成。C主链的当前已执行验收见[PROGRESS](../../../../PROGRESS.md)。
 
 研究固定 OJS 3.5.0-6 / `0f2de4ff3f399a65dbe5c24c035529c0ff9bc976`，以及该版本真实 gitlink 对应 PKP `c4c0aa8c5293254ad253544aea230b1b607d5249`；Janeway v1.8.4 / `e24b23bd112ff7ca08097620d8a31041a25f9d26`。OJS 表索引来自选定安装迁移，Janeway 来自模型 AST；都不是已执行迁移后的完整数据库导出。不能把“字段存在”和“数据库已有此约束”混同。
 
@@ -19,14 +19,17 @@
 | DB09 分片扩展 | 两系统都有审稿/修回/制作/出版；Janeway 现代 typesetting 与历史 production 并存 | A/B 先真实作者 intake/任务/确认/对话；后片独立 ReviewRound、邀请/报告、RevisionRequest、CheckRun、制作与发布门 | 不一开始创建全部空表；不同时混用 Janeway 新旧制作生命周期 |
 | DB10 材料是证据 | OJS GPLv3、Janeway AGPLv3；Janeway 指南 CC BY4.0；OJS 指南许可本次未解析 | 保留许可/出处/commit/本地哈希；只自主实现领域思想，指南未授权原文只留自撰摘要 | 不运行下载的 PHP/Django，不复制上游运行代码；未知许可和获取失败必须可见 |
 | DB11 真诚迁移与研究更新 | OJS 有修复历史 stage/decision 迁移；当前系统只有简化初筛和合成工作台 | legacy UUID/回执保留、显式 legacy provenance；源码基线单独保存 | 不为旧稿虚构查重/审批/文件；不静默改旧研究哈希掩盖差异 |
-
 | DB12 检查证据不改稿件 | OJS 的文件/编辑决定分离；Janeway 的 checklist 留 completed_by/completed_on | CheckRun 独立关联同刊 FileObject，人工报告复核与负责人最终确认分开；每步骤最多一个 finalized | 不为补报告改冻结 VersionFile，不把人工结论冒称自动查重；数据库确认/版本/步骤/归因一致，finalized 禁改删/TRUNCATE |
+
+| DB13 固定轮次原子封存 | OJS review_rounds/round_files；Janeway ReviewRound.review_files 与冻结题目 | Round initializing→文件→seal open→完整初始邀请同事务；显式closing_confirmation绑定finish_review | 不让initializing提交、不追加/替换已封存材料；真实双连接验证不可见/封存及parent锁等待边界 |
+| DB14 邀请尝试和grant分开 | OJS assignment有请求/确认/拒绝/取消及普通reviewer-round index；Janeway对应时间/COI | attempt_no加有效占位partial UNIQUE；接受后才有reviewer typed grant；重邀新任务，不改旧attempt | 拒邀不退稿；submitted不能同轮重邀；响应硬截止、报告soft due；服务访问投影另行验收 |
+| DB15 报告和最终决定分开 | Janeway逐题快照、原答/编辑版/可见性/私密评论；OJS form responses和decision分层 | Report固定本轮表单；作者/编辑私密文本分列；完整人类提交后冻结 | draft不计完成；D没有chief决定/作者release/真实发信；匿名DTO与UI服务集成仍待root |
 
 完整来源定位在 JSON 的 `decisions[].source_refs` 和 `models[].field_groups[].source_refs`，并由离线脚本逐表、逐字段比对。DB09 后续现代制作选择还应复查 Janeway [typesetting 源码证据](../janeway/sources/typesetting-model-fields.txt) 与 [旧 production 证据](../janeway/sources/production-model-fields.txt)，避免在下一切片混用。
 
 ## 首批 14 个模型的边界
 
-这里的 14 是“既有 Manuscript 扩展 + 13 个新模型”，不是 14 张全新表。C 切片另增加 CheckRun，JSON 放在 `extension_models`，总映射15类。所有 `publishing_` 子表关联真实 Manuscript，旧 `/workbench` fixture 不升级为正式数据源。
+这里的 14 是“既有 Manuscript 扩展 + 13 个新模型”，不是 14 张全新表。C 切片增加 CheckRun，D增加4个审稿实体，JSON 放在 `extension_models`；当前总映射19类/248字段。原基础14类在D增补Assignment/WorkItem的3个typed字段，并给VersionFile加triple parent key。所有 `publishing_` 子表关联真实 Manuscript，旧 `/workbench` fixture 不升级为正式数据源。
 
 | 项目类 | 关键来源与字段 | 本项目关键约束/区别 |
 | --- | --- | --- |
@@ -53,11 +56,11 @@
 
 1. 读取实际 OJS、Janeway manifest；逐份检查 artifact 路径、SHA-256、HTTPS 来源/固定版本/commit、用途/日期与许可声明。OJS 未解析许可的三份指南只允许自撰摘要，并要求独立原文哈希；失败获取单列计数，不当成功来源。
 2. 验证 GPL/AGPL 许可文本存在、Janeway CC BY 文档保留来源/署名/许可；这里验证声明及保留证据，不是法律许可审计。
-3. 解析表/模型/CSV 索引，核对 source ID、类/表/字段引用以及 14 模型契约覆盖，避免有书目无对应实现决策。引用字段必须实际在固定索引中。
+3. 解析表/模型/CSV 索引，核对 source ID、类/表/字段引用、基础14类和spec008扩展模型/字段的契约覆盖，避免有书目无对应实现决策。引用字段必须实际在固定索引中。
 4. current-system manifest 是 `354c930...` 的**历史基线**：以本地 `git show baseline:path` 校验那份真实字节。工作树有意开发变化另列 `worktree_drift`，不把它冒称基线没变；要要求新鲜度，运行 `--strict-current`。历史内容缺失/哈希不符仍失败。升级基线应建立显式新研究批次，不改旧 SHA 让门禁变绿。
 5. 任意缺文件/哈希变化/非法来源引用/缺许可/模型缺覆盖/实现字段声明漂移返回非零。输出 JSON 包含成功来源数、未知许可摘要数、失败获取数和基线漂移清单；`--library` 可指定隔离副本做负向实验。
 
-新增切片需先查两套官方固定来源，记录“观察→采用/拒绝→新增约束→验收”，再更新映射和模型/迁移绑定。迁移绑定非空时脚本还要求仓库中实际存在对应 Alembic revision；implemented 模型必须在指定源码 AST 找到类，并逐字段核对声明、位置及完整覆盖。扩展模型还要在其引用规格中出现，不能无来源地随意加名。脚本不能替代数据库迁移/并发/权限测试或 `scripts/verify.sh`。
+新增切片需先查两套官方固定来源，记录“观察→采用/拒绝→新增约束→验收”，再更新映射和模型/迁移绑定。迁移绑定非空时脚本还要求仓库中实际存在对应 Alembic revision；implemented 模型必须在指定源码 AST 找到类，并逐字段核对声明、位置、完整覆盖和table_args约束声明。D字段必须实际出现在10c迁移的create_table/add_column AST，57项D命名FK/CHECK/Unique/index还须同时存在模型和迁移声明中；D迁移源码哈希/后继/SQL函数及deferred trigger也固定核验。扩展模型还要在其引用规格中出现，不能无来源地随意加名。脚本不能替代数据库迁移/并发/权限测试或 `scripts/verify.sh`。
 
 当前没有原生子 Agent Token/API 费用遥测，值保留 null；未执行的功能/迁移验收不能填为成功。邮件始终 `EMAIL_SEND_ENABLED=false`，正式录用、拒稿、撤稿和公开发布保留人类权限。
 
@@ -67,7 +70,7 @@
 
 隔离复制研究库后完成9项实验：完整副本返回0；篡改artifact、缺artifact、未知源码许可、杜撰上游字段、CSV与JSON不一致、OJS声明索引改写、基线类行号改写、`--strict-current` 旧基线漂移，8项都按预期返回1并给出具体错误。原研究材料未改动。Ruff check 与 format --check 均通过。临时详细输出位于 `/tmp/publishing-ojs-research/comparison-gate-{positive,negative-tests}.json`，临时缓存可清理，正文是持久验证记录。这些证据只覆盖研究门禁，未运行或冒称完整应用/迁移验收。
 
-## C 切片检查组件与实际实现绑定
+## C 切片组件绑定（历史组件阶段）
 
 `CheckRun` 的16个字段已映射并绑定真实源码 `apps/api/publishing/domain/checks.py` 和 `09b73e6a1c22`，后继 `f8a12d4c6e90`。基础14类的159字段也绑定各自实际源码、类/字段行号和声明，以及 f8a 迁移。`implemented` 仅意味着代码已存在且静态一致，不代表核心/API/页面已完成集成；主负责人维护公共隔离库升级与后续端到端验收。
 
@@ -80,3 +83,29 @@ CheckRun 使用同稿版本/步骤/确认和同刊报告复合FK；报告引用�
 实现绑定后研究门禁实际返回0：上游材料74份、历史基线18项仍匹配；15类/175个字段实现逐项对应、12项采用拒绝决策通过。研究门禁与组件Ruff检查通过；完整应用回归与业务浏览器验收由主负责人继续执行。
 
 绑定后又实际运行11项离线隔离实验：完整15类副本返回0，其余10项按预期返回1；原8项负向场景之外，新增“实现字段声明绑定篡改”和“不存在的迁移revision”均被拒绝。保留的研究源码和项目运行文件没有为这些实验临时改写。
+
+## D 轮次/邀请/报告组件绑定（2026-11-03）
+
+正式数据约定见[spec008](../../../../specs/008-peer-review-data-contract.md)，上游观察与取舍见[邀请/评审/修回设计研究](review-revision-design.md)。root已复制模型/迁移组件到主线；本节只记录**50项模型/迁移组件测试通过，服务/UI集成待root**。没有把新表、metadata升级或纯模型测试称作可运行的审稿业务链。E主编决定、修回与报告Release表尚未在D创建。
+
+| 项目模型/扩展 | 精确来源模式 | 当前模型/约束选择 |
+| --- | --- | --- |
+| ReviewRound：21字段 | OJS review_rounds 的submission/stage/round/status；Janeway ReviewRound的article/round_number/review_files/date_started；BaseReviewFormElement/FrozenReviewFormElement | 固定冻结稿件版本、表单/材料digest、required_reports/policy；initializing只在事务中存在，deferred guard拒绝未seal或漏插初始邀请；closing_confirmation_id明确绑定finish_review与完整清单 |
+| ReviewRoundFile：8字段 | OJS round_files与review_files；Janeway ReviewRound.review_files和File.privacy | 双triple FK确保同稿同版；仅真正blinded/reviewer文件；服务器匿名名；parent FOR UPDATE后只允许initializing插入，seal后不能追加/改/删/TRUNCATE |
+| ReviewInvitation：25字段 | OJS review_assignments的reviewer/round/请求接受截止/拒绝取消/COI；Janeway ReviewAssignment相同生命周期事实；OJS通用invitations只作为分离参考 | attempt_no唯一加pending/accepted/submitted有效占位；拒绝/取消/过期可新attempt，submitted不可重邀/取消；绑定完整匿名消息、收件人、版本、期限与对应人类确认；不复用旧attempt |
+| ReviewReport：16字段 | OJS recommendation/form responses；Janeway ReviewAssignmentAnswer、BaseReviewFormElement与FrozenReviewFormElement、private/author visibility字段 | 一邀请一报告，round/version/reviewer从不可变Invitation派生；固定题目快照；author_text/editor_private_text分列；提交完整内容与本人确认一致后禁改删；D未实现向作者分享 |
+| Assignment：新增review_invitation_id | OJS stage_assignments/user_user_groups及Janeway ReviewAssignment.acceptance | reviewer capability必须关联typed invitation，接受前不能grant；nonreviewer不能带target；有效索引与普通capability分开，结束后不可重激活或另插同邀请grant绕过 |
+| WorkItem：新增review_invitation_id/review_report_id | Janeway Task泛型目标警告；OJS逐reviewer assignment生命周期 | typed target互斥、同稿FK；recipient/version/独立StepRun匹配；旧全局唯一改为三个partial UNIQUE；完成必须绑定真实response/report确认，不能伪完成管理步骤 |
+| VersionFile：无新字段，增加parent UNIQUE | OJS轮次固定文件/Janeway round文件集 | UNIQUE(id,manuscript_id,version_id)支撑RoundFile真正同版FK；不修改冻结VersionFile内容，也不从“当前稿件目录”动态取文件 |
+
+字段和命名约束均在JSON指向真实 `apps/api/publishing/domain/review_models.py` / `models.py` AST行号与声明；D的70个新实体字段和3个既有关系新字段，共73个列绑定10c84f7a2d31的真实create_table/add_column，57项命名约束绑定同一迁移。基础14类原f8a与C09b绑定仍保留；约束的规范化改造另列D revision，而非把新字段误归原迁移。
+
+D的原子顺序是：opening confirmation→Round(initializing)→固定RoundFile→seal open→全部初始邀请/响应待办；接受确认→Invitation accepted→真实reviewer grant→Report draft/报告待办；提交确认→冻结Report→Invitation submitted→完成报告待办；取消确认→Invitation cancelled→结束grant/封存withdrawn草稿/取消未完成任务；finish确认清理后才写Round.closed与closing_confirmation_id。新增事件在bump前flush检查当前revision；历史grant核验不要求它仍是最新revision。单纯达到报告数量不会自动录用、退稿或创造编辑完成事实。
+
+全部实现/测试在隔离工作树 `/tmp/publishing-v01-review-models` 完成；真实PostgreSQL50项测试用24.70秒通过，1项既有Starlette/httpx弃用warning。包括从初始至D完整迁移链的临时schema、metadata零漂移、空表降级/有数据拒绝降级、缺材料/漏邀请deferred失败、确认/COI/角色/版本/内容/私密分区、接受硬截止/报告soft due、取消清理与终态历史。组件agent没有升级公共head；root后续执行公共隔离库升级/旧链回归及服务接线是另一组验收，不能混写为本轮成功证据。
+
+双连接实验在仅新建随机合成schema内提交setup后执行，最终仅DROP该随机schema：初始化未提交、seal未提交、seal提交后追加均报P0001；持Round parent FOR UPDATE锁时另一连接300ms超时报55P03（本次0.3017秒），释放后仍报P0001，始终只有1份批准材料。源码与详细顺序可在tests/api/test_peer_review_models.py复现，JUnit证据在隔离树artifacts/peer-review-models.xml；未触碰public业务表或主库/密钥。
+
+研究门禁还固定本轮已验证D迁移SHA-256与down_revision，核对9个关键SQL函数及4个deferred trigger；它是静态来源/实现一致性检查，不能替代运行数据库约束/匿名API/模型history/replay或浏览器验收。之后若修改SQL/关系，应重新测试并显式更新对应映射，不可仅改hash来让检查变绿。
+
+本次D映射更新实际运行研究门禁返回0：OJS39/Janeway35来源与18项历史基线仍通过；19类/248字段、73个D列revision绑定、57项D命名约束、3个复合FK helper语义快照、1份spec008及已验证D迁移通过静态一致性检查，采用/拒绝决策共15项。保留原10项负向并新增9项D负向，共20项隔离实验：完整副本返回0，其余19项分别对篡改/缺失/未知许可/假源字段/CSV与索引漂移/基线或实现字段漂移/错误revision/严格基线漂移、D table_args、typed列错迁移、缺或假FK/Unique、spec覆盖/路径、迁移hash、字段组归属矛盾、FK helper语义篡改返回1。没有为实验改写任何应用或SQL文件；只改隔离研究库副本。Ruff check与format检查通过。详细临时输出为 `/tmp/publishing-ojs-research/D-research-gate-{positive,negative-tests}.json`；正文为持久记录，临时缓存不承担后续运行依赖。

@@ -25,7 +25,8 @@ async function fetchJSON<T>(path: string, init?: RequestInit): Promise<T> {
   const body = await response.json().catch(() => null);
   if (!response.ok) {
     const detail = body?.detail;
-    throw new APIError(response.status, typeof detail === "string" ? detail : response.status === 422 ? "资料格式不符合要求，请检查字段长度、邮箱和文件后重试。" : "操作未完成，请重新载入后重试。");
+    const validation = detail && typeof detail === "object" && !Array.isArray(detail) && typeof detail.message === "string" ? [detail.message, ...(Array.isArray(detail.missing) ? detail.missing.filter((item: unknown): item is { message: string } => typeof item === "object" && item !== null && "message" in item && typeof item.message === "string").map((item: { message: string }) => item.message) : [])].join("；") : null;
+    throw new APIError(response.status, typeof detail === "string" ? detail : validation ?? (response.status === 422 ? "资料格式不符合要求，请检查字段长度、邮箱和文件后重试。" : "操作未完成，请重新载入后重试。"));
   }
   return body as T;
 }

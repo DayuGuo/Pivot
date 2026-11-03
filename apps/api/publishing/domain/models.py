@@ -221,6 +221,9 @@ class VersionFile(Base):
         ),
         UniqueConstraint("id", "manuscript_id", name="uq_pub_version_file_id_manuscript"),
         UniqueConstraint("version_id", "purpose", name="uq_pub_version_file_purpose"),
+        UniqueConstraint(
+            "id", "manuscript_id", "version_id", name="uq_pub_version_file_id_manuscript_version"
+        ),
         CheckConstraint(
             "purpose IN ('manuscript','blinded_manuscript','response','similarity_report','proof')",
             name="ck_pub_version_file_purpose",
@@ -248,8 +251,26 @@ class Assignment(Base):
         _tenant_manuscript("fk_pub_assignment_manuscript_journal"),
         UniqueConstraint("id", "manuscript_id", name="uq_pub_assignment_id_manuscript"),
         CheckConstraint(
-            "capability IN ('author','precheck','handling_editor','chief','production')",
+            "capability IN ('author','precheck','handling_editor','chief','production','reviewer')",
             name="ck_pub_assignment_capability",
+        ),
+        _same_manuscript(
+            "review_invitation_id",
+            "publishing_review_invitations",
+            "fk_pub_assignment_review_invitation",
+            use_alter=True,
+        ),
+        CheckConstraint(
+            "(capability='reviewer') = (review_invitation_id IS NOT NULL)",
+            name="ck_pub_assignment_review_target",
+        ),
+        Index(
+            "uq_pub_assignment_active_reviewer",
+            "review_invitation_id",
+            "user_id",
+            "capability",
+            unique=True,
+            postgresql_where=text("ends_at IS NULL AND capability='reviewer'"),
         ),
         Index(
             "uq_pub_assignment_active_capability",
@@ -257,7 +278,7 @@ class Assignment(Base):
             "user_id",
             "capability",
             unique=True,
-            postgresql_where=text("ends_at IS NULL"),
+            postgresql_where=text("ends_at IS NULL AND capability <> 'reviewer'"),
         ),
         Index(
             "uq_pub_assignment_active_editor",
@@ -273,6 +294,7 @@ class Assignment(Base):
     user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"))
     capability: Mapped[str] = mapped_column(String(40))
     assigned_by: Mapped[str | None] = mapped_column(String(36), ForeignKey("users.id"))
+    review_invitation_id: Mapped[str | None] = mapped_column(String(36))
     starts_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
     ends_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     reason: Mapped[str] = mapped_column(Text, default="", server_default="")
@@ -321,8 +343,45 @@ class WorkItem(Base):
             use_alter=True,
         ),
         UniqueConstraint("id", "manuscript_id", name="uq_pub_work_item_id_manuscript"),
-        UniqueConstraint(
-            "step_run_id", "kind", "assignee_id", name="uq_pub_work_item_step_assignee"
+        _same_manuscript(
+            "review_invitation_id",
+            "publishing_review_invitations",
+            "fk_pub_work_item_review_invitation",
+            use_alter=True,
+        ),
+        _same_manuscript(
+            "review_report_id",
+            "publishing_review_reports",
+            "fk_pub_work_item_review_report",
+            use_alter=True,
+        ),
+        CheckConstraint(
+            "review_invitation_id IS NULL OR review_report_id IS NULL",
+            name="ck_pub_work_item_review_target",
+        ),
+        Index(
+            "uq_pub_work_item_step_assignee",
+            "step_run_id",
+            "kind",
+            "assignee_id",
+            unique=True,
+            postgresql_where=text("review_invitation_id IS NULL AND review_report_id IS NULL"),
+        ),
+        Index(
+            "uq_pub_work_item_review_invitation",
+            "review_invitation_id",
+            "kind",
+            "assignee_id",
+            unique=True,
+            postgresql_where=text("review_invitation_id IS NOT NULL"),
+        ),
+        Index(
+            "uq_pub_work_item_review_report",
+            "review_report_id",
+            "kind",
+            "assignee_id",
+            unique=True,
+            postgresql_where=text("review_report_id IS NOT NULL"),
         ),
         CheckConstraint(
             "status IN ('pending','waiting','completed','cancelled')",
@@ -338,6 +397,8 @@ class WorkItem(Base):
     version_id: Mapped[str | None] = mapped_column(String(36))
     kind: Mapped[str] = mapped_column(String(60))
     assignee_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"))
+    review_invitation_id: Mapped[str | None] = mapped_column(String(36))
+    review_report_id: Mapped[str | None] = mapped_column(String(36))
     status: Mapped[str] = mapped_column(String(20), default="pending", server_default="pending")
     due_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     priority: Mapped[int] = mapped_column(Integer, default=0, server_default="0")

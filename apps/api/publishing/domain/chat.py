@@ -1,5 +1,6 @@
 """Contextual tools over real publishing objects. Final confirmation is never a tool."""
 
+import hashlib
 import json
 import re
 from typing import Literal
@@ -18,6 +19,14 @@ from ..security import Actor
 from . import core
 from .files import FileValidationError, read_bytes
 from .models import FileObject, ManuscriptVersion, PublishingChatTurn, VersionFile
+from .review_schemas import (
+    CancelInvitation,
+    CloseReview,
+    InviteInput,
+    OpenReviewInput,
+    ReportCandidates,
+)
+from .reviews import save_report_candidates
 from .schemas import IntakeCandidates, IntakeData, StrictInput
 from .stages import CheckNotes, download_report, save_check_notes
 
@@ -66,8 +75,44 @@ def authorized_context(db, actor, context):
                 or (not version.frozen_at and manuscript.author_id != actor.user.id)
             ):
                 raise HTTPException(404, "版本不存在或无权访问")
+        if (
+            actor.role == "reviewer"
+            and manuscript.author_id != actor.user.id
+            and context.version_id
+        ):
+            if (
+                core.submission_projection(db, actor, manuscript.id, detail=False)[
+                    "current_version_id"
+                ]
+                != context.version_id
+            ):
+                raise HTTPException(404, "该版本不属于本人授权的评审范围")
         return manuscript, flow
     return None, None
+
+
+def scope_allows(current, previous):
+    if isinstance(previous, bool):
+        return not previous or current is True
+    if isinstance(previous, list):
+        return isinstance(current, list) and set(previous) <= set(current)
+    if isinstance(previous, dict):
+        return isinstance(current, dict) and all(
+            scope_allows(current.get(key), value) for key, value in previous.items()
+        )
+    return current == previous
+
+
+def verify_visibility(db, actor, scopes):
+    for mid, expected in scopes.items():
+        projection = core.submission_projection(db, actor, mid, detail=False)
+        current = (
+            projection.get("visibility_scope")
+            if isinstance(expected, dict)
+            else projection.get("visibility_fingerprint")
+        )
+        if not scope_allows(current, expected):
+            raise HTTPException(403, "材料访问范围已变化，不能恢复先前完整内容")
 
 
 def history(db: Session, actor: Actor, context: ChatContext) -> dict:
@@ -101,10 +146,29 @@ def history(db: Session, actor: Actor, context: ChatContext) -> dict:
         try:
             for mid in mids:
                 core.load_submission(db, actor, mid)
+            verify_visibility(db, actor, row.context_snapshot.get("visibility_scopes", {}))
         except HTTPException:
             continue
         messages.extend(row.response["messages"])
     return {"messages": messages, "provider": editorial_model_status()}
+
+
+def tool_schema(model):
+    """Inline bounded local DTO references for portable function-schema transport."""
+    schema = model.model_json_schema()
+    definitions = schema.pop("$defs", {})
+
+    def expand(value):
+        if isinstance(value, list):
+            return [expand(item) for item in value]
+        if isinstance(value, dict):
+            if "$ref" in value:
+                reference = value["$ref"]
+                return expand(definitions[reference.removeprefix("#/$defs/")])
+            return {key: expand(item) for key, item in value.items() if key != "$defs"}
+        return value
+
+    return expand(schema)
 
 
 def function(name, description, properties=None, required=None):
@@ -143,14 +207,20 @@ class Runtime:
         self.evidence = {}
         self.action = None
         self.read_revisions = {}
-        self.allowed_ids = {s["id"] for s in core.workspace(db, actor)["submissions"]}
+        work = core.workspace(db, actor)
+        self.allowed_ids = {s["id"] for s in work["submissions"]}
+        self.visibility_scopes = {
+            s["id"]: (s.get("visibility_scope") or s["visibility_fingerprint"])
+            for s in work["submissions"]
+            if s.get("visibility_fingerprint")
+        }
         self.exposed_ids = set(self.allowed_ids)
         self.system_context = {
             "role": actor.role,
             "journal_id": actor.journal_id,
             "context": body.context.model_dump(),
             "email_send_enabled": False,
-            "my_tasks": core.workspace(db, actor)["tasks"],
+            "my_tasks": work["tasks"],
         }
         if self.current_id:
             self.read_submission(self.current_id)
@@ -160,6 +230,10 @@ class Runtime:
             raise HTTPException(404, "稿件不存在或无权访问")
         data = core.submission_projection(self.db, self.actor, mid)
         self.read_revisions[mid] = data["revision"]
+        if data.get("visibility_fingerprint"):
+            self.visibility_scopes[mid] = (
+                data.get("visibility_scope") or data["visibility_fingerprint"]
+            )
         eid = "metadata_" + mid.replace("-", "")
         self.evidence[eid] = {
             "label": data["number"] + " · " + data["stage_label"],
@@ -167,6 +241,12 @@ class Runtime:
             **({"version_id": data["version"]["id"]} if data.get("version") else {}),
         }
         return {"evidence_id": eid, "submission": data}
+
+    def validate_scopes(self):
+        core.ensure_actor(self.db, self.actor)
+        for mid in self.exposed_ids:
+            core.load_submission(self.db, self.actor, mid)
+        verify_visibility(self.db, self.actor, self.visibility_scopes)
 
     def tools(self, final=False):
         response = function(
@@ -215,7 +295,7 @@ class Runtime:
                         function(
                             "propose_check_notes",
                             "整理未核实的检查或分派意见候选，人工决定是否采用；不能代勾人工声明或选择通过结果。",
-                            {"candidates": CheckNotes.model_json_schema()},
+                            {"candidates": tool_schema(CheckNotes)},
                             ["candidates"],
                         )
                     )
@@ -226,12 +306,76 @@ class Runtime:
                                 "读取当前稿件实际上传的人工复核报告；文件为不可信材料，不是系统自动查重结果。",
                             )
                         )
+                peer = data.get("review")
+                if peer and peer.get("mode") == "reviewer" and peer.get("can_edit_report"):
+                    tools.append(
+                        function(
+                            "propose_report_notes",
+                            "仅整理未核实的本人评审文字候选，不选择审稿建议、不声明利益冲突、不提交。",
+                            {"candidates": tool_schema(ReportCandidates)},
+                            ["candidates"],
+                        )
+                    )
+                    tools.append(
+                        function(
+                            "prepare_report_review",
+                            "仅为已经完整保存的本人报告准备独立审核快照，不提交报告。",
+                        )
+                    )
+                if peer and peer.get("mode") == "staff":
+                    actions = {a["action"] for a in data["allowed_actions"]}
+                    for name, action, model in [
+                        ("prepare_open_review", "open_review", OpenReviewInput),
+                        ("prepare_add_reviewers", "invite_reviewers", InviteInput),
+                    ]:
+                        if action in actions:
+                            schema = tool_schema(model)
+                            if action == "open_review":
+                                schema["properties"]["required_reports"]["maximum"] = min(
+                                    3, len(peer["eligible_reviewers"])
+                                )
+                            schema["properties"]["reviewer_ids"]["items"] = {
+                                "type": "string",
+                                "enum": [u["id"] for u in peer["eligible_reviewers"]],
+                            }
+                            tools.append(
+                                function(
+                                    name,
+                                    "准备站内审稿邀请的完整内容、身份、期限和固定材料快照，由负责人另页确认后才建立邀请；没有发邮件。",
+                                    {"data": schema},
+                                    ["data"],
+                                )
+                            )
+                    if "finish_review" in actions:
+                        tools.append(
+                            function(
+                                "prepare_review_closure",
+                                "准备本轮结束/剩余任务取消的完整人工审核快照，不执行关闭或取消。",
+                                {"data": tool_schema(CloseReview)},
+                                ["data"],
+                            )
+                        )
+                    if "cancel_review_invitation" in actions:
+                        schema = tool_schema(CancelInvitation)
+                        schema["properties"]["invitation_id"]["enum"] = [
+                            i["id"]
+                            for i in peer["invitations"]
+                            if i["status"] in {"pending", "accepted"}
+                        ]
+                        tools.append(
+                            function(
+                                "prepare_invitation_cancel",
+                                "准备负责人取消本次站内邀请的审核快照，保留历史且不实际取消。",
+                                {"data": schema},
+                                ["data"],
+                            )
+                        )
                 if data.get("can_edit_intake"):
                     tools.append(
                         function(
                             "propose_intake",
                             "提取用户提供的信息为候选。仅填空值，不覆盖已有人工填写。声明必须本人填写。",
-                            {"candidates": IntakeCandidates.model_json_schema()},
+                            {"candidates": tool_schema(IntakeCandidates)},
                             ["candidates"],
                         )
                     )
@@ -255,7 +399,7 @@ class Runtime:
         return tools
 
     def execute(self, name, arguments):
-        core.ensure_actor(self.db, self.actor)
+        self.validate_scopes()
         allowed = {tool["function"]["name"] for tool in self.tools()}
         if name not in allowed:
             raise GatewayError("publishing_tool_not_allowed")
@@ -269,6 +413,12 @@ class Runtime:
             "prepare_review": {"action_type"},
             "propose_check_notes": {"candidates"},
             "read_check_report": set(),
+            "propose_report_notes": {"candidates"},
+            "prepare_report_review": set(),
+            "prepare_open_review": {"data"},
+            "prepare_add_reviewers": {"data"},
+            "prepare_review_closure": {"data"},
+            "prepare_invitation_cancel": {"data"},
             "respond": {"content", "evidence_ids"},
         }[name]
         if set(arguments) != keys:
@@ -307,14 +457,18 @@ class Runtime:
                 raise HTTPException(404, "文件不属于当前稿件")
             _, flow = core.load_submission(self.db, self.actor, link.manuscript_id)
             data = core.submission_projection(self.db, self.actor, link.manuscript_id)
-            if not data.get("version") or link.version_id != data["version"]["id"]:
+            if (
+                not data.get("version")
+                or link.version_id != data["version"]["id"]
+                or link.id not in {file["id"] for file in data["version"]["files"]}
+            ):
                 raise HTTPException(404, "文件不属于当前可读版本")
             blob = self.db.get(FileObject, link.file_object_id)
             try:
                 raw = read_bytes(blob.storage_key)
             except FileValidationError:
                 raise HTTPException(409, "文件内容校验失败") from None
-            if len(raw) != blob.byte_size:
+            if len(raw) != blob.byte_size or hashlib.sha256(raw).hexdigest() != blob.sha256:
                 raise HTTPException(409, "文件内容校验失败")
             text = raw.decode("utf-8")[:16000]
             eid = "file_" + link.id.replace("-", "")
@@ -355,6 +509,55 @@ class Runtime:
                 raise HTTPException(403, "当前不是本人负责的检查或分派关口")
             self.staged = ("check_notes", self.current_id, data["revision"], candidates)
             result = {"staged": True, "verified": False, "manual_declarations_written": False}
+        elif name == "propose_report_notes":
+            candidates = ReportCandidates.model_validate(arguments["candidates"])
+            data = core.submission_projection(self.db, self.actor, self.current_id)
+            if self.staged or not data.get("review", {}).get("can_edit_report"):
+                raise HTTPException(403, "当前没有可整理的本人报告")
+            self.staged = ("report_notes", self.current_id, data["revision"], candidates)
+            result = {
+                "staged": True,
+                "verified": False,
+                "recommendation_written": False,
+                "human_declarations_written": False,
+            }
+        elif name in {
+            "prepare_report_review",
+            "prepare_open_review",
+            "prepare_add_reviewers",
+            "prepare_review_closure",
+            "prepare_invitation_cancel",
+        }:
+            if self.staged:
+                raise GatewayError("publishing_mutation_limit")
+            data = core.submission_projection(self.db, self.actor, self.current_id)
+            action = {
+                "prepare_report_review": "submit_review",
+                "prepare_open_review": "open_review",
+                "prepare_add_reviewers": "invite_reviewers",
+                "prepare_review_closure": "finish_review",
+                "prepare_invitation_cancel": "cancel_review_invitation",
+            }[name]
+            if action not in {a["action"] for a in data["allowed_actions"]}:
+                raise HTTPException(403, "当前关口不能准备此评审操作")
+            if action == "submit_review":
+                report = data["review"]["report"]
+                values = {"report_id": report["id"], "expected_report_revision": report["revision"]}
+            else:
+                model = {
+                    "open_review": OpenReviewInput,
+                    "invite_reviewers": InviteInput,
+                    "finish_review": CloseReview,
+                    "cancel_review_invitation": CancelInvitation,
+                }[action]
+                values = model.model_validate(arguments["data"]).model_dump()
+            self.staged = (
+                "peer_action",
+                self.current_id,
+                data["revision"],
+                {"action_type": action, "data": values},
+            )
+            result = {"staged": True, "requires_human_confirmation": True}
         elif name == "propose_intake":
             candidates = IntakeCandidates.model_validate(arguments["candidates"])
             if self.staged:
@@ -382,7 +585,18 @@ class Runtime:
             {
                 "tool": name,
                 "status": "prepared"
-                if name in {"prepare_review", "propose_intake", "propose_check_notes"}
+                if name
+                in {
+                    "prepare_review",
+                    "propose_intake",
+                    "propose_check_notes",
+                    "propose_report_notes",
+                    "prepare_report_review",
+                    "prepare_open_review",
+                    "prepare_add_reviewers",
+                    "prepare_review_closure",
+                    "prepare_invitation_cancel",
+                }
                 else "ok",
                 **({"manuscript_id": self.current_id} if self.current_id else {}),
             }
@@ -392,13 +606,29 @@ class Runtime:
     def apply(self):
         # No existing manuscript row is locked during supplier network calls.
         self.db.expire_all()
-        core.ensure_actor(self.db, self.actor)
-        for mid, revision in self.read_revisions.items():
+        self.validate_scopes()
+        for mid, revision in sorted(self.read_revisions.items()):
             _, flow = core.load_submission(self.db, self.actor, mid, write=True)
             core.require_revision(flow, revision)
+        # Invitation-summary access may survive losing the full-text grant while
+        # this transaction waits for the manuscript row. Recheck the finer scope.
+        self.validate_scopes()
         if not self.staged:
             return
         kind, mid, revision, payload = self.staged
+        if kind == "report_notes":
+            save_report_candidates(self.db, self.actor, mid, revision, payload, self.message_id)
+            return
+        if kind == "peer_action":
+            proposal = core.prepare_proposal(
+                self.db, self.actor, mid, revision, payload["action_type"], payload["data"]
+            )
+            self.action = {
+                "type": "review",
+                "manuscript_id": mid,
+                "proposal_id": proposal["proposal_id"],
+            }
+            return
         if kind == "check_notes":
             save_check_notes(self.db, self.actor, mid, revision, payload, self.message_id)
             return
@@ -456,6 +686,55 @@ def mock_reply(runtime):
         }
     if runtime.current_id:
         data = core.submission_projection(runtime.db, runtime.actor, runtime.current_id)
+        peer = data.get("review")
+        if peer and peer.get("mode") == "reviewer" and peer.get("can_edit_report"):
+            if re.search(r"准备.*报告.*审核|准备.*提交报告", text):
+                runtime.execute("prepare_report_review", {})
+                return {
+                    "content": "模拟结果：已为保存的本人报告准备审核快照，仍需由你独立确认提交。",
+                    "references": list(runtime.evidence.values()),
+                }
+            if re.search(r"整理|起草|意见|评审报告", text):
+                candidates = {
+                    "author_text": "模拟候选：请审稿人阅读实际匿名稿件后，具体说明方法、证据、结论之间是否一致，并由本人填写需要作者修改的内容。",
+                    "answers_json": {
+                        "rigor": "模拟候选：请核对方法与证据是否足以支持本稿结论。",
+                        "confidential_assessment": "模拟候选：请填写仅供编辑阅读的保密评估。",
+                    },
+                }
+                for field, label in [
+                    ("author_text", "给作者的意见"),
+                    ("editor_private_text", "给编辑的意见"),
+                ]:
+                    match = re.search(rf"(?:^|\n){label}[：:]([^\n]+)", text)
+                    if match:
+                        candidates[field] = match.group(1)
+                runtime.execute("propose_report_notes", {"candidates": candidates})
+                return {
+                    "content": "模拟结果：已整理未核实的本人评审文字候选；不会选择建议、声明无冲突或替你提交。",
+                    "references": list(runtime.evidence.values()),
+                }
+        if peer and peer.get("mode") == "staff" and re.search(r"准备.*邀请", text):
+            chosen = [
+                u for u in peer["eligible_reviewers"] if u["name"] in text or u["email"] in text
+            ]
+            if chosen:
+                values = {
+                    "reviewer_ids": [u["id"] for u in chosen],
+                    "instructions": "请阅读本轮固定的合成匿名材料，完成结构化评审问题并分别填写给作者和编辑的意见。",
+                    "response_due_days": 7,
+                    "report_due_days": 21,
+                }
+                opening = peer["round"] is None or peer["round"]["status"] != "open"
+                if opening:
+                    values["required_reports"] = 1
+                runtime.execute(
+                    "prepare_open_review" if opening else "prepare_add_reviewers", {"data": values}
+                )
+                return {
+                    "content": "模拟结果：已准备给你指定审稿人的站内邀请审核快照；尚未发出邀请或发送邮件。",
+                    "references": list(runtime.evidence.values()),
+                }
         if data.get("staff_review") and re.search(r"整理|拟写|备注|总结|建议", text):
             match = re.search(r"(?:检查意见|备注)[：:]([^\n]+)", text)
             notes = (
@@ -468,6 +747,27 @@ def mock_reply(runtime):
                 "content": "模拟结果：已保存未核实的检查意见候选，供你选择采用；尚未作出检查结论或勾选人工复核声明。",
                 "references": list(runtime.evidence.values()),
             }
+        if not data.get("can_edit_intake"):
+            content = f"模拟结果：当前进展为「{data['stage_label']}」。"
+            if peer and peer.get("mode") == "reviewer":
+                if peer["can_respond"]:
+                    content += "目前仅开放匿名邀请摘要；请本人核对回应和利益冲突，独立确认后才开放授权材料。"
+                elif peer.get("report"):
+                    content += "本人报告可按当前授权查看；已提交或失去编辑权限的报告不能覆盖，材料访问另行校验。"
+                else:
+                    content += "当前没有可编辑的本人评审报告，请由责任编辑检查邀请状态。"
+            elif peer and peer.get("mode") == "staff" and peer.get("round"):
+                summary = peer["round"]
+                content += f"本轮实际提交 {summary['submitted_reports']} / {summary['required_reports']} 份报告；邀请回应、报告提交和最终决定分别处理。"
+            elif data.get("staff_review"):
+                content += (
+                    "请核对本关口实际材料、明确填写检查意见和人工复核声明，再准备独立负责人审核。"
+                )
+            else:
+                content += (
+                    "后续操作由实际分派的负责人审核，对话不代为确认、发送邮件或作出最终决定。"
+                )
+            return {"content": content, "references": list(runtime.evidence.values())}
     if runtime.current_id and re.search(r"整理|提取|标题[：:]|摘要[：:]", text):
         values = {}
         for field, label in [
@@ -519,6 +819,7 @@ def conversation(db: Session, actor: Actor, request_id: str, body: ChatInput) ->
             raise HTTPException(403, "角色已变化，不能恢复旧角色回合")
         for mid in previous.context_snapshot.get("read_manuscript_ids", []):
             core.load_submission(db, actor, mid)
+        verify_visibility(db, actor, previous.context_snapshot.get("visibility_scopes", {}))
 
     def execute():
         provider = get_editorial_provider()
@@ -538,6 +839,10 @@ def conversation(db: Session, actor: Actor, request_id: str, body: ChatInput) ->
                 },
                 {"role": "user", "content": body.message},
             ]
+            recent = history(db, actor, body.context)["messages"][-6:]
+            messages[1:1] = [
+                {"role": item["role"], "content": item["content"][:4000]} for item in recent
+            ]
             if runtime.evidence:
                 messages[0]["content"] += json.dumps(
                     runtime.read_submission(runtime.current_id), ensure_ascii=False
@@ -545,9 +850,7 @@ def conversation(db: Session, actor: Actor, request_id: str, body: ChatInput) ->
             reply = None
             calls = 0
             for round_no in range(3):
-                core.ensure_actor(db, actor)
-                for mid in runtime.exposed_ids:
-                    core.load_submission(db, actor, mid)
+                runtime.validate_scopes()
                 tools = runtime.tools(final=round_no == 2)
                 completion = provider.completion(messages, tools)
                 if provider.last_telemetry:
@@ -588,6 +891,7 @@ def conversation(db: Session, actor: Actor, request_id: str, body: ChatInput) ->
             **body.context.model_dump(),
             "role": actor.role,
             "read_manuscript_ids": sorted(runtime.exposed_ids | runtime.read_revisions.keys()),
+            "visibility_scopes": runtime.visibility_scopes,
         }
         result = {
             "request_id": request_id,
@@ -643,9 +947,32 @@ def conversation(db: Session, actor: Actor, request_id: str, body: ChatInput) ->
         )
         return result
 
+    def revalidate_replay():
+        # Read the canonical persisted turn *after* the idempotency lock wait.
+        stored = db.scalar(
+            select(PublishingChatTurn)
+            .where(
+                PublishingChatTurn.user_id == actor.user.id,
+                PublishingChatTurn.journal_id == actor.journal_id,
+                PublishingChatTurn.request_id == request_id,
+            )
+            .execution_options(populate_existing=True)
+        )
+        if not stored or stored.context_snapshot.get("role") != actor.role:
+            raise HTTPException(403, "原回合不存在或角色已变化，不能恢复")
+        for mid in stored.context_snapshot.get("read_manuscript_ids", []):
+            core.load_submission(db, actor, mid)
+        verify_visibility(db, actor, stored.context_snapshot.get("visibility_scopes", {}))
+
     try:
         return core.run_action(
-            db, actor, request_id, "chat", {**body.model_dump(), "role": actor.role}, execute
+            db,
+            actor,
+            request_id,
+            "chat",
+            {**body.model_dump(), "role": actor.role},
+            execute,
+            revalidate_replay=revalidate_replay,
         )
     except (GatewayError, ValidationError, TypeError, KeyError, ValueError):
         db.rollback()

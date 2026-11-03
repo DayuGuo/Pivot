@@ -18,6 +18,9 @@ from . import core
 from .chat import ChatContext, ChatInput, conversation, history
 from .files import FileValidationError, read_bytes
 from .models import FileObject, ManuscriptVersion, VersionFile
+from .review_access import download_material, require_report
+from .review_schemas import ReportData
+from .reviews import save_report
 from .schemas import FileUpload, IntakeData, StrictInput
 from .stages import download_report, upload_report
 
@@ -59,6 +62,12 @@ class ConfirmationInput(StrictInput):
 
 class ChatRequest(ChatInput):
     request_id: RequestID
+
+
+class SaveReportInput(StrictInput):
+    request_id: RequestID
+    expected_revision: int = Field(ge=0)
+    data: ReportData
 
 
 @router.get("/chat")
@@ -229,6 +238,8 @@ def download(file_id: UUID, actor: Actor = Depends(get_actor), db: Session = Dep
     # Unsubmitted files remain private to their author; reviewer-specific file
     # access is added only with an accepted review assignment in the review slice.
     manuscript, _ = core.load_submission(db, actor, link.manuscript_id)
+    if actor.role == "reviewer" and manuscript.author_id != actor.user.id:
+        raise HTTPException(404, "请使用本轮明确授权的匿名评审材料入口")
     if not version.frozen_at and manuscript.author_id != actor.user.id:
         raise HTTPException(404, "文件不存在或无权访问")
     blob = db.get(FileObject, link.file_object_id)
@@ -276,6 +287,41 @@ def report_download(
     db: Session = Depends(get_db),
 ):
     blob, name, content = download_report(db, actor, str(manuscript_id), str(file_id))
+    return Response(
+        content=content,
+        media_type=blob.media_type,
+        headers={
+            "Content-Disposition": f"attachment; filename*=UTF-8''{quote(name, safe='')}",
+            "X-Content-SHA256": blob.sha256,
+        },
+    )
+
+
+@router.patch("/review-reports/{report_id}")
+def report_save(
+    report_id: UUID,
+    body: SaveReportInput,
+    actor: Actor = Depends(get_actor),
+    db: Session = Depends(get_db),
+):
+    require_report(db, actor, str(report_id))
+    return core.run_action(
+        db,
+        actor,
+        str(body.request_id),
+        "save_review_report",
+        {"report_id": str(report_id), **body.model_dump(mode="json", exclude={"request_id"})},
+        lambda: save_report(db, actor, str(report_id), body.expected_revision, body.data),
+    )
+
+
+@router.get("/review-materials/{file_id}")
+def review_material(
+    file_id: UUID,
+    actor: Actor = Depends(get_actor),
+    db: Session = Depends(get_db),
+):
+    blob, name, content = download_material(db, actor, str(file_id))
     return Response(
         content=content,
         media_type=blob.media_type,

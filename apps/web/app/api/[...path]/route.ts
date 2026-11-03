@@ -21,11 +21,13 @@ async function proxy(request: NextRequest, context: Context) {
       body: request.method === "GET" ? undefined : await request.text(),
       cache: "no-store",
       redirect: "manual",
-      signal: AbortSignal.timeout(path.join("/") === "editorial-demo/chat" ? 75_000 : 30_000),
+      signal: AbortSignal.timeout(["editorial-demo/chat", "publishing/chat"].includes(path.join("/")) ? 75_000 : 30_000),
     });
     const resultHeaders = new Headers({ "Cache-Control": "no-store" });
     const contentType = upstream.headers.get("content-type");
     if (contentType) resultHeaders.set("content-type", contentType);
+    const digest = upstream.headers.get("x-content-sha256");
+    if (digest) resultHeaders.set("x-content-sha256", digest);
     const disposition = upstream.headers.get("content-disposition");
     if (disposition) resultHeaders.set("content-disposition", disposition);
     for (const cookie of upstream.headers.getSetCookie()) resultHeaders.append("set-cookie", cookie);

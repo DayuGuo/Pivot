@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "updated_date": "2026-11-02",
-  "scope": "spec007 A/B foundation: existing Manuscript +13 normalized models; slice C extension: CheckRun. Existing source classes and migration revisions bound; status implemented is static source evidence, not full workflow completion.",
+  "updated_date": "2026-11-03",
+  "scope": "Foundation14 + C CheckRun + D four fixed-round peer-review models; existing Assignment/WorkItem typed fields and VersionFile triple key extended. D model/migration component50 tests passed; service/API/UI integration remains pending root.",
   "data_contract": "specs/007-data-contract.md",
   "source_manifests": {
     "ojs": "ojs/source-manifest.json",
@@ -15,7 +15,7 @@
     "current-system": "current-system/inventory.json"
   },
   "method": "Conceptual adaptation only. Upstream tables/classes/fields are verified against pinned static indexes; project_governance means no claimed upstream equivalent. Static indexes are not live DB DDL. No upstream code imported or executed.",
-  "migration_binding": "All foundation models bound to actual f8a12d4c6e90 revision; CheckRun bound to 09b73e6a1c22 after isolated-schema component validation. Shared core/API/browser rollout remains lead responsibility.",
+  "migration_binding": "Foundation bound f8a12d4c6e90; C CheckRun09b73e6a1c22; D tables/typed relation additions and seal guards10c84f7a2d31. Source AST and revision declarations verified statically; only reported component test scopes are claimed.",
   "models": [
     {
       "class": "Manuscript",
@@ -189,7 +189,11 @@
             "annotation": "Mapped[datetime]",
             "declaration": "mapped_column(DateTime(timezone=True), default=now)"
           }
-        ]
+        ],
+        "table_args": {
+          "line": 53,
+          "declaration": "(UniqueConstraint('id', 'journal_id', name='uq_manuscript_id_journal'), CheckConstraint(\"workflow_kind IN ('legacy','publishing')\", name='ck_manuscript_workflow_kind'))"
+        }
       }
     },
     {
@@ -484,7 +488,11 @@
             "annotation": "Mapped[datetime]",
             "declaration": "mapped_column(DateTime(timezone=True), default=now)"
           }
-        ]
+        ],
+        "table_args": {
+          "line": 71,
+          "declaration": "(_tenant_manuscript('fk_pub_workflow_manuscript_journal'), UniqueConstraint('journal_id', 'number', name='uq_pub_workflow_journal_number'), CheckConstraint('revision >= 0', name='ck_pub_workflow_revision'), CheckConstraint('required_reports BETWEEN 1 AND 3', name='ck_pub_workflow_report_target'), CheckConstraint('stage IN (' + ','.join((repr(stage) for stage in STAGES)) + ')', name='ck_pub_workflow_stage'), _same_manuscript('current_version_id', 'publishing_versions', 'fk_pub_workflow_current_version', use_alter=True), _same_manuscript('draft_version_id', 'publishing_versions', 'fk_pub_workflow_draft_version', use_alter=True), _same_manuscript('accepted_version_id', 'publishing_versions', 'fk_pub_workflow_accepted_version', use_alter=True), _same_manuscript('current_step_id', 'publishing_step_runs', 'fk_pub_workflow_current_step', use_alter=True), Index('ix_pub_workflow_queue', 'journal_id', 'stage', 'updated_at'))"
+        }
       }
     },
     {
@@ -714,7 +722,11 @@
             "annotation": "Mapped[datetime]",
             "declaration": "mapped_column(DateTime(timezone=True), default=now)"
           }
-        ]
+        ],
+        "table_args": {
+          "line": 130,
+          "declaration": "(UniqueConstraint('id', 'manuscript_id', name='uq_pub_version_id_manuscript'), UniqueConstraint('manuscript_id', 'version_no', name='uq_pub_version_sequence'), CheckConstraint('version_no >= 1', name='ck_pub_version_sequence'))"
+        }
       }
     },
     {
@@ -921,7 +933,11 @@
             "annotation": "Mapped[str | None]",
             "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
           }
-        ]
+        ],
+        "table_args": {
+          "line": 159,
+          "declaration": "(_same_manuscript('version_id', 'publishing_versions', 'fk_pub_author_version'), UniqueConstraint('version_id', 'ordinal', name='uq_pub_author_order'), UniqueConstraint('id', 'manuscript_id', name='uq_pub_author_id_manuscript'), CheckConstraint('ordinal >= 0', name='ck_pub_author_order'), Index('uq_pub_author_corresponding', 'version_id', unique=True, postgresql_where=text('corresponding = true')))"
+        }
       }
     },
     {
@@ -1108,7 +1124,11 @@
             "annotation": "Mapped[datetime]",
             "declaration": "mapped_column(DateTime(timezone=True), default=now)"
           }
-        ]
+        ],
+        "table_args": {
+          "line": 190,
+          "declaration": "(UniqueConstraint('journal_id', 'sha256', name='uq_pub_file_journal_hash'), UniqueConstraint('id', 'journal_id', name='uq_pub_file_id_journal'), CheckConstraint('byte_size BETWEEN 1 AND 1048576', name='ck_pub_file_size'))"
+        }
       }
     },
     {
@@ -1196,6 +1216,10 @@
         {
           "rule": "父版冻结后 INSERT/UPDATE/DELETE trigger 拒绝",
           "intended_acceptance": "确认后替换正文/盲审文件失败"
+        },
+        {
+          "rule": "D新增UNIQUE(id,manuscript_id,version_id)供RoundFile triple FK",
+          "intended_acceptance": "同稿错误版本RoundFile也不能关联；不修改冻结VersionFile现有内容"
         }
       ],
       "intended_acceptance": [
@@ -1225,66 +1249,79 @@
         "fields": [
           {
             "name": "id",
-            "line": 233,
+            "line": 236,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
           },
           {
             "name": "manuscript_id",
-            "line": 234,
+            "line": 237,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('manuscripts.id'))"
           },
           {
             "name": "journal_id",
-            "line": 235,
+            "line": 238,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('journals.id'))"
           },
           {
             "name": "version_id",
-            "line": 236,
+            "line": 239,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "file_object_id",
-            "line": 237,
+            "line": 240,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "purpose",
-            "line": 238,
+            "line": 241,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(40))"
           },
           {
             "name": "visibility",
-            "line": 239,
+            "line": 242,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(30))"
           },
           {
             "name": "display_name",
-            "line": 240,
+            "line": 243,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(255))"
           },
           {
             "name": "created_by",
-            "line": 241,
+            "line": 244,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
           },
           {
             "name": "created_at",
-            "line": 242,
+            "line": 245,
             "annotation": "Mapped[datetime]",
             "declaration": "mapped_column(DateTime(timezone=True), default=now)"
           }
-        ]
-      }
+        ],
+        "table_args": {
+          "line": 214,
+          "declaration": "(_tenant_manuscript('fk_pub_version_file_manuscript_journal'), _same_manuscript('version_id', 'publishing_versions', 'fk_pub_version_file_version'), ForeignKeyConstraint(['file_object_id', 'journal_id'], ['publishing_file_objects.id', 'publishing_file_objects.journal_id'], name='fk_pub_version_file_object_journal'), UniqueConstraint('id', 'manuscript_id', name='uq_pub_version_file_id_manuscript'), UniqueConstraint('version_id', 'purpose', name='uq_pub_version_file_purpose'), UniqueConstraint('id', 'manuscript_id', 'version_id', name='uq_pub_version_file_id_manuscript_version'), CheckConstraint(\"purpose IN ('manuscript','blinded_manuscript','response','similarity_report','proof')\", name='ck_pub_version_file_purpose'), CheckConstraint(\"visibility IN ('author_editor','reviewer','production')\", name='ck_pub_version_file_visibility'))"
+        }
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "10c84f7a2d31",
+          "names": [
+            "uq_pub_version_file_id_manuscript_version"
+          ],
+          "scope": "D new/replaced constraints on existing foundation relation"
+        }
+      ]
     },
     {
       "class": "Assignment",
@@ -1350,6 +1387,43 @@
           ],
           "origin": "adapted_pattern",
           "adaptation": "角色+期刊+本稿有效分派+阶段+COI 共同授权。capability 是本稿权限，chief 等投影不能代替授权。"
+        },
+        {
+          "our_fields": [
+            "review_invitation_id"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/RolesAndUserGroupsMigration.php",
+              "entity_type": "table",
+              "entity": "stage_assignments",
+              "fields": [
+                "submission_id",
+                "user_id",
+                "user_group_id",
+                "date_assigned"
+              ]
+            },
+            {
+              "system": "janeway",
+              "source_id": "review-model-fields.txt",
+              "entity_type": "class",
+              "app": "review",
+              "entity": "ReviewAssignment",
+              "fields": [
+                "article",
+                "reviewer",
+                "date_accepted",
+                "review_round"
+              ],
+              "upstream_path": "src/review/models.py",
+              "upstream_line": 197
+            }
+          ],
+          "origin": "project_governance",
+          "adaptation": "reviewer capability必须typed invitation；接受后实际grant；nonreviewer不能带target；grant历史不能reactivate或另建绕过。",
+          "migration_id": "10c84f7a2d31"
         }
       ],
       "constraints": [
@@ -1360,6 +1434,10 @@
         {
           "rule": "same-manuscript/journal FK; Index(user_id,ends_at)",
           "intended_acceptance": "任职过期/撤销即无法操作；左栏只见授权待办"
+        },
+        {
+          "rule": "reviewer typed同稿FK/capability等价CHECK；nonreviewer active原key partial UNIQUE与reviewer invitation/user/capability active UNIQUE分开",
+          "intended_acceptance": "pending不得授grant；接受后实际创建；结束不能重激活/重建，历史轮次可分别存档"
         }
       ],
       "intended_acceptance": [
@@ -1380,68 +1458,95 @@
         "assigned_by",
         "starts_at",
         "ends_at",
-        "reason"
+        "reason",
+        "review_invitation_id"
       ],
       "source_binding": {
         "path": "apps/api/publishing/domain/models.py",
-        "class_line": 245,
+        "class_line": 248,
         "fields": [
           {
             "name": "id",
-            "line": 270,
+            "line": 291,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
           },
           {
             "name": "manuscript_id",
-            "line": 271,
+            "line": 292,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('manuscripts.id'))"
           },
           {
             "name": "journal_id",
-            "line": 272,
+            "line": 293,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('journals.id'))"
           },
           {
             "name": "user_id",
-            "line": 273,
+            "line": 294,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
           },
           {
             "name": "capability",
-            "line": 274,
+            "line": 295,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(40))"
           },
           {
             "name": "assigned_by",
-            "line": 275,
+            "line": 296,
             "annotation": "Mapped[str | None]",
             "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
           },
           {
+            "name": "review_invitation_id",
+            "line": 297,
+            "annotation": "Mapped[str | None]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
             "name": "starts_at",
-            "line": 276,
+            "line": 298,
             "annotation": "Mapped[datetime]",
             "declaration": "mapped_column(DateTime(timezone=True), default=now)"
           },
           {
             "name": "ends_at",
-            "line": 277,
+            "line": 299,
             "annotation": "Mapped[datetime | None]",
             "declaration": "mapped_column(DateTime(timezone=True))"
           },
           {
             "name": "reason",
-            "line": 278,
+            "line": 300,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(Text, default='', server_default='')"
           }
-        ]
-      }
+        ],
+        "table_args": {
+          "line": 250,
+          "declaration": "(_tenant_manuscript('fk_pub_assignment_manuscript_journal'), UniqueConstraint('id', 'manuscript_id', name='uq_pub_assignment_id_manuscript'), CheckConstraint(\"capability IN ('author','precheck','handling_editor','chief','production','reviewer')\", name='ck_pub_assignment_capability'), _same_manuscript('review_invitation_id', 'publishing_review_invitations', 'fk_pub_assignment_review_invitation', use_alter=True), CheckConstraint(\"(capability='reviewer') = (review_invitation_id IS NOT NULL)\", name='ck_pub_assignment_review_target'), Index('uq_pub_assignment_active_reviewer', 'review_invitation_id', 'user_id', 'capability', unique=True, postgresql_where=text(\"ends_at IS NULL AND capability='reviewer'\")), Index('uq_pub_assignment_active_capability', 'manuscript_id', 'user_id', 'capability', unique=True, postgresql_where=text(\"ends_at IS NULL AND capability <> 'reviewer'\")), Index('uq_pub_assignment_active_editor', 'manuscript_id', unique=True, postgresql_where=text(\"capability = 'handling_editor' AND ends_at IS NULL\")), Index('ix_pub_assignment_user', 'user_id', 'ends_at'))"
+        }
+      },
+      "field_revision_bindings": {
+        "review_invitation_id": "10c84f7a2d31"
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "10c84f7a2d31",
+          "names": [
+            "fk_pub_assignment_review_invitation",
+            "ck_pub_assignment_capability",
+            "ck_pub_assignment_review_target",
+            "uq_pub_assignment_active_capability",
+            "uq_pub_assignment_active_reviewer"
+          ],
+          "scope": "D new/replaced constraints on existing foundation relation"
+        }
+      ]
     },
     {
       "class": "StepRun",
@@ -1568,75 +1673,79 @@
       ],
       "source_binding": {
         "path": "apps/api/publishing/domain/models.py",
-        "class_line": 281,
+        "class_line": 303,
         "fields": [
           {
             "name": "id",
-            "line": 296,
+            "line": 318,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
           },
           {
             "name": "manuscript_id",
-            "line": 297,
+            "line": 319,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('manuscripts.id'))"
           },
           {
             "name": "version_id",
-            "line": 298,
+            "line": 320,
             "annotation": "Mapped[str | None]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "step_key",
-            "line": 299,
+            "line": 321,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(50))"
           },
           {
             "name": "cycle_no",
-            "line": 300,
+            "line": 322,
             "annotation": "Mapped[int]",
             "declaration": "mapped_column(Integer)"
           },
           {
             "name": "status",
-            "line": 301,
+            "line": 323,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(20), default='pending', server_default='pending')"
           },
           {
             "name": "policy_version",
-            "line": 302,
+            "line": 324,
             "annotation": "Mapped[int]",
             "declaration": "mapped_column(Integer, default=1, server_default='1')"
           },
           {
             "name": "entered_at",
-            "line": 303,
+            "line": 325,
             "annotation": "Mapped[datetime]",
             "declaration": "mapped_column(DateTime(timezone=True), default=now)"
           },
           {
             "name": "completed_at",
-            "line": 304,
+            "line": 326,
             "annotation": "Mapped[datetime | None]",
             "declaration": "mapped_column(DateTime(timezone=True))"
           },
           {
             "name": "outcome_json",
-            "line": 305,
+            "line": 327,
             "annotation": "Mapped[dict]",
             "declaration": "mapped_column(JSONB, default=dict, server_default=text(\"'{}'::jsonb\"))"
           },
           {
             "name": "confirmation_id",
-            "line": 308,
+            "line": 330,
             "annotation": "Mapped[str | None]",
             "declaration": "mapped_column(String(36))"
           }
-        ]
+        ],
+        "table_args": {
+          "line": 305,
+          "declaration": "(_same_manuscript('version_id', 'publishing_versions', 'fk_pub_step_version'), UniqueConstraint('id', 'manuscript_id', name='uq_pub_step_id_manuscript'), UniqueConstraint('manuscript_id', 'step_key', 'cycle_no', name='uq_pub_step_cycle'), CheckConstraint('cycle_no >= 1', name='ck_pub_step_cycle'), CheckConstraint(\"status IN ('pending','completed','cancelled')\", name='ck_pub_step_status'), ForeignKeyConstraint(['confirmation_id', 'manuscript_id'], ['publishing_human_confirmations.id', 'publishing_human_confirmations.manuscript_id'], name='fk_pub_step_confirmation', use_alter=True))"
+        }
       }
     },
     {
@@ -1732,6 +1841,45 @@
           ],
           "origin": "project_governance",
           "adaptation": "把负责人完成与具体确认相连，不以 AI 声称已完成代替。"
+        },
+        {
+          "our_fields": [
+            "review_invitation_id",
+            "review_report_id"
+          ],
+          "source_refs": [
+            {
+              "system": "janeway",
+              "source_id": "core-model-fields.txt",
+              "entity_type": "class",
+              "app": "core",
+              "entity": "Task",
+              "fields": [
+                "object_id",
+                "content_type",
+                "assignees",
+                "complete_events",
+                "completed_by"
+              ],
+              "upstream_path": "src/core/models.py",
+              "upstream_line": 1822
+            },
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/ReviewsMigration.php",
+              "entity_type": "table",
+              "entity": "review_assignments",
+              "fields": [
+                "review_id",
+                "reviewer_id",
+                "review_round_id",
+                "date_completed"
+              ]
+            }
+          ],
+          "origin": "project_governance",
+          "adaptation": "两个互斥typed target替代泛型对象；同稿FK+guard锁定实际reviewer/version和独立StepRun；避免全局step唯一阻止重复attempt。",
+          "migration_id": "10c84f7a2d31"
         }
       ],
       "constraints": [
@@ -1742,6 +1890,10 @@
         {
           "rule": "Index(assignee_id,status,due_at); Index(journal_id,status,due_at)",
           "intended_acceptance": "今日优先待办真实查询而非遍历客户端 JSON"
+        },
+        {
+          "rule": "旧step/kind/assignee唯一改为两typed target皆NULL的partial UNIQUE；invitation/report各有partial UNIQUE；完成绑定目标实际response/report confirmation",
+          "intended_acceptance": "不同attempt/round任务可共存；错人/错版/错确认/原地repurpose或篡改完成历史拒绝"
         }
       ],
       "intended_acceptance": [
@@ -1767,98 +1919,134 @@
         "blocking",
         "created_at",
         "completed_at",
-        "confirmation_id"
+        "confirmation_id",
+        "review_invitation_id",
+        "review_report_id"
       ],
       "source_binding": {
         "path": "apps/api/publishing/domain/models.py",
-        "class_line": 311,
+        "class_line": 333,
         "fields": [
           {
             "name": "id",
-            "line": 334,
+            "line": 393,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
           },
           {
             "name": "manuscript_id",
-            "line": 335,
+            "line": 394,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('manuscripts.id'))"
           },
           {
             "name": "journal_id",
-            "line": 336,
+            "line": 395,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('journals.id'))"
           },
           {
             "name": "step_run_id",
-            "line": 337,
+            "line": 396,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "version_id",
-            "line": 338,
+            "line": 397,
             "annotation": "Mapped[str | None]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "kind",
-            "line": 339,
+            "line": 398,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(60))"
           },
           {
             "name": "assignee_id",
-            "line": 340,
+            "line": 399,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
           },
           {
+            "name": "review_invitation_id",
+            "line": 400,
+            "annotation": "Mapped[str | None]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "review_report_id",
+            "line": 401,
+            "annotation": "Mapped[str | None]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
             "name": "status",
-            "line": 341,
+            "line": 402,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(20), default='pending', server_default='pending')"
           },
           {
             "name": "due_at",
-            "line": 342,
+            "line": 403,
             "annotation": "Mapped[datetime | None]",
             "declaration": "mapped_column(DateTime(timezone=True))"
           },
           {
             "name": "priority",
-            "line": 343,
+            "line": 404,
             "annotation": "Mapped[int]",
             "declaration": "mapped_column(Integer, default=0, server_default='0')"
           },
           {
             "name": "blocking",
-            "line": 344,
+            "line": 405,
             "annotation": "Mapped[bool]",
             "declaration": "mapped_column(Boolean, default=True, server_default=true())"
           },
           {
             "name": "created_at",
-            "line": 345,
+            "line": 406,
             "annotation": "Mapped[datetime]",
             "declaration": "mapped_column(DateTime(timezone=True), default=now)"
           },
           {
             "name": "completed_at",
-            "line": 346,
+            "line": 407,
             "annotation": "Mapped[datetime | None]",
             "declaration": "mapped_column(DateTime(timezone=True))"
           },
           {
             "name": "confirmation_id",
-            "line": 347,
+            "line": 408,
             "annotation": "Mapped[str | None]",
             "declaration": "mapped_column(String(36))"
           }
-        ]
-      }
+        ],
+        "table_args": {
+          "line": 335,
+          "declaration": "(_tenant_manuscript('fk_pub_work_item_manuscript_journal'), _same_manuscript('step_run_id', 'publishing_step_runs', 'fk_pub_work_item_step'), _same_manuscript('version_id', 'publishing_versions', 'fk_pub_work_item_version'), ForeignKeyConstraint(['confirmation_id', 'manuscript_id'], ['publishing_human_confirmations.id', 'publishing_human_confirmations.manuscript_id'], name='fk_pub_work_item_confirmation', use_alter=True), UniqueConstraint('id', 'manuscript_id', name='uq_pub_work_item_id_manuscript'), _same_manuscript('review_invitation_id', 'publishing_review_invitations', 'fk_pub_work_item_review_invitation', use_alter=True), _same_manuscript('review_report_id', 'publishing_review_reports', 'fk_pub_work_item_review_report', use_alter=True), CheckConstraint('review_invitation_id IS NULL OR review_report_id IS NULL', name='ck_pub_work_item_review_target'), Index('uq_pub_work_item_step_assignee', 'step_run_id', 'kind', 'assignee_id', unique=True, postgresql_where=text('review_invitation_id IS NULL AND review_report_id IS NULL')), Index('uq_pub_work_item_review_invitation', 'review_invitation_id', 'kind', 'assignee_id', unique=True, postgresql_where=text('review_invitation_id IS NOT NULL')), Index('uq_pub_work_item_review_report', 'review_report_id', 'kind', 'assignee_id', unique=True, postgresql_where=text('review_report_id IS NOT NULL')), CheckConstraint(\"status IN ('pending','waiting','completed','cancelled')\", name='ck_pub_work_item_status'), Index('ix_pub_work_item_assignee', 'assignee_id', 'status', 'due_at'), Index('ix_pub_work_item_journal', 'journal_id', 'status', 'due_at'))"
+        }
+      },
+      "field_revision_bindings": {
+        "review_invitation_id": "10c84f7a2d31",
+        "review_report_id": "10c84f7a2d31"
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "10c84f7a2d31",
+          "names": [
+            "fk_pub_work_item_review_invitation",
+            "fk_pub_work_item_review_report",
+            "ck_pub_work_item_review_target",
+            "uq_pub_work_item_step_assignee",
+            "uq_pub_work_item_review_invitation",
+            "uq_pub_work_item_review_report"
+          ],
+          "scope": "D new/replaced constraints on existing foundation relation"
+        }
+      ]
     },
     {
       "class": "FormDraft",
@@ -1958,75 +2146,79 @@
       ],
       "source_binding": {
         "path": "apps/api/publishing/domain/models.py",
-        "class_line": 350,
+        "class_line": 411,
         "fields": [
           {
             "name": "id",
-            "line": 357,
+            "line": 418,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
           },
           {
             "name": "manuscript_id",
-            "line": 358,
+            "line": 419,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('manuscripts.id'))"
           },
           {
             "name": "version_id",
-            "line": 359,
+            "line": 420,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "owner_id",
-            "line": 360,
+            "line": 421,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
           },
           {
             "name": "schema_key",
-            "line": 361,
+            "line": 422,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(60), default='intake', server_default='intake')"
           },
           {
             "name": "schema_version",
-            "line": 362,
+            "line": 423,
             "annotation": "Mapped[int]",
             "declaration": "mapped_column(Integer, default=1, server_default='1')"
           },
           {
             "name": "revision",
-            "line": 363,
+            "line": 424,
             "annotation": "Mapped[int]",
             "declaration": "mapped_column(Integer, default=0, server_default='0')"
           },
           {
             "name": "base_revision",
-            "line": 364,
+            "line": 425,
             "annotation": "Mapped[int]",
             "declaration": "mapped_column(Integer)"
           },
           {
             "name": "data_json",
-            "line": 365,
+            "line": 426,
             "annotation": "Mapped[dict]",
             "declaration": "mapped_column(JSONB, default=dict, server_default=text(\"'{}'::jsonb\"))"
           },
           {
             "name": "sources_json",
-            "line": 366,
+            "line": 427,
             "annotation": "Mapped[dict]",
             "declaration": "mapped_column(JSONB, default=dict, server_default=text(\"'{}'::jsonb\"))"
           },
           {
             "name": "updated_at",
-            "line": 369,
+            "line": 430,
             "annotation": "Mapped[datetime]",
             "declaration": "mapped_column(DateTime(timezone=True), default=now)"
           }
-        ]
+        ],
+        "table_args": {
+          "line": 413,
+          "declaration": "(_same_manuscript('version_id', 'publishing_versions', 'fk_pub_form_version'), UniqueConstraint('version_id', 'schema_key', 'owner_id', name='uq_pub_form_version_owner'), CheckConstraint('revision >= 0', name='ck_pub_form_revision'))"
+        }
       }
     },
     {
@@ -2154,105 +2346,109 @@
       ],
       "source_binding": {
         "path": "apps/api/publishing/domain/models.py",
-        "class_line": 372,
+        "class_line": 433,
         "fields": [
           {
             "name": "id",
-            "line": 381,
+            "line": 442,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
           },
           {
             "name": "manuscript_id",
-            "line": 382,
+            "line": 443,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('manuscripts.id'))"
           },
           {
             "name": "journal_id",
-            "line": 383,
+            "line": 444,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('journals.id'))"
           },
           {
             "name": "work_item_id",
-            "line": 384,
+            "line": 445,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "version_id",
-            "line": 385,
+            "line": 446,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "action_type",
-            "line": 386,
+            "line": 447,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(60))"
           },
           {
             "name": "prepared_by",
-            "line": 387,
+            "line": 448,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
           },
           {
             "name": "responsible_user_id",
-            "line": 388,
+            "line": 449,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
           },
           {
             "name": "base_revision",
-            "line": 389,
+            "line": 450,
             "annotation": "Mapped[int]",
             "declaration": "mapped_column(Integer)"
           },
           {
             "name": "policy_version",
-            "line": 390,
+            "line": 451,
             "annotation": "Mapped[int]",
             "declaration": "mapped_column(Integer)"
           },
           {
             "name": "payload_snapshot",
-            "line": 391,
+            "line": 452,
             "annotation": "Mapped[dict]",
             "declaration": "mapped_column(JSONB)"
           },
           {
             "name": "evidence_digests",
-            "line": 392,
+            "line": 453,
             "annotation": "Mapped[dict]",
             "declaration": "mapped_column(JSONB)"
           },
           {
             "name": "digest",
-            "line": 393,
+            "line": 454,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(64))"
           },
           {
             "name": "created_at",
-            "line": 394,
+            "line": 455,
             "annotation": "Mapped[datetime]",
             "declaration": "mapped_column(DateTime(timezone=True), default=now)"
           },
           {
             "name": "expires_at",
-            "line": 395,
+            "line": 456,
             "annotation": "Mapped[datetime]",
             "declaration": "mapped_column(DateTime(timezone=True))"
           },
           {
             "name": "superseded_at",
-            "line": 396,
+            "line": 457,
             "annotation": "Mapped[datetime | None]",
             "declaration": "mapped_column(DateTime(timezone=True))"
           }
-        ]
+        ],
+        "table_args": {
+          "line": 435,
+          "declaration": "(_tenant_manuscript('fk_pub_proposal_manuscript_journal'), _same_manuscript('work_item_id', 'publishing_work_items', 'fk_pub_proposal_work_item'), _same_manuscript('version_id', 'publishing_versions', 'fk_pub_proposal_version'), UniqueConstraint('id', 'manuscript_id', name='uq_pub_proposal_id_manuscript'), Index('ix_pub_proposal_responsible', 'responsible_user_id', 'created_at'))"
+        }
       }
     },
     {
@@ -2373,63 +2569,67 @@
       ],
       "source_binding": {
         "path": "apps/api/publishing/domain/models.py",
-        "class_line": 399,
+        "class_line": 460,
         "fields": [
           {
             "name": "id",
-            "line": 409,
+            "line": 470,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
           },
           {
             "name": "manuscript_id",
-            "line": 410,
+            "line": 471,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('manuscripts.id'))"
           },
           {
             "name": "proposal_id",
-            "line": 411,
+            "line": 472,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "responsible_user_id",
-            "line": 412,
+            "line": 473,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
           },
           {
             "name": "session_hash",
-            "line": 414,
+            "line": 475,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(64))"
           },
           {
             "name": "digest",
-            "line": 415,
+            "line": 476,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(64))"
           },
           {
             "name": "outcome",
-            "line": 416,
+            "line": 477,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(20))"
           },
           {
             "name": "reason",
-            "line": 417,
+            "line": 478,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(Text, default='', server_default='')"
           },
           {
             "name": "confirmed_at",
-            "line": 418,
+            "line": 479,
             "annotation": "Mapped[datetime]",
             "declaration": "mapped_column(DateTime(timezone=True), default=now)"
           }
-        ]
+        ],
+        "table_args": {
+          "line": 462,
+          "declaration": "(_same_manuscript('proposal_id', 'publishing_action_proposals', 'fk_pub_confirmation_proposal'), UniqueConstraint('proposal_id', name='uq_pub_confirmation_proposal'), UniqueConstraint('id', 'manuscript_id', name='uq_pub_confirmation_id_manuscript'), CheckConstraint(\"outcome IN ('confirm','return')\", name='ck_pub_confirmation_outcome'))"
+        }
       }
     },
     {
@@ -2504,57 +2704,61 @@
       ],
       "source_binding": {
         "path": "apps/api/publishing/domain/models.py",
-        "class_line": 421,
+        "class_line": 482,
         "fields": [
           {
             "name": "id",
-            "line": 428,
+            "line": 489,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
           },
           {
             "name": "user_id",
-            "line": 429,
+            "line": 490,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
           },
           {
             "name": "journal_id",
-            "line": 430,
+            "line": 491,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('journals.id'))"
           },
           {
             "name": "request_id",
-            "line": 431,
+            "line": 492,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "action_type",
-            "line": 432,
+            "line": 493,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(60))"
           },
           {
             "name": "input_digest",
-            "line": 433,
+            "line": 494,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(64))"
           },
           {
             "name": "response",
-            "line": 434,
+            "line": 495,
             "annotation": "Mapped[dict]",
             "declaration": "mapped_column(JSONB)"
           },
           {
             "name": "created_at",
-            "line": 435,
+            "line": 496,
             "annotation": "Mapped[datetime]",
             "declaration": "mapped_column(DateTime(timezone=True), default=now)"
           }
-        ]
+        ],
+        "table_args": {
+          "line": 484,
+          "declaration": "(UniqueConstraint('user_id', 'journal_id', 'request_id', name='uq_pub_receipt_actor_request'),)"
+        }
       }
     },
     {
@@ -2653,63 +2857,67 @@
       ],
       "source_binding": {
         "path": "apps/api/publishing/domain/models.py",
-        "class_line": 438,
+        "class_line": 499,
         "fields": [
           {
             "name": "id",
-            "line": 444,
+            "line": 505,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
           },
           {
             "name": "user_id",
-            "line": 445,
+            "line": 506,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
           },
           {
             "name": "journal_id",
-            "line": 446,
+            "line": 507,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('journals.id'))"
           },
           {
             "name": "manuscript_id",
-            "line": 447,
+            "line": 508,
             "annotation": "Mapped[str | None]",
             "declaration": "mapped_column(String(36), ForeignKey('manuscripts.id'))"
           },
           {
             "name": "request_id",
-            "line": 448,
+            "line": 509,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "input_digest",
-            "line": 449,
+            "line": 510,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(64))"
           },
           {
             "name": "context_snapshot",
-            "line": 450,
+            "line": 511,
             "annotation": "Mapped[dict]",
             "declaration": "mapped_column(JSONB)"
           },
           {
             "name": "response",
-            "line": 451,
+            "line": 512,
             "annotation": "Mapped[dict]",
             "declaration": "mapped_column(JSONB)"
           },
           {
             "name": "created_at",
-            "line": 452,
+            "line": 513,
             "annotation": "Mapped[datetime]",
             "declaration": "mapped_column(DateTime(timezone=True), default=now)"
           }
-        ]
+        ],
+        "table_args": {
+          "line": 501,
+          "declaration": "(UniqueConstraint('user_id', 'journal_id', 'request_id', name='uq_pub_chat_actor_request'), Index('ix_pub_chat_history', 'user_id', 'journal_id', 'created_at', 'id'))"
+        }
       }
     }
   ],
@@ -4354,6 +4562,631 @@
       ],
       "intended_acceptance": "typed准备/材料验证、报告同刊FK、finalized不可变、同step唯一；48项组件测试及后续root集成",
       "status": "isolated_component_verified_integration_pending"
+    },
+    {
+      "id": "DB13",
+      "adopted": "固定轮次版本/表单/材料，initializing原子seal与显式closing confirmation",
+      "rejected": "提交残留initializing、seal后追加文件、换本轮当前版本或遗漏初始邀请",
+      "targets": [
+        "ReviewRound",
+        "ReviewRoundFile",
+        "VersionFile"
+      ],
+      "source_refs": [
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/SubmissionFilesMigration.php",
+          "entity_type": "table",
+          "entity": "submission_files",
+          "fields": [
+            "submission_id",
+            "file_id",
+            "file_stage",
+            "viewable",
+            "uploader_user_id",
+            "source_submission_file_id"
+          ]
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/SubmissionFilesMigration.php",
+          "entity_type": "table",
+          "entity": "submission_file_revisions",
+          "fields": [
+            "submission_file_id",
+            "file_id"
+          ]
+        },
+        {
+          "system": "janeway",
+          "source_id": "review-model-fields.txt",
+          "entity_type": "class",
+          "app": "review",
+          "entity": "ReviewRound",
+          "fields": [
+            "article",
+            "review_files"
+          ],
+          "upstream_path": "src/review/models.py",
+          "upstream_line": 106
+        },
+        {
+          "system": "janeway",
+          "source_id": "core-model-fields.txt",
+          "entity_type": "class",
+          "app": "core",
+          "entity": "File",
+          "fields": [
+            "privacy",
+            "label"
+          ],
+          "upstream_path": "src/core/models.py",
+          "upstream_line": 1239
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/ReviewsMigration.php",
+          "entity_type": "table",
+          "entity": "review_rounds",
+          "fields": [
+            "review_round_id",
+            "submission_id",
+            "stage_id",
+            "round",
+            "review_revision",
+            "status"
+          ]
+        },
+        {
+          "system": "janeway",
+          "source_id": "review-model-fields.txt",
+          "entity_type": "class",
+          "app": "review",
+          "entity": "ReviewRound",
+          "fields": [
+            "article",
+            "round_number",
+            "review_files",
+            "date_started"
+          ],
+          "upstream_path": "src/review/models.py",
+          "upstream_line": 106
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/ReviewsMigration.php",
+          "entity_type": "table",
+          "entity": "review_form_responses",
+          "fields": [
+            "review_form_element_id",
+            "review_id",
+            "response_value"
+          ]
+        },
+        {
+          "system": "janeway",
+          "source_id": "review-model-fields.txt",
+          "entity_type": "class",
+          "app": "review",
+          "entity": "BaseReviewFormElement",
+          "fields": [
+            "name",
+            "kind",
+            "choices",
+            "required",
+            "order",
+            "help_text",
+            "default_visibility"
+          ],
+          "upstream_path": "src/review/models.py",
+          "upstream_line": 470
+        },
+        {
+          "system": "janeway",
+          "source_id": "review-model-fields.txt",
+          "entity_type": "class",
+          "app": "review",
+          "entity": "FrozenReviewFormElement",
+          "fields": [
+            "form_element",
+            "answer"
+          ],
+          "upstream_path": "src/review/models.py",
+          "upstream_line": 639
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/decision/Repository.php",
+          "entity_type": "source"
+        },
+        {
+          "system": "janeway",
+          "source_id": "review-model-fields.txt",
+          "entity_type": "class",
+          "app": "review",
+          "entity": "DecisionDraft",
+          "fields": [
+            "article",
+            "editor",
+            "drafted",
+            "editor_decision"
+          ],
+          "upstream_path": "src/review/models.py",
+          "upstream_line": 785
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/ReviewsMigration.php",
+          "entity_type": "table",
+          "entity": "review_round_files",
+          "fields": [
+            "submission_id",
+            "review_round_id",
+            "submission_file_id"
+          ]
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/ReviewsMigration.php",
+          "entity_type": "table",
+          "entity": "review_files",
+          "fields": [
+            "review_id",
+            "submission_file_id"
+          ]
+        },
+        {
+          "system": "janeway",
+          "source_id": "review-model-fields.txt",
+          "entity_type": "class",
+          "app": "review",
+          "entity": "ReviewRound",
+          "fields": [
+            "review_files"
+          ],
+          "upstream_path": "src/review/models.py",
+          "upstream_line": 106
+        },
+        {
+          "system": "janeway",
+          "source_id": "core-model-fields.txt",
+          "entity_type": "class",
+          "app": "core",
+          "entity": "File",
+          "fields": [
+            "privacy",
+            "original_filename"
+          ],
+          "upstream_path": "src/core/models.py",
+          "upstream_line": 1239
+        }
+      ],
+      "intended_acceptance": "deferred边界、固定snapshot与双连接parent锁实验；无服务/UI完成声明",
+      "status": "D_model_migration_component_50_tests_verified_service_ui_pending"
+    },
+    {
+      "id": "DB14",
+      "adopted": "邀请attempt/有效占位、接受后typed grant与独立任务、终态历史",
+      "rejected": "decline等同reject、角色即全稿访问、永久round+reviewer唯一、重置旧任务",
+      "targets": [
+        "ReviewInvitation",
+        "Assignment",
+        "WorkItem"
+      ],
+      "source_refs": [
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/RolesAndUserGroupsMigration.php",
+          "entity_type": "table",
+          "entity": "stage_assignments",
+          "fields": [
+            "submission_id",
+            "user_group_id",
+            "user_id",
+            "date_assigned",
+            "recommend_only",
+            "can_change_metadata"
+          ]
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/RolesAndUserGroupsMigration.php",
+          "entity_type": "table",
+          "entity": "user_user_groups",
+          "fields": [
+            "user_id",
+            "user_group_id",
+            "date_start",
+            "date_end"
+          ]
+        },
+        {
+          "system": "janeway",
+          "source_id": "core-model-fields.txt",
+          "entity_type": "class",
+          "app": "core",
+          "entity": "AccountRole",
+          "fields": [
+            "user",
+            "journal",
+            "role"
+          ],
+          "upstream_path": "src/core/models.py",
+          "upstream_line": 1023
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/RolesAndUserGroupsMigration.php",
+          "entity_type": "table",
+          "entity": "stage_assignments",
+          "fields": [
+            "submission_id",
+            "user_id",
+            "user_group_id",
+            "date_assigned"
+          ]
+        },
+        {
+          "system": "janeway",
+          "source_id": "review-model-fields.txt",
+          "entity_type": "class",
+          "app": "review",
+          "entity": "ReviewAssignment",
+          "fields": [
+            "article",
+            "reviewer",
+            "date_accepted",
+            "review_round"
+          ],
+          "upstream_path": "src/review/models.py",
+          "upstream_line": 197
+        },
+        {
+          "system": "janeway",
+          "source_id": "core-model-fields.txt",
+          "entity_type": "class",
+          "app": "core",
+          "entity": "Task",
+          "fields": [
+            "assignees",
+            "due",
+            "created",
+            "completed",
+            "completed_by",
+            "complete_events"
+          ],
+          "upstream_path": "src/core/models.py",
+          "upstream_line": 1822
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/ReviewsMigration.php",
+          "entity_type": "table",
+          "entity": "review_assignments",
+          "fields": [
+            "submission_id",
+            "reviewer_id",
+            "date_due",
+            "date_completed"
+          ]
+        },
+        {
+          "system": "janeway",
+          "source_id": "journal-model-fields.txt",
+          "entity_type": "class",
+          "app": "journal",
+          "entity": "PrePublicationChecklistItem",
+          "fields": [
+            "article",
+            "completed_by",
+            "completed_on",
+            "completed"
+          ],
+          "upstream_path": "src/journal/models.py",
+          "upstream_line": 1457
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+          "entity_type": "table",
+          "entity": "edit_decisions",
+          "fields": [
+            "submission_id",
+            "editor_id",
+            "decision",
+            "date_decided"
+          ]
+        },
+        {
+          "system": "janeway",
+          "source_id": "core-model-fields.txt",
+          "entity_type": "class",
+          "app": "core",
+          "entity": "Task",
+          "fields": [
+            "object_id",
+            "content_type",
+            "assignees",
+            "complete_events",
+            "completed_by"
+          ],
+          "upstream_path": "src/core/models.py",
+          "upstream_line": 1822
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/ReviewsMigration.php",
+          "entity_type": "table",
+          "entity": "review_assignments",
+          "fields": [
+            "review_id",
+            "reviewer_id",
+            "review_round_id",
+            "date_completed"
+          ]
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/ReviewsMigration.php",
+          "entity_type": "table",
+          "entity": "review_assignments",
+          "fields": [
+            "review_id",
+            "submission_id",
+            "reviewer_id",
+            "review_round_id",
+            "date_assigned",
+            "date_notified",
+            "date_due",
+            "date_response_due",
+            "date_confirmed",
+            "declined",
+            "cancelled",
+            "date_cancelled",
+            "date_completed",
+            "competing_interests",
+            "request_resent"
+          ]
+        },
+        {
+          "system": "janeway",
+          "source_id": "review-model-fields.txt",
+          "entity_type": "class",
+          "app": "review",
+          "entity": "ReviewAssignment",
+          "fields": [
+            "article",
+            "reviewer",
+            "editor",
+            "review_round",
+            "date_requested",
+            "date_due",
+            "date_accepted",
+            "date_declined",
+            "date_complete",
+            "competing_interests"
+          ],
+          "upstream_path": "src/review/models.py",
+          "upstream_line": 197
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/InvitationsMigration.php",
+          "entity_type": "source"
+        },
+        {
+          "system": "janeway",
+          "source_id": "review-model-fields.txt",
+          "entity_type": "class",
+          "app": "review",
+          "entity": "ReviewAssignment",
+          "fields": [
+            "visibility",
+            "form",
+            "access_code",
+            "for_author_consumption",
+            "comments_for_editor"
+          ],
+          "upstream_path": "src/review/models.py",
+          "upstream_line": 197
+        }
+      ],
+      "intended_acceptance": "重邀/COI/错人/硬响应期限、取消清理与typed确认；权限投影待root",
+      "status": "D_model_migration_component_50_tests_verified_service_ui_pending"
+    },
+    {
+      "id": "DB15",
+      "adopted": "报告typed form快照、作者/编辑私密分区、独立人类提交",
+      "rejected": "草稿算完成、原表单变化影响旧答、未分享报告给作者或LLM作最终决定",
+      "targets": [
+        "ReviewReport",
+        "ReviewInvitation"
+      ],
+      "source_refs": [
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/ReviewsMigration.php",
+          "entity_type": "table",
+          "entity": "review_assignments",
+          "fields": [
+            "review_id",
+            "submission_id",
+            "reviewer_id",
+            "review_round_id",
+            "date_assigned",
+            "date_notified",
+            "date_due",
+            "date_response_due",
+            "date_confirmed",
+            "declined",
+            "cancelled",
+            "date_cancelled",
+            "date_completed",
+            "competing_interests",
+            "request_resent"
+          ]
+        },
+        {
+          "system": "janeway",
+          "source_id": "review-model-fields.txt",
+          "entity_type": "class",
+          "app": "review",
+          "entity": "ReviewAssignment",
+          "fields": [
+            "article",
+            "reviewer",
+            "editor",
+            "review_round",
+            "date_requested",
+            "date_due",
+            "date_accepted",
+            "date_declined",
+            "date_complete",
+            "competing_interests"
+          ],
+          "upstream_path": "src/review/models.py",
+          "upstream_line": 197
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/InvitationsMigration.php",
+          "entity_type": "source"
+        },
+        {
+          "system": "janeway",
+          "source_id": "review-model-fields.txt",
+          "entity_type": "class",
+          "app": "review",
+          "entity": "ReviewAssignment",
+          "fields": [
+            "visibility",
+            "form",
+            "access_code",
+            "for_author_consumption",
+            "comments_for_editor"
+          ],
+          "upstream_path": "src/review/models.py",
+          "upstream_line": 197
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/ReviewsMigration.php",
+          "entity_type": "table",
+          "entity": "review_assignments",
+          "fields": [
+            "review_id",
+            "reviewer_id",
+            "review_round_id",
+            "recommendation",
+            "date_completed"
+          ]
+        },
+        {
+          "system": "janeway",
+          "source_id": "review-model-fields.txt",
+          "entity_type": "class",
+          "app": "review",
+          "entity": "ReviewAssignment",
+          "fields": [
+            "decision",
+            "is_complete",
+            "date_complete"
+          ],
+          "upstream_path": "src/review/models.py",
+          "upstream_line": 197
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/ReviewsMigration.php",
+          "entity_type": "table",
+          "entity": "review_form_responses",
+          "fields": [
+            "review_form_element_id",
+            "review_id",
+            "response_type",
+            "response_value"
+          ]
+        },
+        {
+          "system": "janeway",
+          "source_id": "review-model-fields.txt",
+          "entity_type": "class",
+          "app": "review",
+          "entity": "ReviewAssignmentAnswer",
+          "fields": [
+            "assignment",
+            "original_element",
+            "answer",
+            "edited_answer",
+            "author_can_see"
+          ],
+          "upstream_path": "src/review/models.py",
+          "upstream_line": 523
+        },
+        {
+          "system": "janeway",
+          "source_id": "review-model-fields.txt",
+          "entity_type": "class",
+          "app": "review",
+          "entity": "BaseReviewFormElement",
+          "fields": [
+            "name",
+            "kind",
+            "choices",
+            "required",
+            "order",
+            "default_visibility"
+          ],
+          "upstream_path": "src/review/models.py",
+          "upstream_line": 470
+        },
+        {
+          "system": "janeway",
+          "source_id": "review-model-fields.txt",
+          "entity_type": "class",
+          "app": "review",
+          "entity": "FrozenReviewFormElement",
+          "fields": [
+            "form_element",
+            "answer"
+          ],
+          "upstream_path": "src/review/models.py",
+          "upstream_line": 639
+        },
+        {
+          "system": "janeway",
+          "source_id": "review-model-fields.txt",
+          "entity_type": "class",
+          "app": "review",
+          "entity": "ReviewAssignment",
+          "fields": [
+            "comments_for_editor",
+            "for_author_consumption"
+          ],
+          "upstream_path": "src/review/models.py",
+          "upstream_line": 197
+        },
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/decision/Repository.php",
+          "entity_type": "source"
+        },
+        {
+          "system": "janeway",
+          "source_id": "review-model-fields.txt",
+          "entity_type": "class",
+          "app": "review",
+          "entity": "DecisionDraft",
+          "fields": [
+            "editor",
+            "editor_decision"
+          ],
+          "upstream_path": "src/review/models.py",
+          "upstream_line": 785
+        }
+      ],
+      "intended_acceptance": "精确全内容确认/不可变/soft due；服务匿名DTO和E chief release待实施",
+      "status": "D_model_migration_component_50_tests_verified_service_ui_pending"
     }
   ],
   "source_limitations": [
@@ -4700,8 +5533,1447 @@
             "annotation": "Mapped[datetime | None]",
             "declaration": "mapped_column(DateTime(timezone=True))"
           }
+        ],
+        "table_args": {
+          "line": 51,
+          "declaration": "(_tenant_manuscript('fk_pub_check_manuscript_journal'), _same_manuscript('version_id', 'publishing_versions', 'fk_pub_check_version'), _same_manuscript('step_run_id', 'publishing_step_runs', 'fk_pub_check_step'), _same_manuscript('human_confirmation_id', 'publishing_human_confirmations', 'fk_pub_check_confirmation'), ForeignKeyConstraint(['file_object_id', 'journal_id'], ['publishing_file_objects.id', 'publishing_file_objects.journal_id'], name='fk_pub_check_file_journal'), UniqueConstraint('id', 'manuscript_id', name='uq_pub_check_id_manuscript'), UniqueConstraint('human_confirmation_id', name='uq_pub_check_confirmation'), CheckConstraint('kind IN (' + ','.join((repr(kind) for kind in CHECK_KINDS)) + ')', name='ck_pub_check_kind'), CheckConstraint(\"outcome IN ('pass','return')\", name='ck_pub_check_outcome'), CheckConstraint(\"check_method = 'manual_review'\", name='ck_pub_check_method'), CheckConstraint('length(btrim(notes)) > 0', name='ck_pub_check_notes'), CheckConstraint(\"outcome <> 'return' OR length(btrim(reason)) > 0\", name='ck_pub_check_return_reason'), CheckConstraint('(human_confirmation_id IS NULL) = (finalized_at IS NULL)', name='ck_pub_check_finalization'), CheckConstraint(\"kind <> 'similarity_review' OR file_object_id IS NOT NULL\", name='ck_pub_check_similarity_report'), Index('uq_pub_check_finalized_step', 'step_run_id', unique=True, postgresql_where=text('finalized_at IS NOT NULL')), Index('ix_pub_check_manuscript_kind', 'manuscript_id', 'kind', 'created_at'))"
+        }
+      }
+    },
+    {
+      "class": "ReviewRound",
+      "module": "apps/api/publishing/domain/review_models.py",
+      "table": "publishing_review_rounds",
+      "contract_source": "specs/008-peer-review-data-contract.md",
+      "slice": "D",
+      "implementation_status": "implemented",
+      "migration_id": "10c84f7a2d31",
+      "migration_status": "component_schema_verified_service_ui_pending",
+      "field_groups": [
+        {
+          "our_fields": [
+            "id",
+            "manuscript_id",
+            "journal_id",
+            "version_id",
+            "round_no",
+            "status",
+            "required_reports",
+            "policy_version",
+            "review_method",
+            "opened_by",
+            "opened_at",
+            "closed_at",
+            "closure_reason"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/ReviewsMigration.php",
+              "entity_type": "table",
+              "entity": "review_rounds",
+              "fields": [
+                "review_round_id",
+                "submission_id",
+                "stage_id",
+                "round",
+                "review_revision",
+                "status"
+              ]
+            },
+            {
+              "system": "janeway",
+              "source_id": "review-model-fields.txt",
+              "entity_type": "class",
+              "app": "review",
+              "entity": "ReviewRound",
+              "fields": [
+                "article",
+                "round_number",
+                "review_files",
+                "date_started"
+              ],
+              "upstream_path": "src/review/models.py",
+              "upstream_line": 106
+            }
+          ],
+          "origin": "adapted_pattern",
+          "adaptation": "稿件/轮次分离；本轮严格固定冻结版本，target与policy不随意改动；required_reports、显式policy和closure_reason为本项目规则，并非上游同名字段。",
+          "migration_id": "10c84f7a2d31"
+        },
+        {
+          "our_fields": [
+            "form_key",
+            "form_version",
+            "form_snapshot",
+            "form_digest",
+            "material_digest"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/ReviewsMigration.php",
+              "entity_type": "table",
+              "entity": "review_form_responses",
+              "fields": [
+                "review_form_element_id",
+                "review_id",
+                "response_value"
+              ]
+            },
+            {
+              "system": "janeway",
+              "source_id": "review-model-fields.txt",
+              "entity_type": "class",
+              "app": "review",
+              "entity": "BaseReviewFormElement",
+              "fields": [
+                "name",
+                "kind",
+                "choices",
+                "required",
+                "order",
+                "help_text",
+                "default_visibility"
+              ],
+              "upstream_path": "src/review/models.py",
+              "upstream_line": 470
+            },
+            {
+              "system": "janeway",
+              "source_id": "review-model-fields.txt",
+              "entity_type": "class",
+              "app": "review",
+              "entity": "FrozenReviewFormElement",
+              "fields": [
+                "form_element",
+                "answer"
+              ],
+              "upstream_path": "src/review/models.py",
+              "upstream_line": 639
+            }
+          ],
+          "origin": "project_governance",
+          "adaptation": "冻结typed表单与实际材料清单摘要；不把模板当前题目应用到旧报告。摘要/表单版本是本项目加固。",
+          "migration_id": "10c84f7a2d31"
+        },
+        {
+          "our_fields": [
+            "material_sealed_at",
+            "opening_confirmation_id",
+            "closing_confirmation_id"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/decision/Repository.php",
+              "entity_type": "source"
+            },
+            {
+              "system": "janeway",
+              "source_id": "review-model-fields.txt",
+              "entity_type": "class",
+              "app": "review",
+              "entity": "DecisionDraft",
+              "fields": [
+                "article",
+                "editor",
+                "drafted",
+                "editor_decision"
+              ],
+              "upstream_path": "src/review/models.py",
+              "upstream_line": 785
+            }
+          ],
+          "origin": "project_governance",
+          "adaptation": "initializing仅事务内：插入Round→文件→seal open→完整初始邀请；deferred trigger拒绝残留初始化/漏初始邀请。closing_confirmation显式绑定finish_review完整清单。上游未提供此同等封存协议。",
+          "migration_id": "10c84f7a2d31"
+        }
+      ],
+      "our_fields": [
+        "id",
+        "manuscript_id",
+        "journal_id",
+        "version_id",
+        "round_no",
+        "status",
+        "required_reports",
+        "policy_version",
+        "review_method",
+        "opened_by",
+        "opened_at",
+        "closed_at",
+        "closure_reason",
+        "form_key",
+        "form_version",
+        "form_snapshot",
+        "form_digest",
+        "material_digest",
+        "material_sealed_at",
+        "opening_confirmation_id",
+        "closing_confirmation_id"
+      ],
+      "constraints": [
+        {
+          "rule": "UNIQUE(manuscript,round_no)、triple parent key、open轮次partial UNIQUE、same-manuscript version/confirmations/tenant FK",
+          "intended_acceptance": "重复轮次/双open/跨稿/跨刊失败"
+        },
+        {
+          "rule": "initializing→open原子seal；封存固定材料/form/policy/target；terminal immutable；cancelled保留但当前无授权transition",
+          "intended_acceptance": "缺文件/遗漏初始邀请不能commit；打开后不可改动/追加材料"
+        },
+        {
+          "rule": "closing_confirmation_id非空且finish_review版本/revision/责任人/提交报告及取消清单精确匹配；>=required_reports且清理grant/draft",
+          "intended_acceptance": "无关确认、漏报告/有活动grant或草稿不能close"
+        }
+      ],
+      "intended_acceptance": [
+        "50组件测试通过，服务/API/匿名投影/UI仍待root集成；不包含chief decision或E修回表。",
+        "双连接验证未提交初始化/已seal/commit后追加均拒绝；parent锁等待300ms后55P03，再释放仍拒绝。"
+      ],
+      "current_baseline": {
+        "system": "current-system",
+        "source_id": "apps/api/publishing/models.py",
+        "entity_type": "class",
+        "entity": "Manuscript"
+      },
+      "component_validation": {
+        "date": "2026-11-03",
+        "suite": "tests/api/test_peer_review_models.py",
+        "observed_passed": 50,
+        "elapsed_seconds": 24.7,
+        "warnings": [
+          "existing Starlette/httpx deprecation"
+        ],
+        "scope": "isolated models/migration/constraint and concurrency tests only; service/UI integration pending root",
+        "shared_alembic_head_modified_by_component_agent": false,
+        "evidence_worktree": "/tmp/publishing-v01-review-models/artifacts/peer-review-models.xml"
+      },
+      "source_binding": {
+        "path": "apps/api/publishing/domain/review_models.py",
+        "class_line": 41,
+        "fields": [
+          {
+            "name": "id",
+            "line": 89,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
+          },
+          {
+            "name": "manuscript_id",
+            "line": 90,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('manuscripts.id'))"
+          },
+          {
+            "name": "journal_id",
+            "line": 91,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('journals.id'))"
+          },
+          {
+            "name": "version_id",
+            "line": 92,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "round_no",
+            "line": 93,
+            "annotation": "Mapped[int]",
+            "declaration": "mapped_column(Integer)"
+          },
+          {
+            "name": "status",
+            "line": 94,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(20), default='initializing', server_default='initializing')"
+          },
+          {
+            "name": "material_sealed_at",
+            "line": 97,
+            "annotation": "Mapped[datetime | None]",
+            "declaration": "mapped_column(DateTime(timezone=True))"
+          },
+          {
+            "name": "required_reports",
+            "line": 98,
+            "annotation": "Mapped[int]",
+            "declaration": "mapped_column(Integer, default=1, server_default='1')"
+          },
+          {
+            "name": "policy_version",
+            "line": 99,
+            "annotation": "Mapped[int]",
+            "declaration": "mapped_column(Integer, default=1, server_default='1')"
+          },
+          {
+            "name": "review_method",
+            "line": 100,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(30), default='double_anonymous', server_default='double_anonymous')"
+          },
+          {
+            "name": "form_key",
+            "line": 103,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(60), default='basic_peer_review', server_default='basic_peer_review')"
+          },
+          {
+            "name": "form_version",
+            "line": 106,
+            "annotation": "Mapped[int]",
+            "declaration": "mapped_column(Integer, default=1, server_default='1')"
+          },
+          {
+            "name": "form_snapshot",
+            "line": 107,
+            "annotation": "Mapped[dict]",
+            "declaration": "mapped_column(JSONB)"
+          },
+          {
+            "name": "form_digest",
+            "line": 108,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "material_digest",
+            "line": 109,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "opened_by",
+            "line": 110,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
+          },
+          {
+            "name": "opening_confirmation_id",
+            "line": 111,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "opened_at",
+            "line": 112,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True), default=now)"
+          },
+          {
+            "name": "closed_at",
+            "line": 113,
+            "annotation": "Mapped[datetime | None]",
+            "declaration": "mapped_column(DateTime(timezone=True))"
+          },
+          {
+            "name": "closure_reason",
+            "line": 114,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(Text, default='', server_default='')"
+          },
+          {
+            "name": "closing_confirmation_id",
+            "line": 115,
+            "annotation": "Mapped[str | None]",
+            "declaration": "mapped_column(String(36))"
+          }
+        ],
+        "table_args": {
+          "line": 43,
+          "declaration": "(_tenant_manuscript('fk_pub_review_round_tenant'), _same_manuscript('version_id', 'publishing_versions', 'fk_pub_review_round_version'), _same_manuscript('opening_confirmation_id', 'publishing_human_confirmations', 'fk_pub_review_round_confirmation'), _same_manuscript('closing_confirmation_id', 'publishing_human_confirmations', 'fk_pub_review_round_closing_confirmation'), UniqueConstraint('id', 'manuscript_id', name='uq_pub_review_round_id_manuscript'), UniqueConstraint('id', 'manuscript_id', 'version_id', name='uq_pub_review_round_version'), UniqueConstraint('manuscript_id', 'round_no', name='uq_pub_review_round_sequence'), CheckConstraint('round_no >= 1 AND policy_version >= 1', name='ck_pub_review_round_sequence'), CheckConstraint('required_reports BETWEEN 1 AND 3', name='ck_pub_review_round_target'), CheckConstraint(\"status IN ('initializing','open','closed','cancelled')\", name='ck_pub_review_round_status'), CheckConstraint(\"review_method = 'double_anonymous' AND form_key = 'basic_peer_review' AND form_version = 1\", name='ck_pub_review_round_form'), CheckConstraint(\"form_digest ~ '^[0-9a-f]{64}$' AND material_digest ~ '^[0-9a-f]{64}$'\", name='ck_pub_review_round_digests'), CheckConstraint(\"jsonb_typeof(form_snapshot) = 'object'\", name='ck_pub_review_round_schema'), CheckConstraint(\"(status='initializing' AND material_sealed_at IS NULL AND closed_at IS NULL) OR (status='open' AND material_sealed_at IS NOT NULL AND closed_at IS NULL) OR (status IN ('closed','cancelled') AND material_sealed_at IS NOT NULL AND closed_at IS NOT NULL AND closing_confirmation_id IS NOT NULL AND length(btrim(closure_reason))>0)\", name='ck_pub_review_round_lifecycle'), Index('uq_pub_review_round_open', 'manuscript_id', unique=True, postgresql_where=text(\"status='open'\")))"
+        }
+      },
+      "field_revision_bindings": {
+        "id": "10c84f7a2d31",
+        "manuscript_id": "10c84f7a2d31",
+        "journal_id": "10c84f7a2d31",
+        "version_id": "10c84f7a2d31",
+        "round_no": "10c84f7a2d31",
+        "status": "10c84f7a2d31",
+        "required_reports": "10c84f7a2d31",
+        "policy_version": "10c84f7a2d31",
+        "review_method": "10c84f7a2d31",
+        "opened_by": "10c84f7a2d31",
+        "opened_at": "10c84f7a2d31",
+        "closed_at": "10c84f7a2d31",
+        "closure_reason": "10c84f7a2d31",
+        "form_key": "10c84f7a2d31",
+        "form_version": "10c84f7a2d31",
+        "form_snapshot": "10c84f7a2d31",
+        "form_digest": "10c84f7a2d31",
+        "material_digest": "10c84f7a2d31",
+        "material_sealed_at": "10c84f7a2d31",
+        "opening_confirmation_id": "10c84f7a2d31",
+        "closing_confirmation_id": "10c84f7a2d31"
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "10c84f7a2d31",
+          "names": [
+            "ck_pub_review_round_digests",
+            "ck_pub_review_round_form",
+            "ck_pub_review_round_lifecycle",
+            "ck_pub_review_round_schema",
+            "ck_pub_review_round_sequence",
+            "ck_pub_review_round_status",
+            "ck_pub_review_round_target",
+            "fk_pub_review_round_closing_confirmation",
+            "fk_pub_review_round_confirmation",
+            "fk_pub_review_round_tenant",
+            "fk_pub_review_round_version",
+            "uq_pub_review_round_id_manuscript",
+            "uq_pub_review_round_open",
+            "uq_pub_review_round_sequence",
+            "uq_pub_review_round_version"
+          ],
+          "scope": "D table compound FK/check/unique/index declarations"
+        }
+      ]
+    },
+    {
+      "class": "ReviewRoundFile",
+      "module": "apps/api/publishing/domain/review_models.py",
+      "table": "publishing_review_round_files",
+      "contract_source": "specs/008-peer-review-data-contract.md",
+      "slice": "D",
+      "implementation_status": "implemented",
+      "migration_id": "10c84f7a2d31",
+      "migration_status": "component_schema_verified_service_ui_pending",
+      "field_groups": [
+        {
+          "our_fields": [
+            "id",
+            "manuscript_id",
+            "round_id",
+            "version_id",
+            "version_file_id",
+            "role",
+            "display_name",
+            "created_at"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/ReviewsMigration.php",
+              "entity_type": "table",
+              "entity": "review_round_files",
+              "fields": [
+                "submission_id",
+                "review_round_id",
+                "submission_file_id"
+              ]
+            },
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/ReviewsMigration.php",
+              "entity_type": "table",
+              "entity": "review_files",
+              "fields": [
+                "review_id",
+                "submission_file_id"
+              ]
+            },
+            {
+              "system": "janeway",
+              "source_id": "review-model-fields.txt",
+              "entity_type": "class",
+              "app": "review",
+              "entity": "ReviewRound",
+              "fields": [
+                "review_files"
+              ],
+              "upstream_path": "src/review/models.py",
+              "upstream_line": 106
+            },
+            {
+              "system": "janeway",
+              "source_id": "core-model-fields.txt",
+              "entity_type": "class",
+              "app": "core",
+              "entity": "File",
+              "fields": [
+                "privacy",
+                "original_filename"
+              ],
+              "upstream_path": "src/core/models.py",
+              "upstream_line": 1239
+            }
+          ],
+          "origin": "adapted_pattern",
+          "adaptation": "本轮固定文件；D仅blinded_manuscript且visibility=reviewer；display_name是服务器匿名review-manuscript.txt/md；拒绝作者原文件名、私密正文或最新版本自动替换。",
+          "migration_id": "10c84f7a2d31"
+        }
+      ],
+      "our_fields": [
+        "id",
+        "manuscript_id",
+        "round_id",
+        "version_id",
+        "version_file_id",
+        "role",
+        "display_name",
+        "created_at"
+      ],
+      "constraints": [
+        {
+          "rule": "Round与VersionFile双triple FK；UNIQUE(round,version_file)；role/display_name CHECK",
+          "intended_acceptance": "跨版本/错误材料/不在opening snapshot的文件拒绝"
+        },
+        {
+          "rule": "parent FOR UPDATE后仅initializing未sealed可insert；更新/删除/TRUNCATE/后续append全拒绝",
+          "intended_acceptance": "初始化正常可写并seal；真实双连接锁/可见性边界验证"
+        }
+      ],
+      "intended_acceptance": [
+        "实际blob内容/哈希由gateway再校验；DDL比较FileObject记录及批准清单，不能据此宣称扫描/匿名化任意PDF。"
+      ],
+      "current_baseline": {
+        "system": "current-system",
+        "source_id": "apps/api/publishing/models.py",
+        "entity_type": "class",
+        "entity": "EmailDraft"
+      },
+      "component_validation": {
+        "date": "2026-11-03",
+        "suite": "tests/api/test_peer_review_models.py",
+        "observed_passed": 50,
+        "elapsed_seconds": 24.7,
+        "warnings": [
+          "existing Starlette/httpx deprecation"
+        ],
+        "scope": "isolated models/migration/constraint and concurrency tests only; service/UI integration pending root",
+        "shared_alembic_head_modified_by_component_agent": false,
+        "evidence_worktree": "/tmp/publishing-v01-review-models/artifacts/peer-review-models.xml"
+      },
+      "source_binding": {
+        "path": "apps/api/publishing/domain/review_models.py",
+        "class_line": 118,
+        "fields": [
+          {
+            "name": "id",
+            "line": 139,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
+          },
+          {
+            "name": "manuscript_id",
+            "line": 140,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('manuscripts.id'))"
+          },
+          {
+            "name": "round_id",
+            "line": 141,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "version_id",
+            "line": 142,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "version_file_id",
+            "line": 143,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "role",
+            "line": 144,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(40), default='blinded_manuscript', server_default='blinded_manuscript')"
+          },
+          {
+            "name": "display_name",
+            "line": 147,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(255))"
+          },
+          {
+            "name": "created_at",
+            "line": 148,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True), default=now)"
+          }
+        ],
+        "table_args": {
+          "line": 120,
+          "declaration": "(_round_version('fk_pub_review_round_file_round'), ForeignKeyConstraint(['version_file_id', 'manuscript_id', 'version_id'], ['publishing_version_files.id', 'publishing_version_files.manuscript_id', 'publishing_version_files.version_id'], name='fk_pub_review_round_file_version_file'), UniqueConstraint('id', 'manuscript_id', name='uq_pub_review_round_file_id_manuscript'), UniqueConstraint('round_id', 'version_file_id', name='uq_pub_review_round_file_link'), CheckConstraint(\"role='blinded_manuscript'\", name='ck_pub_review_round_file_role'), CheckConstraint(\"display_name IN ('review-manuscript.txt','review-manuscript.md')\", name='ck_pub_review_round_file_name'))"
+        }
+      },
+      "field_revision_bindings": {
+        "id": "10c84f7a2d31",
+        "manuscript_id": "10c84f7a2d31",
+        "round_id": "10c84f7a2d31",
+        "version_id": "10c84f7a2d31",
+        "version_file_id": "10c84f7a2d31",
+        "role": "10c84f7a2d31",
+        "display_name": "10c84f7a2d31",
+        "created_at": "10c84f7a2d31"
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "10c84f7a2d31",
+          "names": [
+            "ck_pub_review_round_file_name",
+            "ck_pub_review_round_file_role",
+            "fk_pub_review_round_file_round",
+            "fk_pub_review_round_file_version_file",
+            "uq_pub_review_round_file_id_manuscript",
+            "uq_pub_review_round_file_link"
+          ],
+          "scope": "D table compound FK/check/unique/index declarations"
+        }
+      ]
+    },
+    {
+      "class": "ReviewInvitation",
+      "module": "apps/api/publishing/domain/review_models.py",
+      "table": "publishing_review_invitations",
+      "contract_source": "specs/008-peer-review-data-contract.md",
+      "slice": "D",
+      "implementation_status": "implemented",
+      "migration_id": "10c84f7a2d31",
+      "migration_status": "component_schema_verified_service_ui_pending",
+      "field_groups": [
+        {
+          "our_fields": [
+            "id",
+            "manuscript_id",
+            "journal_id",
+            "round_id",
+            "version_id",
+            "reviewer_id",
+            "attempt_no",
+            "status",
+            "invited_by",
+            "response_due_at",
+            "report_due_at",
+            "invited_at",
+            "responded_at",
+            "accepted_at",
+            "declined_at",
+            "cancelled_at",
+            "completed_at",
+            "conflict_status",
+            "response_notes"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/ReviewsMigration.php",
+              "entity_type": "table",
+              "entity": "review_assignments",
+              "fields": [
+                "review_id",
+                "submission_id",
+                "reviewer_id",
+                "review_round_id",
+                "date_assigned",
+                "date_notified",
+                "date_due",
+                "date_response_due",
+                "date_confirmed",
+                "declined",
+                "cancelled",
+                "date_cancelled",
+                "date_completed",
+                "competing_interests",
+                "request_resent"
+              ]
+            },
+            {
+              "system": "janeway",
+              "source_id": "review-model-fields.txt",
+              "entity_type": "class",
+              "app": "review",
+              "entity": "ReviewAssignment",
+              "fields": [
+                "article",
+                "reviewer",
+                "editor",
+                "review_round",
+                "date_requested",
+                "date_due",
+                "date_accepted",
+                "date_declined",
+                "date_complete",
+                "competing_interests"
+              ],
+              "upstream_path": "src/review/models.py",
+              "upstream_line": 197
+            }
+          ],
+          "origin": "adapted_pattern",
+          "adaptation": "请求/接受/拒绝/取消/提交各留事实。decline只拒绝本次邀请；same-round reviewer active占位保留submitted，declined/cancelled/expired可新attempt。响应接受为硬截止，报告截止是soft due。",
+          "migration_id": "10c84f7a2d31"
+        },
+        {
+          "our_fields": [
+            "invitation_snapshot",
+            "content_digest",
+            "policy_version",
+            "invitation_confirmation_id",
+            "response_confirmation_id",
+            "terminal_confirmation_id"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/InvitationsMigration.php",
+              "entity_type": "source"
+            },
+            {
+              "system": "janeway",
+              "source_id": "review-model-fields.txt",
+              "entity_type": "class",
+              "app": "review",
+              "entity": "ReviewAssignment",
+              "fields": [
+                "visibility",
+                "form",
+                "access_code",
+                "for_author_consumption",
+                "comments_for_editor"
+              ],
+              "upstream_path": "src/review/models.py",
+              "upstream_line": 197
+            }
+          ],
+          "origin": "project_governance",
+          "adaptation": "只站内登录合成账号，不使用bearer链接/真实邮件；完整匿名邀请/截止/收件人/轮次/策略与动作确认绑定，模型不提供确认权限。",
+          "migration_id": "10c84f7a2d31"
+        }
+      ],
+      "our_fields": [
+        "id",
+        "manuscript_id",
+        "journal_id",
+        "round_id",
+        "version_id",
+        "reviewer_id",
+        "attempt_no",
+        "status",
+        "invited_by",
+        "response_due_at",
+        "report_due_at",
+        "invited_at",
+        "responded_at",
+        "accepted_at",
+        "declined_at",
+        "cancelled_at",
+        "completed_at",
+        "conflict_status",
+        "response_notes",
+        "invitation_snapshot",
+        "content_digest",
+        "policy_version",
+        "invitation_confirmation_id",
+        "response_confirmation_id",
+        "terminal_confirmation_id"
+      ],
+      "constraints": [
+        {
+          "rule": "Round triple FK、同稿confirmations/tenant；UNIQUE(round,reviewer,attempt)与pending/accepted/submitted partial UNIQUE",
+          "intended_acceptance": "拒绝后新attempt成功；submitted后同轮重邀或取消拒绝"
+        },
+        {
+          "rule": "pending→accepted/declined/cancelled/expired；accepted→submitted/cancelled；终态不可改删",
+          "intended_acceptance": "不能重写旧attempt或伪造完成时间；接受需本人且当前reviewer/no COI确认"
+        },
+        {
+          "rule": "deferred accepted/submitted必须原子有真实grant+相应Report；cancel/closed不得留活动grant/draft",
+          "intended_acceptance": "接受但漏grant/report、取消未清理会在commit边界失败"
+        }
+      ],
+      "intended_acceptance": [
+        "报告/正文访问必须等接受后；角色/对象/会话和匿名仓库访问策略仍由root服务负责逐次校验。",
+        "响应/报告typed tasks独立StepRun，不伪完成编辑全局管理步骤。"
+      ],
+      "current_baseline": {
+        "system": "current-system",
+        "source_id": "apps/api/publishing/models.py",
+        "entity_type": "class",
+        "entity": "EditorialTask"
+      },
+      "component_validation": {
+        "date": "2026-11-03",
+        "suite": "tests/api/test_peer_review_models.py",
+        "observed_passed": 50,
+        "elapsed_seconds": 24.7,
+        "warnings": [
+          "existing Starlette/httpx deprecation"
+        ],
+        "scope": "isolated models/migration/constraint and concurrency tests only; service/UI integration pending root",
+        "shared_alembic_head_modified_by_component_agent": false,
+        "evidence_worktree": "/tmp/publishing-v01-review-models/artifacts/peer-review-models.xml"
+      },
+      "source_binding": {
+        "path": "apps/api/publishing/domain/review_models.py",
+        "class_line": 151,
+        "fields": [
+          {
+            "name": "id",
+            "line": 214,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
+          },
+          {
+            "name": "manuscript_id",
+            "line": 215,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('manuscripts.id'))"
+          },
+          {
+            "name": "journal_id",
+            "line": 216,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('journals.id'))"
+          },
+          {
+            "name": "round_id",
+            "line": 217,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "version_id",
+            "line": 218,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "reviewer_id",
+            "line": 219,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
+          },
+          {
+            "name": "attempt_no",
+            "line": 220,
+            "annotation": "Mapped[int]",
+            "declaration": "mapped_column(Integer)"
+          },
+          {
+            "name": "status",
+            "line": 221,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(20), default='pending', server_default='pending')"
+          },
+          {
+            "name": "invited_by",
+            "line": 222,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
+          },
+          {
+            "name": "invitation_snapshot",
+            "line": 223,
+            "annotation": "Mapped[dict]",
+            "declaration": "mapped_column(JSONB)"
+          },
+          {
+            "name": "content_digest",
+            "line": 224,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "policy_version",
+            "line": 225,
+            "annotation": "Mapped[int]",
+            "declaration": "mapped_column(Integer)"
+          },
+          {
+            "name": "response_due_at",
+            "line": 226,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True))"
+          },
+          {
+            "name": "report_due_at",
+            "line": 227,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True))"
+          },
+          {
+            "name": "invited_at",
+            "line": 228,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True), default=now)"
+          },
+          {
+            "name": "responded_at",
+            "line": 229,
+            "annotation": "Mapped[datetime | None]",
+            "declaration": "mapped_column(DateTime(timezone=True))"
+          },
+          {
+            "name": "accepted_at",
+            "line": 230,
+            "annotation": "Mapped[datetime | None]",
+            "declaration": "mapped_column(DateTime(timezone=True))"
+          },
+          {
+            "name": "declined_at",
+            "line": 231,
+            "annotation": "Mapped[datetime | None]",
+            "declaration": "mapped_column(DateTime(timezone=True))"
+          },
+          {
+            "name": "cancelled_at",
+            "line": 232,
+            "annotation": "Mapped[datetime | None]",
+            "declaration": "mapped_column(DateTime(timezone=True))"
+          },
+          {
+            "name": "completed_at",
+            "line": 233,
+            "annotation": "Mapped[datetime | None]",
+            "declaration": "mapped_column(DateTime(timezone=True))"
+          },
+          {
+            "name": "conflict_status",
+            "line": 234,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(20), default='unanswered', server_default='unanswered')"
+          },
+          {
+            "name": "response_notes",
+            "line": 237,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(Text, default='', server_default='')"
+          },
+          {
+            "name": "invitation_confirmation_id",
+            "line": 238,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "response_confirmation_id",
+            "line": 239,
+            "annotation": "Mapped[str | None]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "terminal_confirmation_id",
+            "line": 240,
+            "annotation": "Mapped[str | None]",
+            "declaration": "mapped_column(String(36))"
+          }
+        ],
+        "table_args": {
+          "line": 153,
+          "declaration": "(_tenant_manuscript('fk_pub_review_invitation_tenant'), _round_version('fk_pub_review_invitation_round'), _same_manuscript('invitation_confirmation_id', 'publishing_human_confirmations', 'fk_pub_review_invitation_confirmation'), _same_manuscript('response_confirmation_id', 'publishing_human_confirmations', 'fk_pub_review_invitation_response'), _same_manuscript('terminal_confirmation_id', 'publishing_human_confirmations', 'fk_pub_review_invitation_terminal'), UniqueConstraint('id', 'manuscript_id', name='uq_pub_review_invitation_id_manuscript'), UniqueConstraint('id', 'manuscript_id', 'version_id', 'reviewer_id', name='uq_pub_review_invitation_target'), UniqueConstraint('round_id', 'reviewer_id', 'attempt_no', name='uq_pub_review_invitation_attempt'), CheckConstraint('attempt_no >= 1 AND policy_version >= 1', name='ck_pub_review_invitation_attempt'), CheckConstraint(\"status IN ('pending','accepted','declined','cancelled','expired','submitted')\", name='ck_pub_review_invitation_status'), CheckConstraint(\"conflict_status IN ('unanswered','none','declared')\", name='ck_pub_review_invitation_conflict'), CheckConstraint(\"content_digest ~ '^[0-9a-f]{64}$' AND jsonb_typeof(invitation_snapshot)='object'\", name='ck_pub_review_invitation_content'), CheckConstraint('report_due_at > response_due_at AND response_due_at > invited_at', name='ck_pub_review_invitation_deadlines'), CheckConstraint(\"(status='pending' AND responded_at IS NULL AND accepted_at IS NULL AND declined_at IS NULL AND cancelled_at IS NULL AND completed_at IS NULL AND conflict_status='unanswered' AND response_confirmation_id IS NULL AND terminal_confirmation_id IS NULL) OR (status IN ('accepted','submitted') AND responded_at IS NOT NULL AND accepted_at IS NOT NULL AND declined_at IS NULL AND cancelled_at IS NULL AND conflict_status='none' AND response_confirmation_id IS NOT NULL AND ((status='accepted' AND completed_at IS NULL) OR (status='submitted' AND completed_at IS NOT NULL))) OR (status='declined' AND responded_at IS NOT NULL AND declined_at IS NOT NULL AND accepted_at IS NULL AND cancelled_at IS NULL AND completed_at IS NULL AND response_confirmation_id IS NOT NULL) OR (status='cancelled' AND cancelled_at IS NOT NULL AND completed_at IS NULL AND terminal_confirmation_id IS NOT NULL) OR (status='expired' AND responded_at IS NULL AND accepted_at IS NULL AND declined_at IS NULL AND cancelled_at IS NULL AND completed_at IS NULL AND response_confirmation_id IS NULL AND terminal_confirmation_id IS NULL)\", name='ck_pub_review_invitation_lifecycle'), Index('uq_pub_review_invitation_effective', 'round_id', 'reviewer_id', unique=True, postgresql_where=text(\"status IN ('pending','accepted','submitted')\")), Index('ix_pub_review_invitation_reviewer', 'reviewer_id', 'status', 'response_due_at'))"
+        }
+      },
+      "field_revision_bindings": {
+        "id": "10c84f7a2d31",
+        "manuscript_id": "10c84f7a2d31",
+        "journal_id": "10c84f7a2d31",
+        "round_id": "10c84f7a2d31",
+        "version_id": "10c84f7a2d31",
+        "reviewer_id": "10c84f7a2d31",
+        "attempt_no": "10c84f7a2d31",
+        "status": "10c84f7a2d31",
+        "invited_by": "10c84f7a2d31",
+        "response_due_at": "10c84f7a2d31",
+        "report_due_at": "10c84f7a2d31",
+        "invited_at": "10c84f7a2d31",
+        "responded_at": "10c84f7a2d31",
+        "accepted_at": "10c84f7a2d31",
+        "declined_at": "10c84f7a2d31",
+        "cancelled_at": "10c84f7a2d31",
+        "completed_at": "10c84f7a2d31",
+        "conflict_status": "10c84f7a2d31",
+        "response_notes": "10c84f7a2d31",
+        "invitation_snapshot": "10c84f7a2d31",
+        "content_digest": "10c84f7a2d31",
+        "policy_version": "10c84f7a2d31",
+        "invitation_confirmation_id": "10c84f7a2d31",
+        "response_confirmation_id": "10c84f7a2d31",
+        "terminal_confirmation_id": "10c84f7a2d31"
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "10c84f7a2d31",
+          "names": [
+            "ck_pub_review_invitation_attempt",
+            "ck_pub_review_invitation_conflict",
+            "ck_pub_review_invitation_content",
+            "ck_pub_review_invitation_deadlines",
+            "ck_pub_review_invitation_lifecycle",
+            "ck_pub_review_invitation_status",
+            "fk_pub_review_invitation_confirmation",
+            "fk_pub_review_invitation_response",
+            "fk_pub_review_invitation_round",
+            "fk_pub_review_invitation_tenant",
+            "fk_pub_review_invitation_terminal",
+            "ix_pub_review_invitation_reviewer",
+            "uq_pub_review_invitation_attempt",
+            "uq_pub_review_invitation_effective",
+            "uq_pub_review_invitation_id_manuscript",
+            "uq_pub_review_invitation_target"
+          ],
+          "scope": "D table compound FK/check/unique/index declarations"
+        }
+      ]
+    },
+    {
+      "class": "ReviewReport",
+      "module": "apps/api/publishing/domain/review_models.py",
+      "table": "publishing_review_reports",
+      "contract_source": "specs/008-peer-review-data-contract.md",
+      "slice": "D",
+      "implementation_status": "implemented",
+      "migration_id": "10c84f7a2d31",
+      "migration_status": "component_schema_verified_service_ui_pending",
+      "field_groups": [
+        {
+          "our_fields": [
+            "id",
+            "manuscript_id",
+            "invitation_id",
+            "status",
+            "revision",
+            "created_at",
+            "updated_at",
+            "submitted_at",
+            "recommendation"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/ReviewsMigration.php",
+              "entity_type": "table",
+              "entity": "review_assignments",
+              "fields": [
+                "review_id",
+                "reviewer_id",
+                "review_round_id",
+                "recommendation",
+                "date_completed"
+              ]
+            },
+            {
+              "system": "janeway",
+              "source_id": "review-model-fields.txt",
+              "entity_type": "class",
+              "app": "review",
+              "entity": "ReviewAssignment",
+              "fields": [
+                "decision",
+                "is_complete",
+                "date_complete"
+              ],
+              "upstream_path": "src/review/models.py",
+              "upstream_line": 197
+            }
+          ],
+          "origin": "adapted_pattern",
+          "adaptation": "Report归属唯一invitation；reviewer/round/version从不可变invitation派生，不复制三份可能矛盾的FK；draft不计数。",
+          "migration_id": "10c84f7a2d31"
+        },
+        {
+          "our_fields": [
+            "form_snapshot",
+            "form_digest",
+            "answers_json",
+            "author_text",
+            "editor_private_text"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/ReviewsMigration.php",
+              "entity_type": "table",
+              "entity": "review_form_responses",
+              "fields": [
+                "review_form_element_id",
+                "review_id",
+                "response_type",
+                "response_value"
+              ]
+            },
+            {
+              "system": "janeway",
+              "source_id": "review-model-fields.txt",
+              "entity_type": "class",
+              "app": "review",
+              "entity": "ReviewAssignmentAnswer",
+              "fields": [
+                "assignment",
+                "original_element",
+                "answer",
+                "edited_answer",
+                "author_can_see"
+              ],
+              "upstream_path": "src/review/models.py",
+              "upstream_line": 523
+            },
+            {
+              "system": "janeway",
+              "source_id": "review-model-fields.txt",
+              "entity_type": "class",
+              "app": "review",
+              "entity": "BaseReviewFormElement",
+              "fields": [
+                "name",
+                "kind",
+                "choices",
+                "required",
+                "order",
+                "default_visibility"
+              ],
+              "upstream_path": "src/review/models.py",
+              "upstream_line": 470
+            },
+            {
+              "system": "janeway",
+              "source_id": "review-model-fields.txt",
+              "entity_type": "class",
+              "app": "review",
+              "entity": "FrozenReviewFormElement",
+              "fields": [
+                "form_element",
+                "answer"
+              ],
+              "upstream_path": "src/review/models.py",
+              "upstream_line": 639
+            },
+            {
+              "system": "janeway",
+              "source_id": "review-model-fields.txt",
+              "entity_type": "class",
+              "app": "review",
+              "entity": "ReviewAssignment",
+              "fields": [
+                "comments_for_editor",
+                "for_author_consumption"
+              ],
+              "upstream_path": "src/review/models.py",
+              "upstream_line": 197
+            }
+          ],
+          "origin": "adapted_pattern",
+          "adaptation": "题目/必填/visibility快照与当前轮form一致；作者内容和编辑私密意见分列；作者尚无原始report访问，未来仅chief Release DTO。",
+          "migration_id": "10c84f7a2d31"
+        },
+        {
+          "our_fields": [
+            "human_confirmation_id",
+            "content_digest"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/decision/Repository.php",
+              "entity_type": "source"
+            },
+            {
+              "system": "janeway",
+              "source_id": "review-model-fields.txt",
+              "entity_type": "class",
+              "app": "review",
+              "entity": "DecisionDraft",
+              "fields": [
+                "editor",
+                "editor_decision"
+              ],
+              "upstream_path": "src/review/models.py",
+              "upstream_line": 785
+            }
+          ],
+          "origin": "project_governance",
+          "adaptation": "提交必须本人submit_review确认精确全内容/表单/target/version；submitted/withdrawn禁改删/TRUNCATE；withdrawn不伪写submitted时间。",
+          "migration_id": "10c84f7a2d31"
+        }
+      ],
+      "our_fields": [
+        "id",
+        "manuscript_id",
+        "invitation_id",
+        "status",
+        "revision",
+        "created_at",
+        "updated_at",
+        "submitted_at",
+        "recommendation",
+        "form_snapshot",
+        "form_digest",
+        "answers_json",
+        "author_text",
+        "editor_private_text",
+        "human_confirmation_id",
+        "content_digest"
+      ],
+      "constraints": [
+        {
+          "rule": "UNIQUE(invitation_id)、same-manuscript invitation/confirmation、schema/digest/status CHECK；必须已接受无COI grant/open round",
+          "intended_acceptance": "pending不得建报告；错误target/form/私密内容摘要或未冻结确认失败"
+        },
+        {
+          "rule": "保存revision+1；submitted精确匹配review_report.data及content_digest；withdraw只改status/revision/updated_at",
+          "intended_acceptance": "不可把旧草稿复活或换所属邀请/表单；submitted不能再编辑"
+        }
+      ],
+      "intended_acceptance": [
+        "50项模型/迁移测试通过，不代表typed表单服务校验/作者隐私/模型history访问或浏览器已验收。",
+        "reviewer recommendation reject与正式chief reject分离；D无决定、作者release和真实发信能力。"
+      ],
+      "current_baseline": {
+        "system": "current-system",
+        "source_id": "apps/api/publishing/models.py",
+        "entity_type": "class",
+        "entity": "Message"
+      },
+      "component_validation": {
+        "date": "2026-11-03",
+        "suite": "tests/api/test_peer_review_models.py",
+        "observed_passed": 50,
+        "elapsed_seconds": 24.7,
+        "warnings": [
+          "existing Starlette/httpx deprecation"
+        ],
+        "scope": "isolated models/migration/constraint and concurrency tests only; service/UI integration pending root",
+        "shared_alembic_head_modified_by_component_agent": false,
+        "evidence_worktree": "/tmp/publishing-v01-review-models/artifacts/peer-review-models.xml"
+      },
+      "source_binding": {
+        "path": "apps/api/publishing/domain/review_models.py",
+        "class_line": 243,
+        "fields": [
+          {
+            "name": "id",
+            "line": 273,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
+          },
+          {
+            "name": "manuscript_id",
+            "line": 274,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('manuscripts.id'))"
+          },
+          {
+            "name": "invitation_id",
+            "line": 275,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "status",
+            "line": 276,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(20), default='draft', server_default='draft')"
+          },
+          {
+            "name": "revision",
+            "line": 277,
+            "annotation": "Mapped[int]",
+            "declaration": "mapped_column(Integer, default=0, server_default='0')"
+          },
+          {
+            "name": "form_snapshot",
+            "line": 278,
+            "annotation": "Mapped[dict]",
+            "declaration": "mapped_column(JSONB)"
+          },
+          {
+            "name": "form_digest",
+            "line": 279,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "author_text",
+            "line": 280,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(Text, default='', server_default='')"
+          },
+          {
+            "name": "editor_private_text",
+            "line": 281,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(Text, default='', server_default='')"
+          },
+          {
+            "name": "answers_json",
+            "line": 282,
+            "annotation": "Mapped[dict]",
+            "declaration": "mapped_column(JSONB, default=dict, server_default=text(\"'{}'::jsonb\"))"
+          },
+          {
+            "name": "recommendation",
+            "line": 285,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(30), default='unanswered', server_default='unanswered')"
+          },
+          {
+            "name": "created_at",
+            "line": 288,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True), default=now)"
+          },
+          {
+            "name": "updated_at",
+            "line": 289,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True), default=now)"
+          },
+          {
+            "name": "submitted_at",
+            "line": 290,
+            "annotation": "Mapped[datetime | None]",
+            "declaration": "mapped_column(DateTime(timezone=True))"
+          },
+          {
+            "name": "human_confirmation_id",
+            "line": 291,
+            "annotation": "Mapped[str | None]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "content_digest",
+            "line": 292,
+            "annotation": "Mapped[str | None]",
+            "declaration": "mapped_column(String(64))"
+          }
+        ],
+        "table_args": {
+          "line": 245,
+          "declaration": "(_same_manuscript('invitation_id', 'publishing_review_invitations', 'fk_pub_review_report_invitation'), _same_manuscript('human_confirmation_id', 'publishing_human_confirmations', 'fk_pub_review_report_confirmation'), UniqueConstraint('id', 'manuscript_id', name='uq_pub_review_report_id_manuscript'), UniqueConstraint('invitation_id', name='uq_pub_review_report_invitation'), CheckConstraint(\"status IN ('draft','submitted','withdrawn') AND revision >= 0\", name='ck_pub_review_report_status'), CheckConstraint(\"recommendation IN ('unanswered','accept','minor_revision','major_revision','reject')\", name='ck_pub_review_report_recommendation'), CheckConstraint(\"form_digest ~ '^[0-9a-f]{64}$' AND jsonb_typeof(form_snapshot)='object' AND jsonb_typeof(answers_json)='object'\", name='ck_pub_review_report_schema'), CheckConstraint(\"(status='submitted' AND submitted_at IS NOT NULL AND human_confirmation_id IS NOT NULL AND content_digest IS NOT NULL AND content_digest ~ '^[0-9a-f]{64}$' AND recommendation <> 'unanswered') OR (status IN ('draft','withdrawn') AND submitted_at IS NULL AND human_confirmation_id IS NULL AND content_digest IS NULL)\", name='ck_pub_review_report_submission'))"
+        }
+      },
+      "field_revision_bindings": {
+        "id": "10c84f7a2d31",
+        "manuscript_id": "10c84f7a2d31",
+        "invitation_id": "10c84f7a2d31",
+        "status": "10c84f7a2d31",
+        "revision": "10c84f7a2d31",
+        "created_at": "10c84f7a2d31",
+        "updated_at": "10c84f7a2d31",
+        "submitted_at": "10c84f7a2d31",
+        "recommendation": "10c84f7a2d31",
+        "form_snapshot": "10c84f7a2d31",
+        "form_digest": "10c84f7a2d31",
+        "answers_json": "10c84f7a2d31",
+        "author_text": "10c84f7a2d31",
+        "editor_private_text": "10c84f7a2d31",
+        "human_confirmation_id": "10c84f7a2d31",
+        "content_digest": "10c84f7a2d31"
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "10c84f7a2d31",
+          "names": [
+            "ck_pub_review_report_recommendation",
+            "ck_pub_review_report_schema",
+            "ck_pub_review_report_status",
+            "ck_pub_review_report_submission",
+            "fk_pub_review_report_confirmation",
+            "fk_pub_review_report_invitation",
+            "uq_pub_review_report_id_manuscript",
+            "uq_pub_review_report_invitation"
+          ],
+          "scope": "D table compound FK/check/unique/index declarations"
+        }
+      ]
+    }
+  ],
+  "additional_contracts": [
+    {
+      "path": "specs/008-peer-review-data-contract.md",
+      "migration_id": "10c84f7a2d31",
+      "new_models": {
+        "ReviewRound": "publishing_review_rounds",
+        "ReviewRoundFile": "publishing_review_round_files",
+        "ReviewInvitation": "publishing_review_invitations",
+        "ReviewReport": "publishing_review_reports"
+      },
+      "extended_fields": {
+        "Assignment": [
+          "review_invitation_id"
+        ],
+        "WorkItem": [
+          "review_invitation_id",
+          "review_report_id"
+        ]
+      },
+      "extended_constraints": {
+        "VersionFile": [
+          "uq_pub_version_file_id_manuscript_version"
+        ],
+        "Assignment": [
+          "fk_pub_assignment_review_invitation",
+          "ck_pub_assignment_capability",
+          "ck_pub_assignment_review_target",
+          "uq_pub_assignment_active_capability",
+          "uq_pub_assignment_active_reviewer"
+        ],
+        "WorkItem": [
+          "fk_pub_work_item_review_invitation",
+          "fk_pub_work_item_review_report",
+          "ck_pub_work_item_review_target",
+          "uq_pub_work_item_step_assignee",
+          "uq_pub_work_item_review_invitation",
+          "uq_pub_work_item_review_report"
         ]
       }
+    }
+  ],
+  "migration_evidence": [
+    {
+      "revision": "10c84f7a2d31",
+      "down_revision": "09b73e6a1c22",
+      "path": "infrastructure/migrations/versions/10c84f7a2d31_peer_review.py",
+      "sha256": "747e17d74b81464b4e60cacb59981f6de2be2214e95c6539c1136d69eb4cd0d8",
+      "validation_scope": "50 isolated PG component tests and two-connection initialization/seal/append assay; no service/UI completion",
+      "sql_functions": [
+        "publishing_review_confirmation",
+        "publishing_guard_review_round",
+        "publishing_require_sealed_round",
+        "publishing_guard_review_round_file",
+        "publishing_guard_review_invitation",
+        "publishing_guard_review_assignment",
+        "publishing_guard_review_report",
+        "publishing_guard_review_work_item",
+        "publishing_require_review_consistency"
+      ],
+      "deferred_triggers": [
+        "publishing_review_round_sealed",
+        "publishing_review_invitation_consistent",
+        "publishing_review_grant_consistent",
+        "publishing_review_report_consistent"
+      ]
+    }
+  ],
+  "implementation_helper_bindings": [
+    {
+      "path": "apps/api/publishing/domain/models.py",
+      "name": "_same_manuscript",
+      "line": 52,
+      "declaration": "def _same_manuscript(column: str, table: str, name: str, *, use_alter: bool=False):\n    return ForeignKeyConstraint([column, 'manuscript_id'], [f'{table}.id', f'{table}.manuscript_id'], name=name, use_alter=use_alter)",
+      "purpose": "compound FK helper semantics backing named constraints; static source only"
+    },
+    {
+      "path": "apps/api/publishing/domain/models.py",
+      "name": "_tenant_manuscript",
+      "line": 61,
+      "declaration": "def _tenant_manuscript(name: str):\n    return ForeignKeyConstraint(['manuscript_id', 'journal_id'], ['manuscripts.id', 'manuscripts.journal_id'], name=name)",
+      "purpose": "compound FK helper semantics backing named constraints; static source only"
+    },
+    {
+      "path": "apps/api/publishing/domain/review_models.py",
+      "name": "_round_version",
+      "line": 29,
+      "declaration": "def _round_version(name):\n    return ForeignKeyConstraint(['round_id', 'manuscript_id', 'version_id'], ['publishing_review_rounds.id', 'publishing_review_rounds.manuscript_id', 'publishing_review_rounds.version_id'], name=name)",
+      "purpose": "compound FK helper semantics backing named constraints; static source only"
     }
   ]
 }
