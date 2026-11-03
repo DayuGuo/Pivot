@@ -1,5 +1,9 @@
 # Pivot
 
+本轮新增：[PDF/Word 导入与人工核对](docs/development/document-import-review.md)。本机真实 DeepSeek 的 PDF、DOCX 提取和问答各通过，浏览器引用定位、刷新与 API/Web 重启恢复通过；最终完整回归以 [PROGRESS.md](PROGRESS.md) 顶部为准。公网静态 Demo 不包含此真实后端增量。
+
+仅使用合成或获授权的公开非保密材料。负责人确认的是资料版本，不是正式投稿、邮件或编辑决定；模型没有这些确认工具。需要显式重现真实合成验收时：`.venv/bin/python scripts/accept-document-import.py --live`（本机8100/55432；会新建合成资料并由测试驱动模拟演示负责人核对，不读取或打印模型密钥）。
+
 以稿件资料为基础的对话式科研出版工作台。编辑从自己的待办进入稿件，在中心对话中审阅，随时在右侧核对原文、作者资料和引用；正式操作保留负责人的确认权。
 
 **[在线体验 Pivot](https://pivot.anotherdayu.com/)**
@@ -10,7 +14,7 @@
 ./scripts/start.sh
 ```
 
-打开 [内部审阅资料](http://localhost:3100/library)，未登录时先用 `editor@publishing.test` / `EditorDemo2026!` 登录，再从“内部审阅资料”进入。上传合成或授权公开的完整 TXT/Markdown（UTF-8、≤1 MiB），填写摘要、有序作者/机构/通讯邮箱与来源，保存后进入独立核对页逐项检查并确认。修改后创建新版本，当前版必须重新核对；刷新和重启可恢复。
+打开 [内部审阅资料](http://localhost:3100/library)，未登录时先用 `editor@publishing.test` / `EditorDemo2026!` 登录，再从“内部审阅资料”进入。可手动录入完整 TXT/Markdown（UTF-8、≤1 MiB），或在资料右侧点击“导入 PDF / Word”。文本层 PDF 与 `.docx` 原件≤5 MiB，PDF≤60页，提取文字≤1 MiB；系统提取完整文字、页/段位置及作者元数据候选，随后进入独立核对页。上传不改变当前版本；负责人补齐并核对完整表单、勾选确认后才建立已核对新版本。点击对话引用可定位对应 PDF 页或 Word 提取段并下载原件；刷新和重启可恢复。扫描件、加密文件、旧 `.doc` 及不支持的复杂结构明确拒绝，当前没有OCR或图表/公式理解。
 
 这是本地真实 PostgreSQL/CAS 资料功能，与公网静态 Demo 分开。资料对话沿服务端配置使用DeepSeek或明确标记的Mock，基于当前版本的全文/作者字段生成带逐字定位的审阅建议。外部引用目前仅核验资料或问题已给出的DOI书目元数据，不做全网检索或读取外部全文；结论仍须人工复核。ORCID为手工录入、格式检查，不等于身份认证。权限、字段、验收与下一步见 [spec013](specs/013-internal-review-dossiers.md) 、[基础交付记录](docs/development/internal-dossiers.md) 和 [真实问答](docs/development/dossier-grounded-review.md)。
 
@@ -45,7 +49,7 @@ bash install.sh
 
 核心产品设计：[PRODUCT_DESIGN.md](PRODUCT_DESIGN.md)。日历/双层对话当前只在独立Demo展示；真实数据库中的聚合、多身份、多刊邀请与邮箱/ORCID注册仍待实施，不能从截图推断上线。
 
-Demo反馈后：[单人＋Codex单刊审阅第一阶段](specs/011-single-journal-review-pilot.md)。包含8周计划、约3万元现金准备及真实试点前的专业复核关口；新增资料解析/实时证据核验未实现。展示Demo沿用现有电脑/Codex/已购VPS，不需要这笔真实试点预算或新增模型消费。
+Demo反馈后：[单人＋Codex单刊审阅第一阶段](specs/011-single-journal-review-pilot.md)。包含8周计划、约3万元现金准备及真实试点前的专业复核关口；资料包、文本层PDF/DOCX与只读版本证据问答已按切片本地实现；完整公开样本评测、ORCID认证与专业复核尚待完成。展示Demo沿用现有电脑/Codex/已购VPS，不需要这笔真实试点预算或新增模型消费。
 
 ## 可运行的真实出版 v0.1 样本
 

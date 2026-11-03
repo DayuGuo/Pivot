@@ -1025,3 +1025,71 @@ def test_schema_repair_is_not_available_before_any_actual_source_is_read(
     assert response.status_code == 503, response.text
     assert len(provider.calls) == 1
     assert_no_answer(db, ready, payload)
+
+
+def test_empty_respond_is_repaired_once_into_a_fully_grounded_answer(client, db, ready, supplier):
+    before = unchanged_business(db)
+    empty = completion("respond", {"claims": [], "questions": [], "external_dois": []})
+
+    def corrected(messages, tools):
+        feedback = json.loads(messages[-1]["content"])
+        assert "不能完全空答" in feedback["error"]
+        assert {tool["function"]["name"] for tool in tools} == {"respond"}
+        assert source(messages)["text"]
+        return reply(messages, tools)
+
+    provider = supplier(completion("read_dossier", {}), empty, corrected)
+    payload = body(ready, message="根据这版正文给一个可定位的事实，不要空答。")
+    response = client.post(path(ready), json=payload)
+    assert response.status_code == 200, response.text
+    result = response.json()
+    assert len(provider.calls) == 3 and result["tool_corrections"] == 1
+    assert result["claims"] and result["claims"][0]["citations"]
+    citation = result["claims"][0]["citations"][0]
+    assert citation["version_id"] == ready["version_id"]
+    assert BODY[citation["start"] : citation["end"]] == citation["quote"]
+    assert count(db, DossierAnswer, dossier_id=ready["id"]) == 1
+    assert count(db, DossierTurn, dossier_id=ready["id"]) == 1
+    assert db.get(DossierAnswer, result["id"]).result_json["tool_corrections"] == 1
+    assert detail(client, ready["id"])["messages"][-1] == result
+    assert unchanged_business(db) == before
+
+
+def test_repeated_empty_respond_does_not_persist_an_answer_or_consume_unbounded_retries(
+    client, db, ready, supplier
+):
+    empty = completion("respond", {"claims": [], "questions": [], "external_dois": []})
+    provider = supplier(completion("read_dossier", {}), empty, empty)
+    payload = body(ready, message="请给可定位的正文结论。")
+    before = unchanged_business(db)
+    response = client.post(path(ready), json=payload)
+    assert response.status_code == 503, response.text
+    assert len(provider.calls) == 3
+    assert {tool["function"]["name"] for tool in provider.calls[-1][1]} == {"respond"}
+    assert_no_answer(db, ready, payload)
+    assert unchanged_business(db) == before
+    audit = db.scalar(
+        select(AuditEvent).where(
+            AuditEvent.entity_id == ready["id"],
+            AuditEvent.action == "publishing.dossier_answer_failed",
+        )
+    )
+    assert audit.details["error_code"] == "dossier_response_empty"
+
+
+def test_empty_respond_without_read_sources_is_not_eligible_for_repair(client, db, ready, supplier):
+    provider = supplier(completion("respond", {"claims": [], "questions": [], "external_dois": []}))
+    payload = body(ready)
+    before = unchanged_business(db)
+    response = client.post(path(ready), json=payload)
+    assert response.status_code == 503, response.text
+    assert len(provider.calls) == 1
+    assert_no_answer(db, ready, payload)
+    assert unchanged_business(db) == before
+    audit = db.scalar(
+        select(AuditEvent).where(
+            AuditEvent.entity_id == ready["id"],
+            AuditEvent.action == "publishing.dossier_answer_failed",
+        )
+    )
+    assert audit.details["error_code"] == "dossier_response_empty"

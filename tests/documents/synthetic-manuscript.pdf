@@ -1,0 +1,143 @@
+%PDF-1.3
+%‚„œ”
+1 0 obj
+<<
+/Producer (pypdf)
+/Title (Entirely synthetic parser acceptance)
+/Author (Pivot test fixtures)
+>>
+endobj
+2 0 obj
+<<
+/Type /Pages
+/Count 2
+/Kids [ 4 0 R 7 0 R ]
+>>
+endobj
+3 0 obj
+<<
+/Type /Catalog
+/Pages 2 0 R
+>>
+endobj
+4 0 obj
+<<
+/Type /Page
+/Resources <<
+/Font <<
+/F1 5 0 R
+>>
+>>
+/MediaBox [ 0.0 0.0 595 842 ]
+/Parent 2 0 R
+/Contents 6 0 R
+>>
+endobj
+5 0 obj
+<<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica
+>>
+endobj
+6 0 obj
+<<
+/Length 759
+>>
+stream
+BT /F1 11 Tf 45 790 Td 17 TL
+(Title: Synthetic Editorial Review Manuscript) Tj
+T*
+(Authors: Synthetic Author Alpha; Synthetic Author Beta) Tj
+T*
+(Author 1: Synthetic Author Alpha) Tj
+T*
+(Email 1: alpha@synthetic.test) Tj
+T*
+(ORCID 1: 0000-0002-1825-0097) Tj
+T*
+(Affiliation 1: Synthetic Research Institute) Tj
+T*
+(Corresponding author: Synthetic Author Alpha) Tj
+T*
+(Author 2: Synthetic Author Beta) Tj
+T*
+(Email 2: beta@synthetic.test) Tj
+T*
+(ORCID 2: 0000-0001-5109-3700) Tj
+T*
+(Affiliation 2: Synthetic Publishing Laboratory) Tj
+T*
+(Abstract: This entirely synthetic manuscript validates full text extraction,) Tj
+T*
+(author metadata candidates, review gates and immutable source locations.) Tj
+T*
+(Keywords: synthetic; metadata; version evidence) Tj
+T*
+ET
+endstream
+endobj
+7 0 obj
+<<
+/Type /Page
+/Resources <<
+/Font <<
+/F1 8 0 R
+>>
+>>
+/MediaBox [ 0.0 0.0 595 842 ]
+/Parent 2 0 R
+/Contents 9 0 R
+>>
+endobj
+8 0 obj
+<<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica
+>>
+endobj
+9 0 obj
+<<
+/Length 408
+>>
+stream
+BT /F1 11 Tf 45 790 Td 17 TL
+(Methods) Tj
+T*
+(The sample contains 24 synthetic records. This is a single-arm observation.) Tj
+T*
+(No control group is included. No real participants or confidential data exist.) Tj
+T*
+(Results) Tj
+T*
+(The extraction test must preserve this complete second-page content.) Tj
+T*
+(Reference DOI: 10.1371/journal.pmed.0020124) Tj
+T*
+(END-OF-SYNTHETIC-DOCUMENT-TRACE-2026) Tj
+T*
+ET
+endstream
+endobj
+xref
+0 10
+0000000000 65535 f 
+0000000015 00000 n 
+0000000130 00000 n 
+0000000195 00000 n 
+0000000244 00000 n 
+0000000376 00000 n 
+0000000446 00000 n 
+0000001256 00000 n 
+0000001388 00000 n 
+0000001458 00000 n 
+trailer
+<<
+/Size 10
+/Root 3 0 R
+/Info 1 0 R
+>>
+startxref
+1917
+%%EOF

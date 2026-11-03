@@ -3,6 +3,8 @@
 import { useEffect, useRef } from "react";
 import type { Citation, Dossier, ExternalReference, Message } from "./types";
 import styles from "./library.module.css";
+import { fileDownloadURL } from "./api";
+import { documentLocation } from "./document-details";
 
 const format = new Intl.NumberFormat("zh-CN");
 
@@ -19,6 +21,17 @@ function fieldText(data: Dossier["data"], path: string | null): string | null {
 export function citationText(snapshot: Dossier, citation: Citation): string | null {
   if (snapshot.version_id !== citation.version_id || snapshot.content_digest !== citation.content_digest || snapshot.version_no !== citation.version_no) return null;
   if (citation.kind === "text" && (!snapshot.file || snapshot.file.sha256 !== citation.file_sha256)) return null;
+  if (citation.document) {
+    const document = snapshot.document;
+    const original = citation.document;
+    if (!document || !snapshot.file || document.origin_digest !== original.origin_digest || document.sha256 !== original.sha256 || document.filename !== original.filename || document.media_type !== original.media_type) return null;
+    const start = citation.kind === "text" ? citation.start : original.source_start;
+    const end = citation.kind === "text" ? citation.end : original.source_end;
+    const quote = citation.kind === "text" ? citation.quote : original.source_quote;
+    if (start == null || end == null || !Number.isSafeInteger(start) || !Number.isSafeInteger(end) || start < 0 || end <= start || !quote || Array.from(snapshot.file.text).slice(start, end).join("") !== quote) return null;
+    const locations = document.segments.filter(segment => segment.start < end && segment.end > start).map(segment => ({ kind: segment.kind, number: segment.number, start: Math.max(start, segment.start), end: Math.min(end, segment.end) }));
+    if (!locations.length || locations.length !== original.locations.length || locations.some((location, index) => Object.entries(location).some(([key, value]) => original.locations[index][key as keyof typeof location] !== value))) return null;
+  }
   const text = citation.kind === "text" ? snapshot.file?.text : fieldText(snapshot.data, citation.field_path);
   if (text == null || !citation.quote || !citation.source_text.includes(citation.quote)) return null;
   if (!Number.isSafeInteger(citation.start) || !Number.isSafeInteger(citation.end) || citation.start < 0 || citation.end <= citation.start) return null;
@@ -65,12 +78,13 @@ export function EvidencePanel({ snapshot, citation, currentVersionId, onClose }:
     highlight.current?.scrollIntoView({ block: "center" });
   }, [text, citation]);
   const characters = text === null ? [] : Array.from(text);
+  const originalURL = citation.document && snapshot.document ? fileDownloadURL(snapshot.document.download_url) : null;
   return <div className={styles.evidencePanel}>
     <div className={styles.materialHeader}><h2>{citation.kind === "text" ? "原文定位" : "作者与资料定位"} · v{citation.version_no}</h2><button type="button" onClick={onClose}>返回当前资料</button></div>
     <div className={styles.evidenceBody}>
       <p className={styles.hint}>{snapshot.version_id !== currentVersionId || !snapshot.is_current ? "历史版本的证据；当前资料与未保存编辑保持不变。" : "当前已保存版本的证据。"}</p>
       <h3>{citation.label}</h3>
-      {citation.kind === "text" && <p className={styles.hint}>{snapshot.file?.filename}{citation.line_start != null ? ` · 第 ${citation.line_start}${citation.line_end !== citation.line_start && citation.line_end != null ? `–${citation.line_end}` : ""} 行` : ""}</p>}
+      {citation.document ? <div className={styles.documentOrigin}><p className={styles.hint}>{citation.document.filename} · {citation.document.locations.map(location => documentLocation(location.kind, location.number)).join("、")}</p>{originalURL && text !== null && <a href={originalURL} download>下载原稿</a>}{citation.kind === "metadata" && text !== null && <blockquote>{citation.document.source_quote}</blockquote>}</div> : citation.kind === "text" && <p className={styles.hint}>{snapshot.file?.filename}{citation.line_start != null ? ` · 第 ${citation.line_start}${citation.line_end !== citation.line_start && citation.line_end != null ? `–${citation.line_end}` : ""} 行` : ""}</p>}
       {citation.kind === "metadata" && <p className={styles.hint}>录入资料，不代表作者或 ORCID 身份已认证</p>}
       {text === null ? <p role="alert">引用与版本内容不匹配，请重新载入资料后再定位。</p> : <pre className={styles.locatedText}>{characters.slice(0, citation.start).join("")}<mark ref={highlight} tabIndex={-1} aria-label="已定位引用原文">{characters.slice(citation.start, citation.end).join("")}</mark>{characters.slice(citation.end).join("")}</pre>}
       <details><summary>证据版本 SHA-256</summary><code>{citation.content_digest}</code>{citation.file_sha256 && <><p className={styles.hint}>原文文件 SHA-256</p><code>{citation.file_sha256}</code></>}</details>

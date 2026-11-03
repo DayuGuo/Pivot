@@ -6,13 +6,16 @@ import { useCallback, useEffect, useRef, useState, type FormEvent, type MouseEve
 import Glyph from "../editorial/icons";
 import { LibraryError, readJSON } from "./api";
 import DossierEditor from "./editor";
+import DocumentUpload from "./document-upload";
+import ImportReview from "./import-review";
+import ImportHistory from "./import-history";
 import DossierReview from "./review";
 import { citationText, EvidencePanel, MessageTurn } from "./evidence";
 import { OriginalText, VersionList } from "./viewers";
-import type { Citation, Dossier, DossierData, DossierItem, Message, Session, Upload } from "./types";
+import type { Citation, DocumentImport, Dossier, DossierData, DossierItem, Message, Session, Upload } from "./types";
 import styles from "./library.module.css";
 
-export default function LibraryWorkspace({ reviewVersionId }: { reviewVersionId?: string }) {
+export default function LibraryWorkspace({ reviewVersionId, importId }: { reviewVersionId?: string; importId?: string }) {
   const router = useRouter();
   const search = useSearchParams();
   const selectedId = search.get("dossier");
@@ -24,6 +27,8 @@ export default function LibraryWorkspace({ reviewVersionId }: { reviewVersionId?
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState("");
   const [newDossier, setNewDossier] = useState(false);
+  const [documentImport, setDocumentImport] = useState<DocumentImport | null>(null);
+  const [uploadingDocument, setUploadingDocument] = useState(false);
   const [drawer, setDrawer] = useState(false);
   const [tab, setTab] = useState<"metadata" | "text" | "versions">("metadata");
   const [question, setQuestion] = useState("");
@@ -43,32 +48,34 @@ export default function LibraryWorkspace({ reviewVersionId }: { reviewVersionId?
   const changeDirty = useCallback((value: boolean) => { dirtyRef.current = value; setDirty(value); }, []);
 
   const clearPrivate = useCallback((clearSession: boolean) => {
-    setDetail(null); setItems([]); setQuestion(""); setNewDossier(false); changeDirty(false);
+    setDetail(null); setItems([]); setQuestion(""); setNewDossier(false); setDocumentImport(null); setUploadingDocument(false); changeDirty(false);
     ++citationRequest.current; setSourcePreview(null); setSourceError(""); setLocating(null);
     if (clearSession) { setSession(null); requests.current.clear(); setRetry(null); }
   }, [changeDirty]);
   const load = useCallback(async () => {
     const current = ++epoch.current;
     ++citationRequest.current; setSourcePreview(null); setSourceError(""); setLocating(null);
-    setLoading(true); setError(""); setItems([]); setDetail(null); setQuestion(""); setNotice(""); setRetry(null); changeDirty(false);
+    setLoading(true); setError(""); setItems([]); setDetail(null); setDocumentImport(null); setUploadingDocument(false); setQuestion(""); setNotice(""); setRetry(null); changeDirty(false);
     try {
       const nextSession = await readJSON<Session>("/api/publishing/session");
       if (current !== epoch.current) return;
       if (!["editor", "chief_editor"].includes(nextSession.user.role)) throw new LibraryError(403, "内部资料仅向编辑和主编开放。请返回登录页切换身份。");
       setSession(nextSession);
-      const [list, dossier] = await Promise.all([
+      const [list, dossier, imported] = await Promise.all([
         readJSON<{ items: DossierItem[] }>("/api/dossiers"),
         selectedId ? readJSON<Dossier>(`/api/dossiers/${encodeURIComponent(selectedId)}${reviewVersionId ? `/versions/${encodeURIComponent(reviewVersionId)}` : ""}`) : Promise.resolve(null),
+        importId && selectedId ? readJSON<DocumentImport>(`/api/dossiers/${encodeURIComponent(selectedId)}/imports/${encodeURIComponent(importId)}`) : Promise.resolve(null),
       ]);
       if (current !== epoch.current) return;
-      if (reviewVersionId && !selectedId) throw new LibraryError(404, "核对链接缺少资料标识，请从我的资料重新打开。");
-      setItems(list.items); setDetail(dossier);
+      if ((reviewVersionId || importId) && !selectedId) throw new LibraryError(404, "核对链接缺少资料标识，请从我的资料重新打开。");
+      if (imported && imported.dossier_id !== selectedId) throw new LibraryError(404, "导入记录不属于当前资料。");
+      setItems(list.items); setDetail(dossier); setDocumentImport(imported);
     } catch (failure) {
       if (current !== epoch.current) return;
       clearPrivate(failure instanceof LibraryError && [401, 403].includes(failure.status));
       setError((failure as Error).message);
     } finally { if (current === epoch.current) setLoading(false); }
-  }, [selectedId, reviewVersionId, clearPrivate, changeDirty]);
+  }, [selectedId, reviewVersionId, importId, clearPrivate, changeDirty]);
   const invalidate = useCallback(() => { ++epoch.current; }, []);
   // The route identifies the external snapshot; each load clears the previous object's private data.
   // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -90,11 +97,32 @@ export default function LibraryWorkspace({ reviewVersionId }: { reviewVersionId?
     if (sameRoute && !newDossier) return;
     if (!leaveAllowed()) { event.preventDefault(); return; }
     if (sameRoute) { event.preventDefault(); setNewDossier(false); setDrawer(false); void load(); return; }
-    ++epoch.current; ++citationRequest.current; setSourcePreview(null); setSourceError(""); setLocating(null); setDetail(null); setQuestion(""); setDrawer(false); setNewDossier(false); setRetry(null); changeDirty(false);
+    ++epoch.current; ++citationRequest.current; setSourcePreview(null); setSourceError(""); setLocating(null); setDetail(null); setQuestion(""); setDrawer(false); setNewDossier(false); setUploadingDocument(false); setDocumentImport(null); setRetry(null); changeDirty(false);
   }
   function startNew() {
     if (!leaveAllowed()) return;
-    ++epoch.current; ++citationRequest.current; setSourcePreview(null); setSourceError(""); setLocating(null); setNewDossier(true); setDrawer(false); setError(""); setNotice(""); setRetry(null); changeDirty(false);
+    ++epoch.current; ++citationRequest.current; setSourcePreview(null); setSourceError(""); setLocating(null); setNewDossier(true); setDocumentImport(null); setUploadingDocument(false); setDrawer(false); setError(""); setNotice(""); setRetry(null); changeDirty(false);
+  }
+  function startDocumentUpload() {
+    if (!detail?.is_current || !leaveAllowed()) return;
+    ++epoch.current; ++citationRequest.current; setSourcePreview(null); setSourceError(""); setLocating(null); setUploadingDocument(true); setError(""); setRetry(null); changeDirty(false);
+  }
+  async function uploadDocument(file: Upload) {
+    if (!detail) return;
+    const snapshot = detail;
+    await run("import", async () => {
+      const result = await post<{ import_id: string; dossier_id: string }>(`/api/dossiers/${snapshot.id}/imports`, { expected_revision: snapshot.revision, version_id: snapshot.version_id, file, authorized_material: true });
+      changeDirty(false); setUploadingDocument(false); router.push(`/library/imports/${result.import_id}?dossier=${result.dossier_id}`);
+    });
+  }
+  async function confirmImport(data: DossierData) {
+    if (!documentImport || !detail) return;
+    const snapshot = documentImport;
+    await run("confirm-import", async () => {
+      const result = await post<{ dossier_id: string; version_id: string }>(`/api/dossiers/${snapshot.dossier_id}/imports/${snapshot.id}/confirm`, { expected_revision: snapshot.base_revision, digest: snapshot.digest, data, acknowledged: true });
+      setDocumentImport(previous => previous && previous.id === snapshot.id ? { ...previous, confirmed_version_id: result.version_id, editable: false } : previous);
+      changeDirty(false); router.push(`/library?dossier=${result.dossier_id}`);
+    });
   }
   async function post<T>(path: string, data: object): Promise<T> {
     if (!session) throw new LibraryError(401, "请先登录。");
@@ -115,7 +143,7 @@ export default function LibraryWorkspace({ reviewVersionId }: { reviewVersionId?
       if ([401, 403, 404].includes(status)) clearPrivate(status !== 404);
       if (status === 0) {
         // Hide stale private documents and transcript until authorization can be checked again.
-        setDetail(null); setQuestion(""); setSourcePreview(null); setSourceError(""); ++citationRequest.current; setLocating(null);
+        setDetail(null); setDocumentImport(null); setQuestion(""); setSourcePreview(null); setSourceError(""); ++citationRequest.current; setLocating(null);
       }
       setError((failure as Error).message);
       if (status === 0 || status >= 500) setRetry(() => () => run(label, action));
@@ -216,15 +244,15 @@ export default function LibraryWorkspace({ reviewVersionId }: { reviewVersionId?
             {loading ? <p role="status">正在载入资料…</p> : !detail ? <div className={styles.empty}><Glyph name="file" size={28} /><h2>从资料开始</h2><p>选择或新建资料，围绕已保存的全文与作者信息提问。</p></div> : !detail.messages.length ? <div className={styles.empty}><h2>从哪一处开始审阅？</h2><p>回答依据当前已保存资料。点击结论后的引用，可核对原版全文或作者字段；资料不足时不会补造结论。</p><button onClick={() => setQuestion("请概括这份全文的研究方法，并引用原文。")}>审阅研究方法</button></div> : detail.messages.map(message => <MessageTurn key={message.id} message={message} currentVersionId={detail.version_id} locating={locating} onCitation={(citation, trigger) => void locateCitation(citation, trigger)} />)}
             <div ref={chatEnd} />
           </div>
-          <form className={styles.composer} onSubmit={send}><label htmlFor="library-question" className={styles.srOnly}>询问当前资料</label><textarea id="library-question" name="question" value={question} maxLength={2000} onChange={event => setQuestion(event.target.value)} disabled={!detail || newDossier || !!busy || loading || modelBlocked || historicalVersion} rows={3} placeholder={historicalVersion ? "历史版本只读，请返回当前资料提问" : "询问当前全文、作者或文献来源…"} /><div><span>{detail ? `${detail.is_current ? "当前" : "历史"} v${detail.version_no}${dirty ? " · 有未保存修改，回答依据已保存版本" : ""}` : "先选择资料"}</span><button type="submit" className={styles.primary} disabled={!detail || newDossier || !question.trim() || !!busy || loading || modelBlocked || historicalVersion}>{busy === "assist" ? "回复中…" : "发送"}<Glyph name="arrow" size={16} /></button></div><p className={styles.boundary}>邮件与关键决定须负责人确认。</p></form>
+          <form className={styles.composer} onSubmit={send}><label htmlFor="library-question" className={styles.srOnly}>询问当前资料</label><textarea id="library-question" name="question" value={question} maxLength={2000} onChange={event => setQuestion(event.target.value)} disabled={!detail || newDossier || !!busy || loading || modelBlocked || historicalVersion} rows={3} placeholder={historicalVersion ? "历史版本只读，请返回当前资料提问" : "询问当前全文、作者或文献来源…"} /><div><span>{detail ? `${detail.is_current ? "当前" : "历史"} v${detail.version_no}${documentImport && !documentImport.confirmed_version_id ? " · 导入候选核对保存后参与问答" : dirty ? " · 有未保存修改，回答依据已保存版本" : ""}` : "先选择资料"}</span><button type="submit" className={styles.primary} disabled={!detail || newDossier || !question.trim() || !!busy || loading || modelBlocked || historicalVersion}>{busy === "assist" ? "回复中…" : "发送"}<Glyph name="arrow" size={16} /></button></div><p className={styles.boundary}>邮件与关键决定须负责人确认。</p></form>
         </main>
-        <section className={styles.material} aria-label={reviewVersionId ? "独立版本核对" : "资料内容"}>
+        <section className={styles.material} aria-label={importId ? "独立导入核对" : reviewVersionId ? "独立版本核对" : "资料内容"}>
           {sourceError && <p className={styles.sourceError} role="alert">{sourceError}</p>}
           <div className={styles.materialView} hidden={sourcePreview !== null}>
-          {newDossier ? <><div className={styles.materialHeader}><h2>新建资料</h2><button disabled={!!busy} onClick={() => { if (leaveAllowed()) { setNewDossier(false); changeDirty(false); } }}>取消</button></div><form className={styles.form} onSubmit={create} onChange={() => changeDirty(true)}><label>题名<input name="title" required maxLength={500} autoComplete="off" /></label><label>资料类型<select name="source_kind" defaultValue="synthetic"><option value="synthetic">合成资料</option><option value="public_authorized">公开 / 已获授权资料</option></select></label><label>来源与授权说明<textarea name="source_note" required minLength={5} maxLength={2000} rows={4} /></label><label className={styles.checkbox}><input type="checkbox" name="authorized_material" required /><span>我确认仅录入合成或公开已获授权资料，不包含保密稿件。</span></label><button className={styles.primary} disabled={!!busy}>{busy === "create" ? "创建中…" : "创建资料"}</button></form></> : detail ? reviewVersionId ? <DossierReview key={detail.version_id} detail={detail} busy={!!busy} confirming={busy === "confirm"} onConfirm={confirm} /> : <><div className={styles.materialHeader}><div role="tablist" aria-label="资料视图">{([['metadata', '资料'], ['text', '原文'], ['versions', '版本']] as const).map(([id, label]) => <button key={id} id={`library-tab-${id}`} role="tab" aria-selected={tab === id} aria-controls={`library-panel-${id}`} tabIndex={tab === id ? 0 : -1} onKeyDown={event => { const all = ["metadata", "text", "versions"] as const; const index = all.indexOf(tab); if (event.key === "ArrowRight" || event.key === "ArrowLeft") { event.preventDefault(); const next = all[(index + (event.key === "ArrowRight" ? 1 : 2)) % 3]; setTab(next); document.getElementById(`library-tab-${next}`)?.focus(); } }} onClick={() => setTab(id)}>{label}</button>)}</div><span>v{detail.version_no} · {detail.verified ? "已核对" : "待核对"}</span></div><div role="tabpanel" id={`library-panel-${tab}`} aria-labelledby={`library-tab-${tab}`} className={styles.materialBody}>
+          {uploadingDocument ? <DocumentUpload busy={!!busy} onUpload={uploadDocument} onCancel={() => { if (leaveAllowed()) { setUploadingDocument(false); changeDirty(false); } }} onDirty={value => { setRetry(null); changeDirty(value); }} /> : documentImport && detail ? <ImportReview key={`${documentImport.id}:${documentImport.digest}`} imported={documentImport} detail={detail} busy={!!busy} onDirty={value => { setRetry(null); changeDirty(value); }} onConfirm={confirmImport} /> : newDossier ? <><div className={styles.materialHeader}><h2>新建资料</h2><button disabled={!!busy} onClick={() => { if (leaveAllowed()) { setNewDossier(false); changeDirty(false); } }}>取消</button></div><form className={styles.form} onSubmit={create} onChange={() => changeDirty(true)}><label>题名<input name="title" required maxLength={500} autoComplete="off" /></label><label>资料类型<select name="source_kind" defaultValue="synthetic"><option value="synthetic">合成资料</option><option value="public_authorized">公开 / 已获授权资料</option></select></label><label>来源与授权说明<textarea name="source_note" required minLength={5} maxLength={2000} rows={4} /></label><label className={styles.checkbox}><input type="checkbox" name="authorized_material" required /><span>我确认仅录入合成或公开已获授权资料，不包含保密稿件。</span></label><button className={styles.primary} disabled={!!busy}>{busy === "create" ? "创建中…" : "创建资料"}</button></form></> : detail ? reviewVersionId ? <DossierReview key={detail.version_id} detail={detail} busy={!!busy} confirming={busy === "confirm"} onConfirm={confirm} /> : <><div className={styles.materialHeader}><div role="tablist" aria-label="资料视图">{([['metadata', '资料'], ['text', '原文'], ['versions', '版本']] as const).map(([id, label]) => <button key={id} id={`library-tab-${id}`} role="tab" aria-selected={tab === id} aria-controls={`library-panel-${id}`} tabIndex={tab === id ? 0 : -1} onKeyDown={event => { const all = ["metadata", "text", "versions"] as const; const index = all.indexOf(tab); if (event.key === "ArrowRight" || event.key === "ArrowLeft") { event.preventDefault(); const next = all[(index + (event.key === "ArrowRight" ? 1 : 2)) % 3]; setTab(next); document.getElementById(`library-tab-${next}`)?.focus(); } }} onClick={() => setTab(id)}>{label}</button>)}</div><span>v{detail.version_no} · {detail.verified ? "已核对" : "待核对"}</span>{detail.is_current && <button type="button" className={styles.documentImportButton} disabled={!!busy} onClick={startDocumentUpload}>导入 PDF / Word</button>}</div><div role="tabpanel" id={`library-panel-${tab}`} aria-labelledby={`library-tab-${tab}`} className={styles.materialBody}>
             <DossierEditor key={`${detail.id}:${detail.version_id}`} detail={detail} hidden={tab !== "metadata"} busy={!!busy} saving={busy === "save"} onDirty={changeDirty} onSave={save} />
             {tab === "text" && <OriginalText detail={detail} />}
-            {tab === "versions" && <VersionList detail={detail} />}
+            {tab === "versions" && <><VersionList detail={detail} /><ImportHistory key={`${detail.id}:${detail.revision}`} dossierId={detail.id} revision={detail.revision} onUnavailable={failure => { clearPrivate(failure.status !== 404); setError(failure.message); }} /></>}
           </div><footer className={styles.materialFooter}><span>{dirty ? "有未保存修改" : detail.missing.length ? `${detail.missing.length} 项待补充` : "资料已齐全"}</span>{dirty ? <span>保存后可核对新版本</span> : <Link href={`/library/review/${detail.version_id}?dossier=${detail.id}`}>核对本版资料<Glyph name="arrow" size={16} /></Link>}</footer></> : <div className={styles.empty}><h2>资料内容</h2><p>题名、作者和原文会显示在这里。</p>{!loading && <button onClick={startNew}>新建资料</button>}</div>}
           </div>
           {sourcePreview && detail && <EvidencePanel snapshot={sourcePreview.snapshot} citation={sourcePreview.citation} currentVersionId={detail.version_id} onClose={() => { setSourcePreview(null); const trigger = citationTrigger.current; requestAnimationFrame(() => { if (trigger?.isConnected) trigger.focus({ preventScroll: true }); }); }} />}

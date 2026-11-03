@@ -211,11 +211,11 @@ def test_provenance_and_authorization_are_explicit_not_invented(client, login, d
     assert created["data"]["source_kind"] == "public_authorized"
 
 
-def test_material_authorization_and_human_ack_require_explicit_json_true(client, login, db):
+def test_material_authorization_and_human_ack_require_explicit_json_true(client, login, db, world):
     login()
     ready = save(client, create(client), file=upload())
     models = (Dossier, DossierVersion, DossierCheck, DossierTurn, ActionReceipt, AuditEvent)
-    before = {model: count(db, model) for model in models}
+    before = {model: count(db, model, journal_id=world.journal.id) for model in models}
     invalid_values = [False, None, 0, 1, 1.0, "true", "false", "1", [], {}]
     for path, field, payload in (
         (URL, "authorized_material", creation()),
@@ -226,7 +226,9 @@ def test_material_authorization_and_human_ack_require_explicit_json_true(client,
         for invalid in invalid_payloads:
             response = client.post(path, json=invalid)
             assert response.status_code == 422, response.text
-            assert {model: count(db, model) for model in models} == before
+            assert {
+                model: count(db, model, journal_id=world.journal.id) for model in models
+            } == before
     after = detail(client, ready["id"])
     assert after["verified"] is False and after["verification"] is None
     assert after["revision"] == ready["revision"]
@@ -234,7 +236,7 @@ def test_material_authorization_and_human_ack_require_explicit_json_true(client,
     # The same request remains usable: validation failure cannot create a receipt.
     response = client.post(f"{URL}/{ready['id']}/confirm", json=payload)
     assert response.status_code == 200, response.text
-    assert count(db, DossierCheck) == before[DossierCheck] + 1
+    assert count(db, DossierCheck, journal_id=world.journal.id) == before[DossierCheck] + 1
 
 
 @pytest.mark.parametrize("role", ["author", "reviewer"])
@@ -573,12 +575,19 @@ def test_database_cannot_rewrite_or_erase_version_and_check_evidence(client, log
 
 def test_complete_migration_chain_matches_all_metadata_and_empty_dossier_downgrade_is_safe():
     chain = list(reversed(list(migrations().walk_revisions(base="base", head="heads"))))
-    assert chain[-1].revision == "14a28dbe6175"
+    assert chain[-1].revision == "15b39ecf7286"
+    boundary = next(i for i, revision in enumerate(chain) if revision.revision == "13f17cad5064")
     dossier_tables = {
         Dossier.__tablename__,
         DossierVersion.__tablename__,
         DossierCheck.__tablename__,
         DossierTurn.__tablename__,
+    }
+    subsequent_tables = {
+        "publishing_dossier_answers",
+        "publishing_document_imports",
+        "publishing_document_approvals",
+        "publishing_document_sources",
     }
     with engine.connect() as connection:
         transaction = connection.begin()
@@ -588,24 +597,28 @@ def test_complete_migration_chain_matches_all_metadata_and_empty_dossier_downgra
             connection.execute(text(f'SET LOCAL search_path TO "{schema}"'))
             context = MigrationContext.configure(connection)
             with Operations.context(context):
-                for revision in chain[:-2]:
+                for revision in chain[:boundary]:
                     revision.module.upgrade()
                 prior_tables = set(inspect(connection).get_table_names())
-                assert prior_tables == set(Base.metadata.tables) - dossier_tables - {
-                    "publishing_dossier_answers"
-                }
-                chain[-2].module.upgrade()
-                assert set(inspect(connection).get_table_names()) == set(Base.metadata.tables) - {
-                    "publishing_dossier_answers"
-                }
-                chain[-1].module.upgrade()
+                assert (
+                    prior_tables == set(Base.metadata.tables) - dossier_tables - subsequent_tables
+                )
+                chain[boundary].module.upgrade()
+                assert (
+                    set(inspect(connection).get_table_names())
+                    == set(Base.metadata.tables) - subsequent_tables
+                )
+                for revision in chain[boundary + 1 :]:
+                    revision.module.upgrade()
                 assert set(inspect(connection).get_table_names()) == set(Base.metadata.tables)
                 assert compare_metadata(context, Base.metadata) == []
-                chain[-1].module.downgrade()
-                assert set(inspect(connection).get_table_names()) == set(Base.metadata.tables) - {
-                    "publishing_dossier_answers"
-                }
-                chain[-2].module.downgrade()
+                for revision in reversed(chain[boundary + 1 :]):
+                    revision.module.downgrade()
+                assert (
+                    set(inspect(connection).get_table_names())
+                    == set(Base.metadata.tables) - subsequent_tables
+                )
+                chain[boundary].module.downgrade()
                 assert set(inspect(connection).get_table_names()) == prior_tables
                 assert not dossier_tables & set(inspect(connection).get_table_names())
         finally:

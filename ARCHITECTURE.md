@@ -1,5 +1,13 @@
 # 架构
 
+## 文档导入与原件证据（spec015）
+
+`packages/document_ingest`在不继承服务凭据的受限子进程解析 PDF/DOCX，完整提取文字及Unicode页/段范围；资源限额不是OS沙箱。`document_store.py`使用独立私有二进制CAS保留≤5MiB原件，不放宽现有1MiB UTF8 FileObject。`document_candidates.py`向既有DeepSeek发送前14,000字符识别元数据，或明确Mock标签识别；值/原文quote逐字校验，通讯作者证据还须包含该人姓名。未知留空。全文提取与后续完整索引不受该元数据前部窗口截断。
+
+`document_imports.py`在Action Gateway中建立不可变DocumentImport；提取和网络共享60秒期限，完成后锁资料复核原身份/会话/基础revision。上传不升版。独立人类confirm再次复核原件、digest、完整最终表单，同一事务建立DossierVersion、DocumentApproval、DocumentSource和本版DossierCheck，避免重复确认同一快照。模型没有confirm工具。后续仅改元数据沿用原件来源但新版本不继承核对；显式换TXT则脱离原件关系。
+
+迁移15b39ecf7286新增三表（36字段、13命名约束）及原件引用guard；同包同刊复合外键、插入guard、历史不可改删/TRUNCATE和有历史拒绝回退。引用按实际quote与提取segments重叠绑定PDF页/Word提取段，metadata仅在当前字段及作者对应原候选时附原件来源。读取和最终保存重验原字节SHA、完整提取hash、版本digest与origin_digest。浏览器只下载原件，不嵌入运行主动内容。空结论/待确认/外部引用全为空的模型终答进入一次有界纠正，仍为空则明确失败，不再存为空成功回合。
+
 ## 版本证据问答（spec014）
 
 `dossier_chat.py`复用现有DeepSeek传输、60秒共享期限和一次仅推理重试；资料区模型工具仅为read_dossier、search_dossier、lookup_reference和respond，不注册编辑动作或人类确认。`dossier_evidence.py`扫描当前版全部实际正文与作者元数据，按Unicode码点建立有界分段；分页读取/全文检索返回本轮可引用source集合。每条claim至少引用一个已发放来源，quote必须逐字匹配；引用保留版本、digest、原文件SHA256、行号/字段路径和码点范围。长文只传必要片段，实际覆盖明确返回，不能从局部检索声称全文无其他问题。

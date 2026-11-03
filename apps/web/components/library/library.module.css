@@ -171,6 +171,27 @@
 }
 .materialView { display: flex; flex: 1; min-height: 0; min-width: 0; flex-direction: column; }
 .materialView[hidden] { display: none; }
+.importOverview { padding: 12px 20px; max-height: 180px; flex-shrink: 0; overflow: auto; overscroll-behavior: contain; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.importOverview > strong { margin-right: 12px; font-size: 14px; }
+.importOverview > p { margin: 8px 0 0; }
+.importTabs { display: flex; gap: 18px; padding-inline: 20px; border-bottom: 1px solid var(--line); flex-shrink: 0; }
+.importTabs [role="tab"] { padding: 9px 0; border: 0; border-bottom: 1px solid transparent; border-radius: 0; background: transparent; }
+.importTabs [aria-selected="true"] { color: var(--blue); border-bottom-color: var(--blue); }
+.importSource { border-top: 1px solid var(--line); padding-block: 12px; }
+.importSource button { text-align: left; }
+.importSource blockquote { margin: 10px 0 0; color: var(--muted); font-size: 13px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.original mark { color: inherit; background: #fff0a8; scroll-margin-block: 16px; }
+.original mark:focus { outline: 2px solid var(--blue); outline-offset: 2px; }
+.importHistory { margin: 0 20px 20px; }
+.importHistory > summary { cursor: pointer; margin-bottom: 12px; }
+.importHistory a { display: flex; flex-direction: column; gap: 4px; padding: 12px 0; border-top: 1px solid var(--line); overflow-wrap: anywhere; }
+.importHistory a span, .importHistory a small { color: var(--muted); font-size: 12px; }
+.documentOrigin { margin-block: 12px; font-size: 13px; overflow-wrap: anywhere; }
+.documentOrigin > p { margin: 0 0 8px; }
+.documentOrigin blockquote { margin: 12px 0; white-space: pre-wrap; color: var(--muted); }
+.materialHeader:has(> .documentImportButton) { flex-wrap: wrap; }
+.originalHeading { flex-wrap: wrap; }
+.originalHeading h2 { flex: 1 1 180px; min-width: 0; overflow-wrap: anywhere; }
 .claim { margin-block: 16px 22px; }
 .claim .answer { margin-bottom: 8px; }
 .citations { display: flex; flex-wrap: wrap; gap: 6px; }

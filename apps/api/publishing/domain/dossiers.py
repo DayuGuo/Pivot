@@ -343,6 +343,9 @@ def projection(db: Session, actor: Actor, dossier_id: str, version_id: str | Non
         .order_by(DossierTurn.created_at.desc(), DossierTurn.id.desc())
         .limit(50)
     ).all()
+    from .document_imports import source_projection
+
+    document = source_projection(db, row, item)
     status = editorial_model_status()
     return {
         "id": row.id,
@@ -356,6 +359,7 @@ def projection(db: Session, actor: Actor, dossier_id: str, version_id: str | Non
         if check
         else None,
         "data": data.model_dump(),
+        "document": document,
         "file": {
             "filename": item.file_name,
             "sha256": material[0].sha256,
@@ -568,6 +572,11 @@ def save_version(
         row.revision += 1
         row.current_version_id = item.id
         row.updated_at = now()
+        db.flush()
+        if body.file is None:
+            from .document_imports import inherit_source
+
+            inherit_source(db, row, old, item)
         event(db, actor, row, "version_saved", item.id)
         return {"dossier_id": row.id, "version_id": item.id}
 
@@ -611,6 +620,9 @@ def confirm(
         row = load(db, actor, target, write=True)
         current(row, body.expected_revision, str(body.version_id))
         item = version(db, row)
+        from .document_imports import source_projection
+
+        source_projection(db, row, item)
         material = file_content(db, item)
         actual_digest = snapshot_digest(
             item.data_json,

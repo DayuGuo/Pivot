@@ -24,6 +24,7 @@ from ..models import uid
 from ..security import Actor, get_actor
 from . import dossiers
 from .chat import failure_code, sanitized_telemetry, tool_schema
+from .document_imports import attach_document, source_projection
 from .dossier_chat_models import DossierAnswer
 from .dossier_evidence import EvidenceIndex, credential_like
 from .schemas import StrictInput
@@ -37,6 +38,7 @@ ERROR_CODES = frozenset(
         "dossier_tool_budget_exceeded",
         "dossier_response_required",
         "dossier_response_invalid",
+        "dossier_response_empty",
         "dossier_external_reference_invalid",
     }
 )
@@ -130,6 +132,7 @@ class Runtime:
         dossiers.current(row, body.expected_revision, str(body.version_id))
         self.item = dossiers.version(db, row)
         self.material = dossiers.file_content(db, self.item)
+        self.document = source_projection(db, row, self.item)
         self.file_sha256 = self.material[0].sha256 if self.material else None
         self.content_digest = self.item.content_digest
         self.data = self.item.data_json.copy()
@@ -234,6 +237,8 @@ class Runtime:
         return self.respond(arguments)
 
     def respond(self, arguments):
+        if not arguments.claims and not arguments.questions and not arguments.external_dois:
+            raise GatewayError("dossier_response_empty")
         claims = []
         for item in arguments.claims:
             if not self.index.coverage()["complete"] and re.search(
@@ -253,6 +258,7 @@ class Runtime:
                 )
                 for c in item.citations
             ]
+            citations = [attach_document(c, self.document, self.db, self.item) for c in citations]
             claims.append({"text": item.text, "citations": citations})
         refs = []
         for value in arguments.external_dois:
@@ -271,6 +277,9 @@ class Runtime:
     def finish(self):
         row = dossiers.load(self.db, self.actor, self.target, write=True)
         dossiers.current(row, self.body.expected_revision, str(self.body.version_id))
+        document = source_projection(self.db, row, self.item)
+        if document != self.document:
+            raise HTTPException(409, "原件来源已变化，请重新载入后提问")
         # Re-read actual CAS bytes after model/network and the write-lock wait.
         material = dossiers.file_content(self.db, self.item)
         actual_hash = material[0].sha256 if material else None
@@ -330,15 +339,16 @@ def run_model(runtime, provider, telemetry):
             "不可编造、不改写引文；正文quote至少8字。不足的信息写questions，不作无证据断言。"
             "每条结论至少有一个本地原文/作者字段引用。禁止在text/questions生成网址；"
             "外部文献必须先lookup_reference成功，再用external_dois输出，仅核验书目元数据，不等于读过全文或证实结论。"
-            "工具覆盖whole-file index，长文用search或read翻页，coverage未全不能宣称全文审阅。"
+            "工具覆盖whole-file index，长文用search或read翻页，coverage未全不能宣称全文审阅。PDF/DOCX输入只含提取文字，不得声称已检查图片、图表、公式或视觉版面。"
             "不能发邮件、代勾确认、提交、录用、拒稿、发表、改角色或执行任何业务决定；不得暗示已执行。"
-            "最终必须调用respond，通常2次模型调用内完成，最多3轮。最多3条简短结论，每条text和quote尽量不超过120字，澄清问题最多2条。简洁回答中文问题。"
+            "文字定位问题也应给出有引文的简短文字事实；资料不足用questions说明具体缺项，不能完全空答。最终必须调用respond，通常2次模型调用内完成，最多3轮。最多3条简短结论，每条text和quote尽量不超过120字，澄清问题最多2条。简洁回答中文问题。"
             + json.dumps(
                 {
                     "role": runtime.actor.role,
                     "version_no": runtime.item.version_no,
                     "total_chunks": len(runtime.index.sources),
                     "fulltext_available": runtime.material is not None,
+                    "extraction_warnings": runtime.document["warnings"] if runtime.document else [],
                 },
                 ensure_ascii=False,
             ),
@@ -400,14 +410,18 @@ def run_model(runtime, provider, telemetry):
                     if (
                         name == "respond"
                         and error.args
-                        in {("dossier_evidence_invalid",), ("dossier_tool_arguments_invalid",)}
+                        in {
+                            ("dossier_evidence_invalid",),
+                            ("dossier_tool_arguments_invalid",),
+                            ("dossier_response_empty",),
+                        }
                         and runtime.index.issued
                         and corrections == 0
                         and round_no < 2
                     ):
                         corrections += 1
                         result = {
-                            "error": "请纠正后重新单独respond。参数必须严格匹配schema：claims每项仅text/citations，citations每项仅source_id/quote，questions和external_dois必须是数组，未知字段删除。source_id仅来自本轮，quote逐字复制，正文至少8字。",
+                            "error": "请纠正后重新单独respond。不能完全空答；文字定位请给简短事实和逐字引文，资料不足在questions具体说明。参数必须严格匹配schema：claims每项仅text/citations，citations每项仅source_id/quote，questions和external_dois必须是数组，未知字段删除。source_id仅来自本轮，quote逐字复制，正文至少8字。",
                             "issues": runtime.argument_issues,
                         }
                     else:

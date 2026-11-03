@@ -5768,6 +5768,29 @@
           "entity_type": "source"
         }
       ]
+    },
+    {
+      "id": "DB24",
+      "targets": [
+        "DocumentImport",
+        "DocumentApproval",
+        "DocumentSource"
+      ],
+      "adopted": "原件/完整提取与候选作为不可变私有导入提案，人类独立核对后才原子生成新Version/Approval/Source及DossierCheck；版本显式原件来源支撑页/段定位和元数据修改后的诚实出处。",
+      "rejected": "不上传即覆盖当前版，不让LLM批准、不把PDF/Word提取成功或ORCID格式提升为身份/科学真实性认证；不凭文本hash巧合推断原件，不嵌入执行主动内容，不把资源限额冒称OS沙箱。",
+      "intended_acceptance": "真实PDF/DOCX提取/候选/人工核对/幂等/原文来源、权限和字节损坏/并发保护、完整迁移与浏览器回归，真实DeepSeek另验；结果以PROGRESS为准。",
+      "source_refs": [
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+          "entity_type": "source"
+        },
+        {
+          "system": "janeway",
+          "source_id": "submission-model-fields.txt",
+          "entity_type": "source"
+        }
+      ]
     }
   ],
   "source_limitations": [
@@ -10185,6 +10208,550 @@
           "scope": "自有资料模型审阅的同包同刊版本及有界JSONB结果合同；不将模型结果升级为人类核对/正式出版决定，运行结果见PROGRESS"
         }
       ]
+    },
+    {
+      "class": "DocumentImport",
+      "module": "apps/api/publishing/domain/document_models.py",
+      "table": "publishing_document_imports",
+      "contract_source": "specs/015-document-import-review.md",
+      "slice": "human_reviewed_document_import",
+      "implementation_status": "implemented",
+      "migration_id": "15b39ecf7286",
+      "migration_status": "static_source_binding_only_runtime_verification_recorded_by_lead_in_PROGRESS",
+      "field_groups": [
+        {
+          "our_fields": [
+            "id",
+            "dossier_id",
+            "journal_id",
+            "base_version_id",
+            "base_revision",
+            "filename",
+            "media_type",
+            "byte_size",
+            "sha256",
+            "storage_key",
+            "extraction_json",
+            "proposed_data",
+            "field_sources",
+            "metadata_provider",
+            "metadata_model",
+            "telemetry_json",
+            "digest",
+            "created_by",
+            "created_at"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+              "entity_type": "source"
+            },
+            {
+              "system": "janeway",
+              "source_id": "submission-model-fields.txt",
+              "entity_type": "source"
+            }
+          ],
+          "origin": "project_governance",
+          "adaptation": "项目自有的私有原件/完整提取/自动候选、人类批准及版本原件来源关系；OJS/Janeway仅作为身份、文件、版本和出版事实分离的比较背景，不声称上游存在同名AI导入表或相同提取/人类确认保证。",
+          "migration_id": "15b39ecf7286"
+        }
+      ],
+      "our_fields": [
+        "id",
+        "dossier_id",
+        "journal_id",
+        "base_version_id",
+        "base_revision",
+        "filename",
+        "media_type",
+        "byte_size",
+        "sha256",
+        "storage_key",
+        "extraction_json",
+        "proposed_data",
+        "field_sources",
+        "metadata_provider",
+        "metadata_model",
+        "telemetry_json",
+        "digest",
+        "created_by",
+        "created_at"
+      ],
+      "constraints": [
+        {
+          "rule": "同包同刊基础版/批准/原件来源精确关系；原件与提取/候选/最终人工数据分别hash绑定；历史不可改删/TRUNCATE，SQL守卫验证现任负责人角色与来源一致性。",
+          "intended_acceptance": "上传不推进当前版；独立人工核对才原子新版本/批准/来源/资料核对；失效身份/版本/字节或嫁接不能保存，模型不获得邮件/关键决定权限。"
+        }
+      ],
+      "intended_acceptance": [
+        "spec015的真实文件提取、候选/核对、版本及原件定位、权限/会话/字节重验、幂等、故障回滚和浏览器验收，实际结果由Lead记录PROGRESS。",
+        "只读引文保留原PDF页或DOCX提取段，手改字段不伪装成自动原文；资源限额并非OS安全沙箱，不以元数据提案替代身份认证或负责人确认。"
+      ],
+      "current_baseline": {
+        "system": "current-system",
+        "source_id": "apps/api/publishing/models.py",
+        "entity_type": "class",
+        "entity": "Manuscript"
+      },
+      "source_binding": {
+        "path": "apps/api/publishing/domain/document_models.py",
+        "class_line": 20,
+        "fields": [
+          {
+            "name": "id",
+            "line": 42,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
+          },
+          {
+            "name": "dossier_id",
+            "line": 43,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "journal_id",
+            "line": 44,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "base_version_id",
+            "line": 45,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "base_revision",
+            "line": 46,
+            "annotation": "Mapped[int]",
+            "declaration": "mapped_column(Integer)"
+          },
+          {
+            "name": "filename",
+            "line": 47,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(255))"
+          },
+          {
+            "name": "media_type",
+            "line": 48,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(100))"
+          },
+          {
+            "name": "byte_size",
+            "line": 49,
+            "annotation": "Mapped[int]",
+            "declaration": "mapped_column(Integer)"
+          },
+          {
+            "name": "sha256",
+            "line": 50,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "storage_key",
+            "line": 51,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(80))"
+          },
+          {
+            "name": "extraction_json",
+            "line": 52,
+            "annotation": "Mapped[dict]",
+            "declaration": "mapped_column(JSONB)"
+          },
+          {
+            "name": "proposed_data",
+            "line": 53,
+            "annotation": "Mapped[dict]",
+            "declaration": "mapped_column(JSONB)"
+          },
+          {
+            "name": "field_sources",
+            "line": 54,
+            "annotation": "Mapped[list]",
+            "declaration": "mapped_column(JSONB)"
+          },
+          {
+            "name": "metadata_provider",
+            "line": 55,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(20))"
+          },
+          {
+            "name": "metadata_model",
+            "line": 56,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(100))"
+          },
+          {
+            "name": "telemetry_json",
+            "line": 57,
+            "annotation": "Mapped[list]",
+            "declaration": "mapped_column(JSONB)"
+          },
+          {
+            "name": "digest",
+            "line": 58,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "created_by",
+            "line": 59,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
+          },
+          {
+            "name": "created_at",
+            "line": 60,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True), default=now)"
+          }
+        ],
+        "table_args": {
+          "line": 22,
+          "declaration": "(UniqueConstraint('id', 'dossier_id', 'journal_id', name='uq_document_import_tenant'), ForeignKeyConstraint(['base_version_id', 'dossier_id', 'journal_id'], ['publishing_dossier_versions.id', 'publishing_dossier_versions.dossier_id', 'publishing_dossier_versions.journal_id'], name='fk_document_import_base'), CheckConstraint(\"base_revision>=1 AND byte_size BETWEEN 1 AND 5242880 AND sha256 ~ '^[0-9a-f]{64}$' AND digest ~ '^[0-9a-f]{64}$'\", name='ck_document_import_shape'), CheckConstraint(\"media_type IN ('application/pdf','application/vnd.openxmlformats-officedocument.wordprocessingml.document') AND jsonb_typeof(extraction_json)='object' AND jsonb_typeof(proposed_data)='object' AND jsonb_typeof(field_sources)='array' AND metadata_provider IN ('mock','deepseek')\", name='ck_document_import_content'))"
+        }
+      },
+      "field_revision_bindings": {
+        "id": "15b39ecf7286",
+        "dossier_id": "15b39ecf7286",
+        "journal_id": "15b39ecf7286",
+        "base_version_id": "15b39ecf7286",
+        "base_revision": "15b39ecf7286",
+        "filename": "15b39ecf7286",
+        "media_type": "15b39ecf7286",
+        "byte_size": "15b39ecf7286",
+        "sha256": "15b39ecf7286",
+        "storage_key": "15b39ecf7286",
+        "extraction_json": "15b39ecf7286",
+        "proposed_data": "15b39ecf7286",
+        "field_sources": "15b39ecf7286",
+        "metadata_provider": "15b39ecf7286",
+        "metadata_model": "15b39ecf7286",
+        "telemetry_json": "15b39ecf7286",
+        "digest": "15b39ecf7286",
+        "created_by": "15b39ecf7286",
+        "created_at": "15b39ecf7286"
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "15b39ecf7286",
+          "names": [
+            "uq_document_import_tenant",
+            "fk_document_import_base",
+            "ck_document_import_shape",
+            "ck_document_import_content"
+          ],
+          "scope": "自有文档导入提案、人类批准及版本原件来源合同；静态绑定不代替运行验证"
+        }
+      ]
+    },
+    {
+      "class": "DocumentApproval",
+      "module": "apps/api/publishing/domain/document_models.py",
+      "table": "publishing_document_approvals",
+      "contract_source": "specs/015-document-import-review.md",
+      "slice": "human_reviewed_document_import",
+      "implementation_status": "implemented",
+      "migration_id": "15b39ecf7286",
+      "migration_status": "static_source_binding_only_runtime_verification_recorded_by_lead_in_PROGRESS",
+      "field_groups": [
+        {
+          "our_fields": [
+            "id",
+            "import_id",
+            "dossier_id",
+            "journal_id",
+            "version_id",
+            "reviewed_data",
+            "digest",
+            "reviewer_id",
+            "session_hash",
+            "created_at"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+              "entity_type": "source"
+            },
+            {
+              "system": "janeway",
+              "source_id": "submission-model-fields.txt",
+              "entity_type": "source"
+            }
+          ],
+          "origin": "project_governance",
+          "adaptation": "项目自有的私有原件/完整提取/自动候选、人类批准及版本原件来源关系；OJS/Janeway仅作为身份、文件、版本和出版事实分离的比较背景，不声称上游存在同名AI导入表或相同提取/人类确认保证。",
+          "migration_id": "15b39ecf7286"
+        }
+      ],
+      "our_fields": [
+        "id",
+        "import_id",
+        "dossier_id",
+        "journal_id",
+        "version_id",
+        "reviewed_data",
+        "digest",
+        "reviewer_id",
+        "session_hash",
+        "created_at"
+      ],
+      "constraints": [
+        {
+          "rule": "同包同刊基础版/批准/原件来源精确关系；原件与提取/候选/最终人工数据分别hash绑定；历史不可改删/TRUNCATE，SQL守卫验证现任负责人角色与来源一致性。",
+          "intended_acceptance": "上传不推进当前版；独立人工核对才原子新版本/批准/来源/资料核对；失效身份/版本/字节或嫁接不能保存，模型不获得邮件/关键决定权限。"
+        }
+      ],
+      "intended_acceptance": [
+        "spec015的真实文件提取、候选/核对、版本及原件定位、权限/会话/字节重验、幂等、故障回滚和浏览器验收，实际结果由Lead记录PROGRESS。",
+        "只读引文保留原PDF页或DOCX提取段，手改字段不伪装成自动原文；资源限额并非OS安全沙箱，不以元数据提案替代身份认证或负责人确认。"
+      ],
+      "current_baseline": {
+        "system": "current-system",
+        "source_id": "apps/api/publishing/models.py",
+        "entity_type": "class",
+        "entity": "Manuscript"
+      },
+      "source_binding": {
+        "path": "apps/api/publishing/domain/document_models.py",
+        "class_line": 63,
+        "fields": [
+          {
+            "name": "id",
+            "line": 94,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
+          },
+          {
+            "name": "import_id",
+            "line": 95,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "dossier_id",
+            "line": 96,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "journal_id",
+            "line": 97,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "version_id",
+            "line": 98,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "reviewed_data",
+            "line": 99,
+            "annotation": "Mapped[dict]",
+            "declaration": "mapped_column(JSONB)"
+          },
+          {
+            "name": "digest",
+            "line": 100,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "reviewer_id",
+            "line": 101,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
+          },
+          {
+            "name": "session_hash",
+            "line": 102,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "created_at",
+            "line": 103,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True), default=now)"
+          }
+        ],
+        "table_args": {
+          "line": 65,
+          "declaration": "(UniqueConstraint('import_id', name='uq_document_approved_import'), UniqueConstraint('version_id', name='uq_document_approved_version'), UniqueConstraint('id', 'import_id', 'dossier_id', 'journal_id', name='uq_document_approval_tenant'), ForeignKeyConstraint(['import_id', 'dossier_id', 'journal_id'], ['publishing_document_imports.id', 'publishing_document_imports.dossier_id', 'publishing_document_imports.journal_id'], name='fk_document_approval_import'), ForeignKeyConstraint(['version_id', 'dossier_id', 'journal_id'], ['publishing_dossier_versions.id', 'publishing_dossier_versions.dossier_id', 'publishing_dossier_versions.journal_id'], name='fk_document_approval_version'), CheckConstraint(\"digest ~ '^[0-9a-f]{64}$' AND jsonb_typeof(reviewed_data)='object'\", name='ck_document_approval_snapshot'))"
+        }
+      },
+      "field_revision_bindings": {
+        "id": "15b39ecf7286",
+        "import_id": "15b39ecf7286",
+        "dossier_id": "15b39ecf7286",
+        "journal_id": "15b39ecf7286",
+        "version_id": "15b39ecf7286",
+        "reviewed_data": "15b39ecf7286",
+        "digest": "15b39ecf7286",
+        "reviewer_id": "15b39ecf7286",
+        "session_hash": "15b39ecf7286",
+        "created_at": "15b39ecf7286"
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "15b39ecf7286",
+          "names": [
+            "uq_document_approved_import",
+            "uq_document_approved_version",
+            "uq_document_approval_tenant",
+            "fk_document_approval_import",
+            "fk_document_approval_version",
+            "ck_document_approval_snapshot"
+          ],
+          "scope": "自有文档导入提案、人类批准及版本原件来源合同；静态绑定不代替运行验证"
+        }
+      ]
+    },
+    {
+      "class": "DocumentSource",
+      "module": "apps/api/publishing/domain/document_models.py",
+      "table": "publishing_document_sources",
+      "contract_source": "specs/015-document-import-review.md",
+      "slice": "human_reviewed_document_import",
+      "implementation_status": "implemented",
+      "migration_id": "15b39ecf7286",
+      "migration_status": "static_source_binding_only_runtime_verification_recorded_by_lead_in_PROGRESS",
+      "field_groups": [
+        {
+          "our_fields": [
+            "version_id",
+            "dossier_id",
+            "journal_id",
+            "import_id",
+            "approval_id",
+            "origin_digest",
+            "created_at"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+              "entity_type": "source"
+            },
+            {
+              "system": "janeway",
+              "source_id": "submission-model-fields.txt",
+              "entity_type": "source"
+            }
+          ],
+          "origin": "project_governance",
+          "adaptation": "项目自有的私有原件/完整提取/自动候选、人类批准及版本原件来源关系；OJS/Janeway仅作为身份、文件、版本和出版事实分离的比较背景，不声称上游存在同名AI导入表或相同提取/人类确认保证。",
+          "migration_id": "15b39ecf7286"
+        }
+      ],
+      "our_fields": [
+        "version_id",
+        "dossier_id",
+        "journal_id",
+        "import_id",
+        "approval_id",
+        "origin_digest",
+        "created_at"
+      ],
+      "constraints": [
+        {
+          "rule": "同包同刊基础版/批准/原件来源精确关系；原件与提取/候选/最终人工数据分别hash绑定；历史不可改删/TRUNCATE，SQL守卫验证现任负责人角色与来源一致性。",
+          "intended_acceptance": "上传不推进当前版；独立人工核对才原子新版本/批准/来源/资料核对；失效身份/版本/字节或嫁接不能保存，模型不获得邮件/关键决定权限。"
+        }
+      ],
+      "intended_acceptance": [
+        "spec015的真实文件提取、候选/核对、版本及原件定位、权限/会话/字节重验、幂等、故障回滚和浏览器验收，实际结果由Lead记录PROGRESS。",
+        "只读引文保留原PDF页或DOCX提取段，手改字段不伪装成自动原文；资源限额并非OS安全沙箱，不以元数据提案替代身份认证或负责人确认。"
+      ],
+      "current_baseline": {
+        "system": "current-system",
+        "source_id": "apps/api/publishing/models.py",
+        "entity_type": "class",
+        "entity": "Manuscript"
+      },
+      "source_binding": {
+        "path": "apps/api/publishing/domain/document_models.py",
+        "class_line": 106,
+        "fields": [
+          {
+            "name": "version_id",
+            "line": 130,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), primary_key=True)"
+          },
+          {
+            "name": "dossier_id",
+            "line": 131,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "journal_id",
+            "line": 132,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "import_id",
+            "line": 133,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "approval_id",
+            "line": 134,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "origin_digest",
+            "line": 135,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "created_at",
+            "line": 136,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True), default=now)"
+          }
+        ],
+        "table_args": {
+          "line": 108,
+          "declaration": "(CheckConstraint(\"origin_digest ~ '^[0-9a-f]{64}$'\", name='ck_document_source_digest'), ForeignKeyConstraint(['version_id', 'dossier_id', 'journal_id'], ['publishing_dossier_versions.id', 'publishing_dossier_versions.dossier_id', 'publishing_dossier_versions.journal_id'], name='fk_document_source_version'), ForeignKeyConstraint(['approval_id', 'import_id', 'dossier_id', 'journal_id'], ['publishing_document_approvals.id', 'publishing_document_approvals.import_id', 'publishing_document_approvals.dossier_id', 'publishing_document_approvals.journal_id'], name='fk_document_source_approval'))"
+        }
+      },
+      "field_revision_bindings": {
+        "version_id": "15b39ecf7286",
+        "dossier_id": "15b39ecf7286",
+        "journal_id": "15b39ecf7286",
+        "import_id": "15b39ecf7286",
+        "approval_id": "15b39ecf7286",
+        "origin_digest": "15b39ecf7286",
+        "created_at": "15b39ecf7286"
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "15b39ecf7286",
+          "names": [
+            "ck_document_source_digest",
+            "fk_document_source_version",
+            "fk_document_source_approval"
+          ],
+          "scope": "自有文档导入提案、人类批准及版本原件来源合同；静态绑定不代替运行验证"
+        }
+      ]
     }
   ],
   "additional_contracts": [
@@ -10266,6 +10833,17 @@
       "migration_id": "14a28dbe6175",
       "new_models": {
         "DossierAnswer": "publishing_dossier_answers"
+      },
+      "extended_fields": {},
+      "extended_constraints": {}
+    },
+    {
+      "path": "specs/015-document-import-review.md",
+      "migration_id": "15b39ecf7286",
+      "new_models": {
+        "DocumentImport": "publishing_document_imports",
+        "DocumentApproval": "publishing_document_approvals",
+        "DocumentSource": "publishing_document_sources"
       },
       "extended_fields": {},
       "extended_constraints": {}
@@ -10534,6 +11112,48 @@
           "sha256": "2d8c4958f41726d51e1a026f4524a6815186408feaeafb8fd9b25b912f7eb3c7"
         }
       ]
+    },
+    {
+      "revision": "15b39ecf7286",
+      "down_revision": "14a28dbe6175",
+      "path": "infrastructure/migrations/versions/15b39ecf7286_document_import_review.py",
+      "sha256": "0743a655f1d1a8c104d8c1496f8e379a0f5f81851616bb6ec7501a8512235973",
+      "validation_scope": "Static migration/field/constraint/function binding only. Actual parser/API/database/browser/provider results are recorded by Lead in PROGRESS; this mapping is not execution evidence.",
+      "sql_functions": [
+        "publishing_document_insert_guard",
+        "publishing_document_answer_guard"
+      ],
+      "deferred_triggers": [],
+      "row_triggers": [],
+      "truncate_triggers": [
+        {
+          "name": "document_import_truncate",
+          "table": "publishing_document_imports",
+          "function": "publishing_dossier_immutable"
+        },
+        {
+          "name": "document_approval_truncate",
+          "table": "publishing_document_approvals",
+          "function": "publishing_dossier_immutable"
+        },
+        {
+          "name": "document_source_truncate",
+          "table": "publishing_document_sources",
+          "function": "publishing_dossier_immutable"
+        }
+      ],
+      "sql_function_fingerprints": [
+        {
+          "name": "publishing_document_insert_guard",
+          "normalization": "strip_and_create_or_replace",
+          "sha256": "776bf4b9a471f4656071d645fea111a64e2049fa3a86bb79be4d274e1c2ce8b4"
+        },
+        {
+          "name": "publishing_document_answer_guard",
+          "normalization": "strip_and_create_or_replace",
+          "sha256": "83daa69973b6052da8b5f2d61af5e0631b45c81ec866986ae0aeff37819f6cb2"
+        }
+      ]
     }
   ],
   "implementation_helper_bindings": [
@@ -10564,18 +11184,18 @@
       "date": "2026-11-03",
       "suite": "tests/api/test_production_models.py",
       "observed_passed": 53,
-      "elapsed_seconds": 36.638,
+      "elapsed_seconds": 38.157,
       "warnings": [
         "existing Starlette/httpx deprecation"
       ],
-      "scope": "isolated immutable production contracts and complete-head metadata including 14a grounded dossier answers; this XML jointly records 53 production-model and 28 intake cases (81 total), not 81 production cases; not browser or real-model or full Goal acceptance",
+      "scope": "53 production contracts and complete-head zero-drift with 15b document imports; report also includes 28 successful intake tests",
       "public_database_modified_by_component_agent": false,
-      "evidence_report": "artifacts/grounded-migration-regression.xml",
-      "report_sha256": "4314318281f1a16e18617925306eb31c91a01987077f0feba8e05be22a0d3697",
+      "evidence_report": "artifacts/document-migration-regression-final.xml",
+      "report_sha256": "94e3b2b65779c0762e9c3ab369d23029c06d54f38ab9a849247b5f74f08086d2",
       "report_availability": "ephemeral observed JUnit; recorded hash, not required by offline gate",
       "token_usage": null,
       "api_cost": null,
-      "suite_sha256": "f4817405e19c564a8d4ad97e411b4a758f10e450c57ae0a1794e324e09956e26",
+      "suite_sha256": "24c3238ac484333e8cc1d4bca2ec32afb39db9552f7fc52a59bb654a473da503",
       "migration_id": "12e06b9c4f53",
       "required_test_functions": [
         "test_complete_chain_metadata_has_zero_drift",
@@ -10598,10 +11218,91 @@
       "verification_policy": "offline gate checks suite source hash/functions and declared observed report metadata; it does not execute or claim to reverify PostgreSQL tests",
       "previous_observation": {
         "date": "2026-11-03",
+        "suite": "tests/api/test_production_models.py",
         "observed_passed": 53,
-        "elapsed_seconds": 37.1,
-        "suite_sha256": "e13ceee2ee15e796179d3831d6e4d96d5f2e3c29438fbd656a1104d174ef7d11",
-        "report_sha256": "886412120ee6e380c3768958be85f91f636573826c31bb0881b48571e86c1fe8"
+        "elapsed_seconds": 36.638,
+        "warnings": [
+          "existing Starlette/httpx deprecation"
+        ],
+        "scope": "isolated immutable production contracts and complete-head metadata including 14a grounded dossier answers; this XML jointly records 53 production-model and 28 intake cases (81 total), not 81 production cases; not browser or real-model or full Goal acceptance",
+        "public_database_modified_by_component_agent": false,
+        "evidence_report": "artifacts/grounded-migration-regression.xml",
+        "report_sha256": "4314318281f1a16e18617925306eb31c91a01987077f0feba8e05be22a0d3697",
+        "report_availability": "ephemeral observed JUnit; recorded hash, not required by offline gate",
+        "token_usage": null,
+        "api_cost": null,
+        "suite_sha256": "f4817405e19c564a8d4ad97e411b4a758f10e450c57ae0a1794e324e09956e26",
+        "migration_id": "12e06b9c4f53",
+        "required_test_functions": [
+          "test_complete_chain_metadata_has_zero_drift",
+          "test_approved_local_preview_binds_same_immutable_package",
+          "test_corrections_allow_restore_older_bytes_not_same_previous",
+          "test_send_requires_exact_snapshot_and_declarations",
+          "test_proof_requires_local_same_journal_validated_text",
+          "test_send_requires_actual_production_role_and_assignment",
+          "test_current_role_reassignment_is_permitted_without_old_accept_person_binding",
+          "test_author_must_review_exact_package",
+          "test_package_only_one_author_response",
+          "test_new_package_requires_exact_returned_predecessor",
+          "test_preview_requires_approved_unchanged_local_package",
+          "test_all_production_history_is_immutable",
+          "test_downgrade_refuses_actual_proof_history",
+          "test_production_db_conflict_checks_historical_author_email",
+          "test_f_confirmation_must_bind_exact_current_workflow"
+        ],
+        "reproducible_command": "DATABASE_URL=<isolated-test-db> PYTHONPATH=. .venv/bin/pytest tests/api/test_production_models.py tests/api/test_dossiers.py -q --junitxml=<local-report>",
+        "verification_policy": "offline gate checks suite source hash/functions and declared observed report metadata; it does not execute or claim to reverify PostgreSQL tests",
+        "prior_observations": [
+          {
+            "date": "2026-11-03",
+            "suite": "tests/api/test_production_models.py",
+            "observed_passed": 53,
+            "elapsed_seconds": 34.96,
+            "warnings": [
+              "existing Starlette/httpx deprecation"
+            ],
+            "scope": "isolated immutable production contracts and complete-head metadata including 13f dossier migration; historical F fixture remains unchanged; not browser or full Goal acceptance",
+            "public_database_modified_by_component_agent": false,
+            "evidence_report": "artifacts/dossier-production-regression.xml",
+            "report_sha256": "a58ba45eecf7b9aa1b5ace8eba51a1b1b74e7a39f557d19635c1407f94e2bd2b",
+            "report_availability": "ephemeral observed JUnit; recorded hash, not required by offline gate",
+            "token_usage": null,
+            "api_cost": null,
+            "suite_sha256": "55620739c439b4140b51866364c761b381d09616605312474fcca571a9525192",
+            "migration_id": "12e06b9c4f53",
+            "required_test_functions": [
+              "test_complete_chain_metadata_has_zero_drift",
+              "test_approved_local_preview_binds_same_immutable_package",
+              "test_corrections_allow_restore_older_bytes_not_same_previous",
+              "test_send_requires_exact_snapshot_and_declarations",
+              "test_proof_requires_local_same_journal_validated_text",
+              "test_send_requires_actual_production_role_and_assignment",
+              "test_current_role_reassignment_is_permitted_without_old_accept_person_binding",
+              "test_author_must_review_exact_package",
+              "test_package_only_one_author_response",
+              "test_new_package_requires_exact_returned_predecessor",
+              "test_preview_requires_approved_unchanged_local_package",
+              "test_all_production_history_is_immutable",
+              "test_downgrade_refuses_actual_proof_history",
+              "test_production_db_conflict_checks_historical_author_email",
+              "test_f_confirmation_must_bind_exact_current_workflow"
+            ],
+            "reproducible_command": "DATABASE_URL=<isolated-test-db> PYTHONPATH=. .venv/bin/pytest tests/api/test_production_models.py -q --junitxml=<local-report>",
+            "verification_policy": "offline gate checks suite source hash/functions and declared observed report metadata; it does not execute or claim to reverify PostgreSQL tests",
+            "previous_observation": {
+              "date": "2026-11-03",
+              "observed_passed": 53,
+              "elapsed_seconds": 37.1,
+              "suite_sha256": "e13ceee2ee15e796179d3831d6e4d96d5f2e3c29438fbd656a1104d174ef7d11",
+              "report_sha256": "886412120ee6e380c3768958be85f91f636573826c31bb0881b48571e86c1fe8"
+            }
+          }
+        ],
+        "elapsed_basis": "sum of the 53 JUnit testcase time attributes with classname=tests.api.test_production_models; not a standalone wall-clock duration",
+        "report_suite_counts": {
+          "tests.api.test_production_models": 53,
+          "tests.api.test_dossiers": 28
+        }
       },
       "prior_observations": [
         {
@@ -10649,7 +11350,7 @@
           }
         }
       ],
-      "elapsed_basis": "sum of the 53 JUnit testcase time attributes with classname=tests.api.test_production_models; not a standalone wall-clock duration",
+      "elapsed_basis": "sum of 53 production testcase time attributes in an actually executed 81-case combined run (48.55s wall); not a standalone wall-clock duration",
       "report_suite_counts": {
         "tests.api.test_production_models": 53,
         "tests.api.test_dossiers": 28

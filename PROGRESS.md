@@ -1,5 +1,17 @@
 # 开发状态
 
+## 最新增量：2026-11-03，PDF/Word导入、人工核对与原件定位
+
+spec015已本地实现：文本层PDF/.docx原件私有CAS、完整提取和页/段映射、DeepSeek或明确Mock元数据候选、独立负责人补齐核对后一次建立新Version/Approval/Source/DossierCheck；上传不升版，模型没有确认工具。三新表36字段13命名约束、15b迁移、不可变历史与来源映射已登记；主库及隔离库已升级且check无漂移。只改元数据继承原件而新版本待核对，换TXT脱离来源；手改字段不伪造旧来源。
+
+71解析、42导入API、54问答、18相关UI专项实际通过，最新迁移相关81项实际通过48.55秒。**最终串行scripts/verify.sh实际退出0：1112 Pytest（381.04秒）＋66 Playwright（2.0m）**。研究映射/架构边界、Ruff/ESLint/TypeScript、完整迁移/结构及准确前后端构建通过，证据artifacts/document-import-full-verify-delivery.log、pytest.xml。4条警告为Starlette兼容、恶意fixture add_js弃用、两条Alembic配置弃用；不影响通过，未删测试。此前1109+66为历史检查点。
+
+真实DeepSeek PDF/DOCX各完整API通过（4.198/4.388秒）：2作者/14候选来源、原字节准确、上传未升版、测试驱动模拟演示负责人确认v2、幂等重放、QA尾标记PDF页2与Word提取段23。另真实Chromium两格式均通过精确引用/刷新/375px，页面错误0、发信/决定/确认请求0。实际重启API/Web后同登录会话完整投影/导入/原件逐字节相等，provider仍deepseek。证据artifacts/document-import-live.json、document-import-live-browser.json及document-import-live-restart.json。
+
+首轮PDF2次HTTP成功但候选校验失败未落库；补安全诊断/更明确原文规则后两格式成功，不推断原先唯一错误字段。浏览器实测模型空终答曾存1条历史无结论，新增一次预算内纠正、再次空则明确失败/不存回合，3回归覆盖；历史不篡改。遥测含失败与脚本重试：16 attempts均HTTP成功，32,911输入/3,255输出tokens，费用null；3合成资料中2完成导入/6问答（含上述历史空回合）/1失败导入。原生委派未知消耗留null，未宣称DeepSeek原生子Agent。
+
+最终阶段旧布尔测试因Lead重叠运行同验证栈E2E，全局回执/审计计数受其他期刊写入干扰，1111过/1失败；改为按测试期刊隔离计数，保留全部422/业务状态断言，28项重新通过后全量串行重跑。没有删除测试或已有数据。真实邮件和编辑决定计数未变，EMAIL_SEND_ENABLED=false；仅合成授权材料，不改主模型/全局认证，不连接VPS，公网静态Demo未更新。文本层限制/无OCR/复杂结构拒绝/专业复核关口见docs/development/document-import-review.md；此为私有资料区增量，不等于正式投稿也支持多格式。
+
 ## 最新增量：2026-11-03，资料区真实DeepSeek与逐字证据已验收
 
 spec014已落地并更新本机`/library`：以当前保存版本的全文/作者信息为范围，通过read_dossier/search_dossier/lookup_reference/respond四个只读工具生成结论；每条claim至少有一条后端逐字校验的本轮来源引用，可点击定位原文行/作者字段，Unicode码点、版本digest与原文件SHA256均复核。长稿完整索引、有限读取，明确显示实际覆盖；未完整覆盖拒绝明确虚假的“已通读”句，无全文只按元数据回答。结论仍须人工复核，不把准确引用当作科学结论已被证实。

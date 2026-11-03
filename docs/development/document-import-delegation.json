@@ -1,0 +1,42 @@
+{
+  "scope": "spec015 synthetic document import",
+  "native_agents": [
+    {
+      "task": "document_parser",
+      "scope": "packages/document_ingest, parser fixtures/tests, research/spec/mapping",
+      "success": true,
+      "input_tokens": null,
+      "output_tokens": null,
+      "cost_usd": null,
+      "duration_ms": null,
+      "rework": "parser limits and supported relationship refinements; final 71 parser cases passed"
+    },
+    {
+      "task": "document_import_ui",
+      "scope": "library import UI and E2E; separate component files",
+      "success": true,
+      "input_tokens": null,
+      "output_tokens": null,
+      "cost_usd": null,
+      "duration_ms": null,
+      "rework": "API contract and exact citation locators aligned; final 18 targeted browser cases passed"
+    },
+    {
+      "task": "document_import_tests",
+      "scope": "import API and empty-answer regression tests",
+      "success": true,
+      "input_tokens": null,
+      "output_tokens": null,
+      "cost_usd": null,
+      "duration_ms": null,
+      "rework": "exact schema and missing metadata/approval cases; final 42 import and 54 QA cases passed"
+    }
+  ],
+  "lead_owned": "backend schema, permissions/gateway, integration, actual DeepSeek, full verification and delivery",
+  "unknown_metrics_reason": "native per-agent usage/cost/duration not exposed; not inferred from wall time or tool count",
+  "deepseek_runtime_evidence": [
+    "artifacts/document-import-live.json",
+    "artifacts/document-import-live-browser.json"
+  ],
+  "native_cross_provider_subagent_verified": false
+}
