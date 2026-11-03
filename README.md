@@ -5,6 +5,8 @@
 ## 先体验产品 Demo
 
 ```bash
+git clone https://github.com/DayuGuo/Pivot.git
+cd Pivot
 ./scripts/demo.sh
 ```
 
@@ -19,7 +21,7 @@
 
 **这是明确标记的模拟交互，使用合成稿件与当前浏览器存储，不调用模型或业务API，不发送邮件，不作正式决定。** 新导入资料不冒充已被AI分析，ORCID手填不等于认证；真实可运行的后端样本另见下方 `/publishing`。
 
-已定名 **Pivot**（原Publishing OS）。[GitHub Releases部署包](https://github.com/DayuGuo/Pivot/releases)将提供`pivot-vps-linux-amd64.tar.gz`，含离线镜像、静态网页、安装器和校验和。解压后：
+已定名 **Pivot**（原Publishing OS）。[GitHub Releases部署包](https://github.com/DayuGuo/Pivot/releases/tag/v0.1.0-demo)已提供`pivot-vps-linux-amd64.tar.gz`，含离线镜像、静态网页、安装器和校验和。解压后：
 
 ```bash
 tar -xzf pivot-vps-linux-amd64.tar.gz
@@ -27,7 +29,7 @@ cd pivot-demo-linux-amd64
 bash install.sh
 ```
 
-前提为Linux amd64与Docker；默认监听环回8080，可通过HTTPS代理访问。明确需要公网IP直接演示时用`PIVOT_BIND=0.0.0.0 PIVOT_PORT=8080 bash install.sh`并自行放行端口。本机构建：`./scripts/build-demo.sh --image && ./scripts/package-vps-demo.sh`，VPS无需编译、数据库或模型密钥。[五分钟演示与完整安装说明](docs/deployment/demo-racknerd.md) · [本阶段范围](specs/012-showcase-demo.md) · [实际验证记录](docs/development/demo-delivery.md)。上传与CI最终结果见PROGRESS.md，尚未连接用户VPS。
+前提为Linux amd64与Docker；默认监听环回8080，可通过HTTPS代理访问。明确需要公网IP直接演示时用`PIVOT_BIND=0.0.0.0 PIVOT_PORT=8080 bash install.sh`并自行放行端口。本机构建：`./scripts/build-demo.sh --image && ./scripts/package-vps-demo.sh`，VPS无需编译、数据库或模型密钥。[五分钟演示与完整安装说明](docs/deployment/demo-racknerd.md) · [本阶段范围](specs/012-showcase-demo.md) · [实际验证记录](docs/development/demo-delivery.md)。源码与4个附件已公开发布，本地与远端完整CI均835 Pytest +48 Playwright通过，x86实际解包安装/11 E2E通过；发行报告见[公开发行验收](docs/development/pivot-release.md)。尚未连接用户VPS。
 
 核心产品设计：[PRODUCT_DESIGN.md](PRODUCT_DESIGN.md)。日历/双层对话当前只在独立Demo展示；真实数据库中的聚合、多身份、多刊邀请与邮箱/ORCID注册仍待实施，不能从截图推断上线。
 
@@ -39,7 +41,7 @@ Demo反馈后：[单人＋Codex单刊审阅第一阶段](specs/011-single-journa
 
 新真实业务入口 `/publishing`（登录后点“出版工作台”）；现有 `/workbench` 保留演示材料。新入口的作者资料、实际UTF8 txt/md文件、版本/任务和独立人工审核使用规范化数据库。AI只能整理候选/准备审核，不能确认提交、发信或作决定。F检查点完整验证已实际通过 **797后端+35浏览器**；同篇贯通投稿、评审、正式修回、V2录用、实际校样和鉴权本地预览。所有邮件仍禁用，整个Goal的状态以PROGRESS为准。
 
-真实v0.1基线为835 Pytest +35 Playwright；2026-11-03展示增量后的完整验证为 **835 Pytest +46 Playwright**，scripts/verify.sh退出0，静态检查、PostgreSQL迁移/结构检查及前后端构建通过。独立原生静态包另通过11项；amd64运行、VPS与远端CI未通过实际验收，边界见[展示交付记录](docs/development/demo-delivery.md)。既有新领域真实API **6/6（35.178秒）** 与实际浏览器通过；[恢复验收](docs/development/deepseek-recovery.md)与[代码复核](docs/development/v01-code-review.md)记录此前发现、修复及限制，本轮Demo未调用真实模型。
+真实v0.1基线为835 Pytest +35 Playwright；2026-11-03展示增量后的完整验证为 **835 Pytest +48 Playwright**，scripts/verify.sh退出0，静态检查、PostgreSQL迁移/结构检查及前后端构建通过。独立原生静态包另通过11项；amd64包已在真实x86 GitHub CI实际安装并通过11项验收，用户VPS未实装，边界见[展示交付记录](docs/development/demo-delivery.md)。既有新领域真实API **6/6（35.178秒）** 与实际浏览器通过；[恢复验收](docs/development/deepseek-recovery.md)与[代码复核](docs/development/v01-code-review.md)记录此前发现、修复及限制，本轮Demo未调用真实模型。
 
 验证新代码使用独立栈，保护当前主服务中的真实模型环境：
 

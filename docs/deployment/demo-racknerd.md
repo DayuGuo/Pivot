@@ -63,7 +63,7 @@ RackNerd洛杉矶到国内的实际体验取决于线路；公网部署前再从
 
 未来先在VPS执行 `uname -m` 确认：`x86_64`对应默认`linux/amd64`；如果是`aarch64`则在构建机执行 `DEMO_PLATFORM=linux/arm64 ./scripts/build-demo.sh --image`，使用`linux-arm64`包和标签。Node构建阶段使用构建机原生平台，只有Nginx运行层采用目标平台；不能把`docker load`成功当作架构可执行的证明。
 
-本机Docker为ARM64且不支持amd64执行仿真；本轮amd64包的构建、加载、manifest架构已验证，但试运行因`exec format error`退出，3112的11条浏览器测试均为连接拒绝，不算通过。本机原生版本及静态网页已通过11条验收。CI已定义在`ubuntu-latest` x86 runner加载离线包、检查health再运行相同11条，远端尚未执行；VPS亦未连接。
+历史检查点：本机Docker为ARM64，最初直接执行amd64镜像因`exec format error`失败，不能把当时构建/加载说成运行成功。Pivot发行现已在[真实x86 GitHub CI](https://github.com/DayuGuo/Pivot/actions/runs/41652918740)实际解包、校验、执行安装器、通过health及11条浏览器验收。Release附件采用该CI实际测试过的产物，非仅相同源码的本机构建。用户VPS仍未连接，不能据CI声称RackNerd实装或公网访问通过。
 
 使用已验证SSH目标传输镜像。在VPS有可用Docker的前提下加载并先监听本机环回，**不用在2.5 GB内存中编译**：
 

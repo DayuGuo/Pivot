@@ -1,8 +1,16 @@
 # 开发状态
 
-## 当前工作：2026-11-03，Pivot命名与公开发行
+## 最新交付：2026-11-03，Pivot公开仓库与VPS发行包
 
-用户已定名Pivot并选择公开仓库，已实际创建https://github.com/DayuGuo/Pivot；正在准备首个Demo Release，源码/包上传与CI尚待本条最终更新。界面/页面品牌与发行镜像/文件改名，保留既有DB/Compose/缓存身份。新增amd64解压即用安装包（镜像+静态网页+安装器+SHA256+中文说明），默认环回8080、显式公网参数、平台检查/已有容器拒绝覆盖/health。当前仍未连接VPS、未发邮件或改动真实模型配置。
+按用户明确授权，项目定名 **Pivot**，源码已公开至https://github.com/DayuGuo/Pivot，首个预发行版https://github.com/DayuGuo/Pivot/releases/tag/v0.1.0-demo 已发布。4附件：完整amd64 VPS包（约34 MiB）、离线镜像、架构无关静态网页和SHA256。安装器核对平台/文件/已有容器/health，默认环回8080，可显式公网绑定；不安装OS组件或修改防火墙。界面/页签/README/归档改名，旧DB/缓存/Compose身份保留兼容。
+
+**验收实际通过**：本机完整verify退出0，835 Pytest（350.82秒）+48 Playwright（1.7m）；远端全栈CI https://github.com/DayuGuo/Pivot/actions/runs/41654140553 成功，835 Pytest（356.30秒）+48 Playwright（1.6m）。x86部署CI https://github.com/DayuGuo/Pivot/actions/runs/41652918740 实际解压包/核对SHA256/执行安装器/health/11 E2E全部通过，独立静态入口另11/11；最新同运行源码e77380d静态CI41654140412也通过。
+
+发行附件来自成功x86 CI的确切产物，不是只同源码的本机候选。4项GitHub服务端digest/size/state已与CI文件一致；发布后匿名下载结果见docs/development/pivot-release.md。源码标记e77380d，后续仅验收文档更新；最后CI配置/test导入更改与部署运行源码无差异。没有上传.env、数据库、用户保密材料或运行日志。
+
+本轮修复：旧会话切换GET未完成立即刷新会恢复旧URL，改为请求前记住目标、失败回滚，新挂起/500两回归与原链共10/10通过。首个远端CI浅克隆缺历史基线，改fetch-depth:0保留门禁；随后fresh CI发现测试导入排序被本地Ruff缓存掩盖，已修复并在verify禁用静态缓存，fresh103文件检查与相关模块4测试通过，最终CI整链成功。保留失败日志，不把它们冒称通过。
+
+GitHub OAuth的workflow scope不足时使用已授权GitHub应用提交CI，再用同账号CLI传源码/二进制；没有修改全局认证或主模型配置。仓库/安装/限制见README、docs/deployment/demo-racknerd.md、docs/development/pivot-release.md。当前仍未连接用户RackNerd，不声称VPS实装/公网部署，邮件与重大决定权限不变。以下均为历史检查点。
 
 ## 最新交付：2026-11-03，本机GitHub展示Demo与安装包
 
