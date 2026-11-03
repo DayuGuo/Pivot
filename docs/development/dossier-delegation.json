@@ -1,0 +1,13 @@
+{
+  "date": "2026-11-03",
+  "executor": "native Codex subagents with disjoint file ownership",
+  "model_configuration_changed": false,
+  "deepseek_live_calls": 0,
+  "tasks": [
+    {"task":"intake_design_review","scope":"spec013, source mapping and historical D/E migration test boundaries","status":"delivered","rework":"lead rewrote static migration DDL to explicit Alembic AST; mapping revalidated","tokens":null,"api_cost":null,"elapsed_seconds":null},
+    {"task":"dossier_ui","scope":"isolated library components, routes and five browser tests","status":"delivered","rework":"kept idempotency key through refresh errors; made internal-only boundary visible on mobile; exposed author contributions in edit and independent review","tokens":null,"api_cost":null,"elapsed_seconds":null},
+    {"task":"dossier_tests","scope":"isolated API, SQL immutability, migration and authorization tests; read-only backend review","status":"delivered","rework":"full author defaults and current-object counts; strict boolean review prompted lead fix; added complete migration and blank-text regression","tokens":null,"api_cost":null,"elapsed_seconds":null}
+  ],
+  "delivered_task_ratio": "3/3",
+  "measurement_limits": "Native tools do not expose token usage, billed cost or task elapsed duration; null means unavailable, not zero. Test timings are recorded separately. No provider credentials or real model calls used. Lead owns backend, policy, integration and final acceptance."
+}

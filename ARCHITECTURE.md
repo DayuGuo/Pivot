@@ -1,5 +1,11 @@
 # 架构
 
+## 内部审阅资料包（spec013）
+
+`domain/dossiers.py`作为准备材料边界复用登录、Action Gateway与私有CAS。Dossier记录期刊、录入者、当前版与乐观锁修订；DossierVersion保存有序作者/机构/来源JSON快照和实际文件引用、原文件名、内容digest；DossierCheck绑定人工核对者、登录会话摘要及确切不可变版本；DossierTurn保存该版的规则问答。四表不创建Manuscript/SubmissionWorkflow，也不放宽author_draft权限。将来转为正式投稿必须另立明确映射与授权合同。
+
+所有变更经`core.run_action`，幂等重放重新检查资料对象权限；保存/核对/引导持同一资料行锁，并复核原会话身份。复合外键绑定期刊和资料版本，数据库触发器禁止历史UPDATE/DELETE/TRUNCATE、校验当前版本及核对人。文件内容复用期刊内SHA256存储，文件名/媒体类型留在每版快照，读取/确认时复核实际字节。13f迁移不依赖运行时模型导入。前端`/library`三栏保持中心对话；`/library/review/[versionId]?dossier=...`是独立的人工核对页，确认框每次进入默认未选。
+
 ## 独立展示面（spec012）
 
 `apps/web/components/demo`的同一套组件同时用于主Web的`/demo`和`infrastructure/demo/site`的静态首页。独立多阶段Docker只复制这套UI与图标，构建结果进Nginx；运行时无Node/FastAPI/PostgreSQL/密钥。浏览器localStorage是明确合成资料与私有本机演示状态，不是Publishing Domain Core。模型回答是预设规则，外部链接由开发时已核对的DOI记录提供，不做实时检索。修改被引用文字使旧引用提示失效；摘要和正文分别存储，编辑不截断正文。

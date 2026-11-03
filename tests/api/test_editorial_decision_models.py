@@ -567,6 +567,10 @@ def test_full_migration_metadata_and_safe_empty_downgrade(editorial_world):
         "publishing_proof_packages",
         "publishing_proof_responses",
         "publishing_publication_previews",
+        "publishing_dossiers",
+        "publishing_dossier_versions",
+        "publishing_dossier_checks",
+        "publishing_dossier_turns",
     }
     context = MigrationContext.configure(
         w.conn,

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "updated_date": "2026-11-03",
-  "scope": "Foundation14 + C1 + D4 + E3 + F3 =25 classes/323 fields. F adds immutable proof packages, original-author responses and authenticated local previews;53 isolated model/DDL tests passed. Full service/UI/Goal verification is maintained by lead in PROGRESS.md.",
+  "scope": "Foundation14 + C1 + D4 + E3 + F3 + internal dossier4 =29 classes/357 fields. Internal dossiers are private pre-submission preparation artifacts, with static source bindings only; runtime/service/browser verification is maintained by lead in PROGRESS.md. Existing C/D/E/F evidence is preserved.",
   "data_contract": "specs/007-data-contract.md",
   "source_manifests": {
     "ojs": "ojs/source-manifest.json",
@@ -15,7 +15,7 @@
     "current-system": "current-system/inventory.json"
   },
   "method": "Conceptual adaptation only. Upstream tables/classes/fields are verified against pinned static indexes; project_governance means no claimed upstream equivalent. Static indexes are not live DB DDL. No upstream code imported or executed.",
-  "migration_binding": "Foundation f8a12d4c6e90, C09b73e6a1c22, D10c84f7a2d31, E11d95a8b3e42. Columns/constraints/guard fingerprints are source bindings, not proof that unexecuted deployment or product flows are complete. F12e06b9c4f53 follows E11d95a8b3e42, with34 exact source-bound columns; preview is not public publication.",
+  "migration_binding": "Foundation f8a12d4c6e90, C09b73e6a1c22, D10c84f7a2d31, E11d95a8b3e42. Columns/constraints/guard fingerprints are source bindings, not proof that unexecuted deployment or product flows are complete. F12e06b9c4f53 follows E11d95a8b3e42, with34 exact source-bound columns; preview is not public publication. Internal preparation 13f17cad5064 follows12e06b9c4f53; four new governance tables do not change Manuscript or publishing workflow authority. Static binding is not execution evidence.",
   "models": [
     {
       "class": "Manuscript",
@@ -5723,6 +5723,30 @@
       ],
       "intended_acceptance": "复合FK绑定同稿/acceptedversion/package/response；local_only=true与严格人工声明，状态仍accepted",
       "status": "F_53_model_migration_tests_verified_lead_full_verification_in_PROGRESS"
+    },
+    {
+      "id": "DB22",
+      "targets": [
+        "Dossier",
+        "DossierVersion",
+        "DossierCheck",
+        "DossierTurn"
+      ],
+      "adopted": "独立私有预投稿资料artifact，复用CAS、认证、ActionReceipt和同事务审计；严格有界版本快照、人工核对与规则回合分表。",
+      "rejected": "不伪造author_id/作者账号、不扩author_draft、不创建第二套出版状态机；不把ORCID来源或人工核对当OAuth身份认证，不把规则引导称全文AI审阅。",
+      "intended_acceptance": "版本与原件跨刷新/重启恢复；creator+当前editor/chief+同刊授权；旧回合和核对固定原版、撤权后重放拒绝；完整验证结果由PROGRESS记录。",
+      "source_refs": [
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+          "entity_type": "source"
+        },
+        {
+          "system": "janeway",
+          "source_id": "submission-model-fields.txt",
+          "entity_type": "source"
+        }
+      ]
     }
   ],
   "source_limitations": [
@@ -9422,6 +9446,599 @@
         }
       ],
       "class": "PublicationPreview"
+    },
+    {
+      "class": "Dossier",
+      "module": "apps/api/publishing/domain/dossiers.py",
+      "table": "publishing_dossiers",
+      "contract_source": "specs/013-internal-review-dossiers.md",
+      "slice": "internal_dossier_preparation",
+      "implementation_status": "implemented",
+      "migration_id": "13f17cad5064",
+      "migration_status": "static_source_binding_only_runtime_verification_recorded_by_lead_in_PROGRESS",
+      "field_groups": [
+        {
+          "our_fields": [
+            "id",
+            "journal_id",
+            "created_by",
+            "revision",
+            "current_version_id",
+            "created_at",
+            "updated_at"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+              "entity_type": "source"
+            },
+            {
+              "system": "janeway",
+              "source_id": "submission-model-fields.txt",
+              "entity_type": "source"
+            }
+          ],
+          "origin": "project_governance",
+          "adaptation": "资料准备对象与正式Manuscript/SubmissionWorkflow完全分离；creator+当前editor/chief+同刊确定性授权，不改变author_draft。 OJS/Janeway仅作既有身份/版本/日志分离模式比较；不声称上游有同名资料表或等价保证。",
+          "migration_id": "13f17cad5064"
+        }
+      ],
+      "our_fields": [
+        "id",
+        "journal_id",
+        "created_by",
+        "revision",
+        "current_version_id",
+        "created_at",
+        "updated_at"
+      ],
+      "constraints": [
+        {
+          "rule": "UNIQUE(id,journal_id)、revision>=1及当前版本三列同包同刊deferred FK；行锁与expected_revision防止覆盖并发保存。",
+          "intended_acceptance": "跨包跨刊关联、覆盖历史和撤权后访问拒绝；静态来源绑定不能代替运行测试。"
+        }
+      ],
+      "intended_acceptance": [
+        "spec013所列合成材料、权限、版本/hash、幂等、重启与直接SQL负向验收；本映射不宣称已运行。",
+        "不创建Manuscript/作者账号/正式投稿流程、不调用LLM、不发邮件。"
+      ],
+      "current_baseline": {
+        "system": "current-system",
+        "source_id": "apps/api/publishing/models.py",
+        "entity_type": "class",
+        "entity": "Manuscript"
+      },
+      "source_binding": {
+        "path": "apps/api/publishing/domain/dossiers.py",
+        "class_line": 39,
+        "fields": [
+          {
+            "name": "id",
+            "line": 57,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
+          },
+          {
+            "name": "journal_id",
+            "line": 58,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('journals.id'))"
+          },
+          {
+            "name": "created_by",
+            "line": 59,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
+          },
+          {
+            "name": "revision",
+            "line": 60,
+            "annotation": "Mapped[int]",
+            "declaration": "mapped_column(Integer)"
+          },
+          {
+            "name": "current_version_id",
+            "line": 61,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "created_at",
+            "line": 62,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True), default=now)"
+          },
+          {
+            "name": "updated_at",
+            "line": 63,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True), default=now)"
+          }
+        ],
+        "table_args": {
+          "line": 41,
+          "declaration": "(UniqueConstraint('id', 'journal_id', name='uq_dossier_tenant'), CheckConstraint('revision >= 1', name='ck_dossier_revision'), ForeignKeyConstraint(['current_version_id', 'id', 'journal_id'], ['publishing_dossier_versions.id', 'publishing_dossier_versions.dossier_id', 'publishing_dossier_versions.journal_id'], name='fk_dossier_current', use_alter=True, deferrable=True, initially='DEFERRED'))"
+        }
+      },
+      "field_revision_bindings": {
+        "id": "13f17cad5064",
+        "journal_id": "13f17cad5064",
+        "created_by": "13f17cad5064",
+        "revision": "13f17cad5064",
+        "current_version_id": "13f17cad5064",
+        "created_at": "13f17cad5064",
+        "updated_at": "13f17cad5064"
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "13f17cad5064",
+          "names": [
+            "ck_dossier_revision",
+            "fk_dossier_current",
+            "uq_dossier_tenant"
+          ],
+          "scope": "自有内部资料准备的同包同刊/版本唯一/当前指针约束；运行结果见PROGRESS"
+        }
+      ]
+    },
+    {
+      "class": "DossierVersion",
+      "module": "apps/api/publishing/domain/dossiers.py",
+      "table": "publishing_dossier_versions",
+      "contract_source": "specs/013-internal-review-dossiers.md",
+      "slice": "internal_dossier_preparation",
+      "implementation_status": "implemented",
+      "migration_id": "13f17cad5064",
+      "migration_status": "static_source_binding_only_runtime_verification_recorded_by_lead_in_PROGRESS",
+      "field_groups": [
+        {
+          "our_fields": [
+            "id",
+            "dossier_id",
+            "journal_id",
+            "version_no",
+            "data_json",
+            "file_object_id",
+            "file_name",
+            "file_media_type",
+            "content_digest",
+            "created_by",
+            "created_at"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+              "entity_type": "source"
+            },
+            {
+              "system": "janeway",
+              "source_id": "submission-model-fields.txt",
+              "entity_type": "source"
+            }
+          ],
+          "origin": "project_governance",
+          "adaptation": "完整有界DossierData含有序作者/机构/ORCID提供来源；每次保存新版本，原件复用同刊CAS而名称随版本保存；不是全局Person。 OJS/Janeway仅作既有身份/版本/日志分离模式比较；不声称上游有同名资料表或等价保证。",
+          "migration_id": "13f17cad5064"
+        }
+      ],
+      "our_fields": [
+        "id",
+        "dossier_id",
+        "journal_id",
+        "version_no",
+        "data_json",
+        "file_object_id",
+        "file_name",
+        "file_media_type",
+        "content_digest",
+        "created_by",
+        "created_at"
+      ],
+      "constraints": [
+        {
+          "rule": "同包同刊parent FK、同刊FileObject FK、UNIQUE(dossier_id,version_no)、version_no>=1与版本三列parent key；版本历史不可变。",
+          "intended_acceptance": "跨包跨刊关联、覆盖历史和撤权后访问拒绝；静态来源绑定不能代替运行测试。"
+        }
+      ],
+      "intended_acceptance": [
+        "spec013所列合成材料、权限、版本/hash、幂等、重启与直接SQL负向验收；本映射不宣称已运行。",
+        "不创建Manuscript/作者账号/正式投稿流程、不调用LLM、不发邮件。"
+      ],
+      "current_baseline": {
+        "system": "current-system",
+        "source_id": "apps/api/publishing/models.py",
+        "entity_type": "class",
+        "entity": "Manuscript"
+      },
+      "source_binding": {
+        "path": "apps/api/publishing/domain/dossiers.py",
+        "class_line": 66,
+        "fields": [
+          {
+            "name": "id",
+            "line": 83,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
+          },
+          {
+            "name": "dossier_id",
+            "line": 84,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "journal_id",
+            "line": 85,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "version_no",
+            "line": 86,
+            "annotation": "Mapped[int]",
+            "declaration": "mapped_column(Integer)"
+          },
+          {
+            "name": "data_json",
+            "line": 87,
+            "annotation": "Mapped[dict]",
+            "declaration": "mapped_column(JSONB)"
+          },
+          {
+            "name": "file_object_id",
+            "line": 88,
+            "annotation": "Mapped[str | None]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "file_name",
+            "line": 89,
+            "annotation": "Mapped[str | None]",
+            "declaration": "mapped_column(String(255))"
+          },
+          {
+            "name": "file_media_type",
+            "line": 90,
+            "annotation": "Mapped[str | None]",
+            "declaration": "mapped_column(String(100))"
+          },
+          {
+            "name": "content_digest",
+            "line": 91,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "created_by",
+            "line": 92,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
+          },
+          {
+            "name": "created_at",
+            "line": 93,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True), default=now)"
+          }
+        ],
+        "table_args": {
+          "line": 68,
+          "declaration": "(UniqueConstraint('id', 'dossier_id', 'journal_id', name='uq_dossier_version_tenant'), UniqueConstraint('dossier_id', 'version_no', name='uq_dossier_version_number'), ForeignKeyConstraint(['dossier_id', 'journal_id'], ['publishing_dossiers.id', 'publishing_dossiers.journal_id'], name='fk_dossier_version_parent'), ForeignKeyConstraint(['file_object_id', 'journal_id'], ['publishing_file_objects.id', 'publishing_file_objects.journal_id'], name='fk_dossier_version_file'), CheckConstraint('version_no >= 1', name='ck_dossier_version_number'))"
+        }
+      },
+      "field_revision_bindings": {
+        "id": "13f17cad5064",
+        "dossier_id": "13f17cad5064",
+        "journal_id": "13f17cad5064",
+        "version_no": "13f17cad5064",
+        "data_json": "13f17cad5064",
+        "file_object_id": "13f17cad5064",
+        "file_name": "13f17cad5064",
+        "file_media_type": "13f17cad5064",
+        "content_digest": "13f17cad5064",
+        "created_by": "13f17cad5064",
+        "created_at": "13f17cad5064"
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "13f17cad5064",
+          "names": [
+            "ck_dossier_version_number",
+            "fk_dossier_version_file",
+            "fk_dossier_version_parent",
+            "uq_dossier_version_number",
+            "uq_dossier_version_tenant"
+          ],
+          "scope": "自有内部资料准备的同包同刊/版本唯一/当前指针约束；运行结果见PROGRESS"
+        }
+      ]
+    },
+    {
+      "class": "DossierCheck",
+      "module": "apps/api/publishing/domain/dossiers.py",
+      "table": "publishing_dossier_checks",
+      "contract_source": "specs/013-internal-review-dossiers.md",
+      "slice": "internal_dossier_preparation",
+      "implementation_status": "implemented",
+      "migration_id": "13f17cad5064",
+      "migration_status": "static_source_binding_only_runtime_verification_recorded_by_lead_in_PROGRESS",
+      "field_groups": [
+        {
+          "our_fields": [
+            "id",
+            "dossier_id",
+            "journal_id",
+            "version_id",
+            "content_digest",
+            "checked_by",
+            "session_hash",
+            "checked_at"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+              "entity_type": "source"
+            },
+            {
+              "system": "janeway",
+              "source_id": "submission-model-fields.txt",
+              "entity_type": "source"
+            }
+          ],
+          "origin": "project_governance",
+          "adaptation": "录入者人工核对本版完整表单和文件digest，未认证ORCID身份、不构成作者正式投稿或科学判断；注销后保留session_hash证据。 OJS/Janeway仅作既有身份/版本/日志分离模式比较；不声称上游有同名资料表或等价保证。",
+          "migration_id": "13f17cad5064"
+        }
+      ],
+      "our_fields": [
+        "id",
+        "dossier_id",
+        "journal_id",
+        "version_id",
+        "content_digest",
+        "checked_by",
+        "session_hash",
+        "checked_at"
+      ],
+      "constraints": [
+        {
+          "rule": "同包同刊版本三列FK及UNIQUE(version_id)；追加不可变，核对前重新验证当前revision/version/digest与实际CAS。",
+          "intended_acceptance": "跨包跨刊关联、覆盖历史和撤权后访问拒绝；静态来源绑定不能代替运行测试。"
+        }
+      ],
+      "intended_acceptance": [
+        "spec013所列合成材料、权限、版本/hash、幂等、重启与直接SQL负向验收；本映射不宣称已运行。",
+        "不创建Manuscript/作者账号/正式投稿流程、不调用LLM、不发邮件。"
+      ],
+      "current_baseline": {
+        "system": "current-system",
+        "source_id": "apps/api/publishing/models.py",
+        "entity_type": "class",
+        "entity": "Manuscript"
+      },
+      "source_binding": {
+        "path": "apps/api/publishing/domain/dossiers.py",
+        "class_line": 96,
+        "fields": [
+          {
+            "name": "id",
+            "line": 110,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
+          },
+          {
+            "name": "dossier_id",
+            "line": 111,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "journal_id",
+            "line": 112,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "version_id",
+            "line": 113,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "content_digest",
+            "line": 114,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "checked_by",
+            "line": 115,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
+          },
+          {
+            "name": "session_hash",
+            "line": 116,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "checked_at",
+            "line": 117,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True), default=now)"
+          }
+        ],
+        "table_args": {
+          "line": 98,
+          "declaration": "(ForeignKeyConstraint(['version_id', 'dossier_id', 'journal_id'], ['publishing_dossier_versions.id', 'publishing_dossier_versions.dossier_id', 'publishing_dossier_versions.journal_id'], name='fk_dossier_check_version'), UniqueConstraint('version_id', name='uq_dossier_checked_version'))"
+        }
+      },
+      "field_revision_bindings": {
+        "id": "13f17cad5064",
+        "dossier_id": "13f17cad5064",
+        "journal_id": "13f17cad5064",
+        "version_id": "13f17cad5064",
+        "content_digest": "13f17cad5064",
+        "checked_by": "13f17cad5064",
+        "session_hash": "13f17cad5064",
+        "checked_at": "13f17cad5064"
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "13f17cad5064",
+          "names": [
+            "fk_dossier_check_version",
+            "uq_dossier_checked_version"
+          ],
+          "scope": "自有内部资料准备的同包同刊/版本唯一/当前指针约束；运行结果见PROGRESS"
+        }
+      ]
+    },
+    {
+      "class": "DossierTurn",
+      "module": "apps/api/publishing/domain/dossiers.py",
+      "table": "publishing_dossier_turns",
+      "contract_source": "specs/013-internal-review-dossiers.md",
+      "slice": "internal_dossier_preparation",
+      "implementation_status": "implemented",
+      "migration_id": "13f17cad5064",
+      "migration_status": "static_source_binding_only_runtime_verification_recorded_by_lead_in_PROGRESS",
+      "field_groups": [
+        {
+          "our_fields": [
+            "id",
+            "dossier_id",
+            "journal_id",
+            "version_id",
+            "user_id",
+            "question",
+            "answer",
+            "created_at"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+              "entity_type": "source"
+            },
+            {
+              "system": "janeway",
+              "source_id": "submission-model-fields.txt",
+              "entity_type": "source"
+            }
+          ],
+          "origin": "project_governance",
+          "adaptation": "仅持久化确定性规则引导及确切原版，不调用LLM、不准备业务决定、不具有核对或正式工作流写能力。 OJS/Janeway仅作既有身份/版本/日志分离模式比较；不声称上游有同名资料表或等价保证。",
+          "migration_id": "13f17cad5064"
+        }
+      ],
+      "our_fields": [
+        "id",
+        "dossier_id",
+        "journal_id",
+        "version_id",
+        "user_id",
+        "question",
+        "answer",
+        "created_at"
+      ],
+      "constraints": [
+        {
+          "rule": "同包同刊版本三列FK；question/answer有界、追加不可变；查询与回执重放逐对象重新鉴权。",
+          "intended_acceptance": "跨包跨刊关联、覆盖历史和撤权后访问拒绝；静态来源绑定不能代替运行测试。"
+        }
+      ],
+      "intended_acceptance": [
+        "spec013所列合成材料、权限、版本/hash、幂等、重启与直接SQL负向验收；本映射不宣称已运行。",
+        "不创建Manuscript/作者账号/正式投稿流程、不调用LLM、不发邮件。"
+      ],
+      "current_baseline": {
+        "system": "current-system",
+        "source_id": "apps/api/publishing/models.py",
+        "entity_type": "class",
+        "entity": "Manuscript"
+      },
+      "source_binding": {
+        "path": "apps/api/publishing/domain/dossiers.py",
+        "class_line": 120,
+        "fields": [
+          {
+            "name": "id",
+            "line": 133,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
+          },
+          {
+            "name": "dossier_id",
+            "line": 134,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "journal_id",
+            "line": 135,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "version_id",
+            "line": 136,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "user_id",
+            "line": 137,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
+          },
+          {
+            "name": "question",
+            "line": 138,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(2000))"
+          },
+          {
+            "name": "answer",
+            "line": 139,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(6000))"
+          },
+          {
+            "name": "created_at",
+            "line": 140,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True), default=now)"
+          }
+        ],
+        "table_args": {
+          "line": 122,
+          "declaration": "(ForeignKeyConstraint(['version_id', 'dossier_id', 'journal_id'], ['publishing_dossier_versions.id', 'publishing_dossier_versions.dossier_id', 'publishing_dossier_versions.journal_id'], name='fk_dossier_turn_version'),)"
+        }
+      },
+      "field_revision_bindings": {
+        "id": "13f17cad5064",
+        "dossier_id": "13f17cad5064",
+        "journal_id": "13f17cad5064",
+        "version_id": "13f17cad5064",
+        "user_id": "13f17cad5064",
+        "question": "13f17cad5064",
+        "answer": "13f17cad5064",
+        "created_at": "13f17cad5064"
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "13f17cad5064",
+          "names": [
+            "fk_dossier_turn_version"
+          ],
+          "scope": "自有内部资料准备的同包同刊/版本唯一/当前指针约束；运行结果见PROGRESS"
+        }
+      ]
     }
   ],
   "additional_contracts": [
@@ -9482,6 +10099,18 @@
         "ProofPackage": "publishing_proof_packages",
         "ProofResponse": "publishing_proof_responses",
         "PublicationPreview": "publishing_publication_previews"
+      },
+      "extended_fields": {},
+      "extended_constraints": {}
+    },
+    {
+      "path": "specs/013-internal-review-dossiers.md",
+      "migration_id": "13f17cad5064",
+      "new_models": {
+        "Dossier": "publishing_dossiers",
+        "DossierVersion": "publishing_dossier_versions",
+        "DossierCheck": "publishing_dossier_checks",
+        "DossierTurn": "publishing_dossier_turns"
       },
       "extended_fields": {},
       "extended_constraints": {}
@@ -9690,6 +10319,40 @@
           "normalization": "strip_and_create_or_replace"
         }
       ]
+    },
+    {
+      "revision": "13f17cad5064",
+      "down_revision": "12e06b9c4f53",
+      "path": "infrastructure/migrations/versions/13f17cad5064_internal_review_dossiers.py",
+      "sha256": "1bc924f0bf685bc64c3b47c6bb128d1b60d35e2c6b393f49cd5e81a75aa6f436",
+      "validation_scope": "Static migration/field/constraint binding only. No database or browser tests were executed by the mapping agent; lead records actual runtime validation in PROGRESS.md.",
+      "sql_functions": [
+        "publishing_dossier_immutable",
+        "publishing_dossier_current_guard",
+        "publishing_dossier_master_guard",
+        "publishing_dossier_insert_guard"
+      ],
+      "deferred_triggers": [
+        "dossier_current_consistent"
+      ],
+      "row_triggers": [],
+      "truncate_triggers": [
+        {
+          "name": "dossier_version_truncate",
+          "table": "publishing_dossier_versions",
+          "function": "publishing_dossier_immutable"
+        },
+        {
+          "name": "dossier_check_truncate",
+          "table": "publishing_dossier_checks",
+          "function": "publishing_dossier_immutable"
+        },
+        {
+          "name": "dossier_turn_truncate",
+          "table": "publishing_dossier_turns",
+          "function": "publishing_dossier_immutable"
+        }
+      ]
     }
   ],
   "implementation_helper_bindings": [
@@ -9720,18 +10383,18 @@
       "date": "2026-11-03",
       "suite": "tests/api/test_production_models.py",
       "observed_passed": 53,
-      "elapsed_seconds": 37.1,
+      "elapsed_seconds": 34.96,
       "warnings": [
         "existing Starlette/httpx deprecation"
       ],
-      "scope": "isolated full-chain model/migration/immutable proof packages, author responses, exact local preview and current-workflow guards; not CAS/service/browser or full Goal acceptance",
+      "scope": "isolated immutable production contracts and complete-head metadata including 13f dossier migration; historical F fixture remains unchanged; not browser or full Goal acceptance",
       "public_database_modified_by_component_agent": false,
-      "evidence_report": "/tmp/production-models-final.xml",
-      "report_sha256": "886412120ee6e380c3768958be85f91f636573826c31bb0881b48571e86c1fe8",
+      "evidence_report": "artifacts/dossier-production-regression.xml",
+      "report_sha256": "a58ba45eecf7b9aa1b5ace8eba51a1b1b74e7a39f557d19635c1407f94e2bd2b",
       "report_availability": "ephemeral observed JUnit; recorded hash, not required by offline gate",
       "token_usage": null,
       "api_cost": null,
-      "suite_sha256": "e13ceee2ee15e796179d3831d6e4d96d5f2e3c29438fbd656a1104d174ef7d11",
+      "suite_sha256": "55620739c439b4140b51866364c761b381d09616605312474fcca571a9525192",
       "migration_id": "12e06b9c4f53",
       "required_test_functions": [
         "test_complete_chain_metadata_has_zero_drift",
@@ -9751,7 +10414,14 @@
         "test_f_confirmation_must_bind_exact_current_workflow"
       ],
       "reproducible_command": "DATABASE_URL=<isolated-test-db> PYTHONPATH=. .venv/bin/pytest tests/api/test_production_models.py -q --junitxml=<local-report>",
-      "verification_policy": "offline gate checks suite source hash/functions and declared observed report metadata; it does not execute or claim to reverify PostgreSQL tests"
+      "verification_policy": "offline gate checks suite source hash/functions and declared observed report metadata; it does not execute or claim to reverify PostgreSQL tests",
+      "previous_observation": {
+        "date": "2026-11-03",
+        "observed_passed": 53,
+        "elapsed_seconds": 37.1,
+        "suite_sha256": "e13ceee2ee15e796179d3831d6e4d96d5f2e3c29438fbd656a1104d174ef7d11",
+        "report_sha256": "886412120ee6e380c3768958be85f91f636573826c31bb0881b48571e86c1fe8"
+      }
     }
   ]
 }

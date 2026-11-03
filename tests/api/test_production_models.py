@@ -320,6 +320,10 @@ def rejects(w, row, match):
 
 def test_complete_chain_metadata_has_zero_drift(production_world):
     w = production_world
+    # The F fixture remains historical; the complete-head assertion also applies
+    # the later private-dossier migration in this rolled-back test schema.
+    with Operations.context(MigrationContext.configure(w.conn)):
+        e.peer.migration("13f17cad5064").upgrade()
     assert compare_metadata(MigrationContext.configure(w.conn), Base.metadata) == []
     assert [
         len(cls.__table__.columns) for cls in (ProofPackage, ProofResponse, PublicationPreview)

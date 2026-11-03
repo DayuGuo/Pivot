@@ -1,5 +1,17 @@
 # 开发状态
 
+## 最新增量：2026-11-03，真实内部审阅资料包已本地验收
+
+用户同意先试第一切片，合同见spec013。`/library`提供左侧私有资料、中心规则对话、右侧完整录入/原文/版本；独立核对位于`/library/review/[versionId]?dossier=...`。四张真实PostgreSQL表保存全文CAS引用、有序作者/机构/通讯邮箱/ORCID/贡献/来源快照、不可变版本与人工核对、规则回合；复用登录、Action Gateway与审计。仅录入者且当前仍为本刊editor/chief_editor可访问，主编无默认全局权限；不创建正式稿件、不改author_draft，不冒充已认证ORCID。
+
+**完整验收实际退出0：863 Pytest（339.01秒）＋53 Playwright（1.8m）**。`scripts/verify.sh`在publishing-os-verification独立Mock栈执行，研究映射/架构边界、Ruff/ESLint/TypeScript、迁移/结构一致性、前后端构建均通过。局部资料包28项覆盖严格布尔授权、空白正文拒绝、CSRF/幂等重放/撤权、跨刊/他人访问拒绝、精确核对digest、历史SQL防改/删除/TRUNCATE、完整base→13f迁移和安全回退。53项生产模型另实际重跑通过（34.96秒）。首轮全量7失败/854通过已修复：4个测试空库计数假设、3个历史迁移比较范围；没有删测试或清理已有资料。
+
+**实际重启隔离DB/API/Web后恢复通过**：同登录会话读取完整元数据、原文逐字节及SHA256、相同版本/digest、2个版本/1个核对/1个规则回合和4条审计。证据artifacts/dossier-restart-acceptance.json；完整日志artifacts/dossier-full-verify-final.log。纯规则对话未调用模型，不作科学审阅，也没有邮件/正式决定工具；测试仅用合成资料，真实邮件0。
+
+本机主服务已通过安全`./scripts/start.sh`更新到新代码，原DeepSeek选择前后均为deepseek；主DB结构check通过，未调用真实模型。3100实际Chromium从登录点“内部审阅资料”进入表单成功，375px无横向溢出、页面错误0，仅登录POST，无资料或模型变更。入口http://localhost:3100/library；账号editor@publishing.test / EditorDemo2026!。公网https://pivot.anotherdayu.com/仍为原静态Demo，本轮未连接或更新VPS。
+
+源码/设计取舍及限制见docs/development/internal-dossiers.md，委派任务与不可获得Token/费用测量见dossier-delegation.json。本轮未读取全局认证文件、未改主模型配置、未使用暴露密钥。下一步是与确切版本绑定并可定位真实原文的只读模型问答；正式受控试点前仍需独立专业工程师复核权限、隐私、备份恢复与部署。spec011整体及真实模型可信引用尚未完成，不能把第一切片通过等同整个产品完成。
+
 ## 最新部署：2026-11-03，用户已上线公网Demo
 
 用户已自行完成部署：https://pivot.anotherdayu.com/ 。本轮未登录或修改VPS，仅对公开页面使用正常TLS校验的HTTP客户端和隔离Chromium验证。HTTPS返回200，标题Pivot · 产品演示；页面/资源错误0、脚本错误0，375px无横向溢出。
