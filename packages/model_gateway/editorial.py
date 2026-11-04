@@ -186,7 +186,14 @@ class EditorialDeepSeekProvider:
         self.last_attempt_telemetry: list[Telemetry] = []
         self._deadline: float | None = None
         self._retries = 0
+        self.max_output_tokens = 2048
         self.before_attempt = None
+
+    def set_output_budget(self, tokens: int):
+        # Trusted per-request caller only; never set by document/model input.
+        if type(tokens) is not int or not 256 <= tokens <= 6144:
+            raise GatewayError("invalid_editorial_output_budget")
+        self.max_output_tokens = tokens
 
     def check_deadline(self):
         if self._deadline is not None and time.monotonic() >= self._deadline:
@@ -312,7 +319,7 @@ class EditorialDeepSeekProvider:
                     "tools": tools,
                     "tool_choice": "required" if tools else "none",
                     "stream": False,
-                    "max_tokens": 2048,
+                    "max_tokens": self.max_output_tokens,
                     "thinking": {"type": "disabled"},
                 },
                 ensure_ascii=False,

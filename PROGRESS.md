@@ -1,5 +1,14 @@
 # 开发状态
 
+## 当前增量：2026-11-04，公开真实论文评测与修复（已本机验收）
+
+spec016使用3篇许可明确论文/6份文件：公开未发表8作者原生Word+明确转制PDF，两篇PLOS已发表editorial/essay的出版社PDF+明确JATS转制Word。文件/许可/金标准及复现入口见evals/public_documents，下载原件、失败回合和测试日志留artifacts/public-papers。不能冒称6份作者原件或3篇已审实验研究。独立署名审计26位次/38项机构链接无错误，原四作者PDF有1邮箱未自动提取而留空待补；ORCID不认证。
+
+已修复：Word内部部件URI/EndNote缓存字段/PDF打开页误拒绝、多作者2048输出上限（提取6144、对话仍2048）、完整标签摘要、原样空白/字形间距证据恢复、明确机构编号错配及地址数字误判、姓名隔离邮箱补全。真实问答发现NBSP逐字失败已修复、存储仍为原文精确跨度；已完成第一轮6文件/12问答及独立浏览器确认/新版本/定位/刷新。语义复核发现重复历史回答、限定语强化、缺项断言、人名改写John/Johnson与规模/数量混淆，已新增上下文/终轮提醒、覆盖与窄范围姓名/比较校验；最终受影响实测回合已通过，历史错误保留不篡改。最终77项专项通过（19质量＋58对话）；完整scripts/verify.sh通过：**1157 Pytest（611.58秒）＋66 Playwright（2.9m）**，研究/边界门禁、Ruff/format、ESLint/TypeScript、迁移/结构漂移及准确API/Web镜像构建启动通过。4项第三方弃用warning与上一轮类别相同。证据artifacts/public-papers/full-verify-final-accepted.log、pytest.xml，不把中断旧运行算通过。交付报告见[真实论文评测](docs/development/public-paper-evaluation.md)。
+
+独立文本检查：PDF25/4/6页，与Poppler最差逐页字符召回100%/99.911%/99.986%；Word正文105/70/80行对照LibreOffice，两转制Word无缺行，原Word11个自动项目符号未重建（去掉符号后0缺正文行），保留原差异并明确提示。指标不证明视觉顺序、公式、图片或科学结论正确。全迭代45个仅用于评测的公开论文资料包、26完成导入/36问答、19失败导入/2失败问答，147供应商attempt（134有效完成、13无效协议）、747,100输入/110,615输出tokens，费用null待账单；详见telemetry-summary.json，没有读取主模型密钥或全局认证。实际核对由浏览器脚本模拟演示编辑，不是专家/作者本人签收；6次确认后各v2已核对，后续问答重测0额外确认。最终12问选集在final-six-case-acceptance.json，实际重启6资料含完整历史/原件逐字节相等，同会话恢复provider仍deepseek。邮件/正式决定/正式稿件计数未变、Mailpit0、EMAIL_SEND_ENABLED=false，未部署公网。
+
+
 ## 最新增量：2026-11-03，PDF/Word导入、人工核对与原件定位
 
 spec015已本地实现：文本层PDF/.docx原件私有CAS、完整提取和页/段映射、DeepSeek或明确Mock元数据候选、独立负责人补齐核对后一次建立新Version/Approval/Source/DossierCheck；上传不升版，模型没有确认工具。三新表36字段13命名约束、15b迁移、不可变历史与来源映射已登记；主库及隔离库已升级且check无漂移。只改元数据继承原件而新版本待核对，换TXT脱离来源；手改字段不伪造旧来源。

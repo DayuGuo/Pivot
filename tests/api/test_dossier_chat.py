@@ -948,7 +948,13 @@ def test_one_respond_schema_correction_succeeds_without_relaxing_evidence_contra
         )
 
     def corrected(messages, tools):
-        issue = json.loads(messages[-1]["content"])
+        issue = json.loads(
+            next(
+                message["content"]
+                for message in reversed(messages)
+                if message.get("role") == "tool" and message.get("name") == "respond"
+            )
+        )
         assert issue["issues"] == [{"field": "questions", "type": "list_type"}]
         assert set(issue) == {"error", "issues"}
         assert {t["function"]["name"] for t in tools} == {"respond"}
@@ -976,7 +982,13 @@ def test_repeated_respond_schema_error_is_rejected_and_diagnostics_do_not_reflec
 
     def malformed(messages, tools):
         if messages[-1].get("role") == "tool" and messages[-1].get("name") == "respond":
-            feedback = json.loads(messages[-1]["content"])
+            feedback = json.loads(
+                next(
+                    message["content"]
+                    for message in reversed(messages)
+                    if message.get("role") == "tool" and message.get("name") == "respond"
+                )
+            )
             diagnostic = json.dumps(feedback, ensure_ascii=False)
             assert private_field not in diagnostic and private_value not in diagnostic
             assert feedback["issues"] == [{"field": "unexpected_field", "type": "extra_forbidden"}]
@@ -1032,7 +1044,13 @@ def test_empty_respond_is_repaired_once_into_a_fully_grounded_answer(client, db,
     empty = completion("respond", {"claims": [], "questions": [], "external_dois": []})
 
     def corrected(messages, tools):
-        feedback = json.loads(messages[-1]["content"])
+        feedback = json.loads(
+            next(
+                message["content"]
+                for message in reversed(messages)
+                if message.get("role") == "tool" and message.get("name") == "respond"
+            )
+        )
         assert "不能完全空答" in feedback["error"]
         assert {tool["function"]["name"] for tool in tools} == {"respond"}
         assert source(messages)["text"]
@@ -1093,3 +1111,66 @@ def test_empty_respond_without_read_sources_is_not_eligible_for_repair(client, d
         )
     )
     assert audit.details["error_code"] == "dossier_response_empty"
+
+
+def test_completed_history_is_paired_with_an_assistant_reply_and_current_question_remains_last(
+    client, ready, supplier
+):
+    provider = supplier(completion("read_dossier", {}), reply)
+    first = "只核对合成样本数量。"
+    assert client.post(path(ready), json=body(ready, first)).status_code == 200
+    second = "现在只核对合成作者机构。"
+    provider = supplier(completion("read_dossier", {}), reply)
+    assert client.post(path(ready), json=body(ready, second)).status_code == 200
+    messages = provider.calls[0][0]
+    historical = next(
+        i for i, message in enumerate(messages) if first in message.get("content", "")
+    )
+    assert messages[historical]["role"] == "user"
+    assert messages[historical + 1]["role"] == "assistant"
+    assert messages[-1] == {"role": "user", "content": second}
+    assert not issued(messages)
+
+
+def test_last_round_explicitly_ends_reading_and_uses_only_current_issued_evidence(
+    client, ready, supplier
+):
+    def finish(messages, tools):
+        assert [tool["function"]["name"] for tool in tools] == ["respond"]
+        assert messages[-1]["role"] == "system"
+        return reply(messages, tools)
+
+    provider = supplier(
+        completion("read_dossier", {}), completion("read_dossier", {"start_chunk": 0}), finish
+    )
+    response = client.post(path(ready), json=body(ready))
+    assert response.status_code == 200, response.text
+    assert len(provider.calls) == 3
+    assert response.json()["claims"]
+
+
+@pytest.mark.parametrize("corrected", [True, False])
+def test_partial_coverage_cannot_be_turned_into_an_absence_claim(
+    client, db, ready, supplier, corrected
+):
+    def absence(messages, tools):
+        item = source(messages, kind="metadata")
+        return reply(messages, tools, selected=item, claim="摘要未说明任何研究局限。")
+
+    def valid(messages, tools):
+        item = source(messages, kind="metadata")
+        return reply(messages, tools, selected=item, claim="当前资料有已保存的题名字段。")
+
+    provider = supplier(
+        completion("read_dossier", {"count": 1}), absence, valid if corrected else absence
+    )
+    payload = body(ready)
+    response = client.post(path(ready), json=payload)
+    assert response.status_code == (200 if corrected else 503), response.text
+    assert len(provider.calls) == 3
+    if corrected:
+        assert response.json()["tool_corrections"] == 1
+        assert not response.json()["coverage"]["complete"]
+        assert "摘要未说明" not in response.json()["answer"]
+    else:
+        assert_no_answer(db, ready, payload)

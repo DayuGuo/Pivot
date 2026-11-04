@@ -1,5 +1,13 @@
 # PDF / Word 文本提取边界与实验
 
+## 2026-11-04：公开真实论文后的v2修正
+
+实际样本与许可见[评测目录](../../evals/public_documents/README.md)，运行结果见[交付记录](../development/public-paper-evaluation.md)。解析专项由71增至93项，22个新增用例覆盖合法OPC部件定位、缓存EndNote/页码、恶意路径/字段、纯本地PDF打开页与原有主动内容拒绝；实际93项通过（8.46秒），后续上层回归另有记录。
+
+[Microsoft ResolvePartUri](https://learn.microsoft.com/en-us/dotnet/api/system.io.packaging.packurihelper.resolveparturi?view=windowsdesktop-9.0)明确列出相对父部件URI的合法解析案例。实现只在ZIP内部规范化并确认实际条目，不允许逃逸到文件系统。[Word FieldCode](https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.wordprocessing.fieldcode?view=openxml-3.0.1)区分字段指令与其显示结果；本实现不求值，仅允许指定页码及EndNote缓存文字。结构不闭合/缺少引文缓存拒绝，未渲染页码明确提示。普通内部引用不是外部模板授权。
+
+[pypdf Reader接口](https://pypdf.readthedocs.io/en/stable/modules/PdfReader.html)与实际公开PDF检查用于区分本地打开页数组和动作字典；v2只忽略前者，脚本/动作字典/表单/附件仍拒绝。Word自动项目符号/编号没有重建，新增特定提示；原Word正文与独立LibreOffice对照的11个差异均为bullet前缀，正文行内容保留。段/页范围仍按完整实际提取文字定位，不冒称视觉版面等价。以下2026-11-03实验计数是v1历史记录。
+
 2026-11-03。仅为编辑资料包导入建立受限文本提取，不扩展正式投稿文件白名单，也不把解析完成当作稿件、署名或科学结论已获确认。
 
 ## 官方依据与取舍
@@ -13,9 +21,9 @@
 
 `packages.document_ingest.extract_document(filename, raw)`返回text、segments、parser、warnings、page_count、paragraph_count。`text`是各非空段以两个换行连接；每个segment带kind、1起算number、Unicode码点start/end及text。DOCX额外带part说明正文/页眉/脚注来源。父进程再次核对拼接及每一段位置，确保`text[start:end] == segment.text`；规范化CR/LF并去掉页/段外侧空白，不做静默前缀截断。
 
-原件上限5 MiB；提取文本上限1 MiB；PDF最多60页且任一页无可读文本即拒绝，不把扫描/部分文本当完整成功。DOCX最多500个ZIP条目、20 MiB总解压大小、受限单条目/XML及压缩比；有修订、批注、文本框、动态字段、宏/嵌入对象等不支持内容时明确拒绝。表格、实际引用的页眉/脚注等文本按顺序线性展开并给出固定提示。普通图片/图形未转录，必须人工查看原件；不声称图表或公式语义已提取。
+原件上限5 MiB；提取文本上限1 MiB；PDF最多60页且任一页无可读文本即拒绝，不把扫描/部分文本当完整成功。DOCX最多500个ZIP条目、20 MiB总解压大小、受限单条目/XML及压缩比；有修订、批注、文本框、白名单外字段、宏/嵌入对象等不支持内容时明确拒绝；指定缓存页码/EndNote处理见v2。表格、实际引用的页眉/脚注等文本按顺序线性展开并给出固定提示。普通图片/图形未转录，必须人工查看原件；不声称图表或公式语义已提取。
 
-DOCX常用HTTP/HTTPS及mailto外部超链接保留显示文字，忽略、不访问也不返回target，并给出`external_hyperlink_targets_ignored`；外部模板/链接图片/OLE等关系拒绝。mailto仅接受无authority且有地址路径的显示链接；目标收件人/subject/body参数不进入提取结果，其他scheme没有放行。PDF URI链接不跟随，JavaScript/OpenAction/Launch/表单/附件等主动内容拒绝。旧二进制.doc、.docm、加密PDF、坏签名/超限/不可完整读取文件均以固定安全错误拒绝。
+DOCX常用HTTP/HTTPS及mailto外部超链接保留显示文字，忽略、不访问也不返回target，并给出`external_hyperlink_targets_ignored`；外部模板/链接图片/OLE等关系拒绝。mailto仅接受无authority且有地址路径的显示链接；目标收件人/subject/body参数不进入提取结果，其他scheme没有放行。PDF URI链接不跟随，JavaScript/打开动作字典/Launch/表单/附件等主动内容拒绝；纯本地打开页数组见v2。旧二进制.doc、.docm、加密PDF、坏签名/超限/不可完整读取文件均以固定安全错误拒绝。
 
 解析使用固定Python命令`-I -B`的独立子进程，临时空工作目录、close_fds、最小环境（不含模型密钥、数据库地址或服务环境），不执行LibreOffice或文档里的程序。15秒父进程墙钟、12秒CPU、512 MiB地址空间、6 MiB输出文件、32个FD、零子进程额度以及禁核心转储；超时杀进程组。Python审计钩子拒绝socket和启动其他程序。**这些是资源控制与应用层防御，不是OS沙箱或对未知解析器漏洞的安全认证**；真实生产仍需独立容器/系统级隔离和专业评估。异常不反射原文件内容、路径或解析器堆栈。
 

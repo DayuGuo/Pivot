@@ -404,3 +404,160 @@ def test_mailto_does_not_allow_authority_empty_address_or_control_characters(tar
         "docx",
         "document_unsafe_relationship",
     )
+
+
+@pytest.mark.parametrize("target", ["../customXml/item1.xml", "/customXml/item1.xml"])
+def test_ooxml_part_references_resolve_inside_archive_without_reading_external_paths(target):
+    rel = f'<Relationships xmlns="{REL}"><Relationship Id="rInternal" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml" Target="{target}"/></Relationships>'.encode()
+    result = extract_document(
+        "synthetic.docx",
+        changed_docx(
+            additions={
+                "word/_rels/synthetic.xml.rels": rel,
+                "customXml/item1.xml": b"<metadata>UNINDEXED CUSTOM METADATA</metadata>",
+            }
+        ),
+    )
+    assert "Synthetic Author Alpha" in result["text"]
+    assert "UNINDEXED CUSTOM METADATA" not in result["text"]
+
+
+@pytest.mark.parametrize(
+    "target",
+    [
+        "../../outside.xml",
+        "../../../outside.xml",
+        "file:///outside.xml",
+        "//example.test/outside.xml",
+        "%2e%2e/%2e%2e/outside.xml",
+        "../%5coutside.xml",
+    ],
+)
+def test_part_reference_normalization_does_not_escape_the_zip_namespace(target):
+    rel = f'<Relationships xmlns="{REL}"><Relationship Id="rInternal" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml" Target="{target}"/></Relationships>'.encode()
+    rejected(
+        changed_docx(additions={"word/_rels/synthetic.xml.rels": rel}),
+        "docx",
+        "document_unsafe_relationship",
+    )
+
+
+def field_xml(code, result="[1]", *, close=True):
+    from xml.sax.saxutils import escape
+
+    return (
+        '<w:p><w:r><w:fldChar w:fldCharType="begin"/></w:r>'
+        f"<w:r><w:instrText>{escape(code)}</w:instrText></w:r>"
+        '<w:r><w:fldChar w:fldCharType="separate"/></w:r>'
+        f"<w:r><w:t>{escape(result)}</w:t></w:r>"
+        + ('<w:r><w:fldChar w:fldCharType="end"/></w:r>' if close else "")
+        + "</w:p>"
+    ).encode()
+
+
+@pytest.mark.parametrize(
+    "code",
+    [
+        "ADDIN EN.CITE <EndNote>PRIVATE FIELD DATA</EndNote>",
+        "ADDIN EN.REFLIST",
+        r"PAGE \* MERGEFORMAT",
+        "NUMPAGES",
+    ],
+)
+def test_only_saved_citation_and_pagination_text_is_extracted_never_field_instructions(code):
+    result = extract_document(
+        "synthetic.docx",
+        changed_docx(
+            changes={
+                "word/document.xml": lambda raw: raw.replace(
+                    b"</w:body>", field_xml(code) + b"</w:body>"
+                )
+            }
+        ),
+    )
+    assert result["text"].endswith("[1]")
+    assert code not in result["text"]
+    assert "PRIVATE FIELD DATA" not in result["text"]
+    assert "docx_cached_fields_not_updated" in result["warnings"]
+
+
+@pytest.mark.parametrize(
+    "code",
+    [
+        'INCLUDETEXT "file:///never-read"',
+        "DDEAUTO cmd /c synthetic",
+        'HYPERLINK "https://example.test"',
+        "ADDIN unknown",
+    ],
+)
+def test_fields_outside_saved_bibliography_and_pagination_allowlist_still_fail_closed(code):
+    rejected(
+        changed_docx(
+            changes={
+                "word/document.xml": lambda raw: raw.replace(
+                    b"</w:body>", field_xml(code) + b"</w:body>"
+                )
+            }
+        ),
+        "docx",
+        "document_active_content",
+    )
+
+
+@pytest.mark.parametrize("result,close", [("", True), ("[1]", False)])
+def test_missing_cached_citation_or_unclosed_field_does_not_silently_lose_body_text(result, close):
+    rejected(
+        changed_docx(
+            changes={
+                "word/document.xml": lambda raw: raw.replace(
+                    b"</w:body>", field_xml("ADDIN EN.CITE", result, close=close) + b"</w:body>"
+                )
+            }
+        ),
+        "docx",
+        "document_text_incomplete",
+    )
+
+
+def test_endnote_nested_metadata_is_not_mistaken_for_missing_visible_citation():
+    field = b'<w:p><w:r><w:fldChar w:fldCharType="begin"/></w:r><w:r><w:instrText>ADDIN EN.CITE</w:instrText></w:r><w:r><w:fldChar w:fldCharType="begin"/></w:r><w:r><w:instrText>ADDIN EN.CITE.DATA</w:instrText></w:r><w:r><w:fldChar w:fldCharType="end"/></w:r><w:r><w:fldChar w:fldCharType="separate"/></w:r><w:r><w:t>[27]</w:t></w:r><w:r><w:fldChar w:fldCharType="end"/></w:r></w:p>'
+    result = extract_document(
+        "synthetic.docx",
+        changed_docx(
+            changes={
+                "word/document.xml": lambda raw: raw.replace(b"</w:body>", field + b"</w:body>")
+            }
+        ),
+    )
+    assert result["text"].endswith("[27]")
+    assert "EN.CITE" not in result["text"]
+
+
+def test_simple_empty_pagination_reports_not_rendered_without_inventing_word_page_numbers():
+    field = b'<w:p><w:fldSimple w:instr="PAGE"/></w:p>'
+    result = extract_document(
+        "synthetic.docx",
+        changed_docx(
+            changes={
+                "word/document.xml": lambda raw: raw.replace(b"</w:body>", field + b"</w:body>")
+            }
+        ),
+    )
+    assert "docx_pagination_not_rendered" in result["warnings"]
+    assert result["paragraph_count"] == 23
+
+
+@pytest.mark.parametrize("mode", ["/Fit", "/XYZ"])
+def test_local_pdf_initial_page_destination_is_ignored_without_running_actions(mode):
+    from pypdf.generic import ArrayObject, NullObject, NumberObject
+
+    writer = PdfWriter()
+    writer.append(PdfReader(io.BytesIO(bytes_for("pdf"))))
+    destination = [writer.pages[0].indirect_reference, NameObject(mode)]
+    if mode == "/XYZ":
+        destination += [NullObject(), NullObject(), NumberObject(0)]
+    writer._root_object[NameObject("/OpenAction")] = ArrayObject(destination)
+    result = extract_document("synthetic.pdf", write_pdf(writer))
+    assert result["page_count"] == 2
+    assert "END-OF-SYNTHETIC-DOCUMENT-TRACE-2026" in result["text"]
+    assert "pdf_initial_page_destination_ignored" in result["warnings"]

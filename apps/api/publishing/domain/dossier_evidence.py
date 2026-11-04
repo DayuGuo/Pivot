@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 from packages.model_gateway.gateway import GatewayError
 from packages.review_sources import normalize_doi
+from packages.text_evidence import raw_whitespace_span
 
 CHUNK_SIZE = 1200
 READ_CHARACTERS = 32000
@@ -148,12 +149,16 @@ class EvidenceIndex:
 
     def citation(self, source_id, quote, *, version_id, version_no, content_digest, file_sha256):
         source = self.issued.get(source_id)
-        if not source or not quote.strip() or quote not in source.text:
+        if not source or not quote.strip():
             raise GatewayError("dossier_evidence_invalid")
+        span = raw_whitespace_span(source.text, quote)
+        if span is None or span[1] - span[0] > 600:
+            raise GatewayError("dossier_evidence_invalid")
+        quote = source.text[span[0] : span[1]]
         if source.kind == "text" and len(quote.strip()) < 8:
             raise GatewayError("dossier_evidence_invalid")
-        start = source.start + source.text.index(quote)
-        end = start + len(quote)
+        start = source.start + span[0]
+        end = source.start + span[1]
         return {
             "source_id": source_id,
             "kind": source.kind,
@@ -172,3 +177,37 @@ class EvidenceIndex:
             if source.kind == "text"
             else None,
         }
+
+
+def check_claim_terms(claim, citations, data):
+    """Narrow, deterministic checks for observed errors; not semantic proof."""
+    quoted = "\n".join(citation["quote"] for citation in citations)
+    compact_quoted = re.sub(r"\s+", "", quoted)
+    for author in data.get("authors", []):
+        name = author.get("name", "")
+        if not re.fullmatch(r"[A-Za-z .’'\-]+", name) or len(name.split()) < 2:
+            continue
+        surname = name.split()[-1]
+        pattern = (
+            r"\b[A-Z][A-Za-z’'\-]*(?:[ \t]+[A-Z][A-Za-z.’'\-]*){0,4}[ \t]+"
+            + re.escape(surname)
+            + r"\b"
+        )
+        canonical = re.findall(r"[A-Za-z]+", name)
+        compact_name = re.sub(r"\s+", "", name)
+        for mention in re.finditer(pattern, claim):
+            compact_mention = re.sub(r"\s+", "", mention[0])
+            if compact_name in compact_mention or compact_mention in compact_quoted:
+                continue
+            tokens = iter(canonical)
+            if not all(
+                any(token == candidate for candidate in tokens)
+                for token in re.findall(r"[A-Za-z]+", mention[0])
+            ):
+                raise GatewayError("dossier_author_name_invalid")
+    if (
+        re.search(r"研究(?:数目|数量).{0,6}(?:少|减少)|研究越少|更少的研究", claim)
+        and re.search(r"\bsmaller\b", quoted, re.I)
+        and not re.search(r"\bfewer\b|\bnumber\b|\bless\s+studies\b", quoted, re.I)
+    ):
+        raise GatewayError("dossier_comparison_invalid")

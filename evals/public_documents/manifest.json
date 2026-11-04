@@ -1,0 +1,297 @@
+{
+  "schema": "public_document_evaluation.v1",
+  "date": "2026-11-04",
+  "scope": "3 real papers, 6 files; derivatives are labelled, no confidential data",
+  "papers": [
+    {
+      "id": "clinical",
+      "source_url": "https://zenodo.org/records/19059298",
+      "publication_kind": "public unpublished manuscript, not claimed peer reviewed",
+      "license": {
+        "id": "CC-BY-4.0",
+        "evidence_url": "https://zenodo.org/api/records/19059298",
+        "statement": {
+          "id": "cc-by-4.0"
+        }
+      },
+      "files": [
+        {
+          "case": "clinical-word",
+          "format": "docx",
+          "kind": "author original",
+          "path": "19059298/Manuscript.docx",
+          "url": "https://zenodo.org/api/records/19059298/files/Manuscript.docx/content",
+          "sha256": "44dfce02157372d4f62e47d8f3c3474fda8427b4042fbe08f2a1e2f7bde44203"
+        },
+        {
+          "case": "clinical-pdf",
+          "format": "pdf",
+          "kind": "LibreOffice export of native Word; not publisher PDF",
+          "path": "19059298/rendered/Manuscript.pdf",
+          "bundled": "derived/clinical.pdf",
+          "sha256": "b1c82ae4b35f5daaf83f7e701743e9dfc8b8a6af1fa0e271a69321274e9743ad",
+          "derived_from": {
+            "sha256": "44dfce02157372d4f62e47d8f3c3474fda8427b4042fbe08f2a1e2f7bde44203",
+            "command": "soffice --headless --convert-to pdf; isolated temporary profile, GSETTINGS_BACKEND=memory"
+          }
+        }
+      ],
+      "review_data": {
+        "title": "Clinical Practice Guidelines recommendations versus Cochrane systematic reviews on the management of decompensated liver cirrhosis in USA and Europe",
+        "abstract": "Background: Clinical practice guidelines (CPGs) contain recommendations intended to aid clinicians in providing optimal care for patients and should be derived from the best quality evidence available. This exploratory study aimed to determine the proportion of guideline statements from major liver organisations in USA and Europe that concurred with the conclusions of Cochrane systematic reviews.\n\nMethods: We selected four topics related to decompensated cirrhosis on which our group has recently published 7 Cochrane systematic reviews (variceal bleeding; spontaneous bacterial peritonitis; ascites; hepatorenal syndrome). We performed a purposive sample of CPGs from leading organisations covering these topics until January 2022. For each guideline recommendation statement, two researchers independently assessed whether there was agreement in the statement and the strength of recommendation given by guideline authors when compared to those derived from the Cochrane reviews. We meta-analysed the proportion of agreement using R utilising the ‘Generalised Linear Mixed Model’ method for meta-analysis of proportions.\n\nResults: We identified 9 CPGs covering the 4 topics which contained 62 guideline statements that were also covered in 7 Cochrane reviews. Agreement between the guideline authors and independent assessment was 0.145 (95% CI: 0.077 to 0.256). Most disagreements related to the strength of recommendation given: the guideline authors overstated the strength of recommendation. These disagreements could not be explained by the difference in the search dates between the guidelines and Cochrane reviews.\n\nConclusion: Our findings suggest a systematic issue with guideline developers overstating the strength of recommendations, which has the potential for direct impact on patient care.",
+        "language": "en",
+        "keywords": [
+          "Practice guideline",
+          "Bias",
+          "Liver cirrhosis",
+          "Shared-decision making"
+        ],
+        "authors": [
+          {
+            "name": "Kurinchi Gurusamy",
+            "email": "k.gurusamy@ucl.ac.uk",
+            "orcid": null,
+            "affiliations": [
+              "Division of Surgery and Interventional Science, Hampstead Campus, University College London, 9th Floor, Royal Free Hospital, Rowland Hill Street, London NW3 2PF, UK"
+            ],
+            "contributions": [],
+            "corresponding": true,
+            "source_note": "原生Word署名机构编号/作者联系资料逐项核对；未将仓库登记的ORCID自动补到文稿；测试驱动模拟负责人。"
+          },
+          {
+            "name": "Danielle Roberts",
+            "email": "danielle.roberts5@nhs.net",
+            "orcid": null,
+            "affiliations": [
+              "Division of Surgery and Interventional Science, Hampstead Campus, University College London, 9th Floor, Royal Free Hospital, Rowland Hill Street, London NW3 2PF, UK",
+              "North End Medical Centre, Hammersmith & Fulham Partnership, 160 North End Road, West Kensington, London, W14 9PR"
+            ],
+            "contributions": [],
+            "corresponding": false,
+            "source_note": "原生Word署名机构编号/作者联系资料逐项核对；未将仓库登记的ORCID自动补到文稿；测试驱动模拟负责人。"
+          },
+          {
+            "name": "Jeffrey Leung",
+            "email": "j.leung.16@ucl.ac.uk",
+            "orcid": null,
+            "affiliations": [
+              "Division of Surgery and Interventional Science, Hampstead Campus, University College London, 9th Floor, Royal Free Hospital, Rowland Hill Street, London NW3 2PF, UK"
+            ],
+            "contributions": [],
+            "corresponding": false,
+            "source_note": "原生Word署名机构编号/作者联系资料逐项核对；未将仓库登记的ORCID自动补到文稿；测试驱动模拟负责人。"
+          },
+          {
+            "name": "Alastair O’Brien",
+            "email": "a.o'brien@ucl.ac.uk",
+            "orcid": null,
+            "affiliations": [
+              "Division of Medicine, University College London, Gower Street, London, WC1E 6BT"
+            ],
+            "contributions": [],
+            "corresponding": false,
+            "source_note": "原生Word署名机构编号/作者联系资料逐项核对；未将仓库登记的ORCID自动补到文稿；测试驱动模拟负责人。"
+          },
+          {
+            "name": "Christian Gluud",
+            "email": "christian.gluud@ctu.dk",
+            "orcid": null,
+            "affiliations": [
+              "Cochrane Hepato-Biliary Group and Copenhagen Trial Unit, Centre for Clinical Intervention Research, The Capital Region, Copenhagen University Hospital ─ Rigshospitalet, Blegdamsvej 9, DK 2100, Copenhagen, Denmark",
+              "Department of Regional Health Research, The Faculty of Health Sciences, University of Southern Denmark, DK 5000 Odense, Denmark"
+            ],
+            "contributions": [],
+            "corresponding": false,
+            "source_note": "原生Word署名机构编号/作者联系资料逐项核对；未将仓库登记的ORCID自动补到文稿；测试驱动模拟负责人。"
+          },
+          {
+            "name": "Dimitrinka Nikolova",
+            "email": "dimitrinka.nikolova@ctu.dk",
+            "orcid": null,
+            "affiliations": [
+              "Cochrane Hepato-Biliary Group and Copenhagen Trial Unit, Centre for Clinical Intervention Research, The Capital Region, Copenhagen University Hospital ─ Rigshospitalet, Blegdamsvej 9, DK 2100, Copenhagen, Denmark"
+            ],
+            "contributions": [],
+            "corresponding": false,
+            "source_note": "原生Word署名机构编号/作者联系资料逐项核对；未将仓库登记的ORCID自动补到文稿；测试驱动模拟负责人。"
+          },
+          {
+            "name": "Chavdar Pavlov",
+            "email": "chpavlov@mail.ru",
+            "orcid": null,
+            "affiliations": [
+              "Department of Therapy, I.M. Sechenov First Moscow State Medical University, Moscow, Russian Federation"
+            ],
+            "contributions": [],
+            "corresponding": false,
+            "source_note": "原生Word署名机构编号/作者联系资料逐项核对；未将仓库登记的ORCID自动补到文稿；测试驱动模拟负责人。"
+          },
+          {
+            "name": "Brian Davidson",
+            "email": "b.davidson@ucl.ac.uk",
+            "orcid": null,
+            "affiliations": [
+              "Division of Surgery and Interventional Science, Hampstead Campus, University College London, 9th Floor, Royal Free Hospital, Rowland Hill Street, London NW3 2PF, UK"
+            ],
+            "contributions": [],
+            "corresponding": false,
+            "source_note": "原生Word署名机构编号/作者联系资料逐项核对；未将仓库登记的ORCID自动补到文稿；测试驱动模拟负责人。"
+          }
+        ],
+        "source_kind": "public_authorized",
+        "source_note": "CC BY 4.0，公开未发表手稿：https://zenodo.org/records/19059298。原生Word与隔离LibreOffice转制PDF分别保留；此为自动化测试模拟负责人核对，不代表真实作者身份或正式投稿确认。"
+      }
+    },
+    {
+      "id": "reproducible",
+      "source_url": "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003285",
+      "publication_kind": "published editorial",
+      "license": {
+        "id": "CC-BY",
+        "version": "not specified in article statement",
+        "evidence_url": "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003285",
+        "statement": "This is an open-access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are credited."
+      },
+      "files": [
+        {
+          "case": "reproducible-pdf",
+          "format": "pdf",
+          "kind": "publisher original",
+          "path": "reproducible/article.pdf",
+          "url": "https://journals.plos.org/ploscompbiol/article/file?id=10.1371/journal.pcbi.1003285&type=printable",
+          "sha256": "35648a3880bdd8bf30e8212a3847b7bd35f504ee5ccbd1ad3856d206acd181db"
+        },
+        {
+          "case": "reproducible-word",
+          "format": "docx",
+          "kind": "text-only derivative of complete publisher JATS; not author Word",
+          "path": "reproducible/publisher-jats-derived.docx",
+          "bundled": "derived/reproducible.docx",
+          "sha256": "938bdfb905c37cf21d9b95d3f0934483c7c0472a8e6beff494702bf40d636ba1",
+          "derived_from": {
+            "url": "https://journals.plos.org/ploscompbiol/article/file?id=10.1371/journal.pcbi.1003285&type=manuscript",
+            "sha256": "ceebcff22f523baedcd50c42e3d603e590db4b345dd99c5a178839c866b43d66"
+          }
+        }
+      ],
+      "review_data": {
+        "title": "Ten Simple Rules for Reproducible Computational Research",
+        "abstract": "Editor-entered summary for evaluation: this editorial describes ten rules for reproducible computational research. It has no separate author-labelled abstract in the evaluated source.",
+        "language": "en",
+        "keywords": [
+          "reproducibility",
+          "research methods"
+        ],
+        "authors": [
+          {
+            "name": "Geir Kjetil Sandve",
+            "email": "geirksa@ifi.uio.no",
+            "orcid": null,
+            "affiliations": [
+              "Department of Informatics, University of Oslo, Blindern, Oslo, Norway",
+              "Centre for Cancer Biomedicine, University of Oslo, Blindern, Oslo, Norway"
+            ],
+            "contributions": [],
+            "corresponding": true,
+            "source_note": "按出版社JATS与PDF署名/机构/通讯信息逐项核对；自动化测试模拟负责人，不代表身份认证。"
+          },
+          {
+            "name": "Anton Nekrutenko",
+            "email": "",
+            "orcid": null,
+            "affiliations": [
+              "Department of Biochemistry and Molecular Biology and The Huck Institutes for the Life Sciences, Penn State University, University Park, Pennsylvania, United States of America"
+            ],
+            "contributions": [],
+            "corresponding": false,
+            "source_note": "按出版社JATS与PDF署名/机构/通讯信息逐项核对；自动化测试模拟负责人，不代表身份认证。"
+          },
+          {
+            "name": "James Taylor",
+            "email": "",
+            "orcid": null,
+            "affiliations": [
+              "Department of Biology and Department of Mathematics and Computer Science, Emory University, Atlanta, Georgia, United States of America"
+            ],
+            "contributions": [],
+            "corresponding": false,
+            "source_note": "按出版社JATS与PDF署名/机构/通讯信息逐项核对；自动化测试模拟负责人，不代表身份认证。"
+          },
+          {
+            "name": "Eivind Hovig",
+            "email": "",
+            "orcid": null,
+            "affiliations": [
+              "Department of Informatics, University of Oslo, Blindern, Oslo, Norway",
+              "Department of Tumor Biology, Institute for Cancer Research, The Norwegian Radium Hospital, Oslo University Hospital, Montebello, Oslo, Norway",
+              "Institute for Medical Informatics, The Norwegian Radium Hospital, Oslo University Hospital, Montebello, Oslo, Norway"
+            ],
+            "contributions": [],
+            "corresponding": false,
+            "source_note": "按出版社JATS与PDF署名/机构/通讯信息逐项核对；自动化测试模拟负责人，不代表身份认证。"
+          }
+        ],
+        "source_kind": "public_authorized",
+        "source_note": "CC BY：https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003285；所有作者/机构按原文核对。此为自动化测试驱动模拟编辑确认，不是正式投稿；关键词为编辑描述；摘要为明确标记的编辑补写，原文无独立Abstract。"
+      }
+    },
+    {
+      "id": "research-findings",
+      "source_url": "https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.0020124",
+      "publication_kind": "published essay",
+      "license": {
+        "id": "CC-BY",
+        "version": "not specified in article statement",
+        "evidence_url": "https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.0020124",
+        "statement": "This is an open-access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited."
+      },
+      "files": [
+        {
+          "case": "research-findings-pdf",
+          "format": "pdf",
+          "kind": "publisher original",
+          "path": "research-findings/article.pdf",
+          "url": "https://journals.plos.org/plosmedicine/article/file?id=10.1371/journal.pmed.0020124&type=printable",
+          "sha256": "ffc1005680cb620eec4c913437dfabbf311b535cfe16cbaeb2faec1f92afc362"
+        },
+        {
+          "case": "research-findings-word",
+          "format": "docx",
+          "kind": "text-only derivative of complete publisher JATS; not author Word",
+          "path": "research-findings/publisher-jats-derived.docx",
+          "bundled": "derived/research-findings.docx",
+          "sha256": "45afe32b42dfc4d5b1b3ebef4db35e8a6897e68557830e7df4b09516fcbc749c",
+          "derived_from": {
+            "url": "https://journals.plos.org/plosmedicine/article/file?id=10.1371/journal.pmed.0020124&type=manuscript",
+            "sha256": "9aeb9341307ea671da5b7b7efa94c8ad8b0a0a5f567a6883a3a85cb0c5c5a2d8"
+          }
+        }
+      ],
+      "review_data": {
+        "title": "Why Most Published Research Findings Are False",
+        "abstract": "There is increasing concern that most current published research findings are false. The probability that a research claim is true may depend on study power and bias, the number of other studies on the same question, and, importantly, the ratio of true to no relationships among the relationships probed in each scientific field. In this framework, a research finding is less likely to be true when the studies conducted in a field are smaller; when effect sizes are smaller; when there is a greater number and lesser preselection of tested relationships; where there is greater flexibility in designs, definitions, outcomes, and analytical modes; when there is greater financial and other interest and prejudice; and when more teams are involved in a scientific field in chase of statistical significance. Simulations show that for most study designs and settings, it is more likely for a research claim to be false than true. Moreover, for many current scientific fields, claimed research findings may often be simply accurate measures of the prevailing bias. In this essay, I discuss the implications of these problems for the conduct and interpretation of research.",
+        "language": "en",
+        "keywords": [
+          "research findings",
+          "statistical inference"
+        ],
+        "authors": [
+          {
+            "name": "John P. A. Ioannidis",
+            "email": "jioannid@cc.uoi.gr",
+            "orcid": null,
+            "affiliations": [
+              "Department of Hygiene and Epidemiology, University of Ioannina School of Medicine, Ioannina, Greece",
+              "Institute for Clinical Research and Health Policy Studies, Department of Medicine, Tufts-New England Medical Center, Tufts University School of Medicine, Boston, Massachusetts, United States of America"
+            ],
+            "contributions": [],
+            "corresponding": true,
+            "source_note": "按出版社JATS与PDF署名/机构/通讯信息逐项核对；自动化测试模拟负责人，不代表身份认证。"
+          }
+        ],
+        "source_kind": "public_authorized",
+        "source_note": "CC BY：https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.0020124；所有作者/机构按原文核对。此为自动化测试驱动模拟编辑确认，不是正式投稿；关键词为编辑描述；摘要取出版社JATS Summary，PDF中的Summary位置另行保留。"
+      }
+    }
+  ]
+}

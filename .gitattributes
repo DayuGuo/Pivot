@@ -1,3 +1,5 @@
 # Preserve generated manuscript fixture bytes, including PDF cross-reference records.
 tests/documents/*.pdf binary
 tests/documents/*.docx binary
+evals/public_documents/derived/*.pdf binary
+evals/public_documents/derived/*.docx binary

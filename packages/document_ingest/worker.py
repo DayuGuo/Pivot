@@ -4,12 +4,13 @@ import io
 import json
 import logging
 import posixpath
+import re
 import resource
 import stat
 import sys
 import unicodedata
 import zipfile
-from urllib.parse import urlsplit
+from urllib.parse import unquote, urlsplit
 
 # Apply bounds before importing the third-party parsers, not in preexec_fn of a
 # multithreaded API. These are resource controls, not an OS sandbox.
@@ -23,7 +24,14 @@ resource.setrlimit(resource.RLIMIT_NPROC, (0, 0))
 
 from defusedxml import ElementTree as ET  # noqa: E402
 from pypdf import PdfReader  # noqa: E402
-from pypdf.generic import ArrayObject, DictionaryObject, IndirectObject  # noqa: E402
+from pypdf.generic import (  # noqa: E402
+    ArrayObject,
+    DictionaryObject,
+    FloatObject,
+    IndirectObject,
+    NullObject,
+    NumberObject,
+)
 
 logging.disable(logging.CRITICAL)
 MAX_BYTES = 5 * 1024 * 1024
@@ -98,6 +106,31 @@ def result(parts, kind, parser, warnings):
     }
 
 
+def passive_pdf_destination(value):
+    """Only an explicit local page/fit array, never an action dictionary or URI."""
+    if isinstance(value, IndirectObject):
+        value = value.get_object()
+    if not isinstance(value, ArrayObject) or len(value) < 2:
+        return False
+    page = value[0].get_object() if isinstance(value[0], IndirectObject) else value[0]
+    arities = {
+        "/XYZ": 5,
+        "/Fit": 2,
+        "/FitH": 3,
+        "/FitV": 3,
+        "/FitR": 6,
+        "/FitB": 2,
+        "/FitBH": 3,
+        "/FitBV": 3,
+    }
+    return (
+        isinstance(page, DictionaryObject)
+        and page.get("/Type") == "/Page"
+        and len(value) == arities.get(value[1])
+        and all(isinstance(v, (NumberObject, FloatObject, NullObject)) for v in value[2:])
+    )
+
+
 def check_pdf_graph(reader):
     seen = set()
     count = 0
@@ -126,7 +159,6 @@ def check_pdf_graph(reader):
                 "/JavaScript",
                 "/JS",
                 "/AA",
-                "/OpenAction",
                 "/EmbeddedFiles",
                 "/EF",
                 "/AF",
@@ -135,6 +167,8 @@ def check_pdf_graph(reader):
                 "/RichMediaContent",
                 "/RichMediaSettings",
             }
+            if "/OpenAction" in value and not passive_pdf_destination(value["/OpenAction"]):
+                raise Rejected("document_active_content")
             if banned.intersection(value) or value.get("/Subtype") in {
                 "/FileAttachment",
                 "/RichMedia",
@@ -170,12 +204,14 @@ def pdf(raw):
         "pdf_text_reading_order_requires_review",
         "figures_images_and_equations_not_interpreted",
     ]
+    if "/OpenAction" in reader.trailer["/Root"]:
+        warnings.append("pdf_initial_page_destination_ignored")
     for page in reader.pages:
         value = page.extract_text(extraction_mode="plain")
         if not value or not value.strip():
             raise Rejected("document_text_missing")
         parts.append((value, None))
-    return result(parts, "pdf_page", "pypdf-6.21.4-text-v1", warnings)
+    return result(parts, "pdf_page", "pypdf-6.21.4-text-v2", warnings)
 
 
 def xml(data):
@@ -197,6 +233,91 @@ def paragraph_text(paragraph):
         elif node.tag in {W + "br", W + "cr"}:
             output.append("\n")
     return "".join(output)
+
+
+def internal_target(rels_name, target):
+    """Resolve OPC part URIs inside the ZIP namespace, never filesystem paths."""
+    destination = urlsplit(target)
+    if (
+        not target
+        or destination.scheme
+        or destination.netloc
+        or destination.query
+        or "\\" in target
+        or any(unicodedata.category(c).startswith("C") for c in target)
+    ):
+        raise Rejected("document_unsafe_relationship")
+    path = unquote(destination.path)
+    if "\\" in path or any(unicodedata.category(c).startswith("C") for c in path):
+        raise Rejected("document_unsafe_relationship")
+    if rels_name == "_rels/.rels":
+        base = ""
+    elif "/_rels/" in rels_name and rels_name.endswith(".rels"):
+        base = rels_name.rsplit("/_rels/", 1)[0]
+    else:
+        raise Rejected("document_unsafe_relationship")
+    resolved = posixpath.normpath(
+        path.lstrip("/") if path.startswith("/") else base + "/" + path if base else path
+    )
+    if resolved in {"", ".", ".."} or resolved.startswith(("../", "/")):
+        raise Rejected("document_unsafe_relationship")
+    return resolved
+
+
+def cached_field_kind(instruction):
+    instruction = instruction.strip()
+    if re.fullmatch(r"(?:PAGE|NUMPAGES)(?:\s+\\\*\s+[A-Za-z]+)*", instruction, re.I):
+        return "pagination"
+    match = re.match(r"ADDIN\s+(EN\.(?:CITE(?:\.DATA)?|REFLIST))(?:\s|$)", instruction, re.I)
+    if match:
+        return "data" if match[1].upper() == "EN.CITE.DATA" else "citation"
+    raise Rejected("document_active_content")
+
+
+def validate_cached_fields(root, warnings):
+    """Do not evaluate fields: only accept structured cached pagination/EndNote text."""
+    stack = []
+    for node in root.iter():
+        if node.tag == W + "fldSimple":
+            kind = cached_field_kind(node.get(W + "instr", ""))
+            if not any((n.text or "").strip() for n in node.iter(W + "t")):
+                if kind != "pagination":
+                    raise Rejected("document_text_incomplete")
+                warnings.append("docx_pagination_not_rendered")
+            warnings.append("docx_cached_fields_not_updated")
+        elif node.tag == W + "fldChar":
+            state = node.get(W + "fldCharType")
+            if state == "begin":
+                if len(stack) >= 16:
+                    raise Rejected("document_resource_limit")
+                stack.append({"code": [], "result": False, "visible": False})
+            elif state == "separate":
+                if not stack or stack[-1]["result"]:
+                    raise Rejected("document_active_content")
+                cached_field_kind("".join(stack[-1]["code"]))
+                stack[-1]["result"] = True
+            elif state == "end":
+                if not stack:
+                    raise Rejected("document_active_content")
+                field = stack.pop()
+                kind = cached_field_kind("".join(field["code"]))
+                if kind != "data" and (not field["result"] or not field["visible"]):
+                    raise Rejected("document_text_incomplete")
+                warnings.append("docx_cached_fields_not_updated")
+            else:
+                raise Rejected("document_active_content")
+        elif node.tag == W + "instrText":
+            if not stack or stack[-1]["result"]:
+                raise Rejected("document_active_content")
+            stack[-1]["code"].append(node.text or "")
+        elif node.tag == W + "t" and stack:
+            if any(not f["result"] for f in stack):
+                raise Rejected("document_active_content")
+            if (node.text or "").strip():
+                for field in stack:
+                    field["visible"] = True
+    if stack:
+        raise Rejected("document_text_incomplete")
 
 
 def docx(raw):
@@ -298,19 +419,16 @@ def docx(raw):
                         ):
                             warnings.append("external_hyperlink_targets_ignored")
                             continue
-                    if (
-                        rel.tag != REL + "Relationship"
-                        or external
-                        or urlsplit(target).scheme
-                        or target.startswith(("/", "\\"))
-                        or "\\" in target
-                        or posixpath.normpath(target).startswith("../")
-                    ):
+                    if rel.tag != REL + "Relationship" or external:
                         raise Rejected("document_unsafe_relationship")
+                    resolved = internal_target(name, target)
+                    if resolved not in archive.namelist():
+                        raise Rejected("document_unsafe_relationship")
+            validate_cached_fields(root, warnings)
             for node in root.iter():
                 if node.tag in {W + "ins", W + "del", W + "moveFrom", W + "moveTo"}:
                     raise Rejected("document_tracked_changes")
-                if node.tag in {W + "object", W + "altChunk", W + "instrText", W + "fldSimple"}:
+                if node.tag in {W + "object", W + "altChunk"}:
                     raise Rejected("document_active_content")
                 if node.tag == W + "txbxContent":
                     raise Rejected("document_layout_unsupported")
@@ -328,9 +446,10 @@ def docx(raw):
             {
                 rel.get("Id"): (
                     rel.get("Type", ""),
-                    posixpath.normpath("word/" + rel.get("Target", "")),
+                    internal_target("word/_rels/document.xml.rels", rel.get("Target", "")),
                 )
                 for rel in relationships
+                if rel.get("TargetMode", "").lower() != "external"
             }
             if relationships is not None
             else {}
@@ -363,12 +482,14 @@ def docx(raw):
         for name, root in sources:
             for paragraph in root.iter(W + "p"):
                 value = paragraph_text(paragraph)
+                if paragraph.find(W + "pPr/" + W + "numPr") is not None:
+                    warnings.append("docx_list_markers_not_rendered")
                 if value.strip():
                     parts.append((value, name))
         return result(
             parts,
             "docx_paragraph",
-            "defusedxml-0.7.1-ooxml-v1",
+            "defusedxml-0.7.1-ooxml-v2",
             warnings,
         )
 

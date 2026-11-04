@@ -85,7 +85,7 @@ def _checked_result(result, extension):
     text = result["text"]
     if not text.strip() or len(text.encode("utf-8")) > MAX_TEXT_BYTES:
         raise DocumentError("document_text_limit")
-    parser_name = "pypdf-6.21.4-text-v1" if extension == "pdf" else "defusedxml-0.7.1-ooxml-v1"
+    parser_name = "pypdf-6.21.4-text-v2" if extension == "pdf" else "defusedxml-0.7.1-ooxml-v2"
     if (
         not isinstance(result["segments"], list)
         or not 1 <= len(result["segments"]) <= 5000

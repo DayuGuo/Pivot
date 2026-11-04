@@ -1,5 +1,7 @@
 # Pivot
 
+最新增量：[公开论文实测与修复](docs/development/public-paper-evaluation.md)。使用3篇许可明确的真实论文、6份原始或明确标注的转制PDF/Word检查全文、26位次作者与38项机构对应，并实际运行独立核对和真实DeepSeek问答。模型结果及已执行验收以PROGRESS顶部为准；文本抽取不等于视觉版面、公式或科学正确性验证。可复现实验入口与许可见[样本目录](evals/public_documents/README.md)。
+
 本轮新增：[PDF/Word 导入与人工核对](docs/development/document-import-review.md)。本机真实 DeepSeek 的 PDF、DOCX 提取和问答各通过，浏览器引用定位、刷新与 API/Web 重启恢复通过；最终完整回归以 [PROGRESS.md](PROGRESS.md) 顶部为准。公网静态 Demo 不包含此真实后端增量。
 
 仅使用合成或获授权的公开非保密材料。负责人确认的是资料版本，不是正式投稿、邮件或编辑决定；模型没有这些确认工具。需要显式重现真实合成验收时：`.venv/bin/python scripts/accept-document-import.py --live`（本机8100/55432；会新建合成资料并由测试驱动模拟演示负责人核对，不读取或打印模型密钥）。
