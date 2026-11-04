@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from packages.model_gateway.editorial import editorial_model_status
 
 from ..security import Actor
+from .author_links import author_issues
 from .document_sources import source_projection
 from .dossier_access import file_content, load, version
 from .dossier_chat_models import DossierAnswer
@@ -141,6 +142,7 @@ def projection(db: Session, actor: Actor, dossier_id: str, version_id: str | Non
         if check
         else None,
         "data": data.model_dump(),
+        "author_issues": author_issues(data.model_dump()),
         "document": document,
         "file": {
             "filename": item.file_name,

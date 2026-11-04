@@ -141,3 +141,31 @@ for (const extension of ["pdf", "docx"] as const) {
     await page.reload(); await expect(page.getByLabel("题名", { exact: true })).toHaveValue(reviewedTitle); expect((await (await page.request.get(`/api/dossiers/${id}`)).json()).verified).toBe(true);
   });
 }
+
+test("作者关联：不确定线索可定位，换序不改原候选标签，重复ORCID不能确认", async ({ page }) => {
+  const state = await fixtures(page);
+  const uncertain = imported(state);
+  uncertain.proposed_data.authors[0].orcid = "0000-0002-1825-0097";
+  uncertain.proposed_data.authors.push({ ...structuredClone(uncertain.proposed_data.authors[0]), name: "Synthetic Author Beta", email: "beta@synthetic.test", corresponding: false });
+  uncertain.metadata_uncertainties = [{ field_path: "authors.0.email", reason: "author_link_unresolved", evidence: { start: 0, end: points(firstPage), quote: firstPage, kind: "pdf_page", number: 1 } }];
+  await page.route(`**/api/dossiers/${ID}/imports/${IMPORT}`, route => route.fulfill({ json: uncertain }));
+  await openReview(page);
+  await page.getByRole("button", { name: "上移作者 2", exact: true }).click();
+  await page.getByText("1 项原稿关联需要核对", { exact: true }).click();
+  await expect(page.getByText(/原候选作者 1（Synthetic Author Alpha）/)).toBeVisible();
+  await expect(page.getByLabel("作者关联提示")).toContainText("同一 ORCID 被填写给多位作者");
+  await acknowledge(page).check();
+  await page.getByRole("button", { name: "核对并保存为新版本", exact: true }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "同一 ORCID 不能用于多位作者" })).toBeVisible();
+  await expect(page.locator('input[name="author-0-orcid"]')).toBeFocused();
+  expect(state.confirmBodies).toHaveLength(0);
+  await page.getByRole("tab", { name: "识别依据", exact: true }).click();
+  await page.getByRole("button", { name: "查看原文线索", exact: true }).click();
+  await expect(page.locator('mark[aria-label="已定位提取依据"]')).toHaveText(firstPage);
+  await expect(acknowledge(page)).not.toBeChecked();
+  await page.screenshot({ path: "artifacts/spec020/association-desktop.png" });
+  await page.setViewportSize({ width: 375, height: 812 });
+  await expect(page.getByLabel("询问当前资料")).toBeInViewport();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
+  await page.screenshot({ path: "artifacts/spec020/association-mobile.png" });
+});

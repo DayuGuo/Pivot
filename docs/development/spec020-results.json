@@ -1,0 +1,154 @@
+{
+  "schema": "spec020.delivery.v1",
+  "date": "2026-11-04",
+  "local_verify": {
+    "exit_code": 0,
+    "pytest": 1238,
+    "pytest_seconds": 378.5,
+    "playwright": 81,
+    "playwright_minutes": 2.2,
+    "third_party_warnings": 4,
+    "scope": "final contribution-link code, full serial verify"
+  },
+  "actual_deepseek_imports": {
+    "files": 6,
+    "author_positions": 26,
+    "name_errors": 0,
+    "affiliation_errors": 0,
+    "email_errors": 0,
+    "missing_listed_affiliations": 0,
+    "missing_listed_emails": 0,
+    "independent_gold": true
+  },
+  "frozen_support_benchmark": {
+    "quote_cases": 36,
+    "quotes_exact": true,
+    "support_passed": true,
+    "evaluation_errors": 0,
+    "false_acceptances": 0,
+    "false_rejections": 0,
+    "provider_attempts": 36,
+    "input_tokens": 44644,
+    "output_tokens": 2027,
+    "cost_usd": null
+  },
+  "historical_adopted_claim_recheck": {
+    "claims": 24,
+    "adopted": 22,
+    "withheld": 2,
+    "not_independent_gold": true,
+    "not_false_rejection_rate": true,
+    "history_unchanged": true
+  },
+  "final_browser_selection": {
+    "files": 6,
+    "questions": 12,
+    "adopted_claims": 23,
+    "withheld_claims": 3,
+    "all_adopted_have_original_file_citation": true,
+    "all_highlights_exact": true,
+    "selection": "initial eight questions plus corrected clinical-word two and research-findings-word two; all historical failures retained",
+    "extra_confirmations": 0,
+    "mail_or_decision_requests": 0,
+    "passed": true
+  },
+  "data_preservation": {
+    "existing_rows_unchanged": true,
+    "tables": 32,
+    "existing_rows": 825,
+    "new_public_eval_rows": 111,
+    "added": {
+      "publishing_action_receipts": 35,
+      "publishing_document_approvals": 6,
+      "publishing_document_imports": 6,
+      "publishing_document_sources": 6,
+      "publishing_dossier_answers": 17,
+      "publishing_dossier_checks": 6,
+      "publishing_dossier_turns": 17,
+      "publishing_dossier_versions": 12,
+      "publishing_dossiers": 6
+    }
+  },
+  "supplier_telemetry": {
+    "scope": "this batch actual supplier attempts from six imports, seventeen stored QA turns and all standalone scoring/rechecks including earlier failures; no Codex token estimate",
+    "imports": {
+      "attempts": 7,
+      "input_tokens": 32887,
+      "output_tokens": 10960,
+      "cost_usd": null
+    },
+    "qa": {
+      "attempts": 54,
+      "input_tokens": 216385,
+      "output_tokens": 7777,
+      "cost_usd": null
+    },
+    "standalone_including_failures": {
+      "attempts": 135,
+      "input_tokens": 166914,
+      "output_tokens": 7733,
+      "cost_usd": null
+    },
+    "total": {
+      "attempts": 196,
+      "input_tokens": 416186,
+      "output_tokens": 26470,
+      "cost_usd": null
+    }
+  },
+  "human_gates": {
+    "responsible_review_simulated_by_test_driver": true,
+    "import_confirmations": 6,
+    "model_confirmation_tools": 0,
+    "email_send_enabled": false,
+    "mailpit_messages": 0,
+    "mail_or_decision_requests": 0,
+    "vps_deployed": false
+  },
+  "limits": [
+    "Three licensed papers, not general accuracy estimate",
+    "Same-model separate-context check can disagree; human review required",
+    "Recorded ORCID is not OAuth-authenticated",
+    "Existing PDF/Word visual, formula, bullet and OCR limitations remain",
+    "No independent subagent review this batch"
+  ],
+  "final_verify_pending": false,
+  "contribution_links": {
+    "red_test_failed_as_expected": true,
+    "related_tests_passed": 78,
+    "six_file_offline_regression": true,
+    "real_model_contribution_accuracy_measured": false
+  },
+  "runtime_source": "d7c90b03f612f8761d167eed866a8b63165acbfa",
+  "final_local_update": {
+    "publishing_tables": 32,
+    "existing_rows": 936,
+    "all_row_digests_unchanged": true,
+    "editorial_provider": "deepseek",
+    "email_send_enabled": false
+  },
+  "release": {
+    "tag": "v0.2.0-preview.4",
+    "url": "https://github.com/DayuGuo/Pivot/releases/tag/v0.2.0-preview.4",
+    "sha256": "8dd2a9a99e1906cfeaa3d96021e5cfa22916ffa5af73b06d5e8f8563ebf59d85",
+    "bytes": 283323571,
+    "source": "d7c90b03f612f8761d167eed866a8b63165acbfa",
+    "platform": "linux/amd64",
+    "inner_hashes_verified": 7,
+    "entries": 8,
+    "native_run_id": 41878817650,
+    "full_ci_run_id": 41878817674,
+    "static_run_id": 41878817834,
+    "all_job_steps_success": true,
+    "recorded_full_ci_aggregate_status": "in_progress",
+    "recorded_full_ci_aggregate_conclusion": null,
+    "all_five_server_asset_digests_match": true
+  },
+  "integration": {
+    "pull_request": "https://github.com/DayuGuo/Pivot/pull/1",
+    "main_updated": false,
+    "main_source": "a898a02279b5d46500215c185c4820fd2f4ca059",
+    "merge_requires_explicit_user_authorization": true,
+    "reason": "automatic approval review rejected direct default-branch publication"
+  }
+}

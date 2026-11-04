@@ -18,11 +18,17 @@ export type DossierDocument = {
   import_id: string; filename: string; media_type: string; sha256: string; byte_size: number; download_url: string;
   parser: string; origin_digest: string; segments: DocumentSegment[]; warnings: string[]; approval: { id: string; by: string; at: string };
 };
+export type EvidenceSpan = { start: number; end: number; quote: string; kind: DocumentLocation["kind"]; number: number };
+export type MetadataIssue = { field_path: string; reason: string; evidence?: EvidenceSpan };
+export type FieldSource = EvidenceSpan & { field_path: string; value: unknown; association?: { method: string; identity_authenticated: false; evidence: EvidenceSpan[] } };
+export type ClaimSupport = { status: "supported" | "insufficient" | "contradicted" | "not_checked"; method: string; reason?: string; evidence_scope?: "original_text" | "original_metadata" | "recorded_metadata" };
+export type ReviewClaim = { text: string; citations: Citation[]; support?: ClaimSupport };
 export type DocumentImport = {
   id: string; dossier_id: string; base_revision: number; base_version_id: string; digest: string;
   filename: string; media_type: string; byte_size: number; sha256: string; original_download_url: string; parser: string;
   text: string; segments: DocumentSegment[]; warnings: string[]; proposed_data: DossierData;
-  field_sources: { field_path: string; value: unknown; quote: string; start: number; end: number; kind: DocumentLocation["kind"]; number: number }[];
+  field_sources: FieldSource[];
+  metadata_uncertainties?: MetadataIssue[];
   metadata_provider: "deepseek" | "mock"; metadata_model: string; telemetry: unknown[];
   confirmed_version_id: string | null; editable: boolean;
 };
@@ -35,12 +41,13 @@ export type Coverage = { total_chunks: number; read_chunks: number; total_charac
 export type ModelStatus = { provider: "deepseek" | "mock" | "unavailable"; model: string; ready: boolean };
 export type Message = {
   id: string; question: string; answer: string; provider: "rules" | "deepseek" | "mock"; version_id: string; version_no: number;
-  model?: string; claims?: { text: string; citations: Citation[] }[]; questions?: string[]; external_references?: ExternalReference[]; coverage?: Coverage;
+  model?: string; claims?: ReviewClaim[]; withheld_claims?: ReviewClaim[]; support_review?: { schema: string; method: string; evaluated_claims: number; withheld_count?: number }; questions?: string[]; external_references?: ExternalReference[]; coverage?: Coverage;
 };
 export type Dossier = {
   id: string; revision: number; version_id: string; version_no: number; content_digest: string; is_current: boolean; verified: boolean;
   verification: null | { id: string; by: string; at: string };
   data: DossierData;
+  author_issues?: MetadataIssue[];
   file: null | { filename: string; sha256: string; byte_size: number; media_type: string; text: string; download_url: string };
   missing: { field: string; message: string }[];
   versions: { id: string; number: number; title: string; created_at: string; verified: boolean }[];

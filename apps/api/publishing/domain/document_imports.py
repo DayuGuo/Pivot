@@ -108,6 +108,7 @@ def import_projection(db, actor, target, import_id):
         "warnings": e["warnings"],
         "proposed_data": item.proposed_data,
         "field_sources": item.field_sources,
+        "metadata_uncertainties": e.get("metadata_uncertainties", []),
         "metadata_provider": item.metadata_provider,
         "metadata_model": item.metadata_model,
         "telemetry": item.telemetry_json,

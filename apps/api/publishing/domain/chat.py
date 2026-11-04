@@ -2,7 +2,6 @@
 
 import hashlib
 import json
-import math
 import re
 import time
 from typing import Literal
@@ -18,9 +17,9 @@ from packages.model_gateway.editorial import (
     TURN_TIMEOUT_SECONDS,
     editorial_model_status,
     get_editorial_provider,
-    safe_error_code,
 )
 from packages.model_gateway.gateway import GatewayError
+from packages.model_gateway.protocol import sanitized_telemetry, tool_schema
 
 from ..models import now, uid
 from ..security import Actor
@@ -58,34 +57,6 @@ def failure_code(error):
     if type(value) is str and value in SAFE_ERROR_CODES | SAFE_TURN_ERROR_CODES:
         return value
     return "publishing_turn_failed"
-
-
-def sanitized_telemetry(metric):
-    """Provider/body-defined strings never become diagnostic fields."""
-    provider = getattr(metric, "provider", None)
-    models = {"deepseek": "deepseek-flash", "mock": "contextual-simulator-v1"}
-    provider = provider if type(provider) is str and provider in models else "unavailable"
-
-    def counter(name, default=None):
-        value = getattr(metric, name, None)
-        return value if type(value) is int and 0 <= value <= 10**12 else default
-
-    success = getattr(metric, "success", None) is True
-    cost = getattr(metric, "cost_usd", None)
-    return {
-        "provider": provider,
-        "model": models.get(provider, "unknown"),
-        "success": success,
-        "duration_ms": counter("duration_ms"),
-        "input_tokens": counter("input_tokens"),
-        "output_tokens": counter("output_tokens"),
-        "cost_usd": cost
-        if type(cost) in {int, float} and 0 <= cost <= 10**6 and math.isfinite(cost)
-        else None,
-        "cost_basis": "unknown; reconcile provider invoice",
-        "rework_count": counter("rework_count", 0),
-        "error_code": None if success else safe_error_code(getattr(metric, "error_code", None)),
-    }
 
 
 def record_failure(db, actor, request_id, body, error, telemetry):
@@ -227,24 +198,6 @@ def history(db: Session, actor: Actor, context: ChatContext) -> dict:
             continue
         messages.extend(row.response["messages"])
     return {"messages": messages, "provider": editorial_model_status()}
-
-
-def tool_schema(model):
-    """Inline bounded local DTO references for portable function-schema transport."""
-    schema = model.model_json_schema()
-    definitions = schema.pop("$defs", {})
-
-    def expand(value):
-        if isinstance(value, list):
-            return [expand(item) for item in value]
-        if isinstance(value, dict):
-            if "$ref" in value:
-                reference = value["$ref"]
-                return expand(definitions[reference.removeprefix("#/$defs/")])
-            return {key: expand(item) for key, item in value.items() if key != "$defs"}
-        return value
-
-    return expand(schema)
 
 
 def function(name, description, properties=None, required=None):

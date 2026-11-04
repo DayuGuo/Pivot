@@ -3,15 +3,17 @@
 import json
 import re
 import time
+from collections import Counter
 from typing import Literal
 
 from pydantic import Field, ValidationError
 
 from packages.model_gateway.editorial import get_editorial_provider
 from packages.model_gateway.gateway import GatewayError
+from packages.model_gateway.protocol import sanitized_telemetry, tool_schema
 from packages.text_evidence import whitespace_evidence
 
-from .chat import sanitized_telemetry, tool_schema
+from .author_links import AuthorLinks, byline_ids
 from .dossier_evidence import credential_like
 from .dossier_schemas import DossierData
 from .schemas import StrictInput
@@ -163,9 +165,21 @@ def supplement_contact_emails(candidate, text):
         )
         if match:
             found.setdefault(index, {})[match[1]] = front[start : end + match.end()]
+    links = AuthorLinks({"text": text, "segments": []}, [a.name.value for a in candidate.authors])
+    footnotes = re.findall(
+        r"(?im)^\s*\*[ \t]*(?:e-?mail|邮箱)[ \t]*[:：][ \t]*([A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})",
+        front,
+    )
     authors = []
     for index, author in enumerate(candidate.authors):
         emails = found.get(index, {})
+        if not emails and len(set(footnotes)) == 1:
+            address = footnotes[0]
+            spans = links.email_footnote(author.name.value, address)
+            if spans:
+                start, end = spans[-1]
+                emails = {address: text[start:end]}
+
         if author.email is None and len(emails) == 1:
             address, quote = next(iter(emails.items()))
             author = author.model_copy(update={"email": Quoted(value=address, quote=quote)})
@@ -321,7 +335,9 @@ def identify(extraction, base_data, validate, deadline, telemetry=None, diagnost
                 )
         if candidate is None:
             raise GatewayError("document_metadata_invalid")
-    data, sources = merge_candidate(candidate, extraction, base_data)
+    uncertainties = []
+    data, sources = merge_candidate(candidate, extraction, base_data, uncertainties=uncertainties)
+    extraction["metadata_uncertainties"] = uncertainties
     return (
         data,
         sources,
@@ -336,12 +352,7 @@ def fold_whitespace(value):
 
 
 def byline_affiliation_ids(text, name):
-    start = text.find(name)
-    if start < 0 or start > 14000:
-        return set()
-    following = text[start + len(name) : start + len(name) + 45]
-    match = re.match(r"[ \t]*([0-9]{1,2}(?:[ \t]*,[ \t]*[0-9]{1,2})*)(?=[*†‡, \t\n]|$)", following)
-    return set(re.findall(r"[0-9]+", match[1])) if match else set()
+    return byline_ids(text, name)
 
 
 def numbered_affiliation_evidence(text, name, institution, known_ids):
@@ -372,9 +383,10 @@ def numbered_affiliation_evidence(text, name, institution, known_ids):
     return "\n".join(allowed)
 
 
-def merge_candidate(candidate, extraction, base_data):
+def merge_candidate(candidate, extraction, base_data, *, uncertainties=None):
     text = extraction["text"]
     sources = []
+    uncertainties = [] if uncertainties is None else uncertainties
     normalized = None
     data = DossierData.model_validate(base_data).model_dump()
 
@@ -438,6 +450,34 @@ def merge_candidate(candidate, extraction, base_data):
         names = [
             value(author.name, f"authors.{i}.name") for i, author in enumerate(candidate.authors)
         ]
+        links = AuthorLinks(extraction, names)
+        orcids = Counter(
+            (a.orcid.value.rsplit("/", 1)[-1].upper() if a.orcid else "") for a in candidate.authors
+        )
+
+        def uncertain(path, reason, source=None):
+            issue = {"field_path": path, "reason": reason}
+            if source is not None:
+                issue["evidence"] = {
+                    k: source[k] for k in ("start", "end", "quote", "kind", "number")
+                }
+            uncertainties.append(issue)
+
+        def linked(field, path, name, kind):
+            if field is None:
+                return None
+            actual = value(field, path)
+            source = sources[-1]
+            relation = links.bind(name, actual, kind)
+            if kind == "orcid" and orcids[field.value.rsplit("/", 1)[-1].upper()] > 1:
+                relation = None
+            if relation is None:
+                sources.pop()
+                uncertain(path, "author_link_unresolved", source)
+                return None
+            source["association"] = relation
+            return actual
+
         known_ids = set().union(*(byline_affiliation_ids(text, name) for name in names))
         for i, author in enumerate(candidate.authors):
             prefix = f"authors.{i}"
@@ -451,20 +491,20 @@ def merge_candidate(candidate, extraction, base_data):
                     raise CandidateEvidenceError(
                         "corresponding_evidence_invalid", prefix + ".corresponding"
                     )
-                corresponding = True
-                start = text.index(author.corresponding_quote)
-                segment = next(s for s in extraction["segments"] if s["start"] <= start < s["end"])
-                sources.append(
-                    {
-                        "field_path": prefix + ".corresponding",
-                        "value": "true",
-                        "quote": author.corresponding_quote,
-                        "start": start,
-                        "end": start + len(author.corresponding_quote),
-                        "kind": segment["kind"],
-                        "number": segment["number"],
-                    }
-                )
+                relation = links.correspondence(names[i])
+                if relation is None:
+                    uncertain(prefix + ".corresponding", "corresponding_link_unresolved")
+                else:
+                    corresponding = True
+                    origin = relation["evidence"][0]
+                    sources.append(
+                        {
+                            **origin,
+                            "field_path": prefix + ".corresponding",
+                            "value": "true",
+                            "association": relation,
+                        }
+                    )
             name = names[i]
             affiliations = []
             for j, field in enumerate(author.affiliations):
@@ -474,21 +514,54 @@ def merge_candidate(candidate, extraction, base_data):
                     raise CandidateEvidenceError(
                         "affiliation_assignment_invalid", prefix + f".affiliations.{j}", conflict
                     )
-                affiliations.append(institution)
+                relation = links.bind(name, institution, "affiliation")
+                if relation is None:
+                    rejected = sources.pop()
+                    uncertain(prefix + f".affiliations.{j}", "author_link_unresolved", rejected)
+                else:
+                    sources[-1]["association"] = relation
+                    sources[-1]["field_path"] = prefix + f".affiliations.{len(affiliations)}"
+                    affiliations.append(institution)
+            email = author.email
+            if email is None:
+                contact = links.contact_email(name)
+                if contact:
+                    email = Quoted(value=contact[0], quote=contact[1])
+            if not affiliations and not any(
+                issue["field_path"].startswith(prefix + ".affiliations") for issue in uncertainties
+            ):
+                uncertain(prefix + ".affiliations", "author_link_missing")
+            contributions = []
+            for j, field in enumerate(author.contributions):
+                role = linked(field, prefix + f".contributions.{j}", name, "contribution")
+                if role is not None:
+                    sources[-1]["field_path"] = prefix + f".contributions.{len(contributions)}"
+                    contributions.append(role)
             data["authors"].append(
                 {
                     "name": name,
-                    "email": value(author.email, prefix + ".email") or "",
-                    "orcid": value(author.orcid, prefix + ".orcid"),
+                    "email": linked(email, prefix + ".email", name, "email") or "",
+                    "orcid": linked(author.orcid, prefix + ".orcid", name, "orcid"),
                     "affiliations": affiliations,
-                    "contributions": [
-                        value(v, prefix + f".contributions.{j}")
-                        for j, v in enumerate(author.contributions)
-                    ],
+                    "contributions": contributions,
                     "corresponding": corresponding,
                     "source_note": "从原稿自动识别的候选，须负责人核对姓名、机构及关联关系；ORCID未认证。",
                 }
             )
+    extracted_paths = {s["field_path"] for s in sources}
+    from .dossier_evidence import leaf_fields
+
+    for path, original in leaf_fields(base_data):
+        if path in {"source_kind", "source_note", "language"} or path in extracted_paths:
+            continue
+        current = data
+        try:
+            for part in path.split("."):
+                current = current[int(part)] if isinstance(current, list) else current[part]
+        except (KeyError, IndexError, TypeError):
+            continue
+        if current == original and original:
+            uncertainties.append({"field_path": path, "reason": "carried_forward"})
     try:
         return DossierData.model_validate(data).model_dump(), sources
     except ValidationError as error:

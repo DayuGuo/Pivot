@@ -427,6 +427,11 @@ def test_original_source_mapping_survives_metadata_edits_and_grounded_quotes_loc
             self.calls = 0
 
         def completion(self, messages, tools):
+            if tools[0]["function"]["name"] == "assess_claims":
+                return completion(
+                    "assess_claims",
+                    {"checks": [{"index": 0, "status": "supported", "reason": "direct_support"}]},
+                )
             self.calls += 1
             if self.calls == 1:
                 return completion("read_dossier", {})
@@ -473,6 +478,11 @@ def test_original_source_mapping_survives_metadata_edits_and_grounded_quotes_loc
 
     class MetadataSupplier(Supplier):
         def completion(self, messages, tools):
+            if tools[0]["function"]["name"] == "assess_claims":
+                return completion(
+                    "assess_claims",
+                    {"checks": [{"index": 0, "status": "supported", "reason": "direct_support"}]},
+                )
             self.calls += 1
             if self.calls == 1:
                 return completion("read_dossier", {})
@@ -1181,3 +1191,40 @@ def test_confirmation_replay_preserves_legacy_fingerprint_and_does_not_revert_ne
     replay = client.post(endpoint(ready, imported["id"], "/confirm"), json=body)
     assert replay.status_code == 200 and replay.json() == reply.json()
     assert detail(client, ready["id"])["version_id"] == revised["version_id"]
+
+
+def test_unique_author_reordering_keeps_email_source_with_the_person_not_the_slot(
+    client, db, ready
+):
+    from apps.api.publishing.domain.document_sources import attach_document
+    from apps.api.publishing.domain.dossier_evidence import EvidenceIndex
+
+    original = accept(client, ready, stage(client, ready, "docx"))
+    changed = deepcopy(original["data"])
+    changed["authors"].reverse()
+    current = save(client, original, data=changed)
+    index = EvidenceIndex(current["data"], None, "")
+    index.read(count=32)
+    item = next(s for s in index.issued.values() if s.field_path == "authors.0.email")
+    citation = index.citation(
+        item.source_id,
+        "beta@synthetic.test",
+        version_id=current["version_id"],
+        version_no=current["version_no"],
+        content_digest=current["content_digest"],
+        file_sha256=None,
+    )
+    version = db.get(DossierVersion, current["version_id"])
+    attached = attach_document(citation, current["document"], db, version)
+    assert attached["document"]["source_quote"] == "Email 2: beta@synthetic.test"
+    ambiguous = deepcopy(current["data"])
+    ambiguous["authors"][0]["name"] = ambiguous["authors"][1]["name"]
+    duplicate = save(client, current, data=ambiguous)
+    citation.update(
+        version_id=duplicate["version_id"],
+        version_no=duplicate["version_no"],
+        content_digest=duplicate["content_digest"],
+    )
+    assert "document" not in attach_document(
+        citation, duplicate["document"], db, db.get(DossierVersion, duplicate["version_id"])
+    )

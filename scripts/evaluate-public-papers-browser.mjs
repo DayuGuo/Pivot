@@ -2,7 +2,7 @@
 // The model never receives a confirmation tool. No mail or editorial decision is made.
 import assert from "node:assert/strict";
 import { readFile, writeFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { chromium, expect } from "@playwright/test";
 
 assert(process.argv.includes("--live"), "Explicit --live required; this driver submits review forms and calls the live model.");
@@ -16,7 +16,9 @@ const onlyCases = onlyIndex >= 0 ? process.argv[onlyIndex + 1].split(",") : null
 const tagIndex = process.argv.indexOf("--question-tag");
 const questionTag = tagIndex >= 0 ? process.argv[tagIndex + 1] : "";
 const origin = "http://127.0.0.1:3100";
-const output = resolve("artifacts/public-papers/browser-review-qa.json");
+const reportIndex = process.argv.indexOf("--report");
+const output = resolve(reportIndex >= 0 ? process.argv[reportIndex + 1] : "artifacts/public-papers/browser-review-qa.json");
+const outputDir = dirname(output);
 const report = process.argv.includes("--resume") ? JSON.parse(await readFile(output, "utf8")) : { passed: false, human_review_simulated_by_test_driver: true, model_confirmation_tools: 0, confirm_posts: 0, mail_or_decision_requests: 0, page_errors: 0, cases: [] };
 report.passed = false;
 const browser = await chromium.launch({ headless: true });
@@ -91,7 +93,7 @@ try {
     await page.locator('input[name="title"]').fill(gold.title + " ");
     await expect(acknowledged).not.toBeChecked();
     await acknowledged.check();
-    await page.screenshot({ path: resolve(`artifacts/public-papers/${stagedCase.case}-review.png`) });
+    await page.screenshot({ path: resolve(outputDir, `${stagedCase.case}-review.png`) });
     const savedResponse = page.waitForResponse(response => response.url().endsWith(`/imports/${iid}/confirm`) && response.request().method() === "POST");
     await confirm.click();
     assert.equal((await savedResponse).status(), 200);
@@ -107,9 +109,9 @@ try {
     const file = paper.files.find(file => file.case === stagedCase.case);
     assert.equal(saved.document.sha256, file.sha256);
     const currentQuestions = questions[paper.id].map(message => qaOnly ? questionTag + "仅回答当前这一题，不复述历史问题。" + message : message);
-    const expectedNewAnswers = currentQuestions.filter(message => !saved.messages.some(turn => turn.question === message)).length;
+    const expectedNewAnswers = currentQuestions.filter(message => !saved.messages.some(turn => turn.question === message && turn.provider === "deepseek" && turn.support_review?.method === "ai_context_check")).length;
     for (const [questionNo, message] of currentQuestions.entries()) {
-      let answer = saved.messages.find(turn => turn.question === message && turn.provider === "deepseek");
+      let answer = saved.messages.find(turn => turn.question === message && turn.provider === "deepseek" && turn.support_review?.method === "ai_context_check");
       let status = 200;
       if (!answer) {
         const pending = page.waitForResponse(response => response.url().endsWith(`/dossiers/${did}/chat`) && response.request().method() === "POST", { timeout: 80000 });
@@ -138,6 +140,10 @@ try {
           assert(citation.document.locations.length > 0);
         }
       }
+      assert.equal(answer.support_review?.method, "ai_context_check");
+      assert(answer.claims.every(claim => claim.support?.status === "supported"));
+      query.support_review = answer.support_review;
+      query.withheld_claims = answer.withheld_claims ?? [];
       query.claims = answer.claims;
       query.coverage = answer.coverage;
       query.telemetry = answer.telemetry;
@@ -154,11 +160,13 @@ try {
       if (chosen.document) await expect(page.getByRole("link", { name: "下载原稿", exact: true })).toBeVisible();
       query.exact_browser_highlight = true;
       query.passed = true;
-      await page.screenshot({ path: resolve(`artifacts/public-papers/${stagedCase.case}-citation-${questionNo}.png`) });
+      await page.screenshot({ path: resolve(outputDir, `${stagedCase.case}-citation-${questionNo}.png`) });
       await page.getByRole("button", { name: "返回当前资料", exact: true }).click();
       await writeFile(output, JSON.stringify(report, null, 2));
     }
     await page.reload();
+    await expect(page.getByRole("heading", { name: gold.title, exact: true, level: 2 })).toBeVisible();
+    await expect(page.getByText("正在载入资料…", { exact: true })).toHaveCount(0);
     const refreshed = await json(`/api/dossiers/${did}`);
     assert.equal(refreshed.version_id, saved.version_id);
     assert.deepEqual(refreshed.data, gold);
@@ -171,7 +179,7 @@ try {
   await page.setViewportSize({ width: 375, height: 812 });
   await expect(page.getByLabel("询问当前资料")).toBeVisible();
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
-  await page.screenshot({ path: resolve("artifacts/public-papers/mobile.png") });
+  await page.screenshot({ path: resolve(outputDir, "mobile.png") });
   assert.equal(report.confirm_posts, qaOnly ? 0 : 6);
   assert.equal(report.mail_or_decision_requests, 0);
   assert.equal(report.page_errors, 0);
