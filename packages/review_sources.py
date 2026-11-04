@@ -67,7 +67,7 @@ class _Text(HTMLParser):
 
 
 def _text(value: object, limit: int) -> str:
-    if not isinstance(value, str) or len(value) > 10_000:
+    if not isinstance(value, str) or len(value) > 10_000 or "<!" in value:
         return ""
     parser = _Text()
     try:

@@ -1,0 +1,86 @@
+# Independent private preview; never merge this with the development Compose file.
+services:
+  db:
+    image: ${PIVOT_DB_IMAGE:?required}
+    pull_policy: never
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: publishing
+      POSTGRES_DB: publishing
+      POSTGRES_PASSWORD: ${PIVOT_DB_PASSWORD:?required}
+    command: [postgres, -c, shared_buffers=64MB, -c, work_mem=2MB, -c, maintenance_work_mem=32MB, -c, max_connections=30, -c, max_wal_size=256MB]
+    volumes: ["db:/var/lib/postgresql/data"]
+    mem_limit: 320m
+    memswap_limit: 320m
+    cpus: 0.4
+    pids_limit: 96
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U publishing -d publishing"]
+      interval: 5s
+      timeout: 3s
+      retries: 40
+    logging: {driver: json-file, options: {max-size: 5m, max-file: "2"}}
+  api:
+    image: ${PIVOT_API_IMAGE:?required}
+    pull_policy: never
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+psycopg://publishing:${PIVOT_DB_PASSWORD:?required}@db:5432/publishing
+      PIVOT_BOOTSTRAP_PROFILE: private-preview
+      PIVOT_OPERATOR_EMAIL: ${PIVOT_OPERATOR_EMAIL:?required}
+      PIVOT_OPERATOR_PASSWORD: ${PIVOT_OPERATOR_PASSWORD:?required}
+      EMAIL_SEND_ENABLED: "false"
+      MODEL_PROVIDER: mock
+      EDITORIAL_MODEL_PROVIDER: ${PIVOT_MODEL_PROVIDER:?required}
+      EDITORIAL_MODEL_LIVE_ENABLED: ${PIVOT_MODEL_LIVE:?required}
+      DEEPSEEK_API_KEY: ${PIVOT_MODEL_KEY:-}
+      COOKIE_SECURE: ${PIVOT_COOKIE_SECURE:?required}
+      PUBLISHING_STORAGE_DIR: /data/publishing-files
+      PYTHONDONTWRITEBYTECODE: "1"
+    volumes: ["files:/data/publishing-files"]
+    read_only: true
+    tmpfs: ["/tmp:size=192m,mode=1777"]
+    cap_drop: [ALL]
+    cap_add: [CHOWN, DAC_OVERRIDE, SETUID, SETGID]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 768m
+    memswap_limit: 768m
+    cpus: 0.8
+    pids_limit: 128
+    depends_on: {db: {condition: service_healthy}}
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8100/api/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 40
+    logging: {driver: json-file, options: {max-size: 5m, max-file: "2"}}
+  web:
+    image: ${PIVOT_WEB_IMAGE:?required}
+    pull_policy: never
+    restart: unless-stopped
+    environment:
+      INTERNAL_API_URL: http://api:8100
+      HOSTNAME: 0.0.0.0
+      PORT: "3100"
+      NODE_OPTIONS: --max-old-space-size=256
+      NEXT_TELEMETRY_DISABLED: "1"
+    ports: ["127.0.0.1:${PIVOT_PORT:?required}:3100"]
+    user: "1000:1000"
+    read_only: true
+    tmpfs: ["/tmp:size=32m,mode=1777"]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 384m
+    memswap_limit: 384m
+    cpus: 0.6
+    pids_limit: 96
+    depends_on: {api: {condition: service_healthy}}
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3100/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 40
+    logging: {driver: json-file, options: {max-size: 5m, max-file: "2"}}
+volumes:
+  db:
+  files:

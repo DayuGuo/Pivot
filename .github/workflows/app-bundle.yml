@@ -1,0 +1,46 @@
+name: private-app-bundle
+on:
+  push:
+    branches: [main, 'codex/vps-*']
+    paths:
+      - 'infrastructure/vps/**'
+      - 'scripts/*vps*'
+      - 'apps/**'
+      - 'packages/**'
+      - '.github/workflows/app-bundle.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  amd64:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.9.7'
+          python-version: '3.12'
+      - run: uv sync --frozen && npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Build offline bundle on native x86
+        run: .venv/bin/python scripts/build-vps-app.py --platform linux/amd64
+      - name: Install under memory caps, import, review, cite, restart and restore
+        run: .venv/bin/python scripts/accept-vps-preview.py --bundle artifacts/pivot-app-linux-amd64
+      - name: Private browser login and exact source navigation
+        run: node scripts/accept-vps-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: pivot-private-app-linux-amd64
+          path: |
+            artifacts/pivot-app-linux-amd64.tar.gz
+            artifacts/pivot-app-linux-amd64-SHA256SUMS
+            artifacts/vps-preview-acceptance.json
+            artifacts/vps-mock-browser.json
+            artifacts/vps-mock-*.png
+      # No credentials.json, database/files, logs or state directories are uploaded.

@@ -1,5 +1,7 @@
 # Pivot
 
+正在准备[完整 VPS 私人体验包](docs/development/private-vps-preview.md)：独立于原静态展示站，预编译镜像、私人登录、真实模型/PDF/Word、受限内存与备份恢复。安装说明见[包内 README](infrastructure/vps/README.md)，具体已执行验收以报告为准。
+
 最新增量：[公开论文实测与修复](docs/development/public-paper-evaluation.md)。使用3篇许可明确的真实论文、6份原始或明确标注的转制PDF/Word检查全文、26位次作者与38项机构对应，并实际运行独立核对和真实DeepSeek问答。模型结果及已执行验收以PROGRESS顶部为准；文本抽取不等于视觉版面、公式或科学正确性验证。可复现实验入口与许可见[样本目录](evals/public_documents/README.md)。
 
 [保留资料的 VPS 更新说明](docs/deployment/update-preserving-data.md)：分别说明静态 Demo 与完整 Compose，包含数据库/原件备份、增量迁移和模型环境保留；本轮未执行 VPS 部署。

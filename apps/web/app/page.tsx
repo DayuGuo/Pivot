@@ -15,6 +15,7 @@ type Message = { id: string; role: string; content: string; provider: string; ma
 type Audit = { id: string; action: string; actor_name: string; entity_id: string; details: Record<string, unknown>; created_at: string };
 type Conversation = { id: string; title: string; updated_at: string; message_count: number };
 type Workspace = { conversations: Conversation[]; active_conversation_id: string | null; journal: { id: string; name: string }; manuscripts: Manuscript[]; messages: Message[]; audit: Audit[]; email_send_enabled: boolean };
+const privatePreview = process.env.NEXT_PUBLIC_PIVOT_PRIVATE_PREVIEW === "true";
 const prompt = "创建一篇测试稿件，并交给编辑初筛。";
 const roles: Record<string, string> = { editor: "编辑", chief_editor: "主编", author: "作者", reviewer: "审稿人" };
 const statuses: Record<string, string> = { draft: "草稿", submitted: "已投稿", screening: "编辑初筛", assigned: "已分派", pending: "待处理", open: "待处理" };
@@ -63,8 +64,8 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [email, setEmail] = useState("editor@publishing.test");
-  const [password, setPassword] = useState("EditorDemo2026!");
+  const [email, setEmail] = useState(privatePreview ? "" : "editor@publishing.test");
+  const [password, setPassword] = useState(privatePreview ? "" : "EditorDemo2026!");
   const [message, setMessage] = useState("");
   const [view, setView] = useState<"chat" | "manuscripts" | "audit" | "mail">("chat");
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -207,7 +208,7 @@ export default function Home() {
   if (loading) return <main className="loading-screen"><Brand /><span className="loader"/><p>正在恢复工作台…</p></main>;
   if (!session || !workspace) return <main className="login-screen">
     <div className="login-story"><Brand /><p>编辑工作台</p></div>
-    <section className="login-panel"><div className="login-form-wrap"><h2>欢迎回到工作台</h2><form onSubmit={login}><label htmlFor="email">邮箱</label><input id="email" name="email" spellCheck={false} autoComplete="username" type="email" required value={email} onChange={e => setEmail(e.target.value)} /><label htmlFor="password">密码</label><input id="password" name="password" autoComplete="current-password" type="password" required value={password} onChange={e => setPassword(e.target.value)} />{error && <div role="alert" ref={errorRef} tabIndex={-1} className="error">{error}</div>}<button className="primary login-button" disabled={busy}>{busy ? "正在登录…" : "进入工作台"}<Icon name="chevron"/></button></form><div className="demo-account"><span>本地演示账号</span><button type="button" onClick={() => { setEmail("editor@publishing.test"); setPassword("EditorDemo2026!"); }}>编辑</button><button type="button" onClick={() => { setEmail("author@publishing.test"); setPassword("AuthorDemo2026!"); }}>作者</button><button type="button" onClick={() => { setEmail("reviewer@publishing.test"); setPassword("ReviewerDemo2026!"); }}>审稿人</button></div><p className="login-safety"><Icon name="lock" size={14}/>仅使用合成测试数据 · 真实邮件发送已禁用</p></div></section>
+    <section className="login-panel"><div className="login-form-wrap"><h2>欢迎回到工作台</h2><form onSubmit={login}><label htmlFor="email">邮箱</label><input id="email" name="email" spellCheck={false} autoComplete="username" type="email" required value={email} onChange={e => setEmail(e.target.value)} /><label htmlFor="password">密码</label><input id="password" name="password" autoComplete="current-password" type="password" required value={password} onChange={e => setPassword(e.target.value)} />{error && <div role="alert" ref={errorRef} tabIndex={-1} className="error">{error}</div>}<button className="primary login-button" disabled={busy}>{busy ? "正在登录…" : "进入工作台"}<Icon name="chevron"/></button></form>{!privatePreview && <div className="demo-account"><span>本地演示账号</span><button type="button" onClick={() => { setEmail("editor@publishing.test"); setPassword("EditorDemo2026!"); }}>编辑</button><button type="button" onClick={() => { setEmail("author@publishing.test"); setPassword("AuthorDemo2026!"); }}>作者</button><button type="button" onClick={() => { setEmail("reviewer@publishing.test"); setPassword("ReviewerDemo2026!"); }}>审稿人</button></div>}<p className="login-safety"><Icon name="lock" size={14}/>仅使用合成测试数据 · 真实邮件发送已禁用</p></div></section>
   </main>;
 
   const canCreate = ["editor", "chief_editor"].includes(session.user.role);

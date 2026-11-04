@@ -1,5 +1,9 @@
 # 架构
 
+## 独立 VPS 私人体验（spec017）
+
+infrastructure/vps维护单独Compose、离线镜像入口和标准库生命周期管理器，不继承开发Compose/env。Next.js条件standalone构建移除开发依赖；私人构建不预填演示账号。新pivot-*项目/卷/环回3210不触碰静态站和旧浏览器资料；数据库与API不发布端口，运行1472MiB总硬上限、API单worker。私人bootstrap要求外部环境提供编辑账号，公开合成密码不可用；资料/正式权限边界不变。更新先数据库＋CAS备份、后增量迁移，恢复仅到新项目与新卷。真实执行结果见docs/development/private-vps-preview.md，不把本机构建当作VPS实装。
+
 ## 公开论文驱动的证据修正（spec016）
 
 没有新表或迁移，沿用15b。解析v2接受可核验的OPC内部部件引用、纯本地PDF打开页数组，以及白名单Word页码/EndNote缓存文字；不执行字段或外部目标。`document_candidates.py`保留完整有界标签摘要、明确机构编号约束、姓名隔离联系邮箱，并为提取单独设置6144输出Token上限；普通对话仍2048，共享60秒期限不变。模型最多两次提取/纠正，未知字段留空，失败不伪装Mock。

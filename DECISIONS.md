@@ -176,3 +176,10 @@ ProofPackage独立引用真实FileObject，不修改录用VersionFile；作者�
 资料区复用现有DeepSeek transport，不把正式出版工具注册给资料对话。全文/元数据完整建立本地索引，受预算限制只读取必要片段；每次显示实际覆盖，不静默截断后宣称全文已阅。模型输出采用结构化claims+citation，后端校验本轮来源集合、逐字quote、确切版本/文件hash；原文定位可核验，但不等同科学结论或语义支持已被证明。
 
 DossierAnswer单独保存不可变模型证据和遥测，与人工DossierCheck分开。网络不跨资料写锁，最终重验原身份、修订及CAS；失败回滚，旧版本引用仍只定位旧版本。外部第一步采用Crossref精确DOI元数据，不开放自由URL或泛搜索：标识来自已授权资料/问题，返回真实doi.org和Crossref记录，明确尚未阅读全文。后续若扩展检索/全文证据，必须另定来源、授权和内容定位合同。官方来源和真实公开DOI实验见docs/research/dossier-sources.md。
+
+
+## ADR-027：静态展示站旁的离线私人体验包
+
+使用独立Compose而不覆盖原静态包；原生amd64 CI构建并实装同一离线产物，VPS不编译。数据库320MiB/API768MiB/Web384MiB、单worker、仅环回Web端口，给2.5GB机器保留空间，但不以容器峰值冒称整机压测。默认SSH隧道，HTTPS新子域显式Secure cookie。私人引导只披露一个编辑登录，公开演示密码拒绝；不引入注册/身份认证的新产品承诺。
+
+标准库管理器从外部私密状态注入环境，不打印密钥或借用全局Codex配置；镜像/归档无运行数据。更新自动停写备份，恢复只到全新项目/卷，保留原站与资料。真实模型失败不伪装Mock成功，邮件与关键决定权限不扩大。实际验收和已知失败见docs/development/private-vps-preview.md。
