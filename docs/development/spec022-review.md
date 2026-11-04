@@ -1,5 +1,7 @@
 # spec022：一致反馈历史与独立评价包
 
+交付[PR #3](https://github.com/DayuGuo/Pivot/pull/3)已推送，未自动合并；冻结源码18d2391之后仅交付文档变化。
+
 ## 已执行的授权操作
 
 PR #2在用户明确授权后，以冻结head dd6cd4cf9d9bf680e472b022b8a3747b44b001b6合并，main合并点42f720c1e83a8a4ddb9ac5e93f93a1d9e65fc145，GitHub记录2026-11-04T22:39:04Z。本批在codex/evidence-review-integrity独立开发，不自动合并后续PR，不连接/部署VPS，不发布新的VPS Release。PR #2合并自动触发既有main amd64包CI41927132953，原生构建/受限内存隔离安装、并发、重启/恢复和浏览器步骤均success、生成CI artifact；这只包含PR #2，未在用户VPS部署，也不含本批新功能。本机更新仅使用保留项目选定模型环境的scripts/start.sh，未读取全局认证文件。

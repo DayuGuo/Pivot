@@ -146,5 +146,11 @@
     "No extra independent native document corpus",
     "Direct static imports checked; not all dynamic dependencies",
     "Professional security/privacy review still required before real confidential manuscripts"
-  ]
+  ],
+  "delivery_pr": {
+    "number": 3,
+    "url": "https://github.com/DayuGuo/Pivot/pull/3",
+    "merged": false,
+    "post_validation_changes": "delivery documentation only"
+  }
 }
