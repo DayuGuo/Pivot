@@ -357,3 +357,21 @@ test("资料恢复：保存后的旧列表读取不覆盖新搜索", async ({ pa
     await expect(page.getByRole("link", { name: /合成资料乙/ })).toBeVisible();
   } finally { release(); }
 });
+
+
+test("资料恢复：失败后修改问题取消旧重试，不误发旧问题", async ({ page }) => {
+  await fixtures(page); const requests: { request_id: string; message: string }[] = [];
+  await page.route(`**/api/dossiers/${ID}/chat`, route => {
+    requests.push(route.request().postDataJSON());
+    return requests.length === 1 ? route.fulfill({ status: 503, json: { detail: "合成暂时失败" } }) : route.fulfill({ json: { id: "changed-question", question: requests[1].message, answer: "已按新问题回复", provider: "rules", version_id: VERSION, version_no: 1 } });
+  });
+  await page.goto(`/library?dossier=${ID}`);
+  await page.getByLabel("询问当前资料").fill("原问题"); await page.getByRole("button", { name: "发送", exact: true }).click();
+  await expect(page.getByRole("button", { name: "重试原请求", exact: true })).toBeVisible();
+  await page.getByLabel("询问当前资料").fill("修改后的问题");
+  await expect(page.getByRole("button", { name: "重试原请求", exact: true })).toHaveCount(0);
+  await page.getByRole("button", { name: "发送", exact: true }).click();
+  await expect(page.getByText("已按新问题回复", { exact: true })).toBeVisible();
+  expect(requests.map(item => item.message)).toEqual(["原问题", "修改后的问题"]);
+  expect(requests[0].request_id).not.toBe(requests[1].request_id);
+});
