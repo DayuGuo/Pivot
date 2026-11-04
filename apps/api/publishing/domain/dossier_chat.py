@@ -22,11 +22,15 @@ from ..audit import record
 from ..db import get_db
 from ..models import uid
 from ..security import Actor, get_actor
-from . import dossiers
+from . import dossier_access as access
+from . import dossier_actions as actions
 from .chat import failure_code, sanitized_telemetry, tool_schema
-from .document_imports import attach_document, source_projection
+from .document_sources import attach_document, source_projection
 from .dossier_chat_models import DossierAnswer
 from .dossier_evidence import EvidenceIndex, check_claim_terms, credential_like
+from .dossier_models import DossierTurn
+from .dossier_schemas import AssistInput
+from .dossier_views import turn_projection
 from .schemas import StrictInput
 
 router = APIRouter(prefix="/api/dossiers", tags=["grounded private dossier dialogue"])
@@ -48,7 +52,7 @@ ERROR_CODES = frozenset(
 BOUNDARY = "本轮为只读AI辅助；不发送邮件、不核对确认资料、不作录用、拒稿或出版决定。"
 
 
-class ChatInput(dossiers.AssistInput):
+class ChatInput(AssistInput):
     @field_validator("message")
     @classmethod
     def no_credentials(cls, value):
@@ -131,16 +135,16 @@ class Runtime:
             body,
             deadline,
         )
-        row = dossiers.load(db, actor, target)
-        dossiers.current(row, body.expected_revision, str(body.version_id))
-        self.item = dossiers.version(db, row)
-        self.material = dossiers.file_content(db, self.item)
+        row = access.load(db, actor, target)
+        access.current(row, body.expected_revision, str(body.version_id))
+        self.item = access.version(db, row)
+        self.material = access.file_content(db, self.item)
         self.document = source_projection(db, row, self.item)
         self.file_sha256 = self.material[0].sha256 if self.material else None
         self.content_digest = self.item.content_digest
         self.data = self.item.data_json.copy()
         if (
-            dossiers.snapshot_digest(
+            access.snapshot_digest(
                 self.data, self.file_sha256, self.item.file_name, self.item.file_media_type
             )
             != self.content_digest
@@ -157,8 +161,8 @@ class Runtime:
     def validate(self):
         if time.monotonic() >= self.deadline:
             raise GatewayError("editorial_provider_deadline")
-        row = dossiers.load(self.db, self.actor, self.target)
-        dossiers.current(row, self.body.expected_revision, str(self.body.version_id))
+        row = access.load(self.db, self.actor, self.target)
+        access.current(row, self.body.expected_revision, str(self.body.version_id))
         return row
 
     def tools(self, final=False):
@@ -285,17 +289,17 @@ class Runtime:
         }
 
     def finish(self):
-        row = dossiers.load(self.db, self.actor, self.target, write=True)
-        dossiers.current(row, self.body.expected_revision, str(self.body.version_id))
+        row = access.load(self.db, self.actor, self.target, write=True)
+        access.current(row, self.body.expected_revision, str(self.body.version_id))
         document = source_projection(self.db, row, self.item)
         if document != self.document:
             raise HTTPException(409, "原件来源已变化，请重新载入后提问")
         # Re-read actual CAS bytes after model/network and the write-lock wait.
-        material = dossiers.file_content(self.db, self.item)
+        material = access.file_content(self.db, self.item)
         actual_hash = material[0].sha256 if material else None
         if (
             actual_hash != self.file_sha256
-            or dossiers.snapshot_digest(
+            or access.snapshot_digest(
                 self.item.data_json, actual_hash, self.item.file_name, self.item.file_media_type
             )
             != self.content_digest
@@ -368,13 +372,13 @@ def run_model(runtime, provider, telemetry):
         {"role": "user", "content": runtime.body.message},
     ]
     previous = runtime.db.scalars(
-        select(dossiers.DossierTurn)
+        select(DossierTurn)
         .where(
-            dossiers.DossierTurn.dossier_id == runtime.target,
-            dossiers.DossierTurn.user_id == runtime.actor.user.id,
-            dossiers.DossierTurn.version_id == runtime.item.id,
+            DossierTurn.dossier_id == runtime.target,
+            DossierTurn.user_id == runtime.actor.user.id,
+            DossierTurn.version_id == runtime.item.id,
         )
-        .order_by(dossiers.DossierTurn.created_at.desc())
+        .order_by(DossierTurn.created_at.desc())
         .limit(3)
     ).all()
     if previous:
@@ -516,7 +520,7 @@ def chat_dossier(
         provider = get_editorial_provider()
         result = run_model(runtime, provider, telemetry)
         row = runtime.finish()
-        turn = dossiers.DossierTurn(
+        turn = DossierTurn(
             id=uid(),
             dossier_id=row.id,
             journal_id=row.journal_id,
@@ -548,17 +552,17 @@ def chat_dossier(
             )
         )
         db.flush()
-        dossiers.event(db, actor, row, "answered", runtime.item.id)
+        actions.event(db, actor, row, "answered", runtime.item.id)
         runtime.validate()
-        return {**dossiers.turn_projection(db, turn), **payload}
+        return {**turn_projection(db, turn), **payload}
 
     try:
-        return dossiers.gateway(db, actor, body, "chat", target, execute)
+        return actions.gateway(db, actor, body, "chat", target, execute)
     except GatewayError as error:
         db.rollback()
         try:
-            row = dossiers.load(db, actor, target)
-            dossiers.current(row, body.expected_revision, str(body.version_id))
+            row = access.load(db, actor, target)
+            access.current(row, body.expected_revision, str(body.version_id))
             record(
                 db,
                 actor_id=actor.user.id,

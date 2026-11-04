@@ -13,7 +13,7 @@ from packages.text_evidence import whitespace_evidence
 
 from .chat import sanitized_telemetry, tool_schema
 from .dossier_evidence import credential_like
-from .dossiers import DossierData
+from .dossier_schemas import DossierData
 from .schemas import StrictInput
 
 

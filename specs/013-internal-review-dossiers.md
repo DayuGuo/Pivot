@@ -14,7 +14,7 @@
 
 ## 四张增量表
 
-迁移：`13f17cad5064`，前序`12e06b9c4f53`。实现模块：`apps/api/publishing/domain/dossiers.py`。字段、类型、AST位置与命名约束在[来源映射](../docs/research/library/comparison/source-to-implementation.json)逐项绑定。以下内容是本片自己的字段合同。
+迁移：`13f17cad5064`，前序`12e06b9c4f53`。实现模块：HTTP兼容入口`apps/api/publishing/domain/dossiers.py`，持久模型已在spec018移至`apps/api/publishing/domain/dossier_models.py`，其余职责见[模块地图](../docs/development/module-map.md)。字段、类型、AST位置与命名约束在[来源映射](../docs/research/library/comparison/source-to-implementation.json)逐项绑定。以下内容是本片自己的字段合同。
 
 **Dossier / publishing_dossiers**
 

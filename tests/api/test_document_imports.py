@@ -1104,3 +1104,80 @@ def test_metadata_evidence_diagnostics_are_precise_and_correction_keeps_exact_qu
     assert count(db, DocumentApproval, dossier_id=ready["id"]) == 0
     assert count(db, DossierCheck, dossier_id=ready["id"]) == 0
     assert detail(client, ready["id"])["version_id"] == ready["version_id"]
+
+
+def test_confirmation_replay_is_bound_to_import_path_even_for_identical_candidates(
+    client, db, ready
+):
+    first = stage(client, ready)
+    second = stage(client, ready)
+    assert first["id"] != second["id"] and first["digest"] == second["digest"]
+    body = confirm_body(ready, first)
+    response = client.post(endpoint(ready, first["id"], "/confirm"), json=body)
+    assert response.status_code == 200
+    before = critical_counts(db)
+    wrong = client.post(endpoint(ready, second["id"], "/confirm"), json=body)
+    assert wrong.status_code == 409
+    assert critical_counts(db) == before
+    assert (
+        client.post(endpoint(ready, first["id"], "/confirm"), json=body).json() == response.json()
+    )
+
+
+def test_confirmation_replay_does_not_accept_a_nonexistent_import_path(client, ready):
+    imported = stage(client, ready)
+    body = confirm_body(ready, imported)
+    assert client.post(endpoint(ready, imported["id"], "/confirm"), json=body).status_code == 200
+    assert client.post(endpoint(ready, rid(), "/confirm"), json=body).status_code == 404
+
+
+@pytest.mark.parametrize("damaged", ["original", "extracted_text"])
+def test_confirmation_replay_revalidates_original_integrity(
+    client, db, ready, private_storage, damaged
+):
+    imported = stage(client, ready)
+    body = confirm_body(ready, imported)
+    assert client.post(endpoint(ready, imported["id"], "/confirm"), json=body).status_code == 200
+    item = db.get(DocumentImport, imported["id"])
+    if damaged == "original":
+        path = private_storage / "document-originals" / item.storage_key
+    else:
+        from apps.api.publishing.domain.models import FileObject
+
+        version = db.scalar(
+            select(DossierVersion).where(
+                DossierVersion.dossier_id == ready["id"], DossierVersion.version_no == 2
+            )
+        )
+        path = private_storage / db.get(FileObject, version.file_object_id).storage_key
+    path.write_bytes(b"changed synthetic original")
+    before = critical_counts(db)
+    assert client.post(endpoint(ready, imported["id"], "/confirm"), json=body).status_code == 409
+    assert critical_counts(db) == before
+
+
+def test_confirmation_replay_preserves_legacy_fingerprint_and_does_not_revert_newer_versions(
+    client, db, ready
+):
+    from apps.api.publishing.domain.core import digest
+
+    imported = stage(client, ready)
+    body = confirm_body(ready, imported)
+    reply = client.post(endpoint(ready, imported["id"], "/confirm"), json=body)
+    assert reply.status_code == 200
+    receipt = db.scalar(select(ActionReceipt).where(ActionReceipt.request_id == body["request_id"]))
+    payload = document_imports.ApproveInput.model_validate(body).model_dump(
+        mode="json", exclude={"request_id"}
+    )
+    payload["dossier_id"] = ready["id"]
+    assert receipt.input_digest == digest(
+        {"action": "dossier.document_approve", "payload": payload}
+    )
+    current = detail(client, ready["id"])
+    revised = save(
+        client, current, data={**current["data"], "title": "Later synthetic metadata version"}
+    )
+    assert revised["version_no"] == 3 and revised["verified"] is False
+    replay = client.post(endpoint(ready, imported["id"], "/confirm"), json=body)
+    assert replay.status_code == 200 and replay.json() == reply.json()
+    assert detail(client, ready["id"])["version_id"] == revised["version_id"]

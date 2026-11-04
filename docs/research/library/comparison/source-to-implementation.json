@@ -9493,7 +9493,7 @@
     },
     {
       "class": "Dossier",
-      "module": "apps/api/publishing/domain/dossiers.py",
+      "module": "apps/api/publishing/domain/dossier_models.py",
       "table": "publishing_dossiers",
       "contract_source": "specs/013-internal-review-dossiers.md",
       "slice": "internal_dossier_preparation",
@@ -9554,54 +9554,54 @@
         "entity": "Manuscript"
       },
       "source_binding": {
-        "path": "apps/api/publishing/domain/dossiers.py",
-        "class_line": 42,
+        "path": "apps/api/publishing/domain/dossier_models.py",
+        "class_line": 20,
         "fields": [
           {
             "name": "id",
-            "line": 60,
+            "line": 38,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
           },
           {
             "name": "journal_id",
-            "line": 61,
+            "line": 39,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('journals.id'))"
           },
           {
             "name": "created_by",
-            "line": 62,
+            "line": 40,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
           },
           {
             "name": "revision",
-            "line": 63,
+            "line": 41,
             "annotation": "Mapped[int]",
             "declaration": "mapped_column(Integer)"
           },
           {
             "name": "current_version_id",
-            "line": 64,
+            "line": 42,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "created_at",
-            "line": 65,
+            "line": 43,
             "annotation": "Mapped[datetime]",
             "declaration": "mapped_column(DateTime(timezone=True), default=now)"
           },
           {
             "name": "updated_at",
-            "line": 66,
+            "line": 44,
             "annotation": "Mapped[datetime]",
             "declaration": "mapped_column(DateTime(timezone=True), default=now)"
           }
         ],
         "table_args": {
-          "line": 44,
+          "line": 22,
           "declaration": "(UniqueConstraint('id', 'journal_id', name='uq_dossier_tenant'), CheckConstraint('revision >= 1', name='ck_dossier_revision'), ForeignKeyConstraint(['current_version_id', 'id', 'journal_id'], ['publishing_dossier_versions.id', 'publishing_dossier_versions.dossier_id', 'publishing_dossier_versions.journal_id'], name='fk_dossier_current', use_alter=True, deferrable=True, initially='DEFERRED'))"
         }
       },
@@ -9628,7 +9628,7 @@
     },
     {
       "class": "DossierVersion",
-      "module": "apps/api/publishing/domain/dossiers.py",
+      "module": "apps/api/publishing/domain/dossier_models.py",
       "table": "publishing_dossier_versions",
       "contract_source": "specs/013-internal-review-dossiers.md",
       "slice": "internal_dossier_preparation",
@@ -9697,78 +9697,78 @@
         "entity": "Manuscript"
       },
       "source_binding": {
-        "path": "apps/api/publishing/domain/dossiers.py",
-        "class_line": 69,
+        "path": "apps/api/publishing/domain/dossier_models.py",
+        "class_line": 47,
         "fields": [
           {
             "name": "id",
-            "line": 86,
+            "line": 64,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
           },
           {
             "name": "dossier_id",
-            "line": 87,
+            "line": 65,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "journal_id",
-            "line": 88,
+            "line": 66,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "version_no",
-            "line": 89,
+            "line": 67,
             "annotation": "Mapped[int]",
             "declaration": "mapped_column(Integer)"
           },
           {
             "name": "data_json",
-            "line": 90,
+            "line": 68,
             "annotation": "Mapped[dict]",
             "declaration": "mapped_column(JSONB)"
           },
           {
             "name": "file_object_id",
-            "line": 91,
+            "line": 69,
             "annotation": "Mapped[str | None]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "file_name",
-            "line": 92,
+            "line": 70,
             "annotation": "Mapped[str | None]",
             "declaration": "mapped_column(String(255))"
           },
           {
             "name": "file_media_type",
-            "line": 93,
+            "line": 71,
             "annotation": "Mapped[str | None]",
             "declaration": "mapped_column(String(100))"
           },
           {
             "name": "content_digest",
-            "line": 94,
+            "line": 72,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(64))"
           },
           {
             "name": "created_by",
-            "line": 95,
+            "line": 73,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
           },
           {
             "name": "created_at",
-            "line": 96,
+            "line": 74,
             "annotation": "Mapped[datetime]",
             "declaration": "mapped_column(DateTime(timezone=True), default=now)"
           }
         ],
         "table_args": {
-          "line": 71,
+          "line": 49,
           "declaration": "(UniqueConstraint('id', 'dossier_id', 'journal_id', name='uq_dossier_version_tenant'), UniqueConstraint('dossier_id', 'version_no', name='uq_dossier_version_number'), ForeignKeyConstraint(['dossier_id', 'journal_id'], ['publishing_dossiers.id', 'publishing_dossiers.journal_id'], name='fk_dossier_version_parent'), ForeignKeyConstraint(['file_object_id', 'journal_id'], ['publishing_file_objects.id', 'publishing_file_objects.journal_id'], name='fk_dossier_version_file'), CheckConstraint('version_no >= 1', name='ck_dossier_version_number'))"
         }
       },
@@ -9801,7 +9801,7 @@
     },
     {
       "class": "DossierCheck",
-      "module": "apps/api/publishing/domain/dossiers.py",
+      "module": "apps/api/publishing/domain/dossier_models.py",
       "table": "publishing_dossier_checks",
       "contract_source": "specs/013-internal-review-dossiers.md",
       "slice": "internal_dossier_preparation",
@@ -9864,60 +9864,60 @@
         "entity": "Manuscript"
       },
       "source_binding": {
-        "path": "apps/api/publishing/domain/dossiers.py",
-        "class_line": 99,
+        "path": "apps/api/publishing/domain/dossier_models.py",
+        "class_line": 77,
         "fields": [
           {
             "name": "id",
-            "line": 113,
+            "line": 91,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
           },
           {
             "name": "dossier_id",
-            "line": 114,
+            "line": 92,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "journal_id",
-            "line": 115,
+            "line": 93,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "version_id",
-            "line": 116,
+            "line": 94,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "content_digest",
-            "line": 117,
+            "line": 95,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(64))"
           },
           {
             "name": "checked_by",
-            "line": 118,
+            "line": 96,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
           },
           {
             "name": "session_hash",
-            "line": 119,
+            "line": 97,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(64))"
           },
           {
             "name": "checked_at",
-            "line": 120,
+            "line": 98,
             "annotation": "Mapped[datetime]",
             "declaration": "mapped_column(DateTime(timezone=True), default=now)"
           }
         ],
         "table_args": {
-          "line": 101,
+          "line": 79,
           "declaration": "(ForeignKeyConstraint(['version_id', 'dossier_id', 'journal_id'], ['publishing_dossier_versions.id', 'publishing_dossier_versions.dossier_id', 'publishing_dossier_versions.journal_id'], name='fk_dossier_check_version'), UniqueConstraint('version_id', name='uq_dossier_checked_version'))"
         }
       },
@@ -9944,7 +9944,7 @@
     },
     {
       "class": "DossierTurn",
-      "module": "apps/api/publishing/domain/dossiers.py",
+      "module": "apps/api/publishing/domain/dossier_models.py",
       "table": "publishing_dossier_turns",
       "contract_source": "specs/013-internal-review-dossiers.md",
       "slice": "internal_dossier_preparation",
@@ -10007,60 +10007,60 @@
         "entity": "Manuscript"
       },
       "source_binding": {
-        "path": "apps/api/publishing/domain/dossiers.py",
-        "class_line": 123,
+        "path": "apps/api/publishing/domain/dossier_models.py",
+        "class_line": 101,
         "fields": [
           {
             "name": "id",
-            "line": 136,
+            "line": 114,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
           },
           {
             "name": "dossier_id",
-            "line": 137,
+            "line": 115,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "journal_id",
-            "line": 138,
+            "line": 116,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "version_id",
-            "line": 139,
+            "line": 117,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36))"
           },
           {
             "name": "user_id",
-            "line": 140,
+            "line": 118,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
           },
           {
             "name": "question",
-            "line": 141,
+            "line": 119,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(2000))"
           },
           {
             "name": "answer",
-            "line": 142,
+            "line": 120,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(6000))"
           },
           {
             "name": "created_at",
-            "line": 143,
+            "line": 121,
             "annotation": "Mapped[datetime]",
             "declaration": "mapped_column(DateTime(timezone=True), default=now)"
           }
         ],
         "table_args": {
-          "line": 125,
+          "line": 103,
           "declaration": "(ForeignKeyConstraint(['version_id', 'dossier_id', 'journal_id'], ['publishing_dossier_versions.id', 'publishing_dossier_versions.dossier_id', 'publishing_dossier_versions.journal_id'], name='fk_dossier_turn_version'),)"
         }
       },

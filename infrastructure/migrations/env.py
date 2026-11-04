@@ -6,7 +6,7 @@ from apps.api.publishing.db import DATABASE_URL
 from apps.api.publishing.domain import checks as publishing_checks  # noqa: F401
 from apps.api.publishing.domain import document_models as document_models  # noqa: F401
 from apps.api.publishing.domain import dossier_chat_models as dossier_chat_models  # noqa: F401
-from apps.api.publishing.domain import dossiers as publishing_dossiers  # noqa: F401
+from apps.api.publishing.domain import dossier_models as publishing_dossiers  # noqa: F401
 from apps.api.publishing.domain import models as publishing_models  # noqa: F401
 from apps.api.publishing.domain import review_models as publishing_reviews  # noqa: F401
 from apps.api.publishing.models import Base

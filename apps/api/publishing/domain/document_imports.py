@@ -21,11 +21,28 @@ from ..audit import record
 from ..db import get_db
 from ..models import now, uid
 from ..security import Actor, get_actor
-from . import dossiers
+from . import dossier_access as access
+from . import dossier_actions as actions
 from .document_candidates import identify
 from .document_models import DocumentApproval, DocumentImport, DocumentSource
-from .document_store import MAX_BYTES, read_original, store_original
-from .dossier_evidence import leaf_fields
+from .document_sources import (
+    approval_digest,
+    import_digest,
+    source_projection,
+    verify_import,
+)
+from .document_sources import (
+    attach_document as attach_document,
+)
+from .document_sources import (
+    inherit_source as inherit_source,
+)
+from .document_sources import (
+    origin_digest as origin_digest,
+)
+from .document_store import MAX_BYTES, store_original
+from .dossier_models import DossierCheck, DossierVersion
+from .dossier_schemas import DossierData, ExplicitTrue, RequestID, missing
 from .files import FileValidationError, store_bytes, validate_upload
 from .models import FileObject
 from .schemas import StrictInput
@@ -39,66 +56,23 @@ class DocumentUpload(StrictInput):
 
 
 class ImportInput(StrictInput):
-    request_id: dossiers.RequestID
+    request_id: RequestID
     expected_revision: int = Field(ge=1)
-    version_id: dossiers.RequestID
+    version_id: RequestID
     file: DocumentUpload
-    authorized_material: dossiers.ExplicitTrue
+    authorized_material: ExplicitTrue
 
 
 class ApproveInput(StrictInput):
-    request_id: dossiers.RequestID
+    request_id: RequestID
     expected_revision: int = Field(ge=1)
     digest: str = Field(pattern=r"^[0-9a-f]{64}$")
-    data: dossiers.DossierData
-    acknowledged: dossiers.ExplicitTrue
-
-
-def import_digest(item):
-    return dossiers.digest(
-        {
-            "schema": "document_import.v1",
-            "dossier_id": item.dossier_id,
-            "base_version_id": item.base_version_id,
-            "base_revision": item.base_revision,
-            "filename": item.filename,
-            "media_type": item.media_type,
-            "byte_size": item.byte_size,
-            "sha256": item.sha256,
-            "extraction": item.extraction_json,
-            "proposed_data": item.proposed_data,
-            "field_sources": item.field_sources,
-            "metadata_provider": item.metadata_provider,
-            "metadata_model": item.metadata_model,
-        }
-    )
-
-
-def approval_digest(item, data, version_digest):
-    return dossiers.digest(
-        {
-            "schema": "document_approval.v1",
-            "import_digest": item.digest,
-            "data": data,
-            "version_digest": version_digest,
-        }
-    )
-
-
-def origin_digest(item, approval, version):
-    return dossiers.digest(
-        {
-            "schema": "document_origin.v1",
-            "import_digest": item.digest,
-            "approval_digest": approval.digest,
-            "version_digest": version.content_digest,
-            "sha256": item.sha256,
-        }
-    )
+    data: DossierData
+    acknowledged: ExplicitTrue
 
 
 def load_import(db, actor, dossier_id, import_id):
-    row = dossiers.load(db, actor, dossier_id)
+    row = access.load(db, actor, dossier_id)
     item = db.scalar(
         select(DocumentImport).where(
             DocumentImport.id == import_id,
@@ -109,148 +83,6 @@ def load_import(db, actor, dossier_id, import_id):
     if not item:
         raise HTTPException(404, "导入记录不存在或无权访问")
     return row, item
-
-
-def verify_import(item):
-    try:
-        raw = read_original(item.storage_key)
-    except FileValidationError:
-        raise HTTPException(409, "原文件完整性检查失败，请重新导入") from None
-    if (
-        len(raw) != item.byte_size
-        or hashlib.sha256(raw).hexdigest() != item.sha256
-        or import_digest(item) != item.digest
-    ):
-        raise HTTPException(409, "导入快照或原文件已变化，请重新导入")
-    extraction = item.extraction_json
-    text = extraction["text"]
-    if hashlib.sha256(text.encode()).hexdigest() != extraction["sha256"]:
-        raise HTTPException(409, "提取全文完整性检查失败")
-    return raw
-
-
-def source_projection(db, row, version):
-    link = db.get(DocumentSource, version.id)
-    if link is None:
-        return None
-    item = db.get(DocumentImport, link.import_id)
-    approval = db.get(DocumentApproval, link.approval_id)
-    if (
-        not item
-        or not approval
-        or item.dossier_id != row.id
-        or item.journal_id != row.journal_id
-        or approval.import_id != item.id
-    ):
-        raise HTTPException(409, "原文件关联不完整")
-    verify_import(item)
-    material = dossiers.file_content(db, version)
-    if (
-        not material
-        or material[0].sha256 != item.extraction_json["sha256"]
-        or material[1].decode() != item.extraction_json["text"]
-    ):
-        raise HTTPException(409, "提取全文与原文件关联不一致")
-    expected = origin_digest(item, approval, version)
-    if link.origin_digest != expected:
-        raise HTTPException(409, "原文来源摘要不一致")
-    return {
-        "import_id": item.id,
-        "filename": item.filename,
-        "media_type": item.media_type,
-        "sha256": item.sha256,
-        "byte_size": item.byte_size,
-        "download_url": f"/api/dossiers/{row.id}/imports/{item.id}/file",
-        "parser": item.extraction_json["parser"],
-        "origin_digest": expected,
-        "segments": item.extraction_json["segments"],
-        "warnings": item.extraction_json["warnings"],
-        "approval": {
-            "id": approval.id,
-            "by": approval.reviewer_id,
-            "at": approval.created_at.isoformat(),
-        },
-    }
-
-
-def inherit_source(db, row, old, new):
-    previous = db.get(DocumentSource, old.id)
-    if previous is None:
-        return
-    source_projection(db, row, old)
-    item = db.get(DocumentImport, previous.import_id)
-    approval = db.get(DocumentApproval, previous.approval_id)
-    db.add(
-        DocumentSource(
-            version_id=new.id,
-            dossier_id=row.id,
-            journal_id=row.journal_id,
-            import_id=item.id,
-            approval_id=approval.id,
-            origin_digest=origin_digest(item, approval, new),
-        )
-    )
-    db.flush()
-
-
-def attach_document(citation, document, db=None, version=None):
-    if not document:
-        return citation
-    start, end = citation["start"], citation["end"]
-    source_quote = citation["quote"]
-    if citation["kind"] == "metadata":
-        if db is None or version is None:
-            return citation
-        item = db.get(DocumentImport, document["import_id"])
-        if citation["field_path"].startswith("authors."):
-            index = int(citation["field_path"].split(".")[1])
-            old_authors = item.proposed_data.get("authors", [])
-            new_authors = version.data_json.get("authors", [])
-            if (
-                index >= len(old_authors)
-                or index >= len(new_authors)
-                or old_authors[index]["name"] != new_authors[index]["name"]
-            ):
-                return citation
-        source = next(
-            (
-                s
-                for s in item.field_sources
-                if s["field_path"] == citation["field_path"]
-                and s["value"] == dict(leaf_fields(version.data_json)).get(citation["field_path"])
-            ),
-            None,
-        )
-        if source is None:
-            return citation
-        start, end = source["start"], source["end"]
-        source_quote = source["quote"]
-    locations = [
-        {
-            "kind": s["kind"],
-            "number": s["number"],
-            "start": max(start, s["start"]),
-            "end": min(end, s["end"]),
-        }
-        for s in document["segments"]
-        if start < s["end"] and end > s["start"]
-    ]
-    if not locations:
-        return citation
-    return {
-        **citation,
-        "document": {
-            "origin_digest": document["origin_digest"],
-            "sha256": document["sha256"],
-            "filename": document["filename"],
-            "media_type": document["media_type"],
-            "download_url": document["download_url"],
-            "locations": locations,
-            "source_start": start,
-            "source_end": end,
-            "source_quote": source_quote,
-        },
-    }
 
 
 def import_projection(db, actor, target, import_id):
@@ -298,15 +130,15 @@ def prepare_import(
     diagnostics = []
 
     def validate():
-        row = dossiers.load(db, actor, target)
-        dossiers.current(row, body.expected_revision, str(body.version_id))
+        row = access.load(db, actor, target)
+        access.current(row, body.expected_revision, str(body.version_id))
         if time.monotonic() >= deadline:
             raise GatewayError("editorial_provider_deadline")
         return row
 
     def execute():
         row = validate()
-        base = dossiers.version(db, row)
+        base = access.version(db, row)
         try:
             raw = base64.b64decode(body.file.content_base64, validate=True)
             if (
@@ -357,8 +189,8 @@ def prepare_import(
             diagnostics=diagnostics,
         )
         # No write lock spans parser/model work. Then revalidate original identity and bytes.
-        row = dossiers.load(db, actor, target, write=True)
-        dossiers.current(row, body.expected_revision, str(body.version_id))
+        row = access.load(db, actor, target, write=True)
+        access.current(row, body.expected_revision, str(body.version_id))
         validate()
         storage = store_original(raw)
         extraction = {**extraction, "sha256": derived.sha256, "metadata_diagnostics": diagnostics}
@@ -386,18 +218,18 @@ def prepare_import(
         item.digest = import_digest(item)
         db.add(item)
         db.flush()
-        dossiers.event(db, actor, row, "document_import_prepared", base.id)
+        actions.event(db, actor, row, "document_import_prepared", base.id)
         validate()
         return {"dossier_id": row.id, "import_id": item.id}
 
     try:
-        return dossiers.gateway(db, actor, body, "document_import", target, execute)
+        return actions.gateway(db, actor, body, "document_import", target, execute)
     except FileValidationError:
         raise HTTPException(409, "原文件存储未完成，请重试") from None
     except GatewayError as error:
         db.rollback()
         try:
-            dossiers.load(db, actor, target)
+            access.load(db, actor, target)
             code = (
                 error.args[0]
                 if error.args
@@ -430,7 +262,7 @@ def prepare_import(
 def list_imports(
     dossier_id: UUID, actor: Actor = Depends(get_actor), db: Session = Depends(get_db)
 ):
-    row = dossiers.load(db, actor, str(dossier_id))
+    row = access.load(db, actor, str(dossier_id))
     items = db.scalars(
         select(DocumentImport)
         .where(DocumentImport.dossier_id == row.id, DocumentImport.journal_id == row.journal_id)
@@ -501,17 +333,17 @@ def approve_import(
     iid = str(import_id)
 
     def execute():
-        row = dossiers.load(db, actor, target, write=True)
+        row = access.load(db, actor, target, write=True)
         _, item = load_import(db, actor, target, iid)
-        dossiers.current(row, body.expected_revision, item.base_version_id)
+        access.current(row, body.expected_revision, item.base_version_id)
         if row.revision != item.base_revision or body.digest != item.digest:
             raise HTTPException(409, "导入所依据的版本或核对快照已变化，请重新导入")
         if db.scalar(select(DocumentApproval).where(DocumentApproval.import_id == item.id)):
             raise HTTPException(409, "该导入已确认，请查看已保存版本")
         verify_import(item)
-        missing = dossiers.missing(body.data, True)
-        if missing:
-            raise HTTPException(409, {"message": "请补齐必填资料后再确认", "missing": missing})
+        incomplete = missing(body.data, True)
+        if incomplete:
+            raise HTTPException(409, {"message": "请补齐必填资料后再确认", "missing": incomplete})
         raw = item.extraction_json["text"].encode()
         sha = hashlib.sha256(raw).hexdigest()
         key = store_bytes(raw, sha)
@@ -536,7 +368,7 @@ def approve_import(
             )
         )
         data = body.data.model_dump()
-        version = dossiers.DossierVersion(
+        version = DossierVersion(
             id=uid(),
             dossier_id=row.id,
             journal_id=row.journal_id,
@@ -545,7 +377,7 @@ def approve_import(
             file_object_id=blob.id,
             file_name=filename,
             file_media_type="text/plain",
-            content_digest=dossiers.snapshot_digest(data, sha, filename, "text/plain"),
+            content_digest=access.snapshot_digest(data, sha, filename, "text/plain"),
             created_by=actor.user.id,
         )
         db.add(version)
@@ -579,7 +411,7 @@ def approve_import(
         )
         db.flush()
         db.add(
-            dossiers.DossierCheck(
+            DossierCheck(
                 dossier_id=row.id,
                 journal_id=row.journal_id,
                 version_id=version.id,
@@ -589,7 +421,33 @@ def approve_import(
             )
         )
         db.flush()
-        dossiers.event(db, actor, row, "document_import_approved", version.id)
+        actions.event(db, actor, row, "document_import_approved", version.id)
         return {"dossier_id": row.id, "version_id": version.id}
 
-    return dossiers.gateway(db, actor, body, "document_approve", target, execute)
+    def revalidate_confirmation():
+        row, item = load_import(db, actor, target, iid)
+        approved = db.scalar(
+            select(DocumentApproval).where(
+                DocumentApproval.import_id == item.id,
+                DocumentApproval.dossier_id == row.id,
+                DocumentApproval.journal_id == row.journal_id,
+            )
+        )
+        if approved is None:
+            raise HTTPException(409, "此确认回执不属于当前导入记录")
+        approved_version = access.version(db, row, approved.version_id)
+        if source_projection(db, row, approved_version) is None:
+            raise HTTPException(409, "确认记录缺少完整原件来源，请重新核对")
+        access.require_staff(db, actor)
+
+    # Keep the v1 request fingerprint so existing VPS receipts remain replayable.
+    # The immutable approval binds both legacy and new replays to the actual path.
+    return actions.gateway(
+        db,
+        actor,
+        body,
+        "document_approve",
+        target,
+        execute,
+        revalidate_resource=revalidate_confirmation,
+    )

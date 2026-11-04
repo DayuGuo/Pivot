@@ -1,5 +1,11 @@
 # 架构
 
+## 资料区分层（spec018）
+
+保持模块化单体。dossier_models定义四表，dossier_schemas定义输入/完整性，dossier_access负责对象权限与CAS读取，dossier_actions接幂等网关/审计，dossier_queries与dossier_views负责批量读取和投影，document_sources管理不可变来源。dossiers/document_imports/dossier_chat仅组合明确服务；旧dossiers导出保留为兼容门面，迁移直接导入纯模型。直接依赖分层由check-boundaries执行，字段/约束的移动由来源映射逐项核对；不把导入检查当作权限证明。
+
+确认回执保留v1指纹，重放时另查路径对应的不可变DocumentApproval及原件/提取全文来源；同内容不同ID、缺失ID、损坏文件拒绝，合法历史确认不回退后来版本。没有新表/字段/迁移。列表一次带所有者/期刊条件查询；历史Answer按消息ID批量读取，旧rules标签保留。[维护地图](docs/development/module-map.md)和[阶段验收](docs/development/spec018-review.md)。
+
 ## 独立 VPS 私人体验（spec017）
 
 infrastructure/vps维护单独Compose、离线镜像入口和标准库生命周期管理器，不继承开发Compose/env。Next.js条件standalone构建移除开发依赖；私人构建不预填演示账号。新pivot-*项目/卷/环回3210不触碰静态站和旧浏览器资料；数据库与API不发布端口，运行1472MiB总硬上限、API单worker。私人bootstrap要求外部环境提供编辑账号，公开合成密码不可用；资料/正式权限边界不变。更新先数据库＋CAS备份、后增量迁移，恢复仅到新项目与新卷。真实执行结果见docs/development/private-vps-preview.md，不把本机构建当作VPS实装。

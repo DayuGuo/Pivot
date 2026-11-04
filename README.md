@@ -1,6 +1,8 @@
 # Pivot
 
-已发布[完整应用私人体验包 v0.2.0-preview.1](https://github.com/DayuGuo/Pivot/releases/tag/v0.2.0-preview.1)（约270MiB）：独立于原静态展示站，预编译amd64镜像、私人登录、真实DeepSeek/PDF/Word、受限内存与备份恢复。无需在VPS编译，默认SSH隧道访问3210；旧站和旧资料保持不动。[安装说明](infrastructure/vps/README.md) · [原生x86与真实模型验收](docs/development/private-vps-preview.md)。用户VPS尚未实装，不是生产投审稿服务。
+本轮正在实施[可靠性与模块维护](specs/018-dossier-reliability-and-maintenance.md)：导入确认回执绑定、原件重验与批量读取；[模块地图](docs/development/module-map.md)说明每类修改的位置，[审查记录](docs/development/spec018-review.md)保留重现与验收证据。
+
+已发布[完整应用私人体验包 v0.2.0-preview.1](https://github.com/DayuGuo/Pivot/releases/tag/v0.2.0-preview.1)（约270MiB）：独立于原静态展示站，预编译amd64镜像、私人登录、真实DeepSeek/PDF/Word、受限内存与备份恢复。无需在VPS编译，默认SSH隧道访问3210；旧站和旧资料保持不动。[安装说明](infrastructure/vps/README.md) · [原生x86与真实模型验收](docs/development/private-vps-preview.md)。用户已报告VPS安装完成；本轮未做SSH复核，不是生产投审稿服务。
 
 最新增量：[公开论文实测与修复](docs/development/public-paper-evaluation.md)。使用3篇许可明确的真实论文、6份原始或明确标注的转制PDF/Word检查全文、26位次作者与38项机构对应，并实际运行独立核对和真实DeepSeek问答。模型结果及已执行验收以PROGRESS顶部为准；文本抽取不等于视觉版面、公式或科学正确性验证。可复现实验入口与许可见[样本目录](evals/public_documents/README.md)。
 
