@@ -168,3 +168,79 @@ test("原文支持：旧回答不被补成已经通过的语义检查", async ({
   await expect(page.getByText("此历史回答尚未做语义支持检查，引用仍可定位，请人工复核结论。", { exact: true })).toBeVisible();
   await expect(page.getByText(/原文支持检查（AI）/)).toHaveCount(0);
 });
+
+test("人工复核：不完整回执同UUID恢复、改内容重勾、刷新保留历史", async ({ page }) => {
+  await fixtures(page);
+  const writes: Record<string, unknown>[] = [], records: Record<string, unknown>[] = [];
+  let reads = 0;
+  await page.route(`**/api/dossiers/${ID}/answers/grounded-old/claims/claims/0/reviews`, async route => {
+    if (route.request().method() === "GET") { ++reads; return route.fulfill({ json: { items: records, latest_id: records[0]?.id ?? null, next_cursor: null, claim_digest: "c".repeat(64), content_digest: "a".repeat(64) } }); }
+    const data = route.request().postDataJSON(); writes.push(data);
+    if (!records.length) records.push({ ...data, id: "30000000-0000-4000-8000-000000000014", review_no: 1, created_at: "2026-11-04T12:00:00Z" });
+    return route.fulfill({ json: writes.length === 1 ? {} : records[0] });
+  });
+  await page.goto(`/library?dossier=${ID}`);
+  await expect(page.getByRole("heading", { name: "合成当前资料", exact: true })).toBeVisible();
+  expect(reads).toBe(0);
+  const feedback = page.getByRole("region", { name: "结论人工复核", exact: true }).first();
+  await feedback.getByRole("button", { name: "人工复核", exact: true }).click();
+  await feedback.getByLabel("核对理由", { exact: true }).fill("原文只描述合成记录，不能支持临床疗效。");
+  await feedback.getByRole("checkbox").check();
+  await feedback.getByLabel("复核意见", { exact: true }).selectOption("unsupported");
+  await expect(feedback.getByRole("checkbox")).not.toBeChecked();
+  await feedback.getByRole("checkbox").check();
+  await feedback.getByRole("button", { name: "保存人工复核", exact: true }).click();
+  await expect(feedback.getByRole("alert")).toContainText("未完整收到保存回执");
+  await feedback.getByRole("button", { name: "保存人工复核", exact: true }).click();
+  await expect(feedback.getByRole("status")).toHaveText("人工复核已保存。");
+  expect(writes).toHaveLength(2); expect(writes[0].request_id).toBe(writes[1].request_id); expect(records).toHaveLength(1);
+  await page.reload();
+  await feedback.getByRole("button", { name: "人工复核", exact: true }).click();
+  await expect(feedback.getByText("最近人工复核：无依据 · 第 1 次", { exact: true })).toBeVisible();
+  await feedback.getByText("复核记录（1）", { exact: true }).click();
+  await expect(feedback.getByText("原文只描述合成记录，不能支持临床疗效。", { exact: true })).toBeVisible();
+  await page.screenshot({ path: "artifacts/spec021/human-feedback-desktop.png" });
+  await page.setViewportSize({ width: 375, height: 812 });
+  await expect(page.getByLabel("询问当前资料")).toBeInViewport();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
+  await page.screenshot({ path: "artifacts/spec021/human-feedback-mobile.png" });
+});
+
+test("人工复核：撤权清除材料和表单，不提交旧登录身份", async ({ page }) => {
+  await fixtures(page);
+  let posts = 0;
+  await page.route(`**/api/dossiers/${ID}/answers/grounded-old/claims/claims/0/reviews`, route => { if (route.request().method() === "POST") ++posts; return route.fulfill({ json: { items: [], latest_id: null, next_cursor: null, claim_digest: "c".repeat(64), content_digest: "a".repeat(64) } }); });
+  await page.goto(`/library?dossier=${ID}`);
+  const feedback = page.getByRole("region", { name: "结论人工复核", exact: true }).first();
+  await feedback.getByRole("button", { name: "人工复核", exact: true }).click();
+  await feedback.getByLabel("核对理由", { exact: true }).fill("已查看原文，准备记录复核意见。");
+  await feedback.getByRole("checkbox").check();
+  await page.route("**/api/publishing/session", route => route.fulfill({ json: { ...session, user: { ...session.user, id: "another-editor" } } }));
+  await feedback.getByRole("button", { name: "保存人工复核", exact: true }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "访问权限或身份已变化" })).toContainText("访问权限或身份已变化");
+  await expect(page.getByText("已查看原文，准备记录复核意见。", { exact: true })).toHaveCount(0);
+  expect(posts).toBe(0);
+});
+
+test("人工复核：翻旧记录不采用并发变化的新前置ID", async ({ page }) => {
+  await fixtures(page);
+  const previous = "30000000-0000-4000-8000-000000000014", concurrent = "30000000-0000-4000-8000-000000000024";
+  const posts: Record<string, unknown>[] = [];
+  const record = { id: previous, verdict: "supported", note: "初始负责人已核对原文。", review_no: 2, created_at: "2026-11-04T12:00:00Z", claim_digest: "c".repeat(64), content_digest: "a".repeat(64) };
+  await page.route(`**/api/dossiers/${ID}/answers/grounded-old/claims/claims/0/reviews*`, route => {
+    if (route.request().method() === "POST") { posts.push(route.request().postDataJSON()); return route.fulfill({ status: 409, json: { detail: "已有新的人工复核，请重新载入后核对" } }); }
+    const older = new URL(route.request().url()).searchParams.has("before");
+    return route.fulfill({ json: { items: [{ ...record, id: older ? "30000000-0000-4000-8000-000000000034" : previous, review_no: older ? 1 : 2 }], latest_id: older ? concurrent : previous, next_cursor: older ? null : 2, claim_digest: "c".repeat(64), content_digest: "a".repeat(64) } });
+  });
+  await page.goto(`/library?dossier=${ID}`);
+  const feedback = page.getByRole("region", { name: "结论人工复核", exact: true }).first();
+  await feedback.getByRole("button", { name: "人工复核", exact: true }).click();
+  await feedback.getByLabel("核对理由", { exact: true }).fill("本次新增核对理由，但不能覆盖尚未看到的新意见。");
+  await feedback.getByRole("checkbox").check();
+  await feedback.getByText("复核记录（1）", { exact: true }).click();
+  await feedback.getByRole("button", { name: "更早复核", exact: true }).click();
+  await expect(feedback.getByText("复核记录（2）", { exact: true })).toBeVisible();
+  await feedback.getByRole("button", { name: "保存人工复核", exact: true }).click();
+  await expect(feedback.getByRole("alert")).toContainText("已有新的人工复核");
+  expect(posts[0].expected_review_id).toBe(previous);
+});

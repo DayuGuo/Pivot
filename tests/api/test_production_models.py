@@ -326,6 +326,7 @@ def test_complete_chain_metadata_has_zero_drift(production_world):
         e.peer.migration("13f17cad5064").upgrade()
         e.peer.migration("14a28dbe6175").upgrade()
         e.peer.migration("15b39ecf7286").upgrade()
+        e.peer.migration("16c40fda8397").upgrade()
     assert compare_metadata(MigrationContext.configure(w.conn), Base.metadata) == []
     assert [
         len(cls.__table__.columns) for cls in (ProofPackage, ProofResponse, PublicationPreview)

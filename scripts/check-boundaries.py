@@ -19,6 +19,7 @@ print("Model gateway dependency boundaries passed")
 # Private dossiers are a layered modular monolith, not mutually importing routers.
 # This is a direct-import constraint, not a replacement for runtime authorization.
 ranks = {
+    "claim_review_models": 0,
     "author_links": -1,
     "dossier_evidence": 1,
     "claim_support": 2,
@@ -31,7 +32,13 @@ ranks = {
     "document_sources": 2,
     "dossier_views": 3,
 }
-route_modules = {"dossiers", "document_imports", "dossier_chat", "document_candidates"}
+route_modules = {
+    "dossiers",
+    "document_imports",
+    "dossier_chat",
+    "document_candidates",
+    "claim_reviews",
+}
 for module, rank in ranks.items():
     source = Path("apps/api/publishing/domain") / f"{module}.py"
     for node in ast.walk(ast.parse(source.read_text())):

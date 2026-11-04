@@ -1,5 +1,9 @@
 # 架构
 
+## 人工反馈边界（spec021）
+
+ClaimReview独立append-only16字段，复合版本关系和SQL来源/序号守卫；claim_reviews组合现有对象鉴权、CAS、Action Gateway与审计，claim_review_metrics为纯统计。原Answer/Check与模型工具不变。路由目标进入内部ReviewAction指纹，不使用可变数组位置授予权限。
+
 ## 作者关联与结论支持（spec020）
 
 author_links集中局部正向关联；document_candidates存metadata_uncertainties，document_sources按同一导入唯一精确姓名/字段值跟随换序。claim_support复用相同传输与60秒期限，在新上下文检查候选全部分句；通过/待核对分别存入同一追加式Answer JSON。没有新迁移、旧digest不变。共享tool_schema/sanitized_telemetry移至packages/model_gateway/protocol，兼容导出保留。Mock/历史回答不冒称检查成功。

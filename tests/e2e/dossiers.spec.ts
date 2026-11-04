@@ -85,6 +85,24 @@ test("内部资料真实链：录入全文作者、独立核对、新版失效�
   await expect(page.getByText("邮件与关键决定须负责人确认。", { exact: true })).toBeVisible();
   await page.reload(); await expect(page.getByText("邮件与关键决定须负责人确认。", { exact: true })).toBeVisible();
   const afterChat = await (await page.request.get(`/api/dossiers/${id}`)).json() as Dossier;
+  const feedback = page.getByRole("region", { name: "结论人工复核", exact: true }).first();
+  await feedback.getByRole("button", { name: "人工复核", exact: true }).click();
+  await feedback.getByLabel("复核意见", { exact: true }).selectOption("uncertain");
+  await feedback.getByLabel("核对理由", { exact: true }).fill("这是明确的Mock合成结果，不能作为科学审阅结论。");
+  await feedback.getByRole("checkbox").check();
+  await feedback.getByRole("button", { name: "保存人工复核", exact: true }).click();
+  await expect(feedback.getByRole("status")).toHaveText("人工复核已保存。");
+  expect(await (await page.request.get(`/api/dossiers/${id}`)).json()).toEqual(afterChat);
+  const summary = await (await page.request.get(`/api/dossiers/${id}/answers/${afterChat.messages.at(-1)!.id}/review-summary`)).json();
+  expect(summary.metrics.reviewed_claims).toBe(1); expect(summary.metrics.comparable).toBe(0); expect(summary.metrics.human_uncertain).toBe(1);
+  const reviewURL = `/api/dossiers/${id}/answers/${afterChat.messages.at(-1)!.id}/claims/claims/0/reviews`;
+  const history = await (await page.request.get(reviewURL)).json();
+  const auth = await (await page.request.get("/api/publishing/session")).json();
+  const attempts = await Promise.all(["A", "B"].map(note => page.request.post(reviewURL, { headers: { "X-CSRF-Token": auth.csrf_token }, data: { request_id: crypto.randomUUID(), claim_digest: history.claim_digest, content_digest: history.content_digest, expected_review_id: history.latest_id, verdict: "uncertain", note: `并发验收${note}：合成资料仍待人工进一步核对。`, acknowledged: true } })));
+  expect(attempts.map(r => r.status()).sort()).toEqual([200, 409]);
+  expect((await (await page.request.get(reviewURL)).json()).items.map((r: { review_no: number }) => r.review_no)).toEqual([2, 1]);
+  expect(await (await page.request.get(`/api/dossiers/${id}`)).json()).toEqual(afterChat);
+
   expect(afterChat.data.authors[1].contributions).toEqual(["合成方法设计", "合成数据核对"]);
   expect(afterChat.verified).toBe(false); expect(afterChat.version_id).toBe(current.version_id); expect(afterChat.messages.at(-1)?.provider).toBe("mock");
   expect(mutations.filter(path => path.endsWith("/confirm"))).toHaveLength(1);
