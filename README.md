@@ -2,6 +2,8 @@
 
 最新增量：[公开论文实测与修复](docs/development/public-paper-evaluation.md)。使用3篇许可明确的真实论文、6份原始或明确标注的转制PDF/Word检查全文、26位次作者与38项机构对应，并实际运行独立核对和真实DeepSeek问答。模型结果及已执行验收以PROGRESS顶部为准；文本抽取不等于视觉版面、公式或科学正确性验证。可复现实验入口与许可见[样本目录](evals/public_documents/README.md)。
 
+[保留资料的 VPS 更新说明](docs/deployment/update-preserving-data.md)：分别说明静态 Demo 与完整 Compose，包含数据库/原件备份、增量迁移和模型环境保留；本轮未执行 VPS 部署。
+
 本轮新增：[PDF/Word 导入与人工核对](docs/development/document-import-review.md)。本机真实 DeepSeek 的 PDF、DOCX 提取和问答各通过，浏览器引用定位、刷新与 API/Web 重启恢复通过；最终完整回归以 [PROGRESS.md](PROGRESS.md) 顶部为准。公网静态 Demo 不包含此真实后端增量。
 
 仅使用合成或获授权的公开非保密材料。负责人确认的是资料版本，不是正式投稿、邮件或编辑决定；模型没有这些确认工具。需要显式重现真实合成验收时：`.venv/bin/python scripts/accept-document-import.py --live`（本机8100/55432；会新建合成资料并由测试驱动模拟演示负责人核对，不读取或打印模型密钥）。
@@ -51,7 +53,7 @@ bash install.sh
 
 核心产品设计：[PRODUCT_DESIGN.md](PRODUCT_DESIGN.md)。日历/双层对话当前只在独立Demo展示；真实数据库中的聚合、多身份、多刊邀请与邮箱/ORCID注册仍待实施，不能从截图推断上线。
 
-Demo反馈后：[单人＋Codex单刊审阅第一阶段](specs/011-single-journal-review-pilot.md)。包含8周计划、约3万元现金准备及真实试点前的专业复核关口；资料包、文本层PDF/DOCX与只读版本证据问答已按切片本地实现；完整公开样本评测、ORCID认证与专业复核尚待完成。展示Demo沿用现有电脑/Codex/已购VPS，不需要这笔真实试点预算或新增模型消费。
+Demo反馈后：[单人＋Codex单刊审阅第一阶段](specs/011-single-journal-review-pilot.md)。包含8周计划、约3万元现金准备及真实试点前的专业复核关口；资料包、文本层PDF/DOCX与只读版本证据问答已按切片本地实现；公开样本评测已按spec016完成一轮；更广泛格式覆盖、ORCID认证与专业复核尚待完成。展示Demo沿用现有电脑/Codex/已购VPS，不需要这笔真实试点预算或新增模型消费。
 
 ## 可运行的真实出版 v0.1 样本
 

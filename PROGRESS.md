@@ -9,6 +9,8 @@ spec016使用3篇许可明确论文/6份文件：公开未发表8作者原生Wor
 独立文本检查：PDF25/4/6页，与Poppler最差逐页字符召回100%/99.911%/99.986%；Word正文105/70/80行对照LibreOffice，两转制Word无缺行，原Word11个自动项目符号未重建（去掉符号后0缺正文行），保留原差异并明确提示。指标不证明视觉顺序、公式、图片或科学结论正确。全迭代45个仅用于评测的公开论文资料包、26完成导入/36问答、19失败导入/2失败问答，147供应商attempt（134有效完成、13无效协议）、747,100输入/110,615输出tokens，费用null待账单；详见telemetry-summary.json，没有读取主模型密钥或全局认证。实际核对由浏览器脚本模拟演示编辑，不是专家/作者本人签收；6次确认后各v2已核对，后续问答重测0额外确认。最终12问选集在final-six-case-acceptance.json，实际重启6资料含完整历史/原件逐字节相等，同会话恢复provider仍deepseek。邮件/正式决定/正式稿件计数未变、Mailpit0、EMAIL_SEND_ENABLED=false，未部署公网。
 
 
+2026-11-04推送前真实DeepSeek再检：3962ms完成inspect_manuscript/list_tasks只读工具回环，1条引用、state_changed=false；服务provider=deepseek/live_enabled=true/EMAIL_SEND_ENABLED=false，证据artifacts/live-model-smoke.json（忽略、不推送）。新增[保留资料的更新说明](docs/deployment/update-preserving-data.md)，区分静态Demo与完整栈，提供停写后数据库＋原件备份、快进更新、沿用原卷/模型环境及增量迁移命令；未连接VPS、未验证其完整栈容量或部署。此前GitHub main停留046b70d，本轮同步包含其后资料区、真实问答、文档导入和实测修复四个已验收提交。
+
 ## 最新增量：2026-11-03，PDF/Word导入、人工核对与原件定位
 
 spec015已本地实现：文本层PDF/.docx原件私有CAS、完整提取和页/段映射、DeepSeek或明确Mock元数据候选、独立负责人补齐核对后一次建立新Version/Approval/Source/DossierCheck；上传不升版，模型没有确认工具。三新表36字段13命名约束、15b迁移、不可变历史与来源映射已登记；主库及隔离库已升级且check无漂移。只改元数据继承原件而新版本待核对，换TXT脱离来源；手改字段不伪造旧来源。
