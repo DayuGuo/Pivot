@@ -16,7 +16,17 @@
 
 本机静态检查/TypeScript通过；16项私人引导/凭据权限/项目隔离测试已通过。首轮管理器用Path.open的opener不兼容，改为os.open独占创建，保留失败日志。真实包首轮两格式导入/核对/引用/重启通过，恢复因Compose create不支持--no-deps而失败；更正后发现私有700目录在恢复后的属主遍历受限，新增仅初始化所需DAC能力，降权后无有效能力。失败测试项目保留数据，没有对现有服务或用户VPS做删除。
 
-完整scripts/verify.sh、修复后的包级恢复、浏览器和amd64 CI正在执行；此处没有将未完成检查写成通过。证据分别位于artifacts/vps-full-verify.log、vps-mock-lifecycle-ownership-fix.log和GitHub Actions。
+完整 `scripts/verify.sh` 实际退出0：**1173 Pytest（520.72秒）＋66 Playwright（2.0m）**；静态、迁移/漂移和准确API/Web构建通过，4项既有第三方弃用警告。证据 `artifacts/vps-full-verify.log`。更新后的部署管理器另通过格式检查；包级实验以下单独记录。
+
+ARM64开发机实际包级Mock与DeepSeek均通过：两种合成文件导入、候选不升版、测试驱动独立核对、逐字原件引用、同会话重启，以及新项目/新卷的完整数据库＋原件恢复。当前源码的负责人确认由测试驱动模拟，不是模型动作或专家签收。原应用与静态站容器ID保留，模型密钥在内存中借用既有服务环境，不写测试状态文件；DeepSeek服务的邮件/批准/正式决定/正式人类确认计数均0。实际进程UID10001/CapEff零；数据库/API端口未发布。
+
+实际预编译私人界面的两格式定位、刷新、375px及空白登录/无演示快捷账号均通过；Mock与真实DeepSeek分别记录 `vps-mock-browser.json`、`vps-deepseek-browser.json`，错误/邮件/决定/确认请求0。API+重启/恢复报告 `vps-preview-acceptance.json`、`vps-live-acceptance.json`。短合成DeepSeek两格式各完整操作约5.34/5.12秒。
+
+额外在受限真实服务导入已许可公开八作者Word（34327字符/128段）及其明确转制PDF（34622字符/25页），逐版核对并问Results：9份CPG/62条声明与原文相符，精确引用定位正确；两次完整操作约11.31/23.12秒。首个附加驱动把人工更正后的所有元数据引用都误要求有原件定位，报KeyError；修正驱动后重测，不放宽产品引用规则。报告 `vps-public-paper.json`。这不是全面语义证明：其中Word附加回答提到补表，但所选短摘引未覆盖补表句，仍须编辑查看上下文，不能把所有附带文字标为已验证。
+
+该长稿负载的cgroup各自观测峰值DB111075328/API142327808/Web78688256字节（约106/136/75MiB），全部无OOM；峰值不一定同时发生，不代表最大文件、并发或整台VPS内存。容器上限仍为320/768/384MiB。本轮未在用户VPS实装。
+
+原生amd64 CI尚待GitHub workflow权限完成，未将ARM64或源码同版本推断为x86运行通过。授权问题和最终CI/发行结果将在实际完成后更新。
 
 ## 使用与范围
 
