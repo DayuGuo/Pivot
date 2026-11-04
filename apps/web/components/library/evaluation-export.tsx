@@ -12,17 +12,23 @@ export default function EvaluationExport({ context, answerId, versionId }: { con
   const [busy, setBusy] = useState(false), [error, setError] = useState(""), [notice, setNotice] = useState("");
   const alive = useRef(true), running = useRef(false);
   useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
+  async function requireSameSession() {
+    const current = await readJSON<Session>("/api/publishing/session");
+    const old = context.session;
+    if (current.user.id !== old.user.id || current.journal.id !== old.journal.id || current.user.role !== old.user.role || current.csrf_token !== old.csrf_token) throw new LibraryError(401, "身份已变化，请重新登录后下载。");
+  }
   async function download() {
     if (running.current) return;
     running.current = true; setBusy(true); setError(""); setNotice("");
     try {
-      const current = await readJSON<Session>("/api/publishing/session");
+      await requireSameSession();
       if (!alive.current) return;
-      const old = context.session;
-      if (current.user.id !== old.user.id || current.journal.id !== old.journal.id || current.user.role !== old.user.role || current.csrf_token !== old.csrf_token) throw new LibraryError(401, "身份已变化，请重新登录后下载。");
       const result = await readJSON<EvaluationPackage>(`/api/dossiers/${context.dossierId}/answers/${answerId}/evaluation-package`);
       if (!alive.current) return;
       if (result.schema !== "claim-evaluation-package.v1" || !/^[0-9a-f-]{36}$/i.test(result.package_id) || result.source?.version_id !== versionId || !Array.isArray(result.claims) || !result.claims.length) throw new LibraryError(502, "评价包未完整收到，请重试下载。");
+      // A cookie can change while the export waits; never download that old response.
+      await requireSameSession();
+      if (!alive.current) return;
       const url = URL.createObjectURL(new Blob([JSON.stringify(result, null, 2)], { type: "application/json" }));
       const anchor = document.createElement("a");
       anchor.href = url; anchor.download = `pivot-evaluation-${result.package_id}.json`;

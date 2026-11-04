@@ -308,3 +308,24 @@ test("独立评价包：登录变化不下载旧身份的资料", async ({ page 
   expect(exports).toBe(0);
   await expect(page.getByText(quote, { exact: true })).toHaveCount(0);
 });
+
+test("独立评价包：请求期间登录变化不下载旧资料", async ({ page }) => {
+  await fixtures(page);
+  let release!: () => void;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  const downloads: unknown[] = [];
+  page.on("download", item => downloads.push(item));
+  await page.route(`**/api/dossiers/${ID}/answers/grounded-old/evaluation-package`, async route => {
+    await gate;
+    await route.fulfill({ json: { schema: "claim-evaluation-package.v1", package_id: "40000000-0000-4000-8000-000000000014", source: { version_id: OLD, text: oldText }, claims: [{}] } });
+  });
+  await page.goto(`/library?dossier=${ID}`);
+  await expect(page.getByLabel("题名", { exact: true })).toHaveValue("合成当前资料");
+  const requested = page.waitForRequest(request => request.url().endsWith("/evaluation-package"));
+  await page.getByRole("button", { name: "下载独立评价包", exact: true }).click();
+  await requested;
+  await page.route("**/api/publishing/session", route => route.fulfill({ json: { ...session, user: { ...session.user, id: "another-editor" } } }));
+  release();
+  await expect(page.getByRole("alert").filter({ hasText: "访问权限或身份已变化" })).toBeVisible();
+  expect(downloads).toHaveLength(0);
+});

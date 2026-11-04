@@ -20,7 +20,7 @@ JSON schema claim-evaluation-package.v1含完整该版正文、作者等录入�
 
 ## 设计
 
-沿用DESIGN.md的Hermes Operate风格：白#fff、侧栏#f5f7fa、墨#30343b、次要#646c78、细线#e3e8f0、蓝#2463ff，现有Noto Sans/系统字体，三栏与中心对话不改。回答后的单行行动组随窄屏换行，不另造卡片或说明区；现有复核摘要旁增加具名下载按钮。按需提示包含全文/作者与隐藏AI标签的范围。44px触控高度、原生键盘、加载/失败重试/成功提示；页面切换丢弃迟到下载，身份变化清除资料。
+沿用DESIGN.md的Hermes Operate风格：白#fff、侧栏#f5f7fa、墨#30343b、次要#646c78、细线#e3e8f0、蓝#2463ff，现有Noto Sans/系统字体，三栏与中心对话不改。回答后的单行行动组随窄屏换行，不另造卡片或说明区；现有复核摘要旁增加具名下载按钮。按需提示包含全文/作者与隐藏AI标签的范围。44px触控高度、原生键盘、加载/失败重试/成功提示；页面切换丢弃迟到下载，下载请求前和回包后分别重验会话身份，变化清除资料。
 
 Frontend Design用于保持视觉方向，UI/UX Pro Max检索download feedback error recovery，Impeccable按既有Operate规范精简入口，Web Design Guidelines以本轮最新官方规则验收。沿用本会话已运行的Impeccable context，不重复运行。
 
