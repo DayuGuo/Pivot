@@ -70,6 +70,7 @@ test("内部资料真实链：录入全文作者、独立核对、新版失效�
   await expect(page.getByText(current.content_digest, { exact: true })).toHaveCount(1);
   await acknowledgement.check(); await page.getByRole("button", { name: "确认本版资料", exact: true }).click();
   await expect(page.getByText("当前版本已由本人核对。", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: /v2 · 已核对/ })).toBeVisible();
   await page.getByRole("link", { name: "返回资料", exact: true }).click();
   await page.getByLabel("题名", { exact: true }).fill(`${title} 修订`);
   await page.getByRole("button", { name: "保存为新版本", exact: true }).click();
@@ -169,4 +170,165 @@ test("资料 UI：慢旧回复不覆盖新选定资料，404 清空旧材料", a
   await expect(page.getByRole("alert").filter({ hasText: "合成资料权限已撤销" })).toBeVisible();
   await expect(page.getByLabel("题名", { exact: true })).toHaveCount(0);
   await expect(page.getByText("合成资料乙", { exact: true })).toHaveCount(0);
+});
+
+test("资料恢复：写入成功但读取失败，只重试读取", async ({ page }) => {
+  await fixtures(page); let writes = 0; let reads = 0;
+  await page.route(`**/api/dossiers/${ID}/versions`, route => { writes++; return route.fulfill({ json: { dossier_id: ID, version_id: VERSION } }); });
+  await page.route(`**/api/dossiers/${ID}`, route => {
+    reads++;
+    return reads === 2 ? route.fulfill({ status: 503, json: { detail: "测试读取暂不可用" } }) : route.fulfill({ json: syntheticDossier() });
+  });
+  await page.goto(`/library?dossier=${ID}`);
+  await page.getByLabel("题名", { exact: true }).fill("保存后读取重试");
+  await page.getByRole("button", { name: "保存为新版本", exact: true }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "测试读取暂不可用" })).toBeVisible();
+  await page.getByRole("button", { name: "重试读取", exact: true }).click();
+  await expect(page.getByText("新版本已保存，请重新核对。", { exact: true })).toBeVisible();
+  expect(writes).toBe(1); expect(reads).toBe(3);
+});
+
+test("资料恢复：切换后可立即提问，旧完成不解除新请求锁", async ({ page }) => {
+  await fixtures(page); let releaseOld!: () => void; let releaseNew!: () => void;
+  const oldGate = new Promise<void>(resolve => { releaseOld = resolve; });
+  const newGate = new Promise<void>(resolve => { releaseNew = resolve; });
+  let oldStarted = false; let newStarted = false;
+  for (const id of [ID, OTHER]) await page.route(`**/api/dossiers/${id}/chat`, async route => {
+    if (id === ID) { oldStarted = true; await oldGate; } else { newStarted = true; await newGate; }
+    return route.fulfill({ json: { id: `turn-${id}`, question: "合成问题", answer: id === ID ? "旧稿迟到回复" : "新稿回复", provider: "rules", version_id: VERSION, version_no: 1 } });
+  });
+  try {
+    await page.goto(`/library?dossier=${ID}`);
+    await page.getByLabel("询问当前资料").fill("合成问题"); await page.getByRole("button", { name: "发送", exact: true }).click();
+    await expect.poll(() => oldStarted).toBe(true);
+    await page.getByRole("link", { name: /合成资料乙/ }).click();
+    await expect(page.getByLabel("询问当前资料")).toBeEnabled();
+    await page.getByLabel("询问当前资料").fill("合成问题"); await page.getByRole("button", { name: "发送", exact: true }).click();
+    await expect.poll(() => newStarted).toBe(true);
+    releaseOld();
+    await expect(page.getByRole("button", { name: "回复中…", exact: true })).toBeDisabled();
+    await expect(page.getByText("旧稿迟到回复", { exact: true })).toHaveCount(0);
+    releaseNew(); await expect(page.getByText("新稿回复", { exact: true })).toBeVisible();
+  } finally { releaseOld(); releaseNew(); }
+});
+
+test("资料恢复：返回上一页后迟到的创建不能改变当前路由", async ({ page }) => {
+  await fixtures(page); let release!: () => void; let started = false;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  await page.route("**/api/dossiers", async route => {
+    if (route.request().method() !== "POST") return route.fallback();
+    started = true; await gate; return route.fulfill({ json: { dossier_id: OTHER } });
+  });
+  try {
+    await page.goto(`/library?dossier=${ID}`);
+    await page.getByRole("link", { name: /合成资料乙/ }).click();
+    await expect(page.getByLabel("题名", { exact: true })).toHaveValue("合成资料乙");
+    await page.getByRole("complementary", { name: "我的资料" }).getByRole("button", { name: "新建资料", exact: true }).click();
+    await page.getByLabel("题名", { exact: true }).fill("合成创建");
+    await page.getByLabel("来源与授权说明", { exact: true }).fill("明确合成的数据");
+    await page.getByRole("checkbox").check();
+    await page.getByRole("button", { name: "创建资料", exact: true }).click();
+    await expect.poll(() => started).toBe(true);
+    await page.goBack();
+    await expect(page.getByLabel("题名", { exact: true })).toHaveValue("合成资料甲");
+    const completed = page.waitForResponse(response => response.request().method() === "POST" && new URL(response.url()).pathname === "/api/dossiers");
+    release(); await completed;
+    await expect(page).toHaveURL(new RegExp(`dossier=${ID}$`));
+    await expect(page.getByLabel("题名", { exact: true })).toHaveValue("合成资料甲");
+  } finally { release(); }
+});
+
+for (const status of [429, 503, 200]) test(`资料恢复：${status} 失败主动重试保留请求且不触发确认`, async ({ page }) => {
+  await fixtures(page); const requests: { request_id: string }[] = [];
+  await page.route(`**/api/dossiers/${ID}/chat`, route => {
+    requests.push(route.request().postDataJSON());
+    if (requests.length === 1) return status === 200 ? route.fulfill({ status, contentType: "application/json", body: '{"incomplete":' }) : route.fulfill({ status, json: { detail: "合成临时故障" }, headers: { "Retry-After": "2" } });
+    return route.fulfill({ json: { id: "retry-turn", question: "合成重试", answer: "重试完成", provider: "rules", version_id: VERSION, version_no: 1 } });
+  });
+  await page.goto(`/library?dossier=${ID}`);
+  await page.getByLabel("询问当前资料").fill("合成重试"); await page.getByRole("button", { name: "发送", exact: true }).click();
+  await expect(page.getByRole("button", { name: "重试原请求", exact: true })).toBeVisible();
+  expect(requests).toHaveLength(1);
+  await page.getByRole("button", { name: "重试原请求", exact: true }).click();
+  await expect(page.getByText("重试完成", { exact: true })).toBeVisible();
+  expect(requests).toHaveLength(2); expect(requests[0].request_id).toBe(requests[1].request_id);
+});
+
+test("资料分页：更多资料、早期对话、版本、导入和全库搜索均可操作", async ({ page }) => {
+  await fixtures(page);
+  const item = (id: string) => ({ id, title: syntheticDossier(id).data.title, revision: 1, version_id: VERSION, version_no: 1, verified: false, updated_at: "2026-11-03T00:00:00Z" });
+  await page.route("**/api/dossiers?*", route => {
+    const url = new URL(route.request().url());
+    return route.fulfill({ json: url.searchParams.get("query") ? { items: [item(OTHER)], next_cursor: null } : url.searchParams.has("cursor") ? { items: [item(OTHER)], next_cursor: null } : { items: [item(ID)], next_cursor: "list-position" } });
+  });
+  const turn = (id: string, answer: string) => ({ id, question: "合成历史问题", answer, provider: "rules", version_id: VERSION, version_no: 1 });
+  await page.route(`**/api/dossiers/${ID}`, route => route.fulfill({ json: { ...syntheticDossier(), messages: [turn("recent", "最近回复")], messages_next_cursor: "message-position", versions_next_cursor: "version-position" } }));
+  await page.route(`**/api/dossiers/${ID}/messages?*`, route => route.fulfill({ json: { items: [turn("early", "早期回复")], next_cursor: null } }));
+  await page.route(`**/api/dossiers/${ID}/versions?*`, route => route.fulfill({ json: { items: [{ id: "20000000-0000-4000-8000-000000000002", number: 2, title: "较早版本", created_at: "2026-11-02T00:00:00Z", verified: false }], next_cursor: null } }));
+  await page.route(`**/api/dossiers/${ID}/imports*`, route => route.fulfill({ json: { items: [{ id: new URL(route.request().url()).searchParams.has("cursor") ? OTHER : ID, filename: new URL(route.request().url()).searchParams.has("cursor") ? "earlier.docx" : "recent.pdf", created_at: "2026-11-03T00:00:00Z", confirmed_version_id: null, base_revision: 1 }], next_cursor: new URL(route.request().url()).searchParams.has("cursor") ? null : "import-position" } }));
+  await page.goto(`/library?dossier=${ID}`);
+  await page.getByRole("button", { name: "加载更多资料", exact: true }).click();
+  await expect(page.getByRole("link", { name: /合成资料乙/ })).toBeVisible();
+  await page.getByRole("button", { name: "加载较早对话", exact: true }).click();
+  await expect(page.getByText("早期回复", { exact: true })).toBeVisible();
+  await expect(page.getByText("最近回复", { exact: true })).toBeVisible();
+  await page.getByRole("tab", { name: "版本", exact: true }).click();
+  await page.getByRole("button", { name: "加载更多版本", exact: true }).click();
+  await expect(page.getByText("较早版本", { exact: true })).toBeVisible();
+  await page.getByText("导入记录", { exact: true }).click();
+  await page.getByRole("button", { name: "加载更多导入记录", exact: true }).click();
+  await expect(page.getByText("earlier.docx", { exact: true })).toBeVisible();
+  await page.getByRole("tab", { name: "资料", exact: true }).click();
+  await page.getByLabel("题名", { exact: true }).fill("未保存的题名");
+  await page.getByLabel("搜索我的资料").fill("乙");
+  await expect(page.getByRole("link", { name: /合成资料甲/ })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: /合成资料乙/ })).toBeVisible();
+  await expect(page.getByLabel("题名", { exact: true })).toHaveValue("未保存的题名");
+  await page.screenshot({ path: "artifacts/spec019-desktop.png" });
+  await page.setViewportSize({ width: 375, height: 812 });
+  await expect(page.getByLabel("询问当前资料")).toBeInViewport();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)).toBe(false);
+  await page.screenshot({ path: "artifacts/spec019-mobile.png" });
+});
+
+test("资料恢复：重试前身份变化不再发送旧请求", async ({ page }) => {
+  await fixtures(page); let writes = 0;
+  await page.route(`**/api/dossiers/${ID}/chat`, route => { writes++; return route.abort(); });
+  await page.goto(`/library?dossier=${ID}`);
+  await page.getByLabel("询问当前资料").fill("身份变化测试"); await page.getByRole("button", { name: "发送", exact: true }).click();
+  await expect(page.getByRole("button", { name: "重试原请求", exact: true })).toBeVisible();
+  await page.route("**/api/publishing/session", route => route.fulfill({ json: { ...syntheticSession, user: { ...syntheticSession.user, id: "different-editor" } } }));
+  await page.getByRole("button", { name: "重试原请求", exact: true }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "登录身份已变化" })).toBeVisible();
+  await expect(page.getByLabel("题名", { exact: true })).toHaveCount(0); expect(writes).toBe(1);
+});
+
+test("资料恢复：分页撤权后旧对话成功不能恢复私有材料", async ({ page }) => {
+  await fixtures(page); let release!: () => void; let started = false;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  await page.route("**/api/dossiers?*", route => new URL(route.request().url()).searchParams.has("cursor") ? route.fulfill({ status: 403, json: { detail: "当前权限已撤销" } }) : route.fulfill({ json: { items: [{ id: ID, title: "合成资料甲", version_no: 1, verified: false }], next_cursor: "next" } }));
+  await page.route(`**/api/dossiers/${ID}/chat`, async route => { started = true; await gate; return route.fulfill({ json: { id: "late", question: "合成", answer: "不该恢复的旧内容", provider: "rules", version_id: VERSION, version_no: 1 } }); });
+  try {
+    await page.goto(`/library?dossier=${ID}`);
+    await page.getByLabel("询问当前资料").fill("合成问题"); await page.getByRole("button", { name: "发送", exact: true }).click();
+    await expect.poll(() => started).toBe(true);
+    await page.getByRole("button", { name: "加载更多资料", exact: true }).click();
+    await expect(page.getByRole("alert").filter({ hasText: "当前权限已撤销" })).toBeVisible();
+    const completed = page.waitForResponse(response => response.request().method() === "POST" && response.url().endsWith("/chat"));
+    release(); await completed;
+    await expect(page.getByLabel("题名", { exact: true })).toHaveCount(0);
+    await expect(page.getByText("不该恢复的旧内容", { exact: true })).toHaveCount(0);
+  } finally { release(); }
+});
+
+test("资料分页：加载早期长对话不跳回末尾，输入框保持可见", async ({ page }) => {
+  await fixtures(page);
+  const turn = (n: number) => ({ id: `history-${n}`, question: `合成历史问题 ${n}`, answer: `合成历史回复 ${n}。` + "用于分页定位的合成文字。".repeat(25), provider: "rules", version_id: VERSION, version_no: 1 });
+  await page.route(`**/api/dossiers/${ID}`, route => route.fulfill({ json: { ...syntheticDossier(), messages: Array.from({ length: 30 }, (_, n) => turn(n + 10)), messages_next_cursor: "earlier" } }));
+  await page.route(`**/api/dossiers/${ID}/messages?*`, route => route.fulfill({ json: { items: [turn(8), turn(9)], next_cursor: "even-earlier" } }));
+  await page.goto(`/library?dossier=${ID}`);
+  await page.getByRole("button", { name: "加载较早对话", exact: true }).click();
+  await expect(page.getByText("合成历史问题 8", { exact: true })).toHaveCount(1);
+  await expect(page.getByText("合成历史问题 39", { exact: true })).not.toBeInViewport();
+  await expect(page.getByLabel("询问当前资料")).toBeInViewport();
 });

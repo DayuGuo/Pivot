@@ -1,11 +1,12 @@
 "use client";
+import { LibraryError } from "./api";
 import { useState } from "react";
 import Link from "next/link";
 import { OriginalText, VersionList } from "./viewers";
 import type { Dossier } from "./types";
 import styles from "./library.module.css";
 
-export default function DossierReview({ detail, busy, confirming, onConfirm }: { detail: Dossier; busy: boolean; confirming: boolean; onConfirm: () => Promise<void> }) {
+export default function DossierReview({ detail, busy, confirming, onConfirm, onUnavailable }: { detail: Dossier; busy: boolean; confirming: boolean; onConfirm: () => Promise<void>; onUnavailable: (error: LibraryError) => void }) {
   const [acknowledged, setAcknowledged] = useState(false);
   const allowed = detail.is_current && !detail.verified && detail.missing.length === 0;
   return <><div className={styles.materialHeader}><h2>核对 v{detail.version_no}</h2><Link href={`/library?dossier=${detail.id}`}>返回资料</Link></div><div className={styles.review}>
@@ -16,7 +17,7 @@ export default function DossierReview({ detail, busy, confirming, onConfirm }: {
     <OriginalText detail={detail} />
     <section className={styles.missing}><h2>缺项</h2>{detail.missing.length ? <ul>{detail.missing.map((item, index) => <li key={`${item.field}-${index}`}>{item.message}</li>)}</ul> : <p>当前版本无必填缺项。</p>}</section>
     <details><summary>版本摘要 SHA-256</summary><code>{detail.content_digest}</code></details>
-    <VersionList detail={detail} />
+    <VersionList key={`${detail.version_id}:${detail.verification?.id ?? ""}`} detail={detail} onUnavailable={onUnavailable} />
     <section className={styles.confirm}><label className={styles.checkbox}><input name="acknowledged" type="checkbox" checked={acknowledged} disabled={!allowed || busy} onChange={event => setAcknowledged(event.target.checked)} /><span>我已逐项核对本版元数据、作者、来源与完整原文，确认资料记录准确。</span></label><p className={styles.hint}>本次仅核对内部资料，不提交稿件，不代表作者身份认证或伦理声明。</p><button className={styles.primary} disabled={!allowed || !acknowledged || busy} onClick={() => void onConfirm()}>{confirming ? "确认中…" : detail.verified ? "本版已核对" : "确认本版资料"}</button>{detail.missing.length > 0 && <p className={styles.hint}>补齐缺项并保存新版本后，才能确认。</p>}</section>
   </div></>;
 }

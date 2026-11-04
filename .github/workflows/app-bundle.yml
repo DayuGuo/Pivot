@@ -31,6 +31,8 @@ jobs:
         run: .venv/bin/python scripts/build-vps-app.py --platform linux/amd64
       - name: Install under memory caps, import, review, cite, restart and restore
         run: .venv/bin/python scripts/accept-vps-preview.py --bundle artifacts/pivot-app-linux-amd64
+      - name: Bounded concurrent uploads and same-UUID recovery
+        run: .venv/bin/python scripts/accept-vps-concurrency.py
       - name: Private browser login and exact source navigation
         run: node scripts/accept-vps-browser.mjs
       - uses: actions/upload-artifact@v4
@@ -41,6 +43,7 @@ jobs:
             artifacts/pivot-app-linux-amd64.tar.gz
             artifacts/pivot-app-linux-amd64-SHA256SUMS
             artifacts/vps-preview-acceptance.json
+            artifacts/vps-concurrency.json
             artifacts/vps-mock-browser.json
             artifacts/vps-mock-*.png
       # No credentials.json, database/files, logs or state directories are uploaded.

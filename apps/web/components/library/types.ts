@@ -45,7 +45,11 @@ export type Dossier = {
   missing: { field: string; message: string }[];
   versions: { id: string; number: number; title: string; created_at: string; verified: boolean }[];
   messages: Message[];
+  messages_next_cursor?: string | null;
+  versions_next_cursor?: string | null;
   model?: ModelStatus;
   document?: DossierDocument | null;
 };
 export type Upload = { filename: string; content_base64: string };
+
+export type Page<T> = { items: T[]; next_cursor?: string | null };

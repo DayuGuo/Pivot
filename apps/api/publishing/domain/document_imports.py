@@ -7,7 +7,7 @@ import time
 from urllib.parse import quote
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import Response
 from pydantic import Field
 from sqlalchemy import select
@@ -45,6 +45,7 @@ from .dossier_models import DossierCheck, DossierVersion
 from .dossier_schemas import DossierData, ExplicitTrue, RequestID, missing
 from .files import FileValidationError, store_bytes, validate_upload
 from .models import FileObject
+from .pagination import cursor_position, next_cursor, older_than, scope_key
 from .schemas import StrictInput
 
 router = APIRouter(prefix="/api/dossiers", tags=["human-reviewed document imports"])
@@ -260,22 +261,36 @@ def prepare_import(
 
 @router.get("/{dossier_id}/imports")
 def list_imports(
-    dossier_id: UUID, actor: Actor = Depends(get_actor), db: Session = Depends(get_db)
+    dossier_id: UUID,
+    actor: Actor = Depends(get_actor),
+    db: Session = Depends(get_db),
+    limit: int = Query(50, ge=1, le=100),
+    cursor: str | None = Query(None, max_length=600),
 ):
     row = access.load(db, actor, str(dossier_id))
+    scope = scope_key("imports", actor.user.id, row.journal_id, row.id)
+    position = cursor_position(cursor, scope)
     items = db.scalars(
         select(DocumentImport)
         .where(DocumentImport.dossier_id == row.id, DocumentImport.journal_id == row.journal_id)
-        .order_by(DocumentImport.created_at.desc())
-        .limit(100)
+        .where(
+            older_than(DocumentImport.created_at, DocumentImport.id, position) if position else True
+        )
+        .order_by(DocumentImport.created_at.desc(), DocumentImport.id.desc())
+        .limit(limit + 1)
     ).all()
     approvals = {
         a.import_id: a.version_id
         for a in db.scalars(
-            select(DocumentApproval).where(DocumentApproval.dossier_id == row.id)
+            select(DocumentApproval).where(
+                DocumentApproval.dossier_id == row.id,
+                DocumentApproval.journal_id == row.journal_id,
+                DocumentApproval.import_id.in_([i.id for i in items[:limit]]),
+            )
         ).all()
     }
     return {
+        "next_cursor": next_cursor(items, limit, scope),
         "items": [
             {
                 "id": i.id,
@@ -284,8 +299,8 @@ def list_imports(
                 "confirmed_version_id": approvals.get(i.id),
                 "base_revision": i.base_revision,
             }
-            for i in items
-        ]
+            for i in items[:limit]
+        ],
     }
 
 

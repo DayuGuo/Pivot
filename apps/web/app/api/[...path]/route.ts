@@ -3,6 +3,8 @@ import type { NextRequest } from "next/server";
 // Resolve the private API origin at request time so one build works locally and in Compose.
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+// One Next.js server process in the private VPS image. Refuse before buffering uploads.
+let heavyRequests = 0;
 type Context = { params: Promise<{ path: string[] }> };
 
 async function proxy(request: NextRequest, context: Context) {
@@ -14,6 +16,10 @@ async function proxy(request: NextRequest, context: Context) {
     const value = request.headers.get(name);
     if (value) headers.set(name, value);
   }
+  const heavy = ["editorial-demo/chat", "publishing/chat"].includes(path.join("/")) || /^dossiers\/[^/]+\/(chat|imports)$/.test(path.join("/"));
+  const admitted = heavy && request.method === "POST";
+  if (admitted && heavyRequests >= 1) return Response.json({ detail: "正在处理另一份资料，请稍后重试；本次请求尚未执行。" }, { status: 429, headers: { "Retry-After": "2", "Cache-Control": "no-store" } });
+  if (admitted) heavyRequests++;
   try {
     const upstream = await fetch(target, {
       method: request.method,
@@ -24,6 +30,8 @@ async function proxy(request: NextRequest, context: Context) {
       signal: AbortSignal.timeout((["editorial-demo/chat", "publishing/chat"].includes(path.join("/")) || /^dossiers\/[^/]+\/(chat|imports)$/.test(path.join("/"))) ? 75_000 : 30_000),
     });
     const resultHeaders = new Headers({ "Cache-Control": "no-store" });
+    const retryAfter = upstream.headers.get("retry-after");
+    if (retryAfter) resultHeaders.set("retry-after", retryAfter);
     const contentType = upstream.headers.get("content-type");
     if (contentType) resultHeaders.set("content-type", contentType);
     const digest = upstream.headers.get("x-content-sha256");
@@ -34,7 +42,7 @@ async function proxy(request: NextRequest, context: Context) {
     return new Response(upstream.body, { status: upstream.status, headers: resultHeaders });
   } catch {
     return Response.json({ detail: "出版服务暂时不可用，请检查后端运行状态后重试。" }, { status: 502 });
-  }
+  } finally { if (admitted) heavyRequests--; }
 }
 export const GET = proxy;
 export const POST = proxy;

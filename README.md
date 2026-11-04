@@ -1,5 +1,7 @@
 # Pivot
 
+第二批维护：[资料恢复、分页与小内存并发](specs/019-recovery-pagination-and-admission.md)。新源码提供主动同UUID重试、写成功后的仅读取恢复、资料/对话/版本/导入分页与单worker重任务准入；实际验收与发行状态以[PROGRESS](PROGRESS.md)顶部为准。VPS不会自动更新。
+
 本轮已完成第一批[可靠性与模块维护](specs/018-dossier-reliability-and-maintenance.md)：导入确认回执绑定、原件重验与批量读取；[模块地图](docs/development/module-map.md)说明每类修改的位置，[审查记录](docs/development/spec018-review.md)保留重现与验收证据。
 
 已发布[完整应用私人体验包 v0.2.0-preview.2](https://github.com/DayuGuo/Pivot/releases/tag/v0.2.0-preview.2)（约270MiB）：独立于原静态展示站，预编译amd64镜像、私人登录、真实DeepSeek/PDF/Word、受限内存与备份恢复。无需在VPS编译，默认SSH隧道访问3210；旧站和旧资料保持不动。[安装说明](infrastructure/vps/README.md) · [本轮原生x86与真实模型验收](docs/development/spec018-review.md)。用户已报告旧版VPS安装完成；本轮未自动更新该服务器。[已安装用户的保留数据更新](docs/deployment/private-preview-upgrade.md)使用原--state，不重新init。不是生产投审稿服务。

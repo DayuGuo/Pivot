@@ -12,7 +12,7 @@ import ImportHistory from "./import-history";
 import DossierReview from "./review";
 import { citationText, EvidencePanel, MessageTurn } from "./evidence";
 import { OriginalText, VersionList } from "./viewers";
-import type { Citation, DocumentImport, Dossier, DossierData, DossierItem, Message, Session, Upload } from "./types";
+import type { Citation, DocumentImport, Dossier, DossierData, DossierItem, Message, Page, Session, Upload } from "./types";
 import styles from "./library.module.css";
 
 export default function LibraryWorkspace({ reviewVersionId, importId }: { reviewVersionId?: string; importId?: string }) {
@@ -39,53 +39,78 @@ export default function LibraryWorkspace({ reviewVersionId, importId }: { review
   const [locating, setLocating] = useState<string | null>(null);
   const citationRequest = useRef(0);
   const citationTrigger = useRef<HTMLButtonElement | null>(null);
+  const [retryLabel, setRetryLabel] = useState("重试原请求");
+  const [listCursor, setListCursor] = useState<string | null>(null);
+  const [paging, setPaging] = useState("");
+  const [pageError, setPageError] = useState("");
+  const [pageRetry, setPageRetry] = useState<null | (() => Promise<void>)>(null);
+  const pageRequest = useRef(0);
+  const operation = useRef<symbol | null>(null);
   const [retry, setRetry] = useState<null | (() => Promise<void>)>(null);
   const epoch = useRef(0);
   const dirtyRef = useRef(false);
   const busyRef = useRef(false);
   const requests = useRef(new Map<string, string>());
+  const queryRef = useRef("");
+  const scrollToLatest = useRef(true);
+  const lastQuery = useRef("");
   const chatEnd = useRef<HTMLDivElement>(null);
   const changeDirty = useCallback((value: boolean) => { dirtyRef.current = value; setDirty(value); }, []);
 
   const clearPrivate = useCallback((clearSession: boolean) => {
-    setDetail(null); setItems([]); setQuestion(""); setNewDossier(false); setDocumentImport(null); setUploadingDocument(false); changeDirty(false);
+    ++epoch.current; operation.current = null; busyRef.current = false; setBusy(""); setLoading(false);
+    setDetail(null); setItems([]); setListCursor(null); ++pageRequest.current; setPaging(""); setPageRetry(null); setQuestion(""); setNewDossier(false); setDocumentImport(null); setUploadingDocument(false); changeDirty(false);
     ++citationRequest.current; setSourcePreview(null); setSourceError(""); setLocating(null);
     if (clearSession) { setSession(null); requests.current.clear(); setRetry(null); }
   }, [changeDirty]);
   const load = useCallback(async () => {
-    const current = ++epoch.current;
+    const current = ++epoch.current; requests.current.clear();
     ++citationRequest.current; setSourcePreview(null); setSourceError(""); setLocating(null);
-    setLoading(true); setError(""); setItems([]); setDetail(null); setDocumentImport(null); setUploadingDocument(false); setQuestion(""); setNotice(""); setRetry(null); changeDirty(false);
+    operation.current = null; busyRef.current = false; setBusy(""); ++pageRequest.current; setPaging(""); setPageError(""); setPageRetry(null); setListCursor(null);
+    setLoading(true); setNewDossier(false); setError(""); setItems([]); setDetail(null); setDocumentImport(null); setUploadingDocument(false); setQuestion(""); setNotice(""); setRetry(null); changeDirty(false);
     try {
       const nextSession = await readJSON<Session>("/api/publishing/session");
       if (current !== epoch.current) return;
       if (!["editor", "chief_editor"].includes(nextSession.user.role)) throw new LibraryError(403, "内部资料仅向编辑和主编开放。请返回登录页切换身份。");
       setSession(nextSession);
       const [list, dossier, imported] = await Promise.all([
-        readJSON<{ items: DossierItem[] }>("/api/dossiers"),
+        readJSON<Page<DossierItem>>(`/api/dossiers?query=${encodeURIComponent(queryRef.current)}`),
         selectedId ? readJSON<Dossier>(`/api/dossiers/${encodeURIComponent(selectedId)}${reviewVersionId ? `/versions/${encodeURIComponent(reviewVersionId)}` : ""}`) : Promise.resolve(null),
         importId && selectedId ? readJSON<DocumentImport>(`/api/dossiers/${encodeURIComponent(selectedId)}/imports/${encodeURIComponent(importId)}`) : Promise.resolve(null),
       ]);
       if (current !== epoch.current) return;
       if ((reviewVersionId || importId) && !selectedId) throw new LibraryError(404, "核对链接缺少资料标识，请从我的资料重新打开。");
       if (imported && imported.dossier_id !== selectedId) throw new LibraryError(404, "导入记录不属于当前资料。");
-      setItems(list.items); setDetail(dossier); setDocumentImport(imported);
+      setItems(list.items); setListCursor(list.next_cursor ?? null); setDetail(dossier); setDocumentImport(imported);
     } catch (failure) {
       if (current !== epoch.current) return;
       clearPrivate(failure instanceof LibraryError && [401, 403].includes(failure.status));
       setError((failure as Error).message);
     } finally { if (current === epoch.current) setLoading(false); }
   }, [selectedId, reviewVersionId, importId, clearPrivate, changeDirty]);
-  const invalidate = useCallback(() => { ++epoch.current; }, []);
+  const invalidate = useCallback(() => { ++epoch.current; requests.current.clear(); operation.current = null; busyRef.current = false; }, []);
   // The route identifies the external snapshot; each load clears the previous object's private data.
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { void load(); return invalidate; }, [load, invalidate]);
+  useEffect(() => {
+    const route = window.location.pathname + window.location.search;
+    const moved = () => { if (window.location.pathname + window.location.search !== route) invalidate(); };
+    window.addEventListener("popstate", moved);
+    return () => window.removeEventListener("popstate", moved);
+  }, [invalidate, selectedId, reviewVersionId, importId]);
   useEffect(() => {
     const guard = (event: BeforeUnloadEvent) => { if (dirtyRef.current || busyRef.current) event.preventDefault(); };
     window.addEventListener("beforeunload", guard);
     return () => window.removeEventListener("beforeunload", guard);
   }, []);
-  useEffect(() => { chatEnd.current?.scrollIntoView({ block: "nearest" }); }, [detail?.messages.length]);
+  useEffect(() => { if (scrollToLatest.current) chatEnd.current?.scrollIntoView({ block: "nearest" }); scrollToLatest.current = true; }, [detail?.messages.length]);
+  useEffect(() => {
+    if (lastQuery.current === query) return;
+    const timer = setTimeout(() => { lastQuery.current = query; void pageList(true); }, 300);
+    return () => clearTimeout(timer);
+    // Only search text schedules this read; manuscript/form state stays intact.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query]);
 
   function leaveAllowed() { return (!busyRef.current || busy === "assist") && (!dirtyRef.current || window.confirm("当前资料尚未保存。离开并放弃这些修改？")); }
   function guardLinks(event: MouseEvent<HTMLDivElement>) {
@@ -97,81 +122,97 @@ export default function LibraryWorkspace({ reviewVersionId, importId }: { review
     if (sameRoute && !newDossier) return;
     if (!leaveAllowed()) { event.preventDefault(); return; }
     if (sameRoute) { event.preventDefault(); setNewDossier(false); setDrawer(false); void load(); return; }
-    ++epoch.current; ++citationRequest.current; setSourcePreview(null); setSourceError(""); setLocating(null); setDetail(null); setQuestion(""); setDrawer(false); setNewDossier(false); setUploadingDocument(false); setDocumentImport(null); setRetry(null); changeDirty(false);
+    invalidate(); setBusy(""); ++pageRequest.current; setPaging(""); setPageError(""); ++citationRequest.current; setSourcePreview(null); setSourceError(""); setLocating(null); setDetail(null); setQuestion(""); setDrawer(false); setNewDossier(false); setUploadingDocument(false); setDocumentImport(null); setRetry(null); changeDirty(false);
   }
   function startNew() {
     if (!leaveAllowed()) return;
-    ++epoch.current; ++citationRequest.current; setSourcePreview(null); setSourceError(""); setLocating(null); setNewDossier(true); setDocumentImport(null); setUploadingDocument(false); setDrawer(false); setError(""); setNotice(""); setRetry(null); changeDirty(false);
+    invalidate(); setBusy(""); ++pageRequest.current; setPaging(""); setPageError(""); ++citationRequest.current; setSourcePreview(null); setSourceError(""); setLocating(null); setNewDossier(true); setDocumentImport(null); setUploadingDocument(false); setDrawer(false); setError(""); setNotice(""); setRetry(null); changeDirty(false);
   }
   function startDocumentUpload() {
     if (!detail?.is_current || !leaveAllowed()) return;
-    ++epoch.current; ++citationRequest.current; setSourcePreview(null); setSourceError(""); setLocating(null); setUploadingDocument(true); setError(""); setRetry(null); changeDirty(false);
+    invalidate(); setBusy(""); ++pageRequest.current; setPaging(""); setPageError(""); ++citationRequest.current; setSourcePreview(null); setSourceError(""); setLocating(null); setUploadingDocument(true); setError(""); setRetry(null); changeDirty(false);
   }
   async function uploadDocument(file: Upload) {
     if (!detail) return;
-    const snapshot = detail;
+    const snapshot = detail; const current = epoch.current;
     await run("import", async () => {
       const result = await post<{ import_id: string; dossier_id: string }>(`/api/dossiers/${snapshot.id}/imports`, { expected_revision: snapshot.revision, version_id: snapshot.version_id, file, authorized_material: true });
+      if (current !== epoch.current) return;
       changeDirty(false); setUploadingDocument(false); router.push(`/library/imports/${result.import_id}?dossier=${result.dossier_id}`);
     });
   }
   async function confirmImport(data: DossierData) {
     if (!documentImport || !detail) return;
-    const snapshot = documentImport;
+    const snapshot = documentImport; const current = epoch.current;
     await run("confirm-import", async () => {
       const result = await post<{ dossier_id: string; version_id: string }>(`/api/dossiers/${snapshot.dossier_id}/imports/${snapshot.id}/confirm`, { expected_revision: snapshot.base_revision, digest: snapshot.digest, data, acknowledged: true });
+      if (current !== epoch.current) return;
       setDocumentImport(previous => previous && previous.id === snapshot.id ? { ...previous, confirmed_version_id: result.version_id, editable: false } : previous);
       changeDirty(false); router.push(`/library?dossier=${result.dossier_id}`);
     });
   }
   async function post<T>(path: string, data: object): Promise<T> {
     if (!session) throw new LibraryError(401, "请先登录。");
-    const key = `${path}:${JSON.stringify(data)}`;
+    const key = `${epoch.current}:${session.user.id}:${session.journal.id}:${path}:${JSON.stringify(data)}`;
     let requestId = requests.current.get(key);
     if (!requestId) { requestId = crypto.randomUUID(); requests.current.set(key, requestId); }
     const result = await readJSON<T>(path, { method: "POST", headers: { "Content-Type": "application/json", "X-CSRF-Token": session.csrf_token }, body: JSON.stringify({ request_id: requestId, ...data }) });
+    requests.current.delete(key);
     return result;
   }
-  async function run(label: string, action: () => Promise<void>) {
+  async function run(label: string, action: () => Promise<void>, readOnly: () => boolean = () => false, reauthorize = false) {
     if (busyRef.current) return;
     const current = epoch.current;
+    const token = Symbol(label); operation.current = token;
     busyRef.current = true; setBusy(label); setError(""); setNotice(""); setRetry(null);
-    try { await action(); requests.current.clear(); }
+    try {
+      if (reauthorize) {
+        const authorized = await readJSON<Session>("/api/publishing/session");
+        if (!session || authorized.user.id !== session.user.id || authorized.journal.id !== session.journal.id || authorized.user.role !== session.user.role || authorized.csrf_token !== session.csrf_token) throw new LibraryError(401, "登录身份已变化，请重新载入；未重试旧请求。");
+      }
+      if (current === epoch.current) await action();
+    }
     catch (failure) {
       if (current !== epoch.current) return;
       const status = failure instanceof LibraryError ? failure.status : -1;
       if ([401, 403, 404].includes(status)) clearPrivate(status !== 404);
-      if (status === 0) {
+      if (status === 0 || readOnly()) {
         // Hide stale private documents and transcript until authorization can be checked again.
         setDetail(null); setDocumentImport(null); setQuestion(""); setSourcePreview(null); setSourceError(""); ++citationRequest.current; setLocating(null);
       }
-      setError((failure as Error).message);
-      if (status === 0 || status >= 500) setRetry(() => () => run(label, action));
-    } finally { busyRef.current = false; setBusy(""); }
+      setError(`${readOnly() ? "操作已保存。" : ""}${(failure as Error).message}`);
+      if (status === 0 || status === 429 || status >= 500) {
+        setRetryLabel(readOnly() ? "重试读取" : "重试原请求");
+        setRetry(() => () => run(label, action, readOnly, true));
+      }
+    } finally { if (operation.current === token) { operation.current = null; busyRef.current = false; setBusy(""); } }
   }
   async function refreshAfter(id: string, current: number, versionId?: string) {
     const [next, list] = await Promise.all([
       readJSON<Dossier>(`/api/dossiers/${encodeURIComponent(id)}${versionId ? `/versions/${encodeURIComponent(versionId)}` : ""}`),
-      readJSON<{ items: DossierItem[] }>("/api/dossiers"),
+      readJSON<Page<DossierItem>>(`/api/dossiers?query=${encodeURIComponent(queryRef.current)}`),
     ]);
     if (current !== epoch.current) return;
-    setDetail(next); setItems(list.items); setSourcePreview(null); setSourceError(""); changeDirty(false);
+    setDetail(next); setItems(list.items); setListCursor(list.next_cursor ?? null); setSourcePreview(null); setSourceError(""); changeDirty(false);
   }
   async function save(data: DossierData, file: Upload | null) {
     if (!detail) return;
     const snapshot = detail; const current = epoch.current;
+    let committed = false;
     await run("save", async () => {
-      await post(`/api/dossiers/${snapshot.id}/versions`, { expected_revision: snapshot.revision, data, file });
+      if (!committed) { await post(`/api/dossiers/${snapshot.id}/versions`, { expected_revision: snapshot.revision, data, file }); committed = true; if (current === epoch.current) changeDirty(false); }
       await refreshAfter(snapshot.id, current);
       if (current === epoch.current) setNotice("新版本已保存，请重新核对。");
-    });
+    }, () => committed);
   }
   async function create(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const payload = { title: String(data.get("title") || ""), source_kind: String(data.get("source_kind")), source_note: String(data.get("source_note") || ""), authorized_material: data.get("authorized_material") === "on" };
+    const current = epoch.current;
     await run("create", async () => {
       const result = await post<{ dossier_id: string }>("/api/dossiers", payload);
+      if (current !== epoch.current) return;
       changeDirty(false); setNewDossier(false); router.push(`/library?dossier=${result.dossier_id}`);
     });
   }
@@ -200,18 +241,51 @@ export default function LibraryWorkspace({ reviewVersionId, importId }: { review
       setSourcePreview({ snapshot, citation });
     } catch (failure) {
       if (current !== epoch.current || request !== citationRequest.current) return;
-      if (failure instanceof LibraryError && [401, 403, 404].includes(failure.status)) clearPrivate(failure.status !== 404);
+      if (failure instanceof LibraryError && [401, 403, 404].includes(failure.status)) { clearPrivate(failure.status !== 404); setError(failure.message); return; }
       setSourceError((failure as Error).message);
     } finally { if (current === epoch.current && request === citationRequest.current) setLocating(null); }
   }
+  async function pageList(reset: boolean) {
+    const current = epoch.current; const request = ++pageRequest.current;
+    const cursor = reset ? null : listCursor;
+    setPaging("list"); setPageError(""); setPageRetry(null); if (reset) { setItems([]); setListCursor(null); }
+    try {
+      const page = await readJSON<Page<DossierItem>>(`/api/dossiers?query=${encodeURIComponent(queryRef.current)}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`);
+      if (current !== epoch.current || request !== pageRequest.current) return;
+      setItems(previous => reset ? page.items : [...previous, ...page.items.filter(item => !previous.some(old => old.id === item.id))]);
+      setListCursor(page.next_cursor ?? null);
+    } catch (failure) {
+      if (current !== epoch.current || request !== pageRequest.current) return;
+      if (failure instanceof LibraryError && [401, 403, 404].includes(failure.status)) { clearPrivate(failure.status !== 404); setError(failure.message); return; }
+      setPageError((failure as Error).message); setPageRetry(() => () => pageList(reset));
+    } finally { if (current === epoch.current && request === pageRequest.current) setPaging(""); }
+  }
+  async function pageMessages() {
+    if (!detail?.messages_next_cursor || paging) return;
+    const snapshot = detail; const current = epoch.current;
+    const request = ++pageRequest.current;
+    setPaging("messages"); setPageError(""); setPageRetry(null);
+    try {
+      const page = await readJSON<Page<Message>>(`/api/dossiers/${snapshot.id}/messages?cursor=${encodeURIComponent(snapshot.messages_next_cursor!)}`);
+      if (current !== epoch.current || request !== pageRequest.current) return;
+      scrollToLatest.current = false;
+      setDetail(previous => previous?.id === snapshot.id ? { ...previous, messages: [...page.items.filter(item => !previous.messages.some(old => old.id === item.id)), ...previous.messages], messages_next_cursor: page.next_cursor } : previous);
+    } catch (failure) {
+      if (current !== epoch.current || request !== pageRequest.current) return;
+      if (failure instanceof LibraryError && [401, 403, 404].includes(failure.status)) { clearPrivate(failure.status !== 404); setError(failure.message); return; }
+      setPageError((failure as Error).message); setPageRetry(() => pageMessages);
+    } finally { if (current === epoch.current && request === pageRequest.current) setPaging(""); }
+  }
+
   async function confirm() {
     if (!detail) return;
     const snapshot = detail; const current = epoch.current;
+    let committed = false;
     await run("confirm", async () => {
-      await post(`/api/dossiers/${snapshot.id}/confirm`, { expected_revision: snapshot.revision, version_id: snapshot.version_id, digest: snapshot.content_digest, acknowledged: true });
+      if (!committed) { await post(`/api/dossiers/${snapshot.id}/confirm`, { expected_revision: snapshot.revision, version_id: snapshot.version_id, digest: snapshot.content_digest, acknowledged: true }); committed = true; }
       await refreshAfter(snapshot.id, current, snapshot.version_id);
       if (current === epoch.current) setNotice("当前版本已由本人核对。");
-    });
+    }, () => committed);
   }
 
   if (loading && !session) return <main className={styles.gate}><p role="status">正在恢复登录…</p></main>;
@@ -226,21 +300,25 @@ export default function LibraryWorkspace({ reviewVersionId, importId }: { review
     <aside className={`${styles.sidebar} ${drawer ? styles.drawerOpen : ""}`} aria-label="我的资料">
       <div className={styles.brand}><Link href="/">Pivot</Link><button className={styles.mobileOnly} aria-label="关闭资料列表" onClick={() => setDrawer(false)}><Glyph name="close" /></button></div>
       <div className={styles.sideHeading}><h2>我的资料</h2><button type="button" onClick={startNew}>新建资料</button></div>
-      <label className={styles.search}><Glyph name="search" /><input aria-label="搜索我的资料" name="search" autoComplete="off" value={query} onChange={event => setQuery(event.target.value)} placeholder="搜索题名…" /></label>
+      <label className={styles.search}><Glyph name="search" /><input aria-label="搜索我的资料" name="search" autoComplete="off" disabled={loading} value={query} maxLength={500} onChange={event => { setQuery(event.target.value); queryRef.current = event.target.value; }} placeholder="搜索题名…" /></label>
       <nav className={styles.list}>
-        {items.filter(item => item.title.toLocaleLowerCase().includes(query.toLocaleLowerCase())).map(item => <Link key={item.id} href={`/library?dossier=${item.id}`} aria-current={selectedId === item.id && !newDossier ? "page" : undefined} className={styles.listItem}><Glyph name="file" /><span>{item.title || "未命名资料"}<small>v{item.version_no} · {item.verified ? "已核对" : "待核对"}</small></span></Link>)}
-        {!items.length && !loading && <p className={styles.hint}>尚无资料，先新建一份。</p>}
+        {items.map(item => <Link key={item.id} href={`/library?dossier=${item.id}`} aria-current={selectedId === item.id && !newDossier ? "page" : undefined} className={styles.listItem}><Glyph name="file" /><span>{item.title || "未命名资料"}<small>v{item.version_no} · {item.verified ? "已核对" : "待核对"}</small></span></Link>)}
+        {!items.length && !loading && !paging && <p className={styles.hint}>{query ? "没有匹配的资料。" : "尚无资料，先新建一份。"}</p>}
+        {listCursor && <button type="button" disabled={paging === "list"} onClick={() => void pageList(false)}>{paging === "list" ? "正在加载…" : "加载更多资料"}</button>}
+
       </nav>
       <div className={styles.identity}><span>{session.user.name}</span><small>{session.journal.name}</small><Link href="/">返回登录 / 切换身份</Link></div>
     </aside>
     <div className={styles.main}>
       <header className={styles.toolbar}><button className={styles.mobileOnly} aria-label="打开资料列表" onClick={() => setDrawer(true)}><Glyph name="inbox" /></button><h1>内部资料</h1><span>不构成正式投稿</span><Link href="/publishing">出版工作区</Link></header>
-      {error && <div className={styles.alert} role="alert">{error} {retry ? <button disabled={!!busy} onClick={() => void retry()}>重试原请求</button> : <button disabled={!!busy} onClick={() => { if (leaveAllowed()) void load(); }}>重新载入</button>}</div>}
+      {error && <div className={styles.alert} role="alert">{error} {retry ? <button disabled={!!busy} onClick={() => void retry()}>{retryLabel}</button> : <button disabled={!!busy} onClick={() => { if (leaveAllowed()) void load(); }}>重新载入</button>}</div>}
+      {pageError && <div className={styles.alert} role="alert">{pageError} {pageRetry && <button disabled={!!paging} onClick={() => void pageRetry()}>重试加载</button>}</div>}
       {notice && <p className={styles.notice} role="status">{notice}</p>}
       <div className={styles.columns}>
         <main className={styles.chat} id="library-main" tabIndex={-1}>
           <div className={styles.chatHeader}><h2>{detail?.data.title || "资料对话"}</h2><p>{modelBlocked ? "模型未就绪，请检查服务配置后重新载入。" : `${modelLabel} · 结论待人工复核`}</p></div>
           <div className={styles.transcript} aria-label="资料对话历史" aria-busy={busy === "assist"}>
+            {detail?.messages_next_cursor && <button type="button" disabled={paging === "messages"} onClick={() => void pageMessages()}>{paging === "messages" ? "正在加载…" : "加载较早对话"}</button>}
             {loading ? <p role="status">正在载入资料…</p> : !detail ? <div className={styles.empty}><Glyph name="file" size={28} /><h2>从资料开始</h2><p>选择或新建资料，围绕已保存的全文与作者信息提问。</p></div> : !detail.messages.length ? <div className={styles.empty}><h2>从哪一处开始审阅？</h2><p>回答依据当前已保存资料。点击结论后的引用，可核对原版全文或作者字段；资料不足时不会补造结论。</p><button onClick={() => setQuestion("请概括这份全文的研究方法，并引用原文。")}>审阅研究方法</button></div> : detail.messages.map(message => <MessageTurn key={message.id} message={message} currentVersionId={detail.version_id} locating={locating} onCitation={(citation, trigger) => void locateCitation(citation, trigger)} />)}
             <div ref={chatEnd} />
           </div>
@@ -249,10 +327,10 @@ export default function LibraryWorkspace({ reviewVersionId, importId }: { review
         <section className={styles.material} aria-label={importId ? "独立导入核对" : reviewVersionId ? "独立版本核对" : "资料内容"}>
           {sourceError && <p className={styles.sourceError} role="alert">{sourceError}</p>}
           <div className={styles.materialView} hidden={sourcePreview !== null}>
-          {uploadingDocument ? <DocumentUpload busy={!!busy} onUpload={uploadDocument} onCancel={() => { if (leaveAllowed()) { setUploadingDocument(false); changeDirty(false); } }} onDirty={value => { setRetry(null); changeDirty(value); }} /> : documentImport && detail ? <ImportReview key={`${documentImport.id}:${documentImport.digest}`} imported={documentImport} detail={detail} busy={!!busy} onDirty={value => { setRetry(null); changeDirty(value); }} onConfirm={confirmImport} /> : newDossier ? <><div className={styles.materialHeader}><h2>新建资料</h2><button disabled={!!busy} onClick={() => { if (leaveAllowed()) { setNewDossier(false); changeDirty(false); } }}>取消</button></div><form className={styles.form} onSubmit={create} onChange={() => changeDirty(true)}><label>题名<input name="title" required maxLength={500} autoComplete="off" /></label><label>资料类型<select name="source_kind" defaultValue="synthetic"><option value="synthetic">合成资料</option><option value="public_authorized">公开 / 已获授权资料</option></select></label><label>来源与授权说明<textarea name="source_note" required minLength={5} maxLength={2000} rows={4} /></label><label className={styles.checkbox}><input type="checkbox" name="authorized_material" required /><span>我确认仅录入合成或公开已获授权资料，不包含保密稿件。</span></label><button className={styles.primary} disabled={!!busy}>{busy === "create" ? "创建中…" : "创建资料"}</button></form></> : detail ? reviewVersionId ? <DossierReview key={detail.version_id} detail={detail} busy={!!busy} confirming={busy === "confirm"} onConfirm={confirm} /> : <><div className={styles.materialHeader}><div role="tablist" aria-label="资料视图">{([['metadata', '资料'], ['text', '原文'], ['versions', '版本']] as const).map(([id, label]) => <button key={id} id={`library-tab-${id}`} role="tab" aria-selected={tab === id} aria-controls={`library-panel-${id}`} tabIndex={tab === id ? 0 : -1} onKeyDown={event => { const all = ["metadata", "text", "versions"] as const; const index = all.indexOf(tab); if (event.key === "ArrowRight" || event.key === "ArrowLeft") { event.preventDefault(); const next = all[(index + (event.key === "ArrowRight" ? 1 : 2)) % 3]; setTab(next); document.getElementById(`library-tab-${next}`)?.focus(); } }} onClick={() => setTab(id)}>{label}</button>)}</div><span>v{detail.version_no} · {detail.verified ? "已核对" : "待核对"}</span>{detail.is_current && <button type="button" className={styles.documentImportButton} disabled={!!busy} onClick={startDocumentUpload}>导入 PDF / Word</button>}</div><div role="tabpanel" id={`library-panel-${tab}`} aria-labelledby={`library-tab-${tab}`} className={styles.materialBody}>
-            <DossierEditor key={`${detail.id}:${detail.version_id}`} detail={detail} hidden={tab !== "metadata"} busy={!!busy} saving={busy === "save"} onDirty={changeDirty} onSave={save} />
+          {uploadingDocument ? <DocumentUpload busy={!!busy} onUpload={uploadDocument} onCancel={() => { if (leaveAllowed()) { setUploadingDocument(false); changeDirty(false); } }} onDirty={value => { setRetry(null); changeDirty(value); }} /> : documentImport && detail ? <ImportReview key={`${documentImport.id}:${documentImport.digest}`} imported={documentImport} detail={detail} busy={!!busy} onDirty={value => { setRetry(null); changeDirty(value); }} onConfirm={confirmImport} /> : newDossier ? <><div className={styles.materialHeader}><h2>新建资料</h2><button disabled={!!busy} onClick={() => { if (leaveAllowed()) { setNewDossier(false); changeDirty(false); } }}>取消</button></div><form className={styles.form} onSubmit={create} onChange={() => { setRetry(null); changeDirty(true); }}><label>题名<input name="title" required maxLength={500} autoComplete="off" /></label><label>资料类型<select name="source_kind" defaultValue="synthetic"><option value="synthetic">合成资料</option><option value="public_authorized">公开 / 已获授权资料</option></select></label><label>来源与授权说明<textarea name="source_note" required minLength={5} maxLength={2000} rows={4} /></label><label className={styles.checkbox}><input type="checkbox" name="authorized_material" required /><span>我确认仅录入合成或公开已获授权资料，不包含保密稿件。</span></label><button className={styles.primary} disabled={!!busy}>{busy === "create" ? "创建中…" : "创建资料"}</button></form></> : detail ? reviewVersionId ? <DossierReview key={detail.version_id} detail={detail} busy={!!busy} confirming={busy === "confirm"} onConfirm={confirm} onUnavailable={failure => { clearPrivate(failure.status !== 404); setError(failure.message); }} /> : <><div className={styles.materialHeader}><div role="tablist" aria-label="资料视图">{([['metadata', '资料'], ['text', '原文'], ['versions', '版本']] as const).map(([id, label]) => <button key={id} id={`library-tab-${id}`} role="tab" aria-selected={tab === id} aria-controls={`library-panel-${id}`} tabIndex={tab === id ? 0 : -1} onKeyDown={event => { const all = ["metadata", "text", "versions"] as const; const index = all.indexOf(tab); if (event.key === "ArrowRight" || event.key === "ArrowLeft") { event.preventDefault(); const next = all[(index + (event.key === "ArrowRight" ? 1 : 2)) % 3]; setTab(next); document.getElementById(`library-tab-${next}`)?.focus(); } }} onClick={() => setTab(id)}>{label}</button>)}</div><span>v{detail.version_no} · {detail.verified ? "已核对" : "待核对"}</span>{detail.is_current && <button type="button" className={styles.documentImportButton} disabled={!!busy} onClick={startDocumentUpload}>导入 PDF / Word</button>}</div><div role="tabpanel" id={`library-panel-${tab}`} aria-labelledby={`library-tab-${tab}`} className={styles.materialBody}>
+            <DossierEditor key={`${detail.id}:${detail.version_id}`} detail={detail} hidden={tab !== "metadata"} busy={!!busy} saving={busy === "save"} onDirty={value => { setRetry(null); changeDirty(value); }} onSave={save} />
             {tab === "text" && <OriginalText detail={detail} />}
-            {tab === "versions" && <><VersionList detail={detail} /><ImportHistory key={`${detail.id}:${detail.revision}`} dossierId={detail.id} revision={detail.revision} onUnavailable={failure => { clearPrivate(failure.status !== 404); setError(failure.message); }} /></>}
+            {tab === "versions" && <><VersionList key={`${detail.id}:${detail.revision}:${detail.verification?.id ?? ""}`} detail={detail} onUnavailable={failure => { clearPrivate(failure.status !== 404); setError(failure.message); }} /><ImportHistory key={`${detail.id}:${detail.revision}`} dossierId={detail.id} revision={detail.revision} onUnavailable={failure => { clearPrivate(failure.status !== 404); setError(failure.message); }} /></>}
           </div><footer className={styles.materialFooter}><span>{dirty ? "有未保存修改" : detail.missing.length ? `${detail.missing.length} 项待补充` : "资料已齐全"}</span>{dirty ? <span>保存后可核对新版本</span> : <Link href={`/library/review/${detail.version_id}?dossier=${detail.id}`}>核对本版资料<Glyph name="arrow" size={16} /></Link>}</footer></> : <div className={styles.empty}><h2>资料内容</h2><p>题名、作者和原文会显示在这里。</p>{!loading && <button onClick={startNew}>新建资料</button>}</div>}
           </div>
           {sourcePreview && detail && <EvidencePanel snapshot={sourcePreview.snapshot} citation={sourcePreview.citation} currentVersionId={detail.version_id} onClose={() => { setSourcePreview(null); const trigger = citationTrigger.current; requestAnimationFrame(() => { if (trigger?.isConnected) trigger.focus({ preventScroll: true }); }); }} />}

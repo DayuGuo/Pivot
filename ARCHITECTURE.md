@@ -1,5 +1,9 @@
 # 架构
 
+## 资料恢复与有界请求（spec019）
+
+资料前端按路由代次和操作标识隔离迟到结果；未知写结果沿同UUID主动恢复，已知写入后的GET失败只读恢复。资料/对话/版本/导入采用限定scope的keyset分页，游标不授予权限；后端批量查询限定当前页。API重任务中间件在正文/DB依赖前非阻塞准入，Next代理在缓冲正文前也限制重任务；单worker私人包默认1，429透传Retry-After。轻读取和人工确认仍走原确定性边界。无新迁移，见spec019。
+
 ## 资料区分层（spec018）
 
 保持模块化单体。dossier_models定义四表，dossier_schemas定义输入/完整性，dossier_access负责对象权限与CAS读取，dossier_actions接幂等网关/审计，dossier_queries与dossier_views负责批量读取和投影，document_sources管理不可变来源。dossiers/document_imports/dossier_chat消费已拆分服务，资料三个路由不再彼此导入；旧dossiers导出保留为兼容门面，迁移直接导入纯模型。直接依赖分层由check-boundaries执行，字段/约束的移动由来源映射逐项核对；不把导入检查当作权限证明。

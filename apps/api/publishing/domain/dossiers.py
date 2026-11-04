@@ -7,7 +7,7 @@ No synthetic author account, submission workflow, or model write capability is c
 from urllib.parse import quote
 from uuid import NAMESPACE_URL, UUID, uuid5
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import Response
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
@@ -26,7 +26,7 @@ from .dossier_schemas import DossierAuthor as DossierAuthor
 from .dossier_schemas import ExplicitTrue as ExplicitTrue
 from .dossier_schemas import RequestID as RequestID
 from .dossier_schemas import TextUpload as TextUpload
-from .dossier_views import projection, turn_projection
+from .dossier_views import message_page, projection, turn_projection, version_page
 from .files import FileValidationError, store_bytes, validate_upload
 from .models import FileObject
 
@@ -34,8 +34,14 @@ router = APIRouter(prefix="/api/dossiers", tags=["private editorial review dossi
 
 
 @router.get("")
-def list_dossiers(actor: Actor = Depends(get_actor), db: Session = Depends(get_db)):
-    return {"items": list_summaries(db, actor)}
+def list_dossiers(
+    actor: Actor = Depends(get_actor),
+    db: Session = Depends(get_db),
+    limit: int = Query(30, ge=1, le=100),
+    cursor: str | None = Query(None, max_length=600),
+    query: str = Query("", max_length=500),
+):
+    return list_summaries(db, actor, limit=limit, cursor=cursor, query=query)
 
 
 @router.post("")
@@ -95,6 +101,30 @@ def get_version(
     db: Session = Depends(get_db),
 ):
     return projection(db, actor, str(dossier_id), str(version_id))
+
+
+@router.get("/{dossier_id}/messages")
+def get_messages(
+    dossier_id: UUID,
+    actor: Actor = Depends(get_actor),
+    db: Session = Depends(get_db),
+    limit: int = Query(50, ge=1, le=100),
+    cursor: str | None = Query(None, max_length=600),
+):
+    row = load(db, actor, str(dossier_id))
+    return message_page(db, actor, row, limit=limit, cursor=cursor)
+
+
+@router.get("/{dossier_id}/versions")
+def get_versions(
+    dossier_id: UUID,
+    actor: Actor = Depends(get_actor),
+    db: Session = Depends(get_db),
+    limit: int = Query(50, ge=1, le=100),
+    cursor: str | None = Query(None, max_length=600),
+):
+    row = load(db, actor, str(dossier_id))
+    return version_page(db, actor, row, limit=limit, cursor=cursor)
 
 
 @router.post("/{dossier_id}/versions")

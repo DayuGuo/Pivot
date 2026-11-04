@@ -22,6 +22,7 @@ ranks = {
     "dossier_models": 0,
     "dossier_schemas": 0,
     "dossier_access": 1,
+    "pagination": 1,
     "dossier_actions": 2,
     "dossier_queries": 2,
     "document_sources": 2,
