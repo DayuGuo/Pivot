@@ -1,0 +1,150 @@
+{
+  "schema": "pivot-development-delivery.v1",
+  "phase": "spec022",
+  "status": "passed",
+  "tested_source_commit": "18d23910c59e0837e4fbcd8208faca4b9754aa8d",
+  "merged_pr": {
+    "number": 2,
+    "merge_commit": "42f720c1e83a8a4ddb9ac5e93f93a1d9e65fc145",
+    "merged_at": "2026-11-04T22:39:04Z",
+    "main_ci": {
+      "id": 41927132915,
+      "conclusion": "success",
+      "pytest": 1260,
+      "playwright": 84
+    },
+    "main_amd64_bundle_ci": {
+      "id": 41927132953,
+      "conclusion": "success",
+      "scope": "existing workflow ephemeral CI artifact; not VPS deployment; contains PR2 only"
+    }
+  },
+  "fixes": [
+    "single-statement feedback history snapshot",
+    "recheck client identity after pending export before download"
+  ],
+  "architecture": {
+    "new_migrations": 0,
+    "business_schema_unchanged": true,
+    "services": [
+      "claim_review_sources",
+      "claim_review_queries",
+      "claim_evaluation_package"
+    ],
+    "route_to_route_imports_forbidden": true
+  },
+  "focused": {
+    "api": {
+      "passed": 49,
+      "seconds": 9.8
+    },
+    "browser": {
+      "passed": 32,
+      "seconds": 18.1
+    }
+  },
+  "superseded_validation": {
+    "source": "4224dc078dc114fa8c1ff1e3040cbb677913f30b",
+    "local_exit": 143,
+    "remote_run": 41928749895,
+    "remote_conclusion": "cancelled",
+    "reason": "new reproduced in-flight identity bug; explicitly stopped, not success"
+  },
+  "final_local": {
+    "script": "scripts/verify.sh",
+    "exit_code": 0,
+    "pytest": {
+      "passed": 1287,
+      "seconds": 381.43,
+      "warnings": 5
+    },
+    "playwright": {
+      "passed": 88,
+      "duration": "2.3m"
+    },
+    "static_migrations_build_start": "passed"
+  },
+  "final_remote": {
+    "verify_run": 41929773512,
+    "static_demo_run": 41929773645,
+    "conclusion": "success",
+    "static_demo": {
+      "conclusion": "success",
+      "playwright_runs": [
+        {
+          "passed": 11,
+          "seconds": 11.4
+        },
+        {
+          "passed": 11,
+          "seconds": 10.9
+        }
+      ]
+    },
+    "verify": {
+      "head_sha": "18d23910c59e0837e4fbcd8208faca4b9754aa8d",
+      "conclusion": "success",
+      "pytest": {
+        "passed": 1287,
+        "seconds": 419.64,
+        "warnings": 5
+      },
+      "playwright": {
+        "passed": 88,
+        "duration": "2.0m"
+      },
+      "url": "https://github.com/DayuGuo/Pivot/actions/runs/41929773512"
+    }
+  },
+  "data_preservation": {
+    "unchanged": true,
+    "tables": 33,
+    "rows": 940,
+    "scope": "all publishing_* tables; final local app rebuild and read-only public export acceptance"
+  },
+  "public_acceptance": {
+    "passed": true,
+    "actual_new_model_calls": 0,
+    "workflow_mutations": 0,
+    "page_errors": 0,
+    "source": "existing public licensed local fixtures; not expert evaluation",
+    "cases": [
+      {
+        "file": "research-findings-word",
+        "version_id": "f5425643-caed-44b9-9275-ab9efc26b414",
+        "claims": 2,
+        "exact_citations": true,
+        "ai_and_previous_feedback_labels_omitted": true,
+        "source_unchanged": true,
+        "bytes": 113757,
+        "package_sha256": "b2ce990b909cfa8f585a5e662a33f50501e0aeeba927335ee3bbc3802e98a680"
+      },
+      {
+        "file": "clinical-word",
+        "version_id": "59a62bcf-4952-42f9-b9d5-04d66885413e",
+        "claims": 3,
+        "exact_citations": true,
+        "ai_and_previous_feedback_labels_omitted": true,
+        "source_unchanged": true,
+        "bytes": 108405,
+        "package_sha256": "0d37fdf02411d910e1d6b0e3e1d304afcd969cdfba979f951448513000faf905"
+      }
+    ]
+  },
+  "security": {
+    "email_send_enabled": false,
+    "vps_deployed": false,
+    "new_real_model_calls": 0,
+    "live_credential_auth_rechecked": false,
+    "expert_evaluation_performed": false,
+    "feedback_import_supported": false
+  },
+  "limitations": [
+    "Labels hidden; not anonymous or double-blind review",
+    "Downloaded JSON assessments do not write back",
+    "Existing local public fixtures; fresh CI recreates synthetic fixtures",
+    "No extra independent native document corpus",
+    "Direct static imports checked; not all dynamic dependencies",
+    "Professional security/privacy review still required before real confidential manuscripts"
+  ]
+}

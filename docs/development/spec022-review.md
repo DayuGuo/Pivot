@@ -2,7 +2,7 @@
 
 ## 已执行的授权操作
 
-PR #2在用户明确授权后，以冻结head dd6cd4cf9d9bf680e472b022b8a3747b44b001b6合并，main合并点42f720c1e83a8a4ddb9ac5e93f93a1d9e65fc145，GitHub记录2026-11-04T22:39:04Z。本批在codex/evidence-review-integrity独立开发，不自动合并后续PR，不连接/部署VPS，不发布新的VPS镜像包。本机更新仅使用保留项目选定模型环境的scripts/start.sh，未读取全局认证文件。
+PR #2在用户明确授权后，以冻结head dd6cd4cf9d9bf680e472b022b8a3747b44b001b6合并，main合并点42f720c1e83a8a4ddb9ac5e93f93a1d9e65fc145，GitHub记录2026-11-04T22:39:04Z。本批在codex/evidence-review-integrity独立开发，不自动合并后续PR，不连接/部署VPS，不发布新的VPS Release。PR #2合并自动触发既有main amd64包CI41927132953，原生构建/受限内存隔离安装、并发、重启/恢复和浏览器步骤均success、生成CI artifact；这只包含PR #2，未在用户VPS部署，也不含本批新功能。本机更新仅使用保留项目选定模型环境的scripts/start.sh，未读取全局认证文件。
 
 ## 代码逻辑复核和修正
 
@@ -20,13 +20,17 @@ PR #2在用户明确授权后，以冻结head dd6cd4cf9d9bf680e472b022b8a3747b44
 
 没有新表/迁移。GET只读、本人编辑/主编对象鉴权、no-store/attachment；下载前后不改Answer、版本、Check、复核、回执或业务审计。原件路径仍要求登录，无共享token。没有模型人工确认/邮件/决定工具，EMAIL_SEND_ENABLED=false。
 
-## 实际证据（完整回归待填）
+## 实际证据
 
+合并后main本身另有verify41927132915 success，实际1260后端516.81秒＋84浏览器2.4m；这是PR #2的合并验收，不与本批新功能混计。
+
+- 冻结源码18d23910c59e0837e4fbcd8208faca4b9754aa8d本机完整scripts/verify.sh **exit0：1287后端381.43秒＋88浏览器2.3m**；Ruff/格式、ESLint/TypeScript、研究/依赖/离线公开引文18、Alembic升级/零漂移、准确API/Web构建启动全部通过。5条第三方弃用警告，未删除测试。日志artifacts/spec022/full-verify-final.log，真实JUnit artifacts/pytest.xml。
+- 同源码远端static-demo41929773645 success：两轮11项各11.4/10.9秒，原生静态镜像离线安装也通过；同源码远端完整[verify41929773512](https://github.com/DayuGuo/Pivot/actions/runs/41929773512)全部步骤与顶层均success：1287后端419.64秒＋88浏览器2.0m，5警告。日志remote-verify-final.log，实际head/status/jobs记录ci-final.json。
 - 专项API：49通过9.80秒，含原反馈23＋新评价26；日志artifacts/spec022/api-delivery-focused.log。移模块后首次原反馈有1例仍指向旧内部路径，按新共享服务修夹具注入点后全部原断言保留。
-- 相关Playwright：31通过18.2秒，包含真实DB版本链、实际JSON文件下载、503重试、迟到结果、登录变化、历史基准及真实HTTP并发写。首轮30过/1失败为登录夹具安装早于初始会话加载，增加明确初始加载等待后通过，不删除断言。日志browser-focused.log与browser-focused-final.log。
+- 相关Playwright：初轮修夹具后31通过18.2秒；修复请求中身份变化后最终32通过18.1秒，包含真实DB版本链、实际JSON文件下载、503重试、迟到结果、登录变化、历史基准及真实HTTP并发写。首轮30过/1失败为登录夹具安装早于初始会话加载，增加明确初始加载等待后通过，不删除断言。日志browser-focused.log与browser-focused-final.log。
 - 静态：Ruff/格式、ESLint/TypeScript、研究/模块边界已单独通过。Impeccable检测[]，desktop375px截图已查看、无横向溢出；UIUX Pro Max本轮检索download feedback error recovery，Frontend Design/Impeccable按既有Hermes Operate方向保持布局，Web Guidelines最新官方规则已读。不是屏幕阅读器/实机键盘/跨浏览器认证。
 - 本机公开材料：已有research-findings-word和clinical-word历史真实回答，实际浏览器各下载一份，分别2和3条候选；完整正文、作者、逐字引用/原件位置与版本一致，标签/旧人工意见省略，原资料投影相同。实际新增模型0、业务写0、页面错误0；test driver只检验包内容，不充当专业编辑判断。仅本机历史夹具验收，不是fresh-clone样本，通用CI由合成API/PW用例重新建立数据。
-- 本机应用已更新；前后33张publishing_*表940行，逐表完整行排序hash一致，artifacts/spec022/data-preservation.json。会话/登录审计不在此业务表集合内。无需迁移/回退/重置，未执行恢复操作。
+- 本机应用已更新；前后33张publishing_*表940行，逐表完整行排序hash一致，artifacts/spec022/data-preservation-final.json。会话/登录审计不在此业务表集合内。无需迁移/回退/重置，未执行恢复操作。
 - 真实DeepSeek凭据本阶段未重新请求鉴权；既有选定服务配置保留，不把health.available当供应商成功证据。没有新API成本或token消耗。
 
 ## 研究来源与后续专业关口
