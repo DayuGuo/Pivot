@@ -54,3 +54,7 @@
 [完整CI41878817674](https://github.com/DayuGuo/Pivot/actions/runs/41878817674)实际日志1238 Pytest（322.41秒）＋81 Playwright（1.8m），14个步骤包含Complete job全部success，无error。[静态任务41878817834](https://github.com/DayuGuo/Pivot/actions/runs/41878817834)两组11项通过，16步骤全部success。读取发行记录时，原生顶层completed/success，完整CI和静态顶层仍in_progress/null（其工作步骤/日志已完成）；明确记录API汇总延迟，不把顶层状态冒称成功。Actions另有Node20 action被Runner强制Node24的上游弃用提醒，不等于测试失败。
 
 附件release-validation.json绑定准确源码、SHA、每步状态和本机真实公开资料结果；记录时状态快照不追溯改写。更新使用[UPGRADE.md](https://github.com/DayuGuo/Pivot/releases/download/v0.2.0-preview.4/UPGRADE.md)中的原安装用户和原--state，管理器先停写备份，保留原项目、卷、密钥、密码和静态站。不重新init、不删卷、不可用保密稿件试错。未连接/部署用户VPS。
+
+## 集成状态
+
+[PR #1](https://github.com/DayuGuo/Pivot/pull/1)开放、可合并、包含完整差异与验收。自动审批拒绝直接更新main：认为本轮默认分支发布缺少明确授权，存在发布风险。未执行默认分支推送或间接自动合并；main仍a898a02。最终运行代码d7c90b0，之后均仅交付文档，已发布preview.4与本机真实服务可独立体验。待用户明确授权后才合并PR。
