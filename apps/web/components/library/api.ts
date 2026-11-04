@@ -23,3 +23,10 @@ export function fileDownloadURL(value: string): string | null {
   const url = new URL(value, "https://local.invalid");
   return url.origin === "https://local.invalid" ? `${url.pathname}${url.search}` : null;
 }
+
+export function dossierListURL(query = "", cursor?: string | null): string {
+  const params = new URLSearchParams();
+  if (query) params.set("query", query);
+  if (cursor) params.set("cursor", cursor);
+  return `/api/dossiers${params.size ? `?${params}` : ""}`;
+}

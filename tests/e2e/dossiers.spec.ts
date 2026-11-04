@@ -70,7 +70,7 @@ test("内部资料真实链：录入全文作者、独立核对、新版失效�
   await expect(page.getByText(current.content_digest, { exact: true })).toHaveCount(1);
   await acknowledgement.check(); await page.getByRole("button", { name: "确认本版资料", exact: true }).click();
   await expect(page.getByText("当前版本已由本人核对。", { exact: true })).toBeVisible();
-  await expect(page.getByRole("link", { name: /v2 · 已核对/ })).toBeVisible();
+  await expect(page.getByRole("region", { name: "独立版本核对", exact: true }).getByRole("link", { name: /v2 · 已核对/ })).toBeVisible();
   await page.getByRole("link", { name: "返回资料", exact: true }).click();
   await page.getByLabel("题名", { exact: true }).fill(`${title} 修订`);
   await page.getByRole("button", { name: "保存为新版本", exact: true }).click();
@@ -257,7 +257,7 @@ for (const status of [429, 503, 200]) test(`资料恢复：${status} 失败主�
 test("资料分页：更多资料、早期对话、版本、导入和全库搜索均可操作", async ({ page }) => {
   await fixtures(page);
   const item = (id: string) => ({ id, title: syntheticDossier(id).data.title, revision: 1, version_id: VERSION, version_no: 1, verified: false, updated_at: "2026-11-03T00:00:00Z" });
-  await page.route("**/api/dossiers?*", route => {
+  await page.route(url => url.pathname === "/api/dossiers", route => {
     const url = new URL(route.request().url());
     return route.fulfill({ json: url.searchParams.get("query") ? { items: [item(OTHER)], next_cursor: null } : url.searchParams.has("cursor") ? { items: [item(OTHER)], next_cursor: null } : { items: [item(ID)], next_cursor: "list-position" } });
   });
@@ -306,7 +306,7 @@ test("资料恢复：重试前身份变化不再发送旧请求", async ({ page 
 test("资料恢复：分页撤权后旧对话成功不能恢复私有材料", async ({ page }) => {
   await fixtures(page); let release!: () => void; let started = false;
   const gate = new Promise<void>(resolve => { release = resolve; });
-  await page.route("**/api/dossiers?*", route => new URL(route.request().url()).searchParams.has("cursor") ? route.fulfill({ status: 403, json: { detail: "当前权限已撤销" } }) : route.fulfill({ json: { items: [{ id: ID, title: "合成资料甲", version_no: 1, verified: false }], next_cursor: "next" } }));
+  await page.route(url => url.pathname === "/api/dossiers", route => new URL(route.request().url()).searchParams.has("cursor") ? route.fulfill({ status: 403, json: { detail: "当前权限已撤销" } }) : route.fulfill({ json: { items: [{ id: ID, title: "合成资料甲", version_no: 1, verified: false }], next_cursor: "next" } }));
   await page.route(`**/api/dossiers/${ID}/chat`, async route => { started = true; await gate; return route.fulfill({ json: { id: "late", question: "合成", answer: "不该恢复的旧内容", provider: "rules", version_id: VERSION, version_no: 1 } }); });
   try {
     await page.goto(`/library?dossier=${ID}`);
@@ -331,4 +331,29 @@ test("资料分页：加载早期长对话不跳回末尾，输入框保持可�
   await expect(page.getByText("合成历史问题 8", { exact: true })).toHaveCount(1);
   await expect(page.getByText("合成历史问题 39", { exact: true })).not.toBeInViewport();
   await expect(page.getByLabel("询问当前资料")).toBeInViewport();
+});
+
+
+test("资料恢复：保存后的旧列表读取不覆盖新搜索", async ({ page }) => {
+  await fixtures(page); let written = false; let waiting = false; let release!: () => void;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  const item = (id: string) => ({ id, title: syntheticDossier(id).data.title, version_no: 1, verified: false });
+  await page.route(url => url.pathname === "/api/dossiers", async route => {
+    const query = new URL(route.request().url()).searchParams.get("query");
+    if (written && !query) { waiting = true; await gate; }
+    return route.fulfill({ json: { items: query ? [item(OTHER)] : [item(ID)], next_cursor: null } });
+  });
+  await page.route(`**/api/dossiers/${ID}/versions`, route => { written = true; return route.fulfill({ json: { dossier_id: ID, version_id: VERSION } }); });
+  try {
+    await page.goto(`/library?dossier=${ID}`);
+    await page.getByLabel("题名", { exact: true }).fill("合成保存");
+    await page.getByRole("button", { name: "保存为新版本", exact: true }).click();
+    await expect.poll(() => waiting).toBe(true);
+    await page.getByLabel("搜索我的资料").fill("乙");
+    await expect(page.getByRole("link", { name: /合成资料乙/ })).toBeVisible();
+    release();
+    await expect(page.getByText("新版本已保存，请重新核对。", { exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: /合成资料甲/ })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: /合成资料乙/ })).toBeVisible();
+  } finally { release(); }
 });

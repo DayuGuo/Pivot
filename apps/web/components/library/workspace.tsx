@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type FormEvent, type MouseEvent } from "react";
 import Glyph from "../editorial/icons";
-import { LibraryError, readJSON } from "./api";
+import { dossierListURL, LibraryError, readJSON } from "./api";
 import DossierEditor from "./editor";
 import DocumentUpload from "./document-upload";
 import ImportReview from "./import-review";
@@ -74,7 +74,7 @@ export default function LibraryWorkspace({ reviewVersionId, importId }: { review
       if (!["editor", "chief_editor"].includes(nextSession.user.role)) throw new LibraryError(403, "内部资料仅向编辑和主编开放。请返回登录页切换身份。");
       setSession(nextSession);
       const [list, dossier, imported] = await Promise.all([
-        readJSON<Page<DossierItem>>(`/api/dossiers?query=${encodeURIComponent(queryRef.current)}`),
+        readJSON<Page<DossierItem>>(dossierListURL(queryRef.current)),
         selectedId ? readJSON<Dossier>(`/api/dossiers/${encodeURIComponent(selectedId)}${reviewVersionId ? `/versions/${encodeURIComponent(reviewVersionId)}` : ""}`) : Promise.resolve(null),
         importId && selectedId ? readJSON<DocumentImport>(`/api/dossiers/${encodeURIComponent(selectedId)}/imports/${encodeURIComponent(importId)}`) : Promise.resolve(null),
       ]);
@@ -106,7 +106,8 @@ export default function LibraryWorkspace({ reviewVersionId, importId }: { review
   useEffect(() => { if (scrollToLatest.current) chatEnd.current?.scrollIntoView({ block: "nearest" }); scrollToLatest.current = true; }, [detail?.messages.length]);
   useEffect(() => {
     if (lastQuery.current === query) return;
-    const timer = setTimeout(() => { lastQuery.current = query; void pageList(true); }, 300);
+    lastQuery.current = query;
+    const timer = setTimeout(() => { void pageList(true); }, 300);
     return () => clearTimeout(timer);
     // Only search text schedules this read; manuscript/form state stays intact.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -188,12 +189,15 @@ export default function LibraryWorkspace({ reviewVersionId, importId }: { review
     } finally { if (operation.current === token) { operation.current = null; busyRef.current = false; setBusy(""); } }
   }
   async function refreshAfter(id: string, current: number, versionId?: string) {
+    const filter = queryRef.current; const listRequest = pageRequest.current;
     const [next, list] = await Promise.all([
       readJSON<Dossier>(`/api/dossiers/${encodeURIComponent(id)}${versionId ? `/versions/${encodeURIComponent(versionId)}` : ""}`),
-      readJSON<Page<DossierItem>>(`/api/dossiers?query=${encodeURIComponent(queryRef.current)}`),
+      readJSON<Page<DossierItem>>(dossierListURL(queryRef.current)),
     ]);
     if (current !== epoch.current) return;
-    setDetail(next); setItems(list.items); setListCursor(list.next_cursor ?? null); setSourcePreview(null); setSourceError(""); changeDirty(false);
+    setDetail(next);
+    if (queryRef.current === filter && listRequest === pageRequest.current) { setItems(list.items); setListCursor(list.next_cursor ?? null); }
+    setSourcePreview(null); setSourceError(""); changeDirty(false);
   }
   async function save(data: DossierData, file: Upload | null) {
     if (!detail) return;
@@ -250,7 +254,7 @@ export default function LibraryWorkspace({ reviewVersionId, importId }: { review
     const cursor = reset ? null : listCursor;
     setPaging("list"); setPageError(""); setPageRetry(null); if (reset) { setItems([]); setListCursor(null); }
     try {
-      const page = await readJSON<Page<DossierItem>>(`/api/dossiers?query=${encodeURIComponent(queryRef.current)}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`);
+      const page = await readJSON<Page<DossierItem>>(dossierListURL(queryRef.current, cursor));
       if (current !== epoch.current || request !== pageRequest.current) return;
       setItems(previous => reset ? page.items : [...previous, ...page.items.filter(item => !previous.some(old => old.id === item.id))]);
       setListCursor(page.next_cursor ?? null);
@@ -300,11 +304,12 @@ export default function LibraryWorkspace({ reviewVersionId, importId }: { review
     <aside className={`${styles.sidebar} ${drawer ? styles.drawerOpen : ""}`} aria-label="我的资料">
       <div className={styles.brand}><Link href="/">Pivot</Link><button className={styles.mobileOnly} aria-label="关闭资料列表" onClick={() => setDrawer(false)}><Glyph name="close" /></button></div>
       <div className={styles.sideHeading}><h2>我的资料</h2><button type="button" onClick={startNew}>新建资料</button></div>
-      <label className={styles.search}><Glyph name="search" /><input aria-label="搜索我的资料" name="search" autoComplete="off" disabled={loading} value={query} maxLength={500} onChange={event => { setQuery(event.target.value); queryRef.current = event.target.value; }} placeholder="搜索题名…" /></label>
-      <nav className={styles.list}>
+      <label className={styles.search}><Glyph name="search" /><input aria-label="搜索我的资料" name="search" autoComplete="off" disabled={loading} value={query} maxLength={500} onChange={event => { setQuery(event.target.value); queryRef.current = event.target.value; ++pageRequest.current; setItems([]); setListCursor(null); setPaging("list"); setPageError(""); setPageRetry(null); }} placeholder="搜索题名…" /></label>
+      <nav className={styles.list} aria-busy={paging === "list"}>
+        {paging === "list" && !items.length && <p role="status">正在查找资料…</p>}
         {items.map(item => <Link key={item.id} href={`/library?dossier=${item.id}`} aria-current={selectedId === item.id && !newDossier ? "page" : undefined} className={styles.listItem}><Glyph name="file" /><span>{item.title || "未命名资料"}<small>v{item.version_no} · {item.verified ? "已核对" : "待核对"}</small></span></Link>)}
         {!items.length && !loading && !paging && <p className={styles.hint}>{query ? "没有匹配的资料。" : "尚无资料，先新建一份。"}</p>}
-        {listCursor && <button type="button" disabled={paging === "list"} onClick={() => void pageList(false)}>{paging === "list" ? "正在加载…" : "加载更多资料"}</button>}
+        {listCursor && <button type="button" disabled={!!paging} onClick={() => void pageList(false)}>{paging === "list" ? "正在加载…" : "加载更多资料"}</button>}
 
       </nav>
       <div className={styles.identity}><span>{session.user.name}</span><small>{session.journal.name}</small><Link href="/">返回登录 / 切换身份</Link></div>
@@ -318,7 +323,7 @@ export default function LibraryWorkspace({ reviewVersionId, importId }: { review
         <main className={styles.chat} id="library-main" tabIndex={-1}>
           <div className={styles.chatHeader}><h2>{detail?.data.title || "资料对话"}</h2><p>{modelBlocked ? "模型未就绪，请检查服务配置后重新载入。" : `${modelLabel} · 结论待人工复核`}</p></div>
           <div className={styles.transcript} aria-label="资料对话历史" aria-busy={busy === "assist"}>
-            {detail?.messages_next_cursor && <button type="button" disabled={paging === "messages"} onClick={() => void pageMessages()}>{paging === "messages" ? "正在加载…" : "加载较早对话"}</button>}
+            {detail?.messages_next_cursor && <button type="button" disabled={!!paging} onClick={() => void pageMessages()}>{paging === "messages" ? "正在加载…" : "加载较早对话"}</button>}
             {loading ? <p role="status">正在载入资料…</p> : !detail ? <div className={styles.empty}><Glyph name="file" size={28} /><h2>从资料开始</h2><p>选择或新建资料，围绕已保存的全文与作者信息提问。</p></div> : !detail.messages.length ? <div className={styles.empty}><h2>从哪一处开始审阅？</h2><p>回答依据当前已保存资料。点击结论后的引用，可核对原版全文或作者字段；资料不足时不会补造结论。</p><button onClick={() => setQuestion("请概括这份全文的研究方法，并引用原文。")}>审阅研究方法</button></div> : detail.messages.map(message => <MessageTurn key={message.id} message={message} currentVersionId={detail.version_id} locating={locating} onCitation={(citation, trigger) => void locateCitation(citation, trigger)} />)}
             <div ref={chatEnd} />
           </div>
