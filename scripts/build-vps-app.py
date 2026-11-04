@@ -56,7 +56,7 @@ def main():
     run("docker", "tag", "postgres:17-alpine", images["db"])
     destination = ROOT / "artifacts" / f"pivot-app-{suffix}"
     destination.mkdir(parents=True, exist_ok=True)
-    for name in ("manage.py", "compose.yaml", "README.md"):
+    for name in ("manage.py", "compose.yaml", "README.md", "NOTICES.md"):
         shutil.copyfile(ROOT / "infrastructure/vps" / name, destination / name)
     for ext in ("pdf", "docx"):
         shutil.copyfile(
@@ -82,6 +82,7 @@ def main():
         "manage.py",
         "compose.yaml",
         "README.md",
+        "NOTICES.md",
         "synthetic-manuscript.pdf",
         "synthetic-manuscript.docx",
         "images.tar.gz",

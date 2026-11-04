@@ -29,6 +29,7 @@ npm run typecheck
 node --check scripts/accept-live-publishing-browser.mjs
 node --check scripts/evaluate-public-papers-browser.mjs
 node --check scripts/accept-vps-browser.mjs
+node --check infrastructure/vps/collect-notices.mjs
 docker compose build api web
 # Test the exact built application, rather than a stale running image.
 docker compose up -d api web --wait
