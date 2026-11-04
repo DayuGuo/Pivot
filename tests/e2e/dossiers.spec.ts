@@ -95,6 +95,22 @@ test("内部资料真实链：录入全文作者、独立核对、新版失效�
   expect(await (await page.request.get(`/api/dossiers/${id}`)).json()).toEqual(afterChat);
   const summary = await (await page.request.get(`/api/dossiers/${id}/answers/${afterChat.messages.at(-1)!.id}/review-summary`)).json();
   expect(summary.metrics.reviewed_claims).toBe(1); expect(summary.metrics.comparable).toBe(0); expect(summary.metrics.human_uncertain).toBe(1);
+  const evaluationDownload = page.waitForEvent("download");
+  await page.getByRole("button", { name: "下载独立评价包", exact: true }).click();
+  const evaluation = await evaluationDownload;
+  const stream = await evaluation.createReadStream();
+  expect(stream).not.toBeNull();
+  const buffers: Buffer[] = [];
+  for await (const chunk of stream!) buffers.push(Buffer.from(chunk));
+  const exported = JSON.parse(Buffer.concat(buffers).toString("utf8"));
+  expect(exported.schema).toBe("claim-evaluation-package.v1");
+  expect(exported.source.version_id).toBe(afterChat.version_id);
+  expect(exported.source.text).toBe(fullText);
+  expect(exported.source.data.authors).toEqual(afterChat.data.authors);
+  expect(exported.claims.length).toBeGreaterThan(0);
+  expect(exported.claims.every((claim: { assessment: unknown; support?: unknown }) => claim.support === undefined && JSON.stringify(claim.assessment) === JSON.stringify({ verdict: null, note: "" }))).toBe(true);
+  await expect(page.getByRole("status").filter({ hasText: "评价包已生成" })).toBeVisible();
+
   const reviewURL = `/api/dossiers/${id}/answers/${afterChat.messages.at(-1)!.id}/claims/claims/0/reviews`;
   const history = await (await page.request.get(reviewURL)).json();
   const auth = await (await page.request.get("/api/publishing/session")).json();

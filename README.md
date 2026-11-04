@@ -241,3 +241,9 @@ node scripts/accept-live-publishing-browser.mjs --live
 ```
 
 新领域共享60秒期限、网络read idle30秒，跨3轮最多额外重试一次推理，不重复业务工具；数据库等锁后迟到的apply回滚，DB锁/COMMIT本身不宣称硬取消。恢复规则、实际报告与验证边界见 [恢复验收](docs/development/deepseek-recovery.md)。
+
+### 独立评价包（spec022）
+
+在`/library`中打开已有回答，点击“下载独立评价包”。JSON保留该回答对应版本的完整正文、作者和可核对引文，隐藏AI判定及已有人工意见；随机排序的每条候选留空评价。文件仅用于获授权内部核对，作者未匿名，暂不支持评价回传或专家签署。无全文/原件或引用不匹配会拒绝下载，原资料不变。旧版本回答不会导出当前新版正文。
+
+接口：`GET /api/dossiers/{dossier_id}/answers/{answer_id}/evaluation-package`，仍需本人编辑/主编登录；不提供公开共享。无数据库迁移，不修改旧历史，不调用真实模型，不发送邮件或作出关键决定。本阶段不在VPS部署；运行与验收以PROGRESS.md为准。

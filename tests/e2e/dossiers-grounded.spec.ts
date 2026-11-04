@@ -244,3 +244,67 @@ test("人工复核：翻旧记录不采用并发变化的新前置ID", async ({ 
   await expect(feedback.getByRole("alert")).toContainText("已有新的人工复核");
   expect(posts[0].expected_review_id).toBe(previous);
 });
+
+test("独立评价包：失败可重试，真实下载内容不带AI判定", async ({ page }) => {
+  await fixtures(page);
+  let attempts = 0;
+  const exports: unknown[] = [];
+  page.on("download", item => exports.push(item));
+  await page.route(`**/api/dossiers/${ID}/answers/grounded-old/evaluation-package`, route => {
+    ++attempts;
+    if (attempts === 1) return route.fulfill({ status: 503, json: { detail: "服务忙，请重试下载。" } });
+    return route.fulfill({ json: { schema: "claim-evaluation-package.v1", package_id: "40000000-0000-4000-8000-000000000014", source: { version_id: OLD, text: oldText }, claims: [{ id: "random", text: "合成独立结论", citations: [], assessment: { verdict: null, note: "" } }] } });
+  });
+  await page.goto(`/library?dossier=${ID}`);
+  const button = page.getByRole("button", { name: "下载独立评价包", exact: true });
+  await button.click();
+  await expect(page.getByRole("alert").filter({ hasText: "服务忙" })).toBeVisible();
+  expect(exports).toHaveLength(0);
+  const download = page.waitForEvent("download");
+  await button.click();
+  expect((await download).suggestedFilename()).toBe("pivot-evaluation-40000000-0000-4000-8000-000000000014.json");
+  await expect(page.getByRole("status").filter({ hasText: "评价包已生成" })).toBeVisible();
+  expect(attempts).toBe(2);
+  await page.screenshot({ path: "artifacts/spec022/evaluation-desktop.png" });
+  await page.setViewportSize({ width: 375, height: 812 });
+  await button.scrollIntoViewIfNeeded();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
+  await page.screenshot({ path: "artifacts/spec022/evaluation-mobile.png" });
+});
+
+test("独立评价包：切换资料不下载迟到结果", async ({ page }) => {
+  await fixtures(page);
+  let release!: () => void;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  const downloads: unknown[] = [];
+  page.on("download", item => downloads.push(item));
+  await page.route(`**/api/dossiers/${ID}/answers/grounded-old/evaluation-package`, async route => {
+    await gate;
+    await route.fulfill({ json: { schema: "claim-evaluation-package.v1", package_id: "40000000-0000-4000-8000-000000000014", source: { version_id: OLD, text: oldText }, claims: [{}] } });
+  });
+  await page.goto(`/library?dossier=${ID}`);
+  const request = page.waitForRequest(url => url.url().endsWith("/evaluation-package"));
+  await page.getByRole("button", { name: "下载独立评价包", exact: true }).click();
+  await request;
+  await page.getByRole("link", { name: /另一份合成资料/ }).click();
+  await expect(page.getByLabel("题名", { exact: true })).toHaveValue("另一份合成资料");
+  const response = page.waitForResponse(url => url.url().endsWith("/evaluation-package"));
+  release(); await response;
+  // Flush the fetch callback and rendering without a fixed wall-clock sleep.
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  expect(downloads).toHaveLength(0);
+  await expect(page.getByText(/评价包已生成/)).toHaveCount(0);
+});
+
+test("独立评价包：登录变化不下载旧身份的资料", async ({ page }) => {
+  await fixtures(page);
+  let exports = 0;
+  await page.route(`**/api/dossiers/${ID}/answers/grounded-old/evaluation-package`, route => { ++exports; return route.fulfill({ status: 500 }); });
+  await page.goto(`/library?dossier=${ID}`);
+  await expect(page.getByLabel("题名", { exact: true })).toHaveValue("合成当前资料");
+  await page.route("**/api/publishing/session", route => route.fulfill({ json: { ...session, user: { ...session.user, id: "another-editor" } } }));
+  await page.getByRole("button", { name: "下载独立评价包", exact: true }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "访问权限或身份已变化" })).toBeVisible();
+  expect(exports).toBe(0);
+  await expect(page.getByText(quote, { exact: true })).toHaveCount(0);
+});

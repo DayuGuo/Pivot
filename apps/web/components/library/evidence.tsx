@@ -1,5 +1,6 @@
 "use client";
 
+import EvaluationExport from "./evaluation-export";
 import ClaimFeedback, { type FeedbackContext } from "./claim-feedback";
 import { useEffect, useRef } from "react";
 import type { Citation, Dossier, ExternalReference, Message } from "./types";
@@ -68,7 +69,7 @@ export function MessageTurn({ message, currentVersionId, locating, onCitation, f
     {message.provider === "deepseek" && grounded && !message.support_review && <p className={styles.warning}>此历史回答尚未做语义支持检查，引用仍可定位，请人工复核结论。</p>}
     {!!message.withheld_claims?.length && <details className={styles.warning}><summary>{message.withheld_claims.length} 条候选结论未通过支持检查</summary>{message.withheld_claims.map((claim, i) => <section key={i}><p>{supportText(claim.support?.status || "insufficient", claim.support?.reason)}</p><blockquote>{claim.text}</blockquote>{claim.citations.map((citation, position) => <button type="button" key={position} onClick={event => onCitation(citation, event.currentTarget)} aria-label={`定位待核对依据：${citation.label}，v${citation.version_no}`}>{citation.label} · v{citation.version_no}</button>)}{feedback && <ClaimFeedback key={`${feedback.dossierId}:${message.id}:withheld:${i}`} context={feedback} answerId={message.id} bucket="withheld_claims" index={i} claim={claim} />}</section>)}</details>}
     {grounded && !!message.questions?.length && <section className={styles.references} aria-label="待确认问题"><h3>待确认</h3><ul>{message.questions.map((question, index) => <li key={index}>{question}</li>)}</ul></section>}
-    {feedback && (!!message.claims?.length || !!message.withheld_claims?.length) && <p><a href={`/api/dossiers/${feedback.dossierId}/answers/${message.id}/review-summary`} download={`claim-review-${message.id}.json`}>下载复核摘要</a></p>}
+    {feedback && (!!message.claims?.length || !!message.withheld_claims?.length) && <EvaluationExport key={`${feedback.dossierId}:${message.id}`} context={feedback} answerId={message.id} versionId={message.version_id} />}
     {coverage ? <p className={styles.coverage}>本轮读取 {format.format(coverage.read_chunks)} / {format.format(coverage.total_chunks)} 个资料片段 · {format.format(coverage.read_characters)} / {format.format(coverage.total_characters)} 字符{coverage.fulltext_available === false ? " · 未上传全文，仅元数据" : coverage.complete ? " · 覆盖全部资料片段" : " · 部分覆盖，不能据此排除其他内容"}</p> : message.provider !== "rules" && <p className={styles.coverage}>本轮读取范围未提供。</p>}
     {references.length > 0 && <section className={styles.references} aria-label="外部文献来源"><h3>外部文献</h3><p className={styles.hint}>Crossref 元数据匹配；未读取文献全文，不代表科学结论已证实。</p>{references.map(({ reference, links }) => <div className={styles.reference} key={reference.doi}>
       <a href={links.doi} target="_blank" rel="noopener noreferrer">{reference.title || reference.doi}</a>
