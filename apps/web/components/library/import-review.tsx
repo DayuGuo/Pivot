@@ -4,17 +4,15 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import DossierEditor from "./editor";
 import { documentLocation, documentWarning } from "./document-details";
+import { fieldLabel } from "./import-labels";
+import { uncertaintyText } from "./uncertainty";
 import { fileDownloadURL } from "./api";
 import type { DocumentImport, Dossier, DossierData } from "./types";
 import styles from "./library.module.css";
 
 type FieldSource = DocumentImport["field_sources"][number];
 const tabs = [["fields", "核对表单"], ["text", "提取全文"], ["sources", "识别依据"]] as const;
-function fieldLabel(path: string) {
-  const names: Record<string, string> = { title: "题名", abstract: "摘要", language: "语言", keywords: "关键词", name: "姓名", email: "邮箱", orcid: "ORCID", affiliations: "机构", corresponding: "通讯作者", contributions: "作者贡献", source_note: "来源" };
-  const parts = path.split(".");
-  return parts[0] === "authors" && /^\d+$/.test(parts[1] || "") ? `作者 ${Number(parts[1]) + 1} · ${names[parts[2]] || "资料"}` : names[parts[0]] || "候选资料";
-}
+
 
 export default function ImportReview({ imported, detail, busy, onDirty, onConfirm }: {
   imported: DocumentImport; detail: Dossier; busy: boolean; onDirty: (value: boolean) => void; onConfirm: (data: DossierData) => Promise<void>;
@@ -49,7 +47,7 @@ export default function ImportReview({ imported, detail, busy, onDirty, onConfir
     {sourceError && <p className={styles.sourceError} role="alert">{sourceError}</p>}
     <div className={styles.materialBody}>
       <div id="import-panel-fields" role="tabpanel" aria-labelledby="import-tab-fields" hidden={tab !== "fields"}>
-        <DossierEditor key={imported.id} detail={candidate} hidden={false} busy={busy || !editable} saving={busy} onDirty={value => { setAcknowledged(false); onDirty(value); }} onSave={async data => { if (!editable || !acknowledged) return; setAcknowledged(false); await onConfirm(data); }} importReview={{ canSubmit: editable && acknowledged, confirmation: <section className={styles.confirm}><label className={styles.checkbox}><input name="import-acknowledged" type="checkbox" checked={acknowledged} disabled={!editable || busy} onChange={event => setAcknowledged(event.target.checked)} /><span>我已对照原文件逐项核对提取全文和全部作者元数据，确认核对并保存为新版本。</span></label><p className={styles.hint}>修改字段后需要重新勾选。本次只确认导入，不提交稿件、认证作者身份或作编辑决定。</p></section> }} />
+        <DossierEditor key={imported.id} detail={candidate} hidden={false} importIssues={imported.metadata_uncertainties} busy={busy || !editable} saving={busy} onDirty={value => { setAcknowledged(false); onDirty(value); }} onSave={async data => { if (!editable || !acknowledged) return; setAcknowledged(false); await onConfirm(data); }} importReview={{ canSubmit: editable && acknowledged, confirmation: <section className={styles.confirm}><label className={styles.checkbox}><input name="import-acknowledged" type="checkbox" checked={acknowledged} disabled={!editable || busy} onChange={event => setAcknowledged(event.target.checked)} /><span>我已对照原文件逐项核对提取全文和全部作者元数据，确认核对并保存为新版本。</span></label><p className={styles.hint}>修改字段后需要重新勾选。本次只确认导入，不提交稿件、认证作者身份或作编辑决定。</p></section> }} />
       </div>
       <section id="import-panel-text" role="tabpanel" aria-labelledby="import-tab-text" hidden={tab !== "text"} className={styles.original}>
         <div className={styles.originalHeading}><h2>提取全文</h2>{source && <span>{documentLocation(source.kind, source.number)}</span>}</div>
@@ -58,8 +56,9 @@ export default function ImportReview({ imported, detail, busy, onDirty, onConfir
         <details><summary>原件与解析信息</summary><dl className={styles.facts}><dt>原件 SHA-256</dt><dd><code>{imported.sha256}</code></dd><dt>解析器</dt><dd>{imported.parser}</dd><dt>导入摘要</dt><dd><code>{imported.digest}</code></dd></dl></details>
       </section>
       <section id="import-panel-sources" role="tabpanel" aria-labelledby="import-tab-sources" hidden={tab !== "sources"} className={styles.original}>
+        {!!imported.metadata_uncertainties?.length && <section><h2>需要核对的关联</h2>{imported.metadata_uncertainties.map((issue, index) => <div key={`${issue.field_path}:${index}`} className={styles.importSource}><strong>{fieldLabel(issue.field_path)}</strong><p>{uncertaintyText(issue.reason)}</p>{issue.evidence && <button type="button" onClick={() => locate({ ...issue.evidence!, field_path: issue.field_path, value: "" })}>查看原文线索</button>}</div>)}</section>}
         <h2>原始识别依据</h2><p className={styles.hint}>以下为候选识别时的原文。你修改的字段由本人确认，不自动沿用原文来源或作者身份认证。</p>
-        {imported.field_sources.length ? imported.field_sources.map((value, index) => <div className={styles.importSource} key={`${value.field_path}:${index}`}><button type="button" onClick={() => locate(value)}>{fieldLabel(value.field_path)} · {documentLocation(value.kind, value.number)}</button><blockquote>{value.quote}</blockquote></div>) : <p>未找到可定位的元数据候选。请根据原稿手动补齐表单。</p>}
+        {imported.field_sources.length ? imported.field_sources.map((value, index) => <div className={styles.importSource} key={`${value.field_path}:${index}`}><button type="button" onClick={() => locate(value)}>{fieldLabel(value.field_path)} · {documentLocation(value.kind, value.number)}</button><blockquote>{value.quote}</blockquote>{value.association?.evidence.map((span, i) => <button key={i} type="button" onClick={() => locate({ ...span, field_path: value.field_path, value: value.value })}>{fieldLabel(value.field_path)} · 关联依据 {i + 1}</button>)}</div>) : <p>未找到可定位的元数据候选。请根据原稿手动补齐表单。</p>}
       </section>
     </div></>;
 }

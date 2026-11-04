@@ -1,5 +1,9 @@
 # 架构
 
+## 作者关联与结论支持（spec020）
+
+author_links集中局部正向关联；document_candidates存metadata_uncertainties，document_sources按同一导入唯一精确姓名/字段值跟随换序。claim_support复用相同传输与60秒期限，在新上下文检查候选全部分句；通过/待核对分别存入同一追加式Answer JSON。没有新迁移、旧digest不变。共享tool_schema/sanitized_telemetry移至packages/model_gateway/protocol，兼容导出保留。Mock/历史回答不冒称检查成功。
+
 ## 资料恢复与有界请求（spec019）
 
 资料前端按路由代次和操作标识隔离迟到结果；未知写结果沿同UUID主动恢复，已知写入后的GET失败只读恢复。资料/对话/版本/导入采用限定scope的keyset分页，游标不授予权限；后端批量查询限定当前页。API重任务中间件在正文/DB依赖前非阻塞准入，Next代理在缓冲正文前也限制重任务；单worker私人包默认1，429透传Retry-After。轻读取和人工确认仍走原确定性边界。无新迁移，见spec019。

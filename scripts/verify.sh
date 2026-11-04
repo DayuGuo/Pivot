@@ -16,10 +16,11 @@ with httpx.Client(trust_env=False, timeout=10) as client:
 CHECK_TARGET
 .venv/bin/python scripts/check-research-library.py
 .venv/bin/python scripts/check-boundaries.py
-.venv/bin/ruff check --no-cache scripts/start-local.py scripts/accept-live-publishing.py scripts/accept-dossier-model.py scripts/accept-document-import.py scripts/evaluate-public-papers.py scripts/build-vps-app.py scripts/accept-vps-preview.py scripts/accept-vps-concurrency.py infrastructure/vps
-.venv/bin/ruff format --check --no-cache scripts/start-local.py scripts/accept-live-publishing.py scripts/accept-dossier-model.py scripts/accept-document-import.py scripts/evaluate-public-papers.py scripts/build-vps-app.py scripts/accept-vps-preview.py scripts/accept-vps-concurrency.py infrastructure/vps
+.venv/bin/ruff check --no-cache scripts/start-local.py scripts/accept-live-publishing.py scripts/accept-dossier-model.py scripts/accept-document-import.py scripts/evaluate-public-papers.py scripts/evaluate-evidence-integrity.py scripts/build-vps-app.py scripts/accept-vps-preview.py scripts/accept-vps-concurrency.py infrastructure/vps
+.venv/bin/ruff format --check --no-cache scripts/start-local.py scripts/accept-live-publishing.py scripts/accept-dossier-model.py scripts/accept-document-import.py scripts/evaluate-public-papers.py scripts/evaluate-evidence-integrity.py scripts/build-vps-app.py scripts/accept-vps-preview.py scripts/accept-vps-concurrency.py infrastructure/vps
 .venv/bin/ruff check --no-cache apps/api packages tests/api tests/mail_adapters evals infrastructure/migrations scripts/start-live-model.py scripts/smoke-live-model.py scripts/accept-live-model.py scripts/check-research-library.py scripts/rehearse-publishing-migration.py
 .venv/bin/ruff format --check --no-cache apps/api packages tests/api tests/mail_adapters evals infrastructure/migrations scripts/start-live-model.py scripts/smoke-live-model.py scripts/accept-live-model.py scripts/check-research-library.py scripts/rehearse-publishing-migration.py
+.venv/bin/python scripts/evaluate-evidence-integrity.py --report artifacts/evidence-offline-regression.json
 .venv/bin/alembic upgrade head
 .venv/bin/alembic check
 .venv/bin/python -m apps.api.publishing.bootstrap

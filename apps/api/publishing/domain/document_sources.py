@@ -146,21 +146,38 @@ def attach_document(citation, document, db=None, version=None):
         if db is None or version is None:
             return citation
         item = db.get(DocumentImport, document["import_id"])
-        if citation["field_path"].startswith("authors."):
-            index = int(citation["field_path"].split(".")[1])
+        source_path = citation["field_path"]
+        if source_path.startswith("authors."):
+            parts = source_path.split(".")
+            index = int(parts[1])
             old_authors = item.proposed_data.get("authors", [])
             new_authors = version.data_json.get("authors", [])
-            if (
-                index >= len(old_authors)
-                or index >= len(new_authors)
-                or old_authors[index]["name"] != new_authors[index]["name"]
-            ):
+            if index >= len(new_authors):
                 return citation
+            name = new_authors[index]["name"]
+            old_matches = [i for i, author in enumerate(old_authors) if author["name"] == name]
+            if (
+                not name
+                or len(old_matches) != 1
+                or sum(a["name"] == name for a in new_authors) != 1
+            ):
+                # Duplicate names are not a person identifier; never guess by slot.
+                return citation
+            original_index = old_matches[0]
+            parts[1] = str(original_index)
+            if len(parts) == 4 and parts[2] in {"affiliations", "contributions"}:
+                values = old_authors[original_index].get(parts[2], [])
+                current_value = dict(leaf_fields(version.data_json)).get(citation["field_path"])
+                matches = [i for i, value in enumerate(values) if value == current_value]
+                if len(matches) != 1:
+                    return citation
+                parts[3] = str(matches[0])
+            source_path = ".".join(parts)
         source = next(
             (
                 s
                 for s in item.field_sources
-                if s["field_path"] == citation["field_path"]
+                if s["field_path"] == source_path
                 and s["value"] == dict(leaf_fields(version.data_json)).get(citation["field_path"])
             ),
             None,

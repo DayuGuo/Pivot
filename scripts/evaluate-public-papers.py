@@ -70,7 +70,8 @@ def fetch(manifest):
     print("PASS: six exact public original/labelled derivative files available")
 
 
-def stage(manifest):
+def stage(manifest, staging_path=None):
+    staging_path = Path(staging_path or CACHE / "staging.json")
     result = {"schema": "public_paper_staging.v1", "cases": [], "passed": False}
     with httpx.Client(base_url="http://127.0.0.1:8100", timeout=80, trust_env=False) as client:
         assert client.get("/api/health").json()["editorial_model"]["provider"] == "deepseek"
@@ -118,17 +119,22 @@ def stage(manifest):
             if response.status_code == 200:
                 iid = response.json()["import_id"]
                 draft = client.get(f"/api/dossiers/{did}/imports/{iid}").json()
-                save(CACHE / (spec["case"] + ".candidate.json"), draft)
+                candidate_path = staging_path.parent / (spec["case"] + ".candidate.json")
+                save(candidate_path, draft)
                 case["import_id"] = iid
-                case["candidate_path"] = spec["case"] + ".candidate.json"
+                case["candidate_path"] = (
+                    str(candidate_path.resolve())
+                    if staging_path.parent.resolve() != CACHE.resolve()
+                    else candidate_path.name
+                )
             after = client.get(f"/api/dossiers/{did}").json()
             assert after["version_id"] == before["version_id"] and not after["verified"]
             case["candidate_did_not_advance"] = True
             result["cases"].append(case)
-            save(CACHE / "staging.json", result)
+            save(staging_path, result)
             print(spec["case"], response.status_code, flush=True)
     result["passed"] = all(c["http_status"] == 200 for c in result["cases"])
-    save(CACHE / "staging.json", result)
+    save(staging_path, result)
     if not result["passed"]:
         raise RuntimeError("public_metadata_stage_failed_see_safe_audit_diagnostics")
 
@@ -166,7 +172,7 @@ def author_audit(expected, actual):
     return result
 
 
-def audit(manifest, staged_path):
+def audit(manifest, staged_path, report_path=None):
     staged = {c["case"]: c for c in load(staged_path)["cases"]}
     results = []
     for paper, spec in files(manifest):
@@ -187,6 +193,7 @@ def audit(manifest, staged_path):
             "chars": len(extracted["text"]),
             "segments": len(extracted["segments"]),
             "exact_field_sources": len(draft["field_sources"]),
+            "metadata_uncertainties": draft.get("metadata_uncertainties", []),
             "warnings": extracted["warnings"],
         }
         if spec["format"] == "pdf":
@@ -255,7 +262,7 @@ def audit(manifest, staged_path):
                 }
         results.append(item)
     save(
-        CACHE / "quality-audit.json",
+        report_path or CACHE / "quality-audit.json",
         {
             "cases": results,
             "passed": all(c["metadata"]["passed"] for c in results),
@@ -274,6 +281,9 @@ def main():
     parser.add_argument("--audit", action="store_true")
     parser.add_argument("--live", action="store_true")
     parser.add_argument("--staging", type=Path, default=CACHE / "staging.json")
+    parser.add_argument(
+        "--report", type=Path, help="Audit report path; preserves other evaluation runs"
+    )
     args = parser.parse_args()
     if args.stage and not args.live:
         parser.error("--stage requires explicit --live; no model call or dossier was created")
@@ -281,9 +291,9 @@ def main():
     if args.fetch:
         fetch(manifest)
     if args.stage:
-        stage(manifest)
+        stage(manifest, args.staging)
     if args.audit:
-        audit(manifest, args.staging)
+        audit(manifest, args.staging, args.report)
 
 
 if __name__ == "__main__":

@@ -16,6 +16,7 @@ from packages.model_gateway.editorial import (
     get_editorial_provider,
 )
 from packages.model_gateway.gateway import GatewayError
+from packages.model_gateway.protocol import sanitized_telemetry, tool_schema
 from packages.review_sources import lookup_doi, normalize_doi
 
 from ..audit import record
@@ -24,7 +25,8 @@ from ..models import uid
 from ..security import Actor, get_actor
 from . import dossier_access as access
 from . import dossier_actions as actions
-from .chat import failure_code, sanitized_telemetry, tool_schema
+from .chat import failure_code
+from .claim_support import assess_support
 from .document_sources import attach_document, source_projection
 from .dossier_chat_models import DossierAnswer
 from .dossier_evidence import EvidenceIndex, check_claim_terms, credential_like
@@ -43,6 +45,7 @@ ERROR_CODES = frozenset(
         "dossier_response_required",
         "dossier_response_invalid",
         "dossier_response_empty",
+        "dossier_support_invalid",
         "dossier_unscoped_absence",
         "dossier_author_name_invalid",
         "dossier_comparison_invalid",
@@ -337,7 +340,7 @@ def mock_response(runtime):
 
 def run_model(runtime, provider, telemetry):
     if provider.name == "mock":
-        return mock_response(runtime)
+        return assess_support(mock_response(runtime), provider, runtime.validate, telemetry)
     if provider.name != "deepseek":
         raise GatewayError("unknown_editorial_model_provider")
     provider.before_attempt = runtime.validate
@@ -354,6 +357,7 @@ def run_model(runtime, provider, telemetry):
             "每一条实质审阅结论都必须在respond.claims中附本轮工具实际给出的source_id和逐字quote，"
             "不可编造、不改写引文；正文quote至少8字。不足的信息写questions，不作无证据断言。"
             "每条结论至少有一个本地原文/作者字段引用。禁止在text/questions生成网址；"
+            "用户询问原件/原文/正文/Summary时优先搜索并引用全文，不用手工录入的摘要字段代替。仅有metadata字段且无原件来源时，只能明确说本版录入字段记载，不能说原文写了；资料不足请求负责人核对。"
             "外部文献必须先lookup_reference成功，再用external_dois输出，仅核验书目元数据，不等于读过全文或证实结论。"
             "工具覆盖whole-file index，长文用search或read翻页，coverage未全不能宣称全文审阅。PDF/DOCX输入只含提取文字，不得声称已检查图片、图表、公式或视觉版面。"
             "不能发邮件、代勾确认、提交、录用、拒稿、发表、改角色或执行任何业务决定；不得暗示已执行。"
@@ -466,7 +470,7 @@ def run_model(runtime, provider, telemetry):
                     if name == "respond":
                         result["tool_corrections"] = corrections
                         result["argument_issues"] = runtime.argument_issues
-                        return result
+                        return assess_support(result, provider, runtime.validate, telemetry)
                 messages.append(
                     {
                         "role": "tool",
@@ -484,7 +488,13 @@ def render_answer(result, provider):
     prefix = "Mock模拟结果\n" if provider == "mock" else ""
     text = "\n\n".join(item["text"] for item in result["claims"])
     if not text:
-        text = "本轮未形成有可定位证据的审阅结论。"
+        text = (
+            "本轮候选结论未通过原文支持检查，未形成可采纳的审阅结论。"
+            if result.get("withheld_claims")
+            else "本轮未形成有可定位证据的审阅结论。"
+        )
+    if result.get("withheld_claims"):
+        text += f"\n{len(result['withheld_claims'])}条候选结论未通过原文支持检查，已移至待核对，不作为本轮结论。"
     if result["questions"]:
         text += "\n待确认：\n" + "\n".join(result["questions"])
     coverage = result["coverage"]

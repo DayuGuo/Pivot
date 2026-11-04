@@ -145,10 +145,29 @@ def supplier(monkeypatch):
             before_attempt = None
 
             def __init__(self):
-                self.calls = []
+                self.primary_calls = []
+                self.support_calls = []
 
             def completion(self, messages, tools):
-                self.calls.append((deepcopy(messages), deepcopy(tools)))
+                self.last_telemetry = metric
+                self.last_attempt_telemetry = [metric] if metric is not None else []
+                if tools[0]["function"]["name"] == "assess_claims":
+                    self.support_calls.append((deepcopy(messages), deepcopy(tools)))
+                    payload = json.loads(messages[-1]["content"])
+                    return completion(
+                        "assess_claims",
+                        {
+                            "checks": [
+                                {
+                                    "index": c["index"],
+                                    "status": "supported",
+                                    "reason": "direct_support",
+                                }
+                                for c in payload["claims"]
+                            ]
+                        },
+                    )
+                self.primary_calls.append((deepcopy(messages), deepcopy(tools)))
                 self.last_telemetry = metric
                 self.last_attempt_telemetry = [metric] if metric is not None else []
                 assert pending, "Unexpected additional model request"
@@ -228,7 +247,7 @@ def test_real_protocol_answers_from_actual_text_and_author_metadata_and_persists
     assert response.status_code == 200, response.text
     result = response.json()
     assert result["provider"] == "deepseek" and result["model"] == "deepseek-flash"
-    assert len(provider.calls) == 2
+    assert len(provider.primary_calls) == 2
     assert result["version_id"] == ready["version_id"]
     for claim in result["claims"]:
         for ref in claim["citations"]:
@@ -247,7 +266,7 @@ def test_real_protocol_answers_from_actual_text_and_author_metadata_and_persists
     assert restored["claims"] == result["claims"]
     assert restored["coverage"] == result["coverage"]
     assert restored["provider"] == "deepseek"
-    assert {tool["function"]["name"] for _, tools in provider.calls for tool in tools} <= {
+    assert {tool["function"]["name"] for _, tools in provider.primary_calls for tool in tools} <= {
         "read_dossier",
         "search_dossier",
         "lookup_reference",
@@ -299,7 +318,7 @@ def test_request_replay_is_exactly_once_and_reauthorizes_after_role_loss(
     first = client.post(path(ready), json=payload)
     assert first.status_code == 200, first.text
     assert client.post(path(ready), json=payload).json() == first.json()
-    assert len(provider.calls) == 2
+    assert len(provider.primary_calls) == 2
     assert count(db, DossierAnswer, dossier_id=ready["id"]) == 1
     assert count(db, DossierTurn, dossier_id=ready["id"]) == 1
     assert client.post(path(ready), json={**payload, "message": "变更问题"}).status_code == 409
@@ -311,7 +330,7 @@ def test_request_replay_is_exactly_once_and_reauthorizes_after_role_loss(
     db.commit()
     assert client.post(path(ready), json=payload).status_code in {403, 404}
     assert client.get(f"/api/dossiers/{ready['id']}").status_code == 404
-    assert len(provider.calls) == 2
+    assert len(provider.primary_calls) == 2
 
 
 @pytest.mark.parametrize("who", ["chief_editor", "author", "reviewer"])
@@ -322,7 +341,7 @@ def test_other_roles_cannot_read_creator_material_through_model(
     login(who)
     response = client.post(path(ready), json=body(ready))
     assert response.status_code == 404
-    assert provider.calls == []
+    assert provider.primary_calls == []
     assert_no_answer(db, ready, body(ready))
 
 
@@ -338,7 +357,7 @@ def test_csrf_and_stale_versions_are_rejected_before_model(client, db, ready, su
         == 409
     )
     assert client.post(path(ready), json=body(ready, version_id=rid())).status_code in {404, 409}
-    assert provider.calls == []
+    assert provider.primary_calls == []
 
 
 @pytest.mark.parametrize(
@@ -470,7 +489,7 @@ def test_cas_is_verified_before_egress_to_model(
     payload = body(ready)
     response = client.post(path(ready), json=payload)
     assert response.status_code == 409, response.text
-    assert provider.calls == []
+    assert provider.primary_calls == []
     assert_no_answer(db, ready, payload)
 
 
@@ -518,7 +537,7 @@ def test_credentials_and_blank_questions_are_rejected_before_model(
     payload = body(ready, message=question)
     response = client.post(path(ready), json=payload)
     assert response.status_code == 422
-    assert provider.calls == []
+    assert provider.primary_calls == []
     assert_no_answer(db, ready, payload)
 
 
@@ -552,7 +571,7 @@ def test_cross_journal_actor_cannot_resolve_private_dossier(client, db, world, r
     db.commit()
     response = client.post(path(ready), json=body(ready))
     assert response.status_code == 404, response.text
-    assert provider.calls == []
+    assert provider.primary_calls == []
 
 
 def verified_reference():
@@ -924,7 +943,8 @@ def test_legacy_rule_question_containing_credentials_is_never_sent_to_real_provi
     response = client.post(path(ready), json=body(ready, message="请根据这版公开合成资料回答。"))
     assert response.status_code == 200, response.text
     assert all(
-        sentinel not in json.dumps(messages, ensure_ascii=False) for messages, _ in provider.calls
+        sentinel not in json.dumps(messages, ensure_ascii=False)
+        for messages, _ in provider.primary_calls
     )
     assert db.get(DossierTurn, legacy.id).question.endswith(sentinel)
     assert response.json()["provider"] == "deepseek"
@@ -964,7 +984,7 @@ def test_one_respond_schema_correction_succeeds_without_relaxing_evidence_contra
     response = client.post(path(ready), json=body(ready))
     assert response.status_code == 200, response.text
     result = response.json()
-    assert len(provider.calls) == 3
+    assert len(provider.primary_calls) == 3
     assert result["tool_corrections"] == 1
     assert result["argument_issues"] == [{"field": "questions", "type": "list_type"}]
     assert result["claims"][0]["citations"][0]["quote"] in BODY
@@ -1009,7 +1029,7 @@ def test_repeated_respond_schema_error_is_rejected_and_diagnostics_do_not_reflec
     payload = body(ready)
     response = client.post(path(ready), json=payload)
     assert response.status_code == 503, response.text
-    assert len(provider.calls) == 3
+    assert len(provider.primary_calls) == 3
     assert_no_answer(db, ready, payload)
     assert private_field not in response.text and private_value not in response.text
     audit = db.scalar(
@@ -1035,7 +1055,7 @@ def test_schema_repair_is_not_available_before_any_actual_source_is_read(
     payload = body(ready)
     response = client.post(path(ready), json=payload)
     assert response.status_code == 503, response.text
-    assert len(provider.calls) == 1
+    assert len(provider.primary_calls) == 1
     assert_no_answer(db, ready, payload)
 
 
@@ -1061,7 +1081,7 @@ def test_empty_respond_is_repaired_once_into_a_fully_grounded_answer(client, db,
     response = client.post(path(ready), json=payload)
     assert response.status_code == 200, response.text
     result = response.json()
-    assert len(provider.calls) == 3 and result["tool_corrections"] == 1
+    assert len(provider.primary_calls) == 3 and result["tool_corrections"] == 1
     assert result["claims"] and result["claims"][0]["citations"]
     citation = result["claims"][0]["citations"][0]
     assert citation["version_id"] == ready["version_id"]
@@ -1082,8 +1102,8 @@ def test_repeated_empty_respond_does_not_persist_an_answer_or_consume_unbounded_
     before = unchanged_business(db)
     response = client.post(path(ready), json=payload)
     assert response.status_code == 503, response.text
-    assert len(provider.calls) == 3
-    assert {tool["function"]["name"] for tool in provider.calls[-1][1]} == {"respond"}
+    assert len(provider.primary_calls) == 3
+    assert {tool["function"]["name"] for tool in provider.primary_calls[-1][1]} == {"respond"}
     assert_no_answer(db, ready, payload)
     assert unchanged_business(db) == before
     audit = db.scalar(
@@ -1101,7 +1121,7 @@ def test_empty_respond_without_read_sources_is_not_eligible_for_repair(client, d
     before = unchanged_business(db)
     response = client.post(path(ready), json=payload)
     assert response.status_code == 503, response.text
-    assert len(provider.calls) == 1
+    assert len(provider.primary_calls) == 1
     assert_no_answer(db, ready, payload)
     assert unchanged_business(db) == before
     audit = db.scalar(
@@ -1122,7 +1142,7 @@ def test_completed_history_is_paired_with_an_assistant_reply_and_current_questio
     second = "现在只核对合成作者机构。"
     provider = supplier(completion("read_dossier", {}), reply)
     assert client.post(path(ready), json=body(ready, second)).status_code == 200
-    messages = provider.calls[0][0]
+    messages = provider.primary_calls[0][0]
     historical = next(
         i for i, message in enumerate(messages) if first in message.get("content", "")
     )
@@ -1145,7 +1165,7 @@ def test_last_round_explicitly_ends_reading_and_uses_only_current_issued_evidenc
     )
     response = client.post(path(ready), json=body(ready))
     assert response.status_code == 200, response.text
-    assert len(provider.calls) == 3
+    assert len(provider.primary_calls) == 3
     assert response.json()["claims"]
 
 
@@ -1167,7 +1187,7 @@ def test_partial_coverage_cannot_be_turned_into_an_absence_claim(
     payload = body(ready)
     response = client.post(path(ready), json=payload)
     assert response.status_code == (200 if corrected else 503), response.text
-    assert len(provider.calls) == 3
+    assert len(provider.primary_calls) == 3
     if corrected:
         assert response.json()["tool_corrections"] == 1
         assert not response.json()["coverage"]["complete"]

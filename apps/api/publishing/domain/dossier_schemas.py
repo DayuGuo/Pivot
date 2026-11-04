@@ -5,6 +5,7 @@ from uuid import UUID
 
 from pydantic import BeforeValidator, Field
 
+from .author_links import author_issues
 from .schemas import AuthorInput, Keyword, StrictInput, _email_format_valid
 
 
@@ -98,5 +99,13 @@ def missing(data: DossierData, has_file: bool) -> list[dict]:
                 _email_format_valid(author.email),
                 f"authors.{index}.email",
                 "请填写有效的通讯邮箱；格式检查不是身份认证",
+            )
+    for issue in author_issues(data.model_dump()):
+        if issue["reason"] == "duplicate_orcid":
+            found.append(
+                {
+                    "field": issue["field_path"],
+                    "message": "同一ORCID被填写给多位作者，请修正或清空后再核对；来源记录不等于身份认证",
+                }
             )
     return found

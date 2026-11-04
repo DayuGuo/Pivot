@@ -1,0 +1,198 @@
+{
+  "schema": "support-gold.v1",
+  "scope": "Manually authored contrastive annotations frozen before live scoring; assess textual entailment, not scientific truth. Negative statements are deliberate counterfactuals, not attributed findings.",
+  "papers": [
+    {
+      "id": "clinical",
+      "source_url": "https://zenodo.org/records/19059298",
+      "publication_kind": "public unpublished manuscript, not claimed peer reviewed",
+      "license": {
+        "id": "CC-BY-4.0",
+        "evidence_url": "https://zenodo.org/api/records/19059298",
+        "statement": {
+          "id": "cc-by-4.0"
+        }
+      }
+    },
+    {
+      "id": "reproducible",
+      "source_url": "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003285",
+      "publication_kind": "published editorial",
+      "license": {
+        "id": "CC-BY",
+        "version": "not specified in article statement",
+        "evidence_url": "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003285",
+        "statement": "This is an open-access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are credited."
+      }
+    },
+    {
+      "id": "research-findings",
+      "source_url": "https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.0020124",
+      "publication_kind": "published essay",
+      "license": {
+        "id": "CC-BY",
+        "version": "not specified in article statement",
+        "evidence_url": "https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.0020124",
+        "statement": "This is an open-access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited."
+      }
+    }
+  ],
+  "cases": [
+    {
+      "id": "clinical-counts-supported",
+      "paper": "clinical",
+      "quote": "We identified 9 CPGs covering the 4 topics which contained 62 guideline statements",
+      "claim": "这项研究识别了9份指南，涵盖4个主题和62条指南声明。",
+      "expected": "supported",
+      "rationale": "Directly supported by the quoted source in context."
+    },
+    {
+      "id": "clinical-counts-withheld",
+      "paper": "clinical",
+      "quote": "We identified 9 CPGs covering the 4 topics which contained 62 guideline statements",
+      "claim": "这项研究识别了62份指南，只有9条指南声明。",
+      "expected": "withheld",
+      "rationale": "Swapped count units: 9 guidelines, 62 statements, not the inverse."
+    },
+    {
+      "id": "clinical-agreement-supported",
+      "paper": "clinical",
+      "quote": "Agreement between the guideline authors and independent assessment was 0.145",
+      "claim": "指南作者与独立评估之间的一致程度报告为0.145，即14.5%。",
+      "expected": "supported",
+      "rationale": "Directly supported by the quoted source in context."
+    },
+    {
+      "id": "clinical-agreement-withheld",
+      "paper": "clinical",
+      "quote": "Agreement between the guideline authors and independent assessment was 0.145",
+      "claim": "指南作者与独立评估之间的一致程度报告为85.5%。",
+      "expected": "withheld",
+      "rationale": "Agreement is 0.145, not its complement."
+    },
+    {
+      "id": "clinical-intent-supported",
+      "paper": "clinical",
+      "quote": "Our findings suggest a systematic issue with guideline developers overstating the strength of recommendations",
+      "claim": "作者认为，研究结果提示指南制定者可能系统性地夸大推荐强度。",
+      "expected": "supported",
+      "rationale": "Directly supported by the quoted source in context."
+    },
+    {
+      "id": "clinical-intent-withheld",
+      "paper": "clinical",
+      "quote": "Our findings suggest a systematic issue with guideline developers overstating the strength of recommendations",
+      "claim": "研究证明所有指南制定者都在故意欺骗患者。",
+      "expected": "withheld",
+      "rationale": "Suggestive finding does not prove universal intent or fraud."
+    },
+    {
+      "id": "reproducible-rules-supported",
+      "paper": "reproducible",
+      "quote": "We here present ten simple rules",
+      "claim": "这篇文章提出了十条简单规则。",
+      "expected": "supported",
+      "rationale": "Directly supported by the quoted source in context."
+    },
+    {
+      "id": "reproducible-rules-withheld",
+      "paper": "reproducible",
+      "quote": "We here present ten simple rules",
+      "claim": "这篇文章报告了十项真实患者随机对照试验。",
+      "expected": "withheld",
+      "rationale": "Rules and recommendations are not clinical trials."
+    },
+    {
+      "id": "reproducible-automation-supported",
+      "paper": "reproducible",
+      "quote": "Whenever possible, rely on the execution of programs instead of manual procedures to modify data.",
+      "claim": "作者建议在可能时用程序替代手动步骤来修改数据。",
+      "expected": "supported",
+      "rationale": "Directly supported by the quoted source in context.",
+      "quote_by_format": {
+        "pdf": "Whenever possible, rely on the execu-\ntion of programs instead of manual\nprocedures to modify data."
+      }
+    },
+    {
+      "id": "reproducible-automation-withheld",
+      "paper": "reproducible",
+      "quote": "Whenever possible, rely on the execution of programs instead of manual procedures to modify data.",
+      "claim": "作者通过随机试验证明所有自动化程序都绝不会发生数据错误。",
+      "expected": "withheld",
+      "rationale": "Recommendation is neither an executed randomized trial nor a universal guarantee.",
+      "quote_by_format": {
+        "pdf": "Whenever possible, rely on the execu-\ntion of programs instead of manual\nprocedures to modify data."
+      }
+    },
+    {
+      "id": "reproducible-self-reproduction-supported",
+      "paper": "reproducible",
+      "quote": "As a minimal requirement, you should at least be able to reproduce the results yourself.",
+      "claim": "作者将至少能自行重现结果作为最低要求。",
+      "expected": "supported",
+      "rationale": "Directly supported by the quoted source in context."
+    },
+    {
+      "id": "reproducible-self-reproduction-withheld",
+      "paper": "reproducible",
+      "quote": "As a minimal requirement, you should at least be able to reproduce the results yourself.",
+      "claim": "文中所有研究结果都已经被独立研究团队成功重现。",
+      "expected": "withheld",
+      "rationale": "A minimum requirement does not establish independent replication."
+    },
+    {
+      "id": "research-findings-probability-supported",
+      "paper": "research-findings",
+      "quote": "The probability that a research claim is true may depend on study power and bias",
+      "claim": "作者认为研究结论为真的概率可能受研究效能和偏倚影响。",
+      "expected": "supported",
+      "rationale": "Directly supported by the quoted source in context."
+    },
+    {
+      "id": "research-findings-probability-withheld",
+      "paper": "research-findings",
+      "quote": "The probability that a research claim is true may depend on study power and bias",
+      "claim": "研究效能和偏倚必然使每条研究结论都变成错误。",
+      "expected": "withheld",
+      "rationale": "May depend is not deterministic causation or a universal falsehood."
+    },
+    {
+      "id": "research-findings-size-supported",
+      "paper": "research-findings",
+      "quote": "a research finding is less likely to be true when the studies conducted in a field are smaller",
+      "claim": "作者指出，某领域开展的研究规模更小时，研究发现为真的可能性更低。",
+      "expected": "supported",
+      "rationale": "Directly supported by the quoted source in context.",
+      "quote_by_format": {
+        "pdf": "a research ﬁ nding \nis indeed true depends on the prior \nprobability of it being true (before \ndoing the study), the statistical power \nof the study, and the level of statistical \nsigniﬁ cance [10,11]. Consider a 2 × 2 \ntable in which research ﬁ ndings are \ncompared against the gold standard \nof true relationships in a scientiﬁ c \nﬁ eld. In a research ﬁ eld both true and \nfalse hypotheses can be made about \nthe presence of relationships. Let R \nbe the ratio of the number of “true \nrelationships” to “no relationships” \namong those tested in the ﬁ eld. R \nis characteristic of the ﬁ eld and can \nvary a lot depending on whether the \nﬁ eld targets highly likely relationships \nor searches for only one or a few \ntrue relationships among thousands \nand millions of hypotheses that may \nbe postulated. Let us also consider, \nfor computational simplicity, \ncircumscribed ﬁ elds where either there \nis only one true relationship (among \nmany that can be hypothesized) or \nthe power is similar to ﬁ nd any of the \nseveral existing true relationships. The \npre-study probability of a relationship \nbeing true is R⁄(R + 1). The probability \nof a study ﬁ nding a true relationship \nreﬂ ects the power 1 − β (one minus \nthe Type II error rate). The probability \nof claiming a relationship when none \ntruly exists reﬂ ects the Type I error \nrate, α. Assuming that c relationships \nare being probed in the ﬁ eld, the \nexpected values of the 2 × 2 table are \ngiven in Table 1. After a research \nﬁ nding has been claimed based on \nachieving formal statistical signiﬁ cance, \nthe post-study probability that it is true \nis the positive predictive value, PPV. \nThe PPV is also the complementary \nprobability of what Wacholder et al. \nhave called the false positive report \nprobability [10]. According to the 2 \n× 2 table, one gets PPV = (1 − β)R⁄(R \n− βR + α). A research ﬁ nding is thus \nThe Essay section contains opinion pieces on topics \nof broad interest to a general medical audience. \nWhy Most Published Research Findings \nAre False \nJohn P . A. Ioannidis\nCitation: Ioannidis JPA (2005) Why most published \nresearch ﬁ ndings are false. PLoS Med 2(8): e124.\nCopyright: © 2005 John P . A. Ioannidis. This is an \nopen-access article distributed under the terms \nof the Creative Commons Attribution License, \nwhich permits unrestricted use, distribution, and \nreproduction in any medium, provided the original \nwork is properly cited. \nAbbreviation: PPV, positive predictive value\nJohn P . A. Ioannidis is in the Department of Hygiene \nand Epidemiology, University of Ioannina School of \nMedicine, Ioannina, Greece, and Institute for Clinical \nResearch and Health Policy Studies, Department of \nMedicine, Tufts-New England Medical Center, Tufts \nUniversity School of Medicine, Boston, Massachusetts, \nUnited States of America. E-mail: jioannid@cc.uoi.gr\nCompeting Interests: The author has declared that \nno competing interests exist.\nDOI: 10.1371/journal.pmed.0020124\nSummary\nThere is increasing concern that most \ncurrent published research ﬁ ndings are \nfalse. The probability that a research claim \nis true may depend on study power and \nbias, the number of other studies on the \nsame question, and, importantly, the ratio \nof true to no relationships among the \nrelationships probed in each scientiﬁ c \nﬁ eld. In this framework, a research ﬁ nding \nis less likely to be true when the studies \nconducted in a ﬁ eld are smaller;"
+      }
+    },
+    {
+      "id": "research-findings-size-withheld",
+      "paper": "research-findings",
+      "quote": "a research finding is less likely to be true when the studies conducted in a field are smaller",
+      "claim": "作者指出，某领域研究数量越少，研究发现为真的可能性越低。",
+      "expected": "withheld",
+      "rationale": "Smaller study size does not mean fewer studies.",
+      "quote_by_format": {
+        "pdf": "a research ﬁ nding \nis indeed true depends on the prior \nprobability of it being true (before \ndoing the study), the statistical power \nof the study, and the level of statistical \nsigniﬁ cance [10,11]. Consider a 2 × 2 \ntable in which research ﬁ ndings are \ncompared against the gold standard \nof true relationships in a scientiﬁ c \nﬁ eld. In a research ﬁ eld both true and \nfalse hypotheses can be made about \nthe presence of relationships. Let R \nbe the ratio of the number of “true \nrelationships” to “no relationships” \namong those tested in the ﬁ eld. R \nis characteristic of the ﬁ eld and can \nvary a lot depending on whether the \nﬁ eld targets highly likely relationships \nor searches for only one or a few \ntrue relationships among thousands \nand millions of hypotheses that may \nbe postulated. Let us also consider, \nfor computational simplicity, \ncircumscribed ﬁ elds where either there \nis only one true relationship (among \nmany that can be hypothesized) or \nthe power is similar to ﬁ nd any of the \nseveral existing true relationships. The \npre-study probability of a relationship \nbeing true is R⁄(R + 1). The probability \nof a study ﬁ nding a true relationship \nreﬂ ects the power 1 − β (one minus \nthe Type II error rate). The probability \nof claiming a relationship when none \ntruly exists reﬂ ects the Type I error \nrate, α. Assuming that c relationships \nare being probed in the ﬁ eld, the \nexpected values of the 2 × 2 table are \ngiven in Table 1. After a research \nﬁ nding has been claimed based on \nachieving formal statistical signiﬁ cance, \nthe post-study probability that it is true \nis the positive predictive value, PPV. \nThe PPV is also the complementary \nprobability of what Wacholder et al. \nhave called the false positive report \nprobability [10]. According to the 2 \n× 2 table, one gets PPV = (1 − β)R⁄(R \n− βR + α). A research ﬁ nding is thus \nThe Essay section contains opinion pieces on topics \nof broad interest to a general medical audience. \nWhy Most Published Research Findings \nAre False \nJohn P . A. Ioannidis\nCitation: Ioannidis JPA (2005) Why most published \nresearch ﬁ ndings are false. PLoS Med 2(8): e124.\nCopyright: © 2005 John P . A. Ioannidis. This is an \nopen-access article distributed under the terms \nof the Creative Commons Attribution License, \nwhich permits unrestricted use, distribution, and \nreproduction in any medium, provided the original \nwork is properly cited. \nAbbreviation: PPV, positive predictive value\nJohn P . A. Ioannidis is in the Department of Hygiene \nand Epidemiology, University of Ioannina School of \nMedicine, Ioannina, Greece, and Institute for Clinical \nResearch and Health Policy Studies, Department of \nMedicine, Tufts-New England Medical Center, Tufts \nUniversity School of Medicine, Boston, Massachusetts, \nUnited States of America. E-mail: jioannid@cc.uoi.gr\nCompeting Interests: The author has declared that \nno competing interests exist.\nDOI: 10.1371/journal.pmed.0020124\nSummary\nThere is increasing concern that most \ncurrent published research ﬁ ndings are \nfalse. The probability that a research claim \nis true may depend on study power and \nbias, the number of other studies on the \nsame question, and, importantly, the ratio \nof true to no relationships among the \nrelationships probed in each scientiﬁ c \nﬁ eld. In this framework, a research ﬁ nding \nis less likely to be true when the studies \nconducted in a ﬁ eld are smaller;"
+      }
+    },
+    {
+      "id": "research-findings-simulation-supported",
+      "paper": "research-findings",
+      "quote": "Simulations show that for most study designs and settings, it is more likely for a research claim to be false than true.",
+      "claim": "作者报告，模拟显示在多数研究设计和情境中，研究结论为假的可能性高于为真。",
+      "expected": "supported",
+      "rationale": "Directly supported by the quoted source in context."
+    },
+    {
+      "id": "research-findings-simulation-withheld",
+      "paper": "research-findings",
+      "quote": "Simulations show that for most study designs and settings, it is more likely for a research claim to be false than true.",
+      "claim": "作者已经通过真实患者临床试验证明所有发表论文的全部结论都为假。",
+      "expected": "withheld",
+      "rationale": "Simulations/most/settings must not become real trials/all published claims."
+    }
+  ]
+}

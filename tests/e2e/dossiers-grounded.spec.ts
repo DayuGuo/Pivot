@@ -145,3 +145,26 @@ test("资料证据真实 API：Mock 回复持久化并能定位本版全文", as
   const persisted = await (await page.request.get(`/api/dossiers/${id}`)).json() as Dossier;
   expect(persisted.messages.at(-1)?.provider).toBe("mock"); expect(persisted.messages.at(-1)?.claims?.[0].citations.length).toBeGreaterThan(0); expect(persisted.verified).toBe(false);
 });
+
+test("原文支持：未通过的候选不作为结论展示，但依据仍可核对", async ({ page }) => {
+  await fixtures(page);
+  const candidate = { ...answer().claims![0], text: "未采纳的夸大结论", support: { status: "contradicted" as const, method: "ai_context_check", reason: "contradiction" } };
+  await page.route(`**/api/dossiers/${ID}`, route => route.fulfill({ json: { ...snapshot(), messages: [{ ...answer(), claims: [], answer: "本轮没有保留可采纳的结论。", withheld_claims: [candidate], support_review: { schema: "claim-support.v1", method: "ai_context_check", evaluated_claims: 1, withheld_count: 1 } }] } }));
+  await page.goto(`/library?dossier=${ID}`);
+  await expect(page.getByText("未采纳的夸大结论", { exact: true })).toBeHidden();
+  await expect(page.getByText("原文支持检查（AI）：0 条保留，1 条待核对；仍须人工复核。", { exact: true })).toBeVisible();
+  await page.getByLabel("题名", { exact: true }).fill("保留当前未保存输入");
+  await page.getByText("1 条候选结论未通过支持检查", { exact: true }).click();
+  await expect(page.getByText("未采纳的夸大结论", { exact: true })).toBeVisible();
+  await expect(page.getByText("与原文矛盾：结论与引文上下文矛盾。", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "定位待核对依据：合成方法原文，v1", exact: true }).click();
+  await expect(page.locator("mark")).toHaveText(quote);
+  await page.getByRole("button", { name: "返回当前资料", exact: true }).click();
+  await expect(page.getByLabel("题名", { exact: true })).toHaveValue("保留当前未保存输入");
+});
+
+test("原文支持：旧回答不被补成已经通过的语义检查", async ({ page }) => {
+  await fixtures(page); await page.goto(`/library?dossier=${ID}`);
+  await expect(page.getByText("此历史回答尚未做语义支持检查，引用仍可定位，请人工复核结论。", { exact: true })).toBeVisible();
+  await expect(page.getByText(/原文支持检查（AI）/)).toHaveCount(0);
+});

@@ -13,6 +13,8 @@
 | `domain/dossier_queries.py` | 列表读取、批量查询与所有者过滤 | 不按每份资料逐条查版本，不扩大主编访问范围 |
 | `domain/dossier_views.py` | 版本/消息投影、历史来源标签 | 保留旧版引用，不能把旧核对移给新版本 |
 | `domain/document_sources.py` | 原件/审批摘要、继承来源、页/段定位 | 不能给手改字段伪造原件证据，不依赖路由/模型调用 |
+| `domain/author_links.py` | 正向作者关联、局部重复项与原文跨度 | 纯函数，不授予身份或联网 |
+| `domain/claim_support.py` | 有界AI原文支持检查 | 新上下文、同一期限；不注册业务工具 |
 | `domain/document_candidates.py` | 自动提取与候选证据 | 只生成候选，不能最终确认 |
 | `domain/dossiers.py` | 资料HTTP路由与兼容导出 | 组合服务；旧模块导入路径保持可用 |
 | `domain/document_imports.py` | 导入/独立确认接口 | 审批路径、版本、digest和回执重放逐项校验 |
@@ -26,6 +28,6 @@
 
 排查顺序：先用合成材料复现，检查具体版本、revision、request_id和来源hash，再修最小职责模块、追加失败回归。不要删除旧成功/失败记录，不能因模型偶尔给出合理答案而跳过后端契约。
 
-尚存边界：dossier_chat仍复用正式chat的failure_code/sanitized_telemetry/tool_schema三个协议辅助函数；本轮没有触碰其正式流程，可在下一批抽成共享协议模块。客户端请求状态与部署管理器也按各自真实问题分批整理，不能把资料区拆分说成全项目已模块化完成。
+尚存边界：spec020已把sanitized_telemetry/tool_schema移到packages/model_gateway/protocol.py，正式chat保留兼容导出；dossier_chat仍复用正式chat的failure_code，未重写正式流程。客户端请求状态与部署管理器也按各自真实问题分批整理，不能把资料区拆分说成全项目已模块化完成。
 
 前端`use-history-pages.ts`复用版本/导入分页，调用组件须随对象、版本/revision或核对快照变化重建；workspace保留路由/操作隔离，代理透传Retry-After并在缓冲上传前限重任务。spec019记录恢复协议和单进程范围。

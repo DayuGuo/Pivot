@@ -34,3 +34,22 @@ Additional stress inputs, not passed off as completed positive cases: [P4 workin
 Results and remaining limitations: [delivery record](../../docs/development/public-paper-evaluation.md).
 
 For focused rechecks of already reviewed versions, use `--qa-only`; `--only-cases case-a,case-b` selects cases and `--question-tag TEXT` creates an explicitly new phrasing while preserving old immutable answers. No additional confirm is made in QA-only mode. `--resume` reuses an existing report only for the same staging set. Narrow name/comparison and incomplete-coverage guards are not complete semantic validation; expert review remains separate.
+
+## Author links and claim support (spec020)
+
+`support_cases.json` freezes 18 manually authored positive/counterfactual cases before scoring. Each paper contributes three direct-support and three deliberately false or overstated statements; applying them to two formats yields 36 cases. Negative statements are **test counterfactuals**, not conclusions attributed to the papers. Attribution and file licences remain those in `manifest.json`. Exact raw quotes preserve PDF hyphenation/ligatures; no fuzzy scientific paraphrase matching is used.
+
+```bash
+# Offline CI uses the three small bundled derivatives; no network/model/business writes.
+.venv/bin/python scripts/evaluate-evidence-integrity.py
+# All six require the verified downloaded originals already in artifacts/public-papers.
+.venv/bin/python scripts/evaluate-evidence-integrity.py --all-files --report artifacts/evidence-all.json
+# Explicit actual support-stage inference: public data only, no confirmations.
+.venv/bin/python scripts/evaluate-evidence-integrity.py --all-files --live --report artifacts/evidence-live.json
+# Separate actual automatic import plus independent metadata/text audit.
+.venv/bin/python scripts/evaluate-public-papers.py --stage --live --staging artifacts/new-run/staging.json
+.venv/bin/python scripts/evaluate-public-papers.py --audit --staging artifacts/new-run/staging.json --report artifacts/new-run/quality-audit.json
+node scripts/evaluate-public-papers-browser.mjs --live --staging artifacts/new-run/staging.json --report artifacts/new-run/browser.json
+```
+
+The offline author result is **validator replay of independent gold proposals**, not model extraction accuracy. The separate automatic import audit compares actual DeepSeek proposals before the browser driver corrects the form. Keep reports from different stages/runs separate; --report and --staging preserve prior evidence. The support judge uses the same model in a fresh context, so correlated errors remain possible. Small fixed-corpus success is not a general accuracy estimate, scientific certification, ORCID authentication or professional editorial sign-off. Historical answers are immutable and are not retroactively labelled semantically checked.

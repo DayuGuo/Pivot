@@ -1,5 +1,7 @@
 # Pivot
 
+第三批增量：[作者关联、不确定性与原文支持检查](specs/020-author-links-and-claim-support.md)。真实模型候选增加正向归属证据，来源不足留空；结论经独立上下文检查，不足或矛盾项转待核对。旧记录不重写、ORCID不冒称已认证；最终已执行结果见[交付记录](docs/development/spec020-review.md)。VPS不自动更新。
+
 第二批维护已验收：[资料恢复、分页与小内存并发](specs/019-recovery-pagination-and-admission.md)。新源码提供主动同UUID重试、写成功后的仅读取恢复、资料/对话/版本/导入分页与单worker重任务准入；实际验收与发行状态以[PROGRESS](PROGRESS.md)顶部为准。VPS不会自动更新。
 
 本轮已完成第一批[可靠性与模块维护](specs/018-dossier-reliability-and-maintenance.md)：导入确认回执绑定、原件重验与批量读取；[模块地图](docs/development/module-map.md)说明每类修改的位置，[审查记录](docs/development/spec019-review.md)保留重现与验收证据。
