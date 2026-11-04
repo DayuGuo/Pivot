@@ -2,6 +2,8 @@
 
 2026-11-04。本页提供由服务器负责人执行的命令；本轮没有连接、修改或部署 VPS。源码修复基线为 `87cbc4d`，完整本机回归为1157 Pytest＋66 Playwright；[真实论文评测报告](../development/public-paper-evaluation.md)记录具体范围和限制。
 
+如果VPS仍为静态Demo，现在可在旁边安装[完整应用私人体验预发行](https://github.com/DayuGuo/Pivot/releases/tag/v0.2.0-preview.1)，使用其[独立管理器安装/备份/更新说明](../../infrastructure/vps/README.md)。下面的源码原位更新命令仅适用于旧开发Compose，不用于替换静态站或新私人包。
+
 ## 先区分当前安装
 
 此前发布到 `pivot.anotherdayu.com` 的包是静态 Demo：Nginx＋浏览器 localStorage，没有 PostgreSQL、真实 DeepSeek 或 PDF/Word 解析后端。这轮真实功能属于完整 Compose 应用；更新旧静态安装包不会启用它们。本轮没有发布替换静态包的新版 Release，也没有宣称公网已更新。

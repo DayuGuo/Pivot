@@ -12,7 +12,7 @@
 
 额外修复：资料chat/import代理从30秒调整为75秒，覆盖后端60秒共享预算；不扩大后端推理/工具权限。上一轮GitHub verify41809242259实际有两项畸形HTML作者失败（1155通过）；Python补丁版本解析行为不同，现明确拒绝声明文本，不依赖异常是否抛出，不改测试断言。
 
-## 执行记录（持续更新）
+## 执行记录
 
 本机静态检查/TypeScript通过；16项私人引导/凭据权限/项目隔离测试已通过。首轮管理器用Path.open的opener不兼容，改为os.open独占创建，保留失败日志。真实包首轮两格式导入/核对/引用/重启通过，恢复因Compose create不支持--no-deps而失败；更正后发现私有700目录在恢复后的属主遍历受限，新增仅初始化所需DAC能力，降权后无有效能力。失败测试项目保留数据，没有对现有服务或用户VPS做删除。
 
@@ -26,7 +26,13 @@ ARM64开发机实际包级Mock与DeepSeek均通过：两种合成文件导入、
 
 该长稿负载的cgroup各自观测峰值DB111075328/API142327808/Web78688256字节（约106/136/75MiB），全部无OOM；峰值不一定同时发生，不代表最大文件、并发或整台VPS内存。容器上限仍为320/768/384MiB。本轮未在用户VPS实装。
 
-GitHub workflow授权已完成，原生amd64 CI正在执行。发行前补齐Next standalone未保留的npm/字体许可文本，新增白名单NOTICES，最终镜像会重新安装验收；没有把前一候选当最终产物。最终CI/发行结果将在实际完成后更新。
+最终发布源码为 `a408b63d708a1a3ae405455e2f19a5c5d4bd0e8c`。原生x86[完整包验收](https://github.com/DayuGuo/Pivot/actions/runs/41817314184)、[完整应用CI](https://github.com/DayuGuo/Pivot/actions/runs/41817314556)、[原静态Demo回归](https://github.com/DayuGuo/Pivot/actions/runs/41817314161)全部实际成功。远端完整CI **1173 Pytest（364.28秒）＋66 Playwright（1.7m）**，4项第三方弃用警告；迁移/漂移、静态与准确构建通过。此前旧候选完整CI因许可文件修正被取消，未冒称通过。
+
+原生x86使用Mock、不注入真实密钥，安装相同预编译产物后两格式/独立核对/精确引用/重启/完整隔离恢复与浏览器均通过。cgroup观测峰值DB84746240/API132907008/Web56807424字节，全部无OOM，邮件/决定计数0。实际浏览器确认/邮件/决定请求与页面错误0。它与ARM开发机的真实DeepSeek实验分别列明，不混称在x86/VPS调用了真实模型。
+
+已发布[私人体验预发行 v0.2.0-preview.1](https://github.com/DayuGuo/Pivot/releases/tag/v0.2.0-preview.1)，4附件：完整离线包、SHA256、INSTALL.md、去掉私密状态路径的release-validation.json。包为上述x86 CI的确切产物：283307112字节，SHA256 `17511ef9b3b9d5b261c4f9da104ce89c5999abadb716c34e80f87f2fd8b67de3`。外层及所有内部文件SHA一致，归档仅8个已知文件，不含密钥、状态、数据库或上传原件；三镜像均amd64。Next standalone遗漏的许可文本已补齐，实际Web镜像内487份npm/字体notice及Noto OFL确认保留，没有替项目选择新的开源许可证。GitHub502首次没有创建草稿，已安全重试；四附件服务端SHA256均与CI文件一致；匿名下载INSTALL/SHA文件逐字节相等，公开归档流可访问且gzip头正确（未重复下载整包）。结果见本地 `artifacts/vps-release-amd64`。
+
+本轮真实模型遥测（仅专属隔离项目，含附加驱动重测）为6次完成导入/6次回答、20provider attempts/18有效完成、业务失败0，输入83269/输出18378 tokens、provider耗时77921ms；费用null待账单，主Codex用量未知，原生子Agent0。报告 `vps-model-telemetry.json`；不把协议重试当作首次全部成功。
 
 ## 使用与范围
 
