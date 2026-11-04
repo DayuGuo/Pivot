@@ -7,7 +7,8 @@
     "pytest_seconds": 378.7,
     "playwright": 81,
     "playwright_minutes": 2.2,
-    "third_party_warnings": 4
+    "third_party_warnings": 4,
+    "scope": "checkpoint before final contribution-link fix"
   },
   "actual_deepseek_imports": {
     "files": 6,
@@ -110,5 +111,12 @@
     "Recorded ORCID is not OAuth-authenticated",
     "Existing PDF/Word visual, formula, bullet and OCR limitations remain",
     "No independent subagent review this batch"
-  ]
+  ],
+  "final_verify_pending": true,
+  "contribution_links": {
+    "red_test_failed_as_expected": true,
+    "related_tests_passed": 78,
+    "six_file_offline_regression": true,
+    "real_model_contribution_accuracy_measured": false
+  }
 }

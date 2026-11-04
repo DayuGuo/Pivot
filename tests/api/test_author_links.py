@@ -151,3 +151,46 @@ def test_only_named_marker_owner_gets_a_missing_footnote_email():
     assert result.authors[0].email.value == "alpha@synthetic.test"
     assert result.authors[1].email is None
     assert result.authors[0].corresponding_quote is None
+
+
+@pytest.mark.parametrize("owner,kept", [("Alpha Author", True), ("Beta Author", False)])
+def test_contribution_must_belong_to_the_named_author(owner, kept):
+    text = f"Alpha Author; Beta Author\n{owner}:\nContributions: Conceptualization\n"
+    candidate = MetadataCandidate(
+        authors=[
+            AuthorCandidate(
+                name=Quoted(value="Alpha Author", quote="Alpha Author"),
+                contributions=[
+                    Quoted(value="Conceptualization", quote="Contributions: Conceptualization")
+                ],
+            ),
+            AuthorCandidate(name=Quoted(value="Beta Author", quote="Beta Author")),
+        ]
+    )
+    issues = []
+    data, sources = merge_candidate(candidate, evidence_case(text), BASE, uncertainties=issues)
+    assert data["authors"][0]["contributions"] == (["Conceptualization"] if kept else [])
+    assert any(s["field_path"] == "authors.0.contributions.0" for s in sources) is kept
+    assert any(i["field_path"] == "authors.0.contributions.0" for i in issues) is (not kept)
+
+
+def test_kept_contribution_source_path_follows_filtered_array():
+    text = "Alpha Author; Beta Author\nAlpha Author:\nContributions: Data curation\nBeta Author:\nContributions: Funding acquisition\n"
+    candidate = MetadataCandidate(
+        authors=[
+            AuthorCandidate(
+                name=Quoted(value="Alpha Author", quote="Alpha Author"),
+                contributions=[
+                    Quoted(value=v, quote=v) for v in ["Funding acquisition", "Data curation"]
+                ],
+            ),
+            AuthorCandidate(name=Quoted(value="Beta Author", quote="Beta Author")),
+        ]
+    )
+    data, sources = merge_candidate(candidate, evidence_case(text), BASE)
+    assert data["authors"][0]["contributions"] == ["Data curation"]
+    role_sources = [s for s in sources if ".contributions." in s["field_path"]]
+    assert len(role_sources) == 1
+    assert role_sources[0]["field_path"] == "authors.0.contributions.0"
+    assert role_sources[0]["value"] == "Data curation"
+    assert role_sources[0]["association"]["identity_authenticated"] is False

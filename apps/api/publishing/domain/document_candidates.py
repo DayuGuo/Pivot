@@ -531,16 +531,19 @@ def merge_candidate(candidate, extraction, base_data, *, uncertainties=None):
                 issue["field_path"].startswith(prefix + ".affiliations") for issue in uncertainties
             ):
                 uncertain(prefix + ".affiliations", "author_link_missing")
+            contributions = []
+            for j, field in enumerate(author.contributions):
+                role = linked(field, prefix + f".contributions.{j}", name, "contribution")
+                if role is not None:
+                    sources[-1]["field_path"] = prefix + f".contributions.{len(contributions)}"
+                    contributions.append(role)
             data["authors"].append(
                 {
                     "name": name,
                     "email": linked(email, prefix + ".email", name, "email") or "",
                     "orcid": linked(author.orcid, prefix + ".orcid", name, "orcid"),
                     "affiliations": affiliations,
-                    "contributions": [
-                        value(v, prefix + f".contributions.{j}")
-                        for j, v in enumerate(author.contributions)
-                    ],
+                    "contributions": contributions,
                     "corresponding": corresponding,
                     "source_note": "从原稿自动识别的候选，须负责人核对姓名、机构及关联关系；ORCID未认证。",
                 }
