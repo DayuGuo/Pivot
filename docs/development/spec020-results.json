@@ -3,12 +3,12 @@
   "date": "2026-11-04",
   "local_verify": {
     "exit_code": 0,
-    "pytest": 1235,
-    "pytest_seconds": 378.7,
+    "pytest": 1238,
+    "pytest_seconds": 378.5,
     "playwright": 81,
     "playwright_minutes": 2.2,
     "third_party_warnings": 4,
-    "scope": "checkpoint before final contribution-link fix"
+    "scope": "final contribution-link code, full serial verify"
   },
   "actual_deepseek_imports": {
     "files": 6,
@@ -112,11 +112,36 @@
     "Existing PDF/Word visual, formula, bullet and OCR limitations remain",
     "No independent subagent review this batch"
   ],
-  "final_verify_pending": true,
+  "final_verify_pending": false,
   "contribution_links": {
     "red_test_failed_as_expected": true,
     "related_tests_passed": 78,
     "six_file_offline_regression": true,
     "real_model_contribution_accuracy_measured": false
+  },
+  "runtime_source": "d7c90b03f612f8761d167eed866a8b63165acbfa",
+  "final_local_update": {
+    "publishing_tables": 32,
+    "existing_rows": 936,
+    "all_row_digests_unchanged": true,
+    "editorial_provider": "deepseek",
+    "email_send_enabled": false
+  },
+  "release": {
+    "tag": "v0.2.0-preview.4",
+    "url": "https://github.com/DayuGuo/Pivot/releases/tag/v0.2.0-preview.4",
+    "sha256": "8dd2a9a99e1906cfeaa3d96021e5cfa22916ffa5af73b06d5e8f8563ebf59d85",
+    "bytes": 283323571,
+    "source": "d7c90b03f612f8761d167eed866a8b63165acbfa",
+    "platform": "linux/amd64",
+    "inner_hashes_verified": 7,
+    "entries": 8,
+    "native_run_id": 41878817650,
+    "full_ci_run_id": 41878817674,
+    "static_run_id": 41878817834,
+    "all_job_steps_success": true,
+    "recorded_full_ci_aggregate_status": "in_progress",
+    "recorded_full_ci_aggregate_conclusion": null,
+    "all_five_server_asset_digests_match": true
   }
 }

@@ -31,7 +31,7 @@
 
 ## 界面验收与限制
 
-遵循既有Hermes三栏/中心对话、字体与颜色，未新增装饰区块。不确定性与失败候选逐级展开，显示明确原因、来源定位和人工下一步。Frontend Design、UI/UX Pro Max（error summary validation）、Impeccable context/harden及Web Design Guidelines用于本批；实际源码检测无发现，桌面/375px合成截图已查看。另修复真实浏览器验收脚本刷新后过早截图：先等待实际题名可见/载入提示消失，再做手机布局；重放0模型调用/0确认，实际查看了加载完成的375px公开资料截图。源码检测不是屏幕阅读器或跨浏览器认证；真实手机软键盘、其他OS/浏览器未实测。
+遵循既有Hermes三栏/中心对话、字体与颜色，未新增装饰区块。不确定性与失败候选逐级展开，显示明确原因、来源定位和人工下一步。Frontend Design、UI/UX Pro Max（error summary validation）、Impeccable context/harden及[Web Design Guidelines](https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/command.md)（本轮实际读取）用于本批；实际源码检测无发现，桌面/375px合成截图已查看。另修复真实浏览器验收脚本刷新后过早截图：先等待实际题名可见/载入提示消失，再做手机布局；重放0模型调用/0确认，实际查看了加载完成的375px公开资料截图。源码检测不是屏幕阅读器或跨浏览器认证；真实手机软键盘、其他OS/浏览器未实测。
 
 本批实际模型遥测包含失败/返工：6次导入7attempt、17个已存问答54attempt、所有支持对照/复查135attempt，共196attempt、输入416,186/输出26,470Token，费用未知null待账单。未估算Codex主Agent消耗。结构化脱敏结果见[spec020-results.json](spec020-results.json)。
 
@@ -39,8 +39,18 @@
 
 贡献修复前完整检查点scripts/verify.sh实际退出0：**1235 Pytest（378.70秒）＋81 Playwright（2.2m）**，Ruff/format、ESLint/TypeScript、研究/依赖门禁、18离线精确引文、PostgreSQL迁移/漂移、准确API/Web镜像构建启动通过。4项第三方弃用警告与前批类别相同。首轮1231过/1失败来自issue数组顺序假设，保留所有语义断言改为按字段/原因检查；新增3项来源类型契约，专项40通过后完整重跑。完整日志artifacts/spec020/full-verify-final.log和pytest.xml，不把首轮失败算通过。
 
-个人贡献修复后的最终全量待执行，未获得结果前不算最终验收。
+个人贡献修复后最终串行scripts/verify.sh实际退出0：**1238 Pytest（378.50秒）＋81 Playwright（2.2m）**。全部Ruff/format、ESLint/TypeScript、研究/边界/18离线引文、迁移漂移、准确镜像构建启动通过；4项同类第三方弃用警告，未删测试。最终日志artifacts/spec020/full-verify-delivery.log。最终本机安全更新前后32表全部现存936行摘要相同、provider仍DeepSeek、邮件固定false。
 
 ## 下一步
 
 更多独立原生Word、复杂署名/脚注、多栏、双语和数学样本；专业编辑盲评和反馈，避免只围绕固定小语料优化。ORCID OAuth及全局人员模型另立规范与迁移；文件攻击面、模型出域/隐私、权限/审计和备份恢复上线前须专业工程师复核。支持检查仍是同模型的新上下文判断，存在相关误判和提示注入风险；不能保证每条结论正确，不能代替科学/伦理/身份审查。
+
+## 原生安装包与GitHub执行证据
+
+已发布[私人体验包v0.2.0-preview.4](https://github.com/DayuGuo/Pivot/releases/tag/v0.2.0-preview.4)，源码d7c90b03f612f8761d167eed866a8b63165acbfa。原生amd64包283,323,571字节，SHA-256 `8dd2a9a99e1906cfeaa3d96021e5cfa22916ffa5af73b06d5e8f8563ebf59d85`；外包SHA和7个内文件SHA均已重验，5个附件与GitHub服务端大小/digest一致。
+
+[原生任务41878817650](https://github.com/DayuGuo/Pivot/actions/runs/41878817650)安装、合成PDF/Word原件字节、模拟负责人核对、引用、重启和新项目/新卷隔离恢复通过；完整快照相等、旧服务ID未改。4路上传1成功/3受控429，同UUID主动恢复/幂等重放、完整资料未重复写入、0确认/邮件/决定；受限容器无OOM。原生浏览器0错误/0确认/0邮件或决定，PDF/Word引用与刷新通过。该包内供应商测试是Mock，不冒称真实DeepSeek或实际用户VPS容量。
+
+[完整CI41878817674](https://github.com/DayuGuo/Pivot/actions/runs/41878817674)实际日志1238 Pytest（322.41秒）＋81 Playwright（1.8m），14个步骤包含Complete job全部success，无error。[静态任务41878817834](https://github.com/DayuGuo/Pivot/actions/runs/41878817834)两组11项通过，16步骤全部success。读取发行记录时，原生顶层completed/success，完整CI和静态顶层仍in_progress/null（其工作步骤/日志已完成）；明确记录API汇总延迟，不把顶层状态冒称成功。Actions另有Node20 action被Runner强制Node24的上游弃用提醒，不等于测试失败。
+
+附件release-validation.json绑定准确源码、SHA、每步状态和本机真实公开资料结果；记录时状态快照不追溯改写。更新使用[UPGRADE.md](https://github.com/DayuGuo/Pivot/releases/download/v0.2.0-preview.4/UPGRADE.md)中的原安装用户和原--state，管理器先停写备份，保留原项目、卷、密钥、密码和静态站。不重新init、不删卷、不可用保密稿件试错。未连接/部署用户VPS。
