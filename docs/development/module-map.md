@@ -23,3 +23,5 @@
 验证入口：`scripts/check-boundaries.py`限制显式导入方向，`scripts/check-research-library.py`核对全部字段/约束，`scripts/verify.sh`跑完整回归。边界脚本只检查直接Python导入，不证明所有动态依赖或授权安全；真正权限和重放由PostgreSQL/API测试负责。
 
 排查顺序：先用合成材料复现，检查具体版本、revision、request_id和来源hash，再修最小职责模块、追加失败回归。不要删除旧成功/失败记录，不能因模型偶尔给出合理答案而跳过后端契约。
+
+尚存边界：dossier_chat仍复用正式chat的failure_code/sanitized_telemetry/tool_schema三个协议辅助函数；本轮没有触碰其正式流程，可在下一批抽成共享协议模块。客户端请求状态与部署管理器也按各自真实问题分批整理，不能把资料区拆分说成全项目已模块化完成。

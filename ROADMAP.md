@@ -1,6 +1,6 @@
 # 路线图
 
-当前按[spec018](specs/018-dossier-reliability-and-maintenance.md)执行安装后的可靠性迭代：第一批修确认重放、原件校验和批量查询并建立[模块维护边界](docs/development/module-map.md)；第二批处理使用反馈、明示分页/失联恢复和低内存并发；第三批完善作者关联与语义证据评测；第四批运维与专业复核。用户已报告VPS安装完成，当前不自动更新服务器。
+当前按[spec018](specs/018-dossier-reliability-and-maintenance.md)执行安装后的可靠性迭代：第一批已验收：修确认重放、原件校验和批量查询并建立[模块维护边界](docs/development/module-map.md)；第二批处理使用反馈、明示分页/失联恢复和低内存并发；第三批完善作者关联与语义证据评测；第四批运维与专业复核。用户已报告VPS安装完成，当前不自动更新服务器。
 
 **展示版已发布；spec013/014/015私有资料、真实问答及PDF/Word导入已本地实现，当前第一优先级转为公开样本评测与专业复核。** [spec012](specs/012-showcase-demo.md)先验证三栏对话、稿件材料/作者/引用、底部日历与本地交互；本机构建静态包，准备RackNerd安装文档，用户现已授权公开仓库DayuGuo/Pivot与Release部署包；不连接或修改VPS。Demo只用模拟数据与浏览器持久化。在已部署展示版之外，本地推进真实单刊计划。
 

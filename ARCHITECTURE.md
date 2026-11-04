@@ -2,7 +2,7 @@
 
 ## 资料区分层（spec018）
 
-保持模块化单体。dossier_models定义四表，dossier_schemas定义输入/完整性，dossier_access负责对象权限与CAS读取，dossier_actions接幂等网关/审计，dossier_queries与dossier_views负责批量读取和投影，document_sources管理不可变来源。dossiers/document_imports/dossier_chat仅组合明确服务；旧dossiers导出保留为兼容门面，迁移直接导入纯模型。直接依赖分层由check-boundaries执行，字段/约束的移动由来源映射逐项核对；不把导入检查当作权限证明。
+保持模块化单体。dossier_models定义四表，dossier_schemas定义输入/完整性，dossier_access负责对象权限与CAS读取，dossier_actions接幂等网关/审计，dossier_queries与dossier_views负责批量读取和投影，document_sources管理不可变来源。dossiers/document_imports/dossier_chat消费已拆分服务，资料三个路由不再彼此导入；旧dossiers导出保留为兼容门面，迁移直接导入纯模型。直接依赖分层由check-boundaries执行，字段/约束的移动由来源映射逐项核对；不把导入检查当作权限证明。
 
 确认回执保留v1指纹，重放时另查路径对应的不可变DocumentApproval及原件/提取全文来源；同内容不同ID、缺失ID、损坏文件拒绝，合法历史确认不回退后来版本。没有新表/字段/迁移。列表一次带所有者/期刊条件查询；历史Answer按消息ID批量读取，旧rules标签保留。[维护地图](docs/development/module-map.md)和[阶段验收](docs/development/spec018-review.md)。
 
