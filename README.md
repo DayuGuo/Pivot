@@ -1,5 +1,7 @@
 # Pivot
 
+第四批源码增量：[逐条结论人工复核](specs/021-human-claim-feedback.md)。在对话中定位原文，再记录个人复核意见和理由；按历史版本追加，不改原回答、不替代稿件决定。支持复核历史和摘要下载，Mock/未检查及待核对意见不进入一致性比较分母。完整验收见PROGRESS；现有preview.4安装包不包含这次新增迁移/界面，本轮不部署VPS。
+
 第三批本机已验收：[作者关联、不确定性与原文支持检查](specs/020-author-links-and-claim-support.md)。真实模型候选的机构、邮箱、ORCID与个人贡献增加正向归属证据，来源不足留空；结论经独立上下文检查，不足或矛盾项转待核对。旧记录不重写、ORCID不冒称已认证；最终已执行结果见[交付记录](docs/development/spec020-review.md)。VPS不自动更新。
 
 第二批维护已验收：[资料恢复、分页与小内存并发](specs/019-recovery-pagination-and-admission.md)。新源码提供主动同UUID重试、写成功后的仅读取恢复、资料/对话/版本/导入分页与单worker重任务准入；实际验收与发行状态以[PROGRESS](PROGRESS.md)顶部为准。VPS不会自动更新。

@@ -208,3 +208,11 @@ claim_support在原有逐字验证后，用同一DeepSeek的新上下文检查�
 sanitized_telemetry/tool_schema移入纯共享protocol模块，正式chat保留兼容导出；dossier_chat的failure_code仍复用正式chat，未声称全项目已消除所有耦合。新检查不注册邮件、决定、确认或写入工具；既有人类权限与Action Gateway不变。
 
 三篇公开许可材料的冻结金标准、真实提取、浏览器核对与支持正反例分开报告。36组小样本通过不能推出普遍准确率，更不证明科学正确性。详见spec020、docs/research/author-association-and-source-support.md与实际交付记录。
+
+## ADR-031：原结论与人工复核分开追加
+
+逐条人工证据反馈使用独立ClaimReview，不修改DossierAnswer、稿件状态或DossierCheck。精确冻结answer/bucket/index、claim和版本摘要及实际负责人/会话；每条结论按review_no追加、以expected_review_id防并行覆盖。Action Gateway的内部ReviewAction将全部目标纳入指纹，禁止相同内容跨Answer重放串用。旧确认及回执协议不改。
+
+数据库增加16字段及精确来源/序号守卫、复合FK与不可变/禁止有历史降级。读取和重放仍核对原件/全文CAS和实际所有者/角色；模型没有人工反馈写工具。每条结论按需加载有界历史，反馈草稿与资料编辑脏状态分别跟踪，未知响应保留UUID恢复。
+
+复核摘要只比较最新、可比较的AI判断与记录的人工意见；Mock/未检查和人工待核对排除分母，无可比项时比例null。该一致性不是科学准确率、专家认证或正式同行评审；不会自动训练模型或把私人反馈发送给供应商。OJS/Janeway研究来源及范围见spec021。

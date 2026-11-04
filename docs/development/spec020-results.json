@@ -146,9 +146,13 @@
   },
   "integration": {
     "pull_request": "https://github.com/DayuGuo/Pivot/pull/1",
-    "main_updated": false,
-    "main_source": "a898a02279b5d46500215c185c4820fd2f4ca059",
-    "merge_requires_explicit_user_authorization": true,
-    "reason": "automatic approval review rejected direct default-branch publication"
+    "main_updated": true,
+    "main_source": "f67f24e0dc2fef8639d122cc0e545ccdfe73332f",
+    "merge_requires_explicit_user_authorization": false,
+    "reason": "User explicitly authorized merging PR1; merged without VPS deployment",
+    "previous_approval_block": "automatic approval review rejected direct default-branch publication",
+    "merge_commit": "f67f24e0dc2fef8639d122cc0e545ccdfe73332f",
+    "merged": true,
+    "explicit_authorization_received": true
   }
 }

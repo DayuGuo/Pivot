@@ -13,6 +13,9 @@
 | `domain/dossier_queries.py` | 列表读取、批量查询与所有者过滤 | 不按每份资料逐条查版本，不扩大主编访问范围 |
 | `domain/dossier_views.py` | 版本/消息投影、历史来源标签 | 保留旧版引用，不能把旧核对移给新版本 |
 | `domain/document_sources.py` | 原件/审批摘要、继承来源、页/段定位 | 不能给手改字段伪造原件证据，不依赖路由/模型调用 |
+| `domain/claim_review_models.py` | 不可变逐条人工反馈模型 | 独立于AI Answer及稿件批准 |
+| `domain/claim_reviews.py` | 人工反馈路由/来源重验/网关 | 无模型工具、旧回答不改 |
+| `domain/claim_review_metrics.py` | 记录意见与AI判断的一致性 | 纯函数、排除不确定/未检查，不称科学准确率 |
 | `domain/author_links.py` | 正向作者关联、局部重复项与原文跨度 | 纯函数，不授予身份或联网 |
 | `domain/claim_support.py` | 有界AI原文支持检查 | 新上下文、同一期限；不注册业务工具 |
 | `domain/document_candidates.py` | 自动提取与候选证据 | 只生成候选，不能最终确认 |

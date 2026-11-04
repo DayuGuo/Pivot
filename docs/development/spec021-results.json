@@ -1,0 +1,152 @@
+{
+  "schema": "spec021.delivery.v1",
+  "date": "2026-11-04",
+  "runtime_source": "21f10f9c20446bab6f9e6993ce7396c691acc807",
+  "previous_pr": {
+    "number": 1,
+    "merged": true,
+    "merge_commit": "f67f24e0dc2fef8639d122cc0e545ccdfe73332f",
+    "explicit_user_authorization": true
+  },
+  "local_verification": {
+    "script": "scripts/verify.sh",
+    "exit_code": 0,
+    "pytest": 1260,
+    "pytest_seconds": 381.97,
+    "playwright": 84,
+    "playwright_minutes": 2.3,
+    "third_party_warnings": 5,
+    "static_migration_and_exact_build_checks": true
+  },
+  "focused_verification": {
+    "feedback_api_cases": 22,
+    "feedback_seconds": 6.04,
+    "schema_and_dossier_cases": 81,
+    "schema_seconds": 45.28,
+    "browser_cases": 28,
+    "browser_seconds": 16.3,
+    "real_concurrent_posts": [
+      200,
+      409
+    ],
+    "stale_pagination_base_reproduced_and_fixed": true,
+    "oversized_archival_snapshot_reproduced_and_fixed": true
+  },
+  "persistence": {
+    "migration": "16c40fda8397",
+    "new_table": "publishing_claim_reviews",
+    "new_fields": 16,
+    "append_only": true,
+    "historical_answers_unchanged": true,
+    "refuse_destructive_downgrade_with_history": true,
+    "feedback_snapshot_max_bytes": 32768,
+    "oversize_http_status": 413
+  },
+  "public_acceptance": {
+    "passed": true,
+    "responsible_editor_simulated_by_test_driver": true,
+    "cases": [
+      {
+        "file": "research-findings-word",
+        "original_answer_and_version_unchanged": true,
+        "exact_source_highlight": true,
+        "summary_download_exact": true,
+        "refresh_preserved": true,
+        "verdict": "unsupported",
+        "metrics": {
+          "reviewed_claims": 1,
+          "comparable": 1,
+          "agreement": 0,
+          "model_adopted_human_unsupported": 1,
+          "model_withheld_human_supported": 0,
+          "human_uncertain": 0,
+          "model_unchecked": 0,
+          "agreement_rate": 0,
+          "scope": "latest recorded human feedback; not a scientific accuracy estimate"
+        }
+      },
+      {
+        "file": "clinical-word",
+        "original_answer_and_version_unchanged": true,
+        "exact_source_highlight": true,
+        "summary_download_exact": true,
+        "refresh_preserved": true,
+        "verdict": "uncertain",
+        "metrics": {
+          "reviewed_claims": 1,
+          "comparable": 0,
+          "agreement": 0,
+          "model_adopted_human_unsupported": 0,
+          "model_withheld_human_supported": 0,
+          "human_uncertain": 1,
+          "model_unchecked": 0,
+          "agreement_rate": null,
+          "scope": "latest recorded human feedback; not a scientific accuracy estimate"
+        }
+      }
+    ],
+    "model_calls": 0,
+    "mail_or_decision_requests": 0,
+    "dossier_confirmations": 0,
+    "page_errors": 0
+  },
+  "preservation": {
+    "existing_32_tables_and_936_rows_unchanged_excluding_new_feedback_receipts": true,
+    "feedback_rows_after_three_replays": 2
+  },
+  "final_local_update": {
+    "tables": 33,
+    "rows": 940,
+    "all_existing_row_digests_unchanged": true
+  },
+  "human_gates": {
+    "email_send_enabled": false,
+    "mailpit_messages": 0,
+    "new_model_write_tools": 0,
+    "human_feedback_is_not_publication_approval": true,
+    "vps_updated": false
+  },
+  "model_configuration": {
+    "editorial_provider": "deepseek",
+    "live_credential_auth_rechecked_this_phase": false,
+    "feedback_acceptance_supplier_calls": 0,
+    "codex_engineering_tokens": null
+  },
+  "remote_ci": {
+    "source": "21f10f9c20446bab6f9e6993ce7396c691acc807",
+    "verify_run_id": 41922935042,
+    "static_run_id": 41922935021,
+    "verify_complete": true,
+    "static_suites": [
+      11,
+      11
+    ],
+    "pytest": 1260,
+    "pytest_seconds": 383.22,
+    "playwright": 84,
+    "playwright_minutes": 1.9,
+    "all_job_steps_success": true,
+    "workflow_aggregate_status": "completed",
+    "workflow_aggregate_conclusion": "success",
+    "static_aggregate_status": "completed",
+    "static_aggregate_conclusion": "success",
+    "static_browser_seconds": [
+      11.9,
+      11.4
+    ]
+  },
+  "limits": [
+    "Responsible editor simulated by test driver, not expert sign-off",
+    "Agreement is against latest recorded feedback, not scientific accuracy",
+    "No new independent native-paper corpus or expert blind scoring",
+    "Single feedback snapshot max32KiB; no evidence truncation",
+    "No private VPS bundle for this phase; preview.4 remains previous implementation"
+  ],
+  "integration": {
+    "pull_request": "https://github.com/DayuGuo/Pivot/pull/2",
+    "merged": false,
+    "main_source": "f67f24e0dc2fef8639d122cc0e545ccdfe73332f",
+    "main_contains_authorized_pr1_only": true,
+    "vps_deployed": false
+  }
+}

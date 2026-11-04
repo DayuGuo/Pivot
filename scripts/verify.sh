@@ -27,6 +27,7 @@ CHECK_TARGET
 .venv/bin/pytest -q --junitxml=artifacts/pytest.xml
 npm run lint
 npm run typecheck
+node --check scripts/accept-claim-feedback.mjs
 node --check scripts/accept-live-publishing-browser.mjs
 node --check scripts/evaluate-public-papers-browser.mjs
 node --check scripts/accept-vps-browser.mjs

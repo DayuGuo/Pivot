@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "updated_date": "2026-11-03",
-  "scope": "Foundation14 + C1 + D4 + E3 + F3 + internal dossier4 =29 classes/357 fields. Internal dossiers are private pre-submission preparation artifacts, with static source bindings only; runtime/service/browser verification is maintained by lead in PROGRESS.md. Existing C/D/E/F evidence is preserved.",
+  "updated_date": "2026-11-04",
+  "scope": "Foundation14 + C1 + D4 + E3 + F3 + internal dossier4 =29 classes/357 fields. Internal dossiers are private pre-submission preparation artifacts, with static source bindings only; runtime/service/browser verification is maintained by lead in PROGRESS.md. Existing C/D/E/F evidence is preserved. Spec021 adds 1 project-governance human claim feedback class /16 fields; source binding is not execution proof.",
   "data_contract": "specs/007-data-contract.md",
   "source_manifests": {
     "ojs": "ojs/source-manifest.json",
@@ -10752,6 +10752,224 @@
           "scope": "自有文档导入提案、人类批准及版本原件来源合同；静态绑定不代替运行验证"
         }
       ]
+    },
+    {
+      "class": "ClaimReview",
+      "module": "apps/api/publishing/domain/claim_review_models.py",
+      "table": "publishing_claim_reviews",
+      "contract_source": "specs/021-human-claim-feedback.md",
+      "slice": "human_claim_feedback",
+      "implementation_status": "implemented",
+      "migration_id": "16c40fda8397",
+      "migration_status": "static_source_binding_only_runtime_verification_recorded_by_lead_in_PROGRESS",
+      "field_groups": [
+        {
+          "our_fields": [
+            "id",
+            "answer_id",
+            "dossier_id",
+            "journal_id",
+            "version_id",
+            "claim_bucket",
+            "claim_index",
+            "claim_json",
+            "claim_digest",
+            "content_digest",
+            "verdict",
+            "note",
+            "review_no",
+            "reviewed_by",
+            "session_hash",
+            "created_at"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+              "entity_type": "source"
+            },
+            {
+              "system": "janeway",
+              "source_id": "submission-model-fields.txt",
+              "entity_type": "source"
+            }
+          ],
+          "origin": "project_governance",
+          "adaptation": "Project governance: exact answer/version claim feedback with original output retained; upstream review recommendations and decisions remain separate, no claimed identical upstream table.",
+          "migration_id": "16c40fda8397"
+        }
+      ],
+      "our_fields": [
+        "id",
+        "answer_id",
+        "dossier_id",
+        "journal_id",
+        "version_id",
+        "claim_bucket",
+        "claim_index",
+        "claim_json",
+        "claim_digest",
+        "content_digest",
+        "verdict",
+        "note",
+        "review_no",
+        "reviewed_by",
+        "session_hash",
+        "created_at"
+      ],
+      "constraints": [
+        {
+          "rule": "Owner-only, exact frozen claim/source, serial append-only review chain",
+          "intended_acceptance": "No model write tool, no answer edits or publishing decisions; request replay and concurrency checked"
+        }
+      ],
+      "intended_acceptance": [
+        "Human feedback persists against exact original claim, idempotent replay, conflict, owner/session checks, immutable DB history; validation recorded by lead."
+      ],
+      "current_baseline": {
+        "system": "current-system",
+        "source_id": "apps/api/publishing/models.py",
+        "entity_type": "class",
+        "entity": "Manuscript"
+      },
+      "source_binding": {
+        "path": "apps/api/publishing/domain/claim_review_models.py",
+        "class_line": 20,
+        "fields": [
+          {
+            "name": "id",
+            "line": 52,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
+          },
+          {
+            "name": "answer_id",
+            "line": 53,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('publishing_dossier_answers.id'))"
+          },
+          {
+            "name": "dossier_id",
+            "line": 54,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "journal_id",
+            "line": 55,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "version_id",
+            "line": 56,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "claim_bucket",
+            "line": 57,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(20))"
+          },
+          {
+            "name": "claim_index",
+            "line": 58,
+            "annotation": "Mapped[int]",
+            "declaration": "mapped_column(Integer)"
+          },
+          {
+            "name": "claim_json",
+            "line": 59,
+            "annotation": "Mapped[dict]",
+            "declaration": "mapped_column(JSONB)"
+          },
+          {
+            "name": "claim_digest",
+            "line": 60,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "content_digest",
+            "line": 61,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "verdict",
+            "line": 62,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(20))"
+          },
+          {
+            "name": "note",
+            "line": 63,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(2000))"
+          },
+          {
+            "name": "review_no",
+            "line": 64,
+            "annotation": "Mapped[int]",
+            "declaration": "mapped_column(Integer)"
+          },
+          {
+            "name": "reviewed_by",
+            "line": 65,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
+          },
+          {
+            "name": "session_hash",
+            "line": 66,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "created_at",
+            "line": 67,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True), default=now)"
+          }
+        ],
+        "table_args": {
+          "line": 22,
+          "declaration": "(ForeignKeyConstraint(['version_id', 'dossier_id', 'journal_id'], ['publishing_dossier_versions.id', 'publishing_dossier_versions.dossier_id', 'publishing_dossier_versions.journal_id'], name='fk_claim_review_version'), UniqueConstraint('answer_id', 'claim_bucket', 'claim_index', 'review_no', name='uq_claim_review_sequence'), CheckConstraint(\"claim_bucket IN ('claims','withheld_claims') AND claim_index BETWEEN 0 AND 5 AND review_no>=1\", name='ck_claim_review_target'), CheckConstraint(\"verdict IN ('supported','unsupported','uncertain') AND length(btrim(note)) BETWEEN 5 AND 2000\", name='ck_claim_review_verdict'), CheckConstraint(\"claim_digest ~ '^[0-9a-f]{64}$' AND content_digest ~ '^[0-9a-f]{64}$' AND session_hash ~ '^[0-9a-f]{64}$'\", name='ck_claim_review_hashes'), CheckConstraint(\"jsonb_typeof(claim_json)='object' AND octet_length(claim_json::text)<=32768\", name='ck_claim_review_snapshot'))"
+        }
+      },
+      "field_revision_bindings": {
+        "id": "16c40fda8397",
+        "answer_id": "16c40fda8397",
+        "dossier_id": "16c40fda8397",
+        "journal_id": "16c40fda8397",
+        "version_id": "16c40fda8397",
+        "claim_bucket": "16c40fda8397",
+        "claim_index": "16c40fda8397",
+        "claim_json": "16c40fda8397",
+        "claim_digest": "16c40fda8397",
+        "content_digest": "16c40fda8397",
+        "verdict": "16c40fda8397",
+        "note": "16c40fda8397",
+        "review_no": "16c40fda8397",
+        "reviewed_by": "16c40fda8397",
+        "session_hash": "16c40fda8397",
+        "created_at": "16c40fda8397"
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "16c40fda8397",
+          "names": [
+            "fk_claim_review_version",
+            "uq_claim_review_sequence",
+            "ck_claim_review_target",
+            "ck_claim_review_verdict",
+            "ck_claim_review_hashes",
+            "ck_claim_review_snapshot"
+          ],
+          "scope": "Append-only human feedback target/source/sequence; not publication authority"
+        }
+      ]
     }
   ],
   "additional_contracts": [
@@ -10844,6 +11062,15 @@
         "DocumentImport": "publishing_document_imports",
         "DocumentApproval": "publishing_document_approvals",
         "DocumentSource": "publishing_document_sources"
+      },
+      "extended_fields": {},
+      "extended_constraints": {}
+    },
+    {
+      "path": "specs/021-human-claim-feedback.md",
+      "migration_id": "16c40fda8397",
+      "new_models": {
+        "ClaimReview": "publishing_claim_reviews"
       },
       "extended_fields": {},
       "extended_constraints": {}
@@ -11154,6 +11381,32 @@
           "sha256": "83daa69973b6052da8b5f2d61af5e0631b45c81ec866986ae0aeff37819f6cb2"
         }
       ]
+    },
+    {
+      "revision": "16c40fda8397",
+      "down_revision": "15b39ecf7286",
+      "path": "infrastructure/migrations/versions/16c40fda8397_claim_reviews.py",
+      "sha256": "0a9166f358f967423d3a5d4863a6c6e3387b4aeb2b979f7d677fe1e1a79f9e6e",
+      "validation_scope": "Static binding only; runtime tests in PROGRESS",
+      "sql_functions": [
+        "publishing_claim_review_guard"
+      ],
+      "deferred_triggers": [],
+      "row_triggers": [],
+      "truncate_triggers": [
+        {
+          "name": "claim_review_truncate",
+          "table": "publishing_claim_reviews",
+          "function": "publishing_dossier_immutable"
+        }
+      ],
+      "sql_function_fingerprints": [
+        {
+          "name": "publishing_claim_review_guard",
+          "normalization": "strip_and_create_or_replace",
+          "sha256": "9bddf66e49e3bebc8cb66d9c7aa3adc3b2c86f6cb79aacfef11cea3efaa8b05c"
+        }
+      ]
     }
   ],
   "implementation_helper_bindings": [
@@ -11181,21 +11434,21 @@
   ],
   "component_evidence": [
     {
-      "date": "2026-11-03",
+      "date": "2026-11-04",
       "suite": "tests/api/test_production_models.py",
       "observed_passed": 53,
-      "elapsed_seconds": 38.157,
+      "elapsed_seconds": 36.625,
       "warnings": [
         "existing Starlette/httpx deprecation"
       ],
-      "scope": "53 production contracts and complete-head zero-drift with 15b document imports; report also includes 28 successful intake tests",
+      "scope": "53 production cases from combined 81-case JUnit; complete-head assertion includes16c human feedback; historical fixture boundaries preserved",
       "public_database_modified_by_component_agent": false,
-      "evidence_report": "artifacts/document-migration-regression-final.xml",
-      "report_sha256": "94e3b2b65779c0762e9c3ab369d23029c06d54f38ab9a849247b5f74f08086d2",
+      "evidence_report": "artifacts/spec021/schema-focused.xml",
+      "report_sha256": "fa426b100433abb7a8319c8309482b55b62defd01eea3f6f540af4c2404ecc4d",
       "report_availability": "ephemeral observed JUnit; recorded hash, not required by offline gate",
       "token_usage": null,
       "api_cost": null,
-      "suite_sha256": "24c3238ac484333e8cc1d4bca2ec32afb39db9552f7fc52a59bb654a473da503",
+      "suite_sha256": "60941a94e6bb10fa037f78f1a0d4daa34debb0e2b08a75683695d081bc615c25",
       "migration_id": "12e06b9c4f53",
       "required_test_functions": [
         "test_complete_chain_metadata_has_zero_drift",
@@ -11347,6 +11600,136 @@
             "elapsed_seconds": 37.1,
             "suite_sha256": "e13ceee2ee15e796179d3831d6e4d96d5f2e3c29438fbd656a1104d174ef7d11",
             "report_sha256": "886412120ee6e380c3768958be85f91f636573826c31bb0881b48571e86c1fe8"
+          }
+        },
+        {
+          "date": "2026-11-03",
+          "suite": "tests/api/test_production_models.py",
+          "observed_passed": 53,
+          "elapsed_seconds": 38.157,
+          "warnings": [
+            "existing Starlette/httpx deprecation"
+          ],
+          "scope": "53 production contracts and complete-head zero-drift with 15b document imports; report also includes 28 successful intake tests",
+          "public_database_modified_by_component_agent": false,
+          "evidence_report": "artifacts/document-migration-regression-final.xml",
+          "report_sha256": "94e3b2b65779c0762e9c3ab369d23029c06d54f38ab9a849247b5f74f08086d2",
+          "report_availability": "ephemeral observed JUnit; recorded hash, not required by offline gate",
+          "token_usage": null,
+          "api_cost": null,
+          "suite_sha256": "24c3238ac484333e8cc1d4bca2ec32afb39db9552f7fc52a59bb654a473da503",
+          "migration_id": "12e06b9c4f53",
+          "required_test_functions": [
+            "test_complete_chain_metadata_has_zero_drift",
+            "test_approved_local_preview_binds_same_immutable_package",
+            "test_corrections_allow_restore_older_bytes_not_same_previous",
+            "test_send_requires_exact_snapshot_and_declarations",
+            "test_proof_requires_local_same_journal_validated_text",
+            "test_send_requires_actual_production_role_and_assignment",
+            "test_current_role_reassignment_is_permitted_without_old_accept_person_binding",
+            "test_author_must_review_exact_package",
+            "test_package_only_one_author_response",
+            "test_new_package_requires_exact_returned_predecessor",
+            "test_preview_requires_approved_unchanged_local_package",
+            "test_all_production_history_is_immutable",
+            "test_downgrade_refuses_actual_proof_history",
+            "test_production_db_conflict_checks_historical_author_email",
+            "test_f_confirmation_must_bind_exact_current_workflow"
+          ],
+          "reproducible_command": "DATABASE_URL=<isolated-test-db> PYTHONPATH=. .venv/bin/pytest tests/api/test_production_models.py tests/api/test_dossiers.py -q --junitxml=<local-report>",
+          "verification_policy": "offline gate checks suite source hash/functions and declared observed report metadata; it does not execute or claim to reverify PostgreSQL tests",
+          "previous_observation": {
+            "date": "2026-11-03",
+            "suite": "tests/api/test_production_models.py",
+            "observed_passed": 53,
+            "elapsed_seconds": 36.638,
+            "warnings": [
+              "existing Starlette/httpx deprecation"
+            ],
+            "scope": "isolated immutable production contracts and complete-head metadata including 14a grounded dossier answers; this XML jointly records 53 production-model and 28 intake cases (81 total), not 81 production cases; not browser or real-model or full Goal acceptance",
+            "public_database_modified_by_component_agent": false,
+            "evidence_report": "artifacts/grounded-migration-regression.xml",
+            "report_sha256": "4314318281f1a16e18617925306eb31c91a01987077f0feba8e05be22a0d3697",
+            "report_availability": "ephemeral observed JUnit; recorded hash, not required by offline gate",
+            "token_usage": null,
+            "api_cost": null,
+            "suite_sha256": "f4817405e19c564a8d4ad97e411b4a758f10e450c57ae0a1794e324e09956e26",
+            "migration_id": "12e06b9c4f53",
+            "required_test_functions": [
+              "test_complete_chain_metadata_has_zero_drift",
+              "test_approved_local_preview_binds_same_immutable_package",
+              "test_corrections_allow_restore_older_bytes_not_same_previous",
+              "test_send_requires_exact_snapshot_and_declarations",
+              "test_proof_requires_local_same_journal_validated_text",
+              "test_send_requires_actual_production_role_and_assignment",
+              "test_current_role_reassignment_is_permitted_without_old_accept_person_binding",
+              "test_author_must_review_exact_package",
+              "test_package_only_one_author_response",
+              "test_new_package_requires_exact_returned_predecessor",
+              "test_preview_requires_approved_unchanged_local_package",
+              "test_all_production_history_is_immutable",
+              "test_downgrade_refuses_actual_proof_history",
+              "test_production_db_conflict_checks_historical_author_email",
+              "test_f_confirmation_must_bind_exact_current_workflow"
+            ],
+            "reproducible_command": "DATABASE_URL=<isolated-test-db> PYTHONPATH=. .venv/bin/pytest tests/api/test_production_models.py tests/api/test_dossiers.py -q --junitxml=<local-report>",
+            "verification_policy": "offline gate checks suite source hash/functions and declared observed report metadata; it does not execute or claim to reverify PostgreSQL tests",
+            "prior_observations": [
+              {
+                "date": "2026-11-03",
+                "suite": "tests/api/test_production_models.py",
+                "observed_passed": 53,
+                "elapsed_seconds": 34.96,
+                "warnings": [
+                  "existing Starlette/httpx deprecation"
+                ],
+                "scope": "isolated immutable production contracts and complete-head metadata including 13f dossier migration; historical F fixture remains unchanged; not browser or full Goal acceptance",
+                "public_database_modified_by_component_agent": false,
+                "evidence_report": "artifacts/dossier-production-regression.xml",
+                "report_sha256": "a58ba45eecf7b9aa1b5ace8eba51a1b1b74e7a39f557d19635c1407f94e2bd2b",
+                "report_availability": "ephemeral observed JUnit; recorded hash, not required by offline gate",
+                "token_usage": null,
+                "api_cost": null,
+                "suite_sha256": "55620739c439b4140b51866364c761b381d09616605312474fcca571a9525192",
+                "migration_id": "12e06b9c4f53",
+                "required_test_functions": [
+                  "test_complete_chain_metadata_has_zero_drift",
+                  "test_approved_local_preview_binds_same_immutable_package",
+                  "test_corrections_allow_restore_older_bytes_not_same_previous",
+                  "test_send_requires_exact_snapshot_and_declarations",
+                  "test_proof_requires_local_same_journal_validated_text",
+                  "test_send_requires_actual_production_role_and_assignment",
+                  "test_current_role_reassignment_is_permitted_without_old_accept_person_binding",
+                  "test_author_must_review_exact_package",
+                  "test_package_only_one_author_response",
+                  "test_new_package_requires_exact_returned_predecessor",
+                  "test_preview_requires_approved_unchanged_local_package",
+                  "test_all_production_history_is_immutable",
+                  "test_downgrade_refuses_actual_proof_history",
+                  "test_production_db_conflict_checks_historical_author_email",
+                  "test_f_confirmation_must_bind_exact_current_workflow"
+                ],
+                "reproducible_command": "DATABASE_URL=<isolated-test-db> PYTHONPATH=. .venv/bin/pytest tests/api/test_production_models.py -q --junitxml=<local-report>",
+                "verification_policy": "offline gate checks suite source hash/functions and declared observed report metadata; it does not execute or claim to reverify PostgreSQL tests",
+                "previous_observation": {
+                  "date": "2026-11-03",
+                  "observed_passed": 53,
+                  "elapsed_seconds": 37.1,
+                  "suite_sha256": "e13ceee2ee15e796179d3831d6e4d96d5f2e3c29438fbd656a1104d174ef7d11",
+                  "report_sha256": "886412120ee6e380c3768958be85f91f636573826c31bb0881b48571e86c1fe8"
+                }
+              }
+            ],
+            "elapsed_basis": "sum of the 53 JUnit testcase time attributes with classname=tests.api.test_production_models; not a standalone wall-clock duration",
+            "report_suite_counts": {
+              "tests.api.test_production_models": 53,
+              "tests.api.test_dossiers": 28
+            }
+          },
+          "elapsed_basis": "sum of 53 production testcase time attributes in an actually executed 81-case combined run (48.55s wall); not a standalone wall-clock duration",
+          "report_suite_counts": {
+            "tests.api.test_production_models": 53,
+            "tests.api.test_dossiers": 28
           }
         }
       ],
