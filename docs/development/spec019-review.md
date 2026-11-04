@@ -24,6 +24,16 @@
 
 本机旧数据32表816行摘要在实际API/Web更新前后相同，真实DeepSeek保存5条全文/元数据引用，原UUID重放相同、未确认。3次provider attempt均成功，输入7694/输出478tokens、供应商4978ms，墙钟因驱动断言中断未保存而保留null，费用null。首次驱动错误要求所有引用来自全文，纠正为按text/metadata核对各自原文后恢复同一记录，不重复推理。真实浏览器baseURL修正后，准确高亮/刷新/375px/200%通过，确认/邮件/决定/新增模型请求0。均为本机合成资料，不是VPS或科学审稿认证。
 
+## 最终验收与发行
+
+最终运行源码`4b4c933c2ec428ebdc00cc14272273918d6a5e28`。本机完整verify退出0：1194 Pytest（379.62秒）＋78 Playwright（2.1m）；[远端脚本](https://github.com/DayuGuo/Pivot/actions/runs/41859417633)同样1194（501.87秒）＋78（2.3m），所有作业步骤含Complete job为success。采集时GitHub顶层workflow/check汇总仍in_progress、conclusion=null，报告明确保留，不声称该字段已success。静态/研究/分层、迁移/漂移、生产构建均通过，4项既有第三方warning。
+
+[原生amd64安装包](https://github.com/DayuGuo/Pivot/actions/runs/41859417258)和[静态Demo](https://github.com/DayuGuo/Pivot/actions/runs/41859417506)的顶层均success。最终四路上传状态429/200/429/429，等待后原UUID恢复与重放成功、完整资料未变，浏览器/原件引用/刷新/重启/隔离恢复均通过。API/Web/DB后续观测内存峰值115310592/61452288/91537408字节，无OOM；这不是用户VPS整机容量证明。模型后端在最后两次仅前端修复中保持相同；本机最终更新后32表825行业务摘要逐项一致，真实历史引用页面再次通过且无新增模型/确认/邮件/决定请求。失败记录保留，最终脚本与源码未删任何测试。
+
+[preview.3](https://github.com/DayuGuo/Pivot/releases/tag/v0.2.0-preview.3)使用该CI的确切原生归档，283310602字节、SHA256 `ad8de2c6a7411be9d1a3aa164542ea9b5a16ce4b76063104ce983ce54cfed6b0`；八条目/七内层哈希和五附件GitHub服务端digest/大小均核对。release-validation.json包含实测结果及上述汇总状态差异。旧版本保留；[升级说明](../deployment/private-preview-upgrade.md)要求原安装用户/原--state，在新解压目录update，自动备份后沿用卷；未更新VPS。
+
+最后补充：修改问题或点击推荐问题撤销旧重试，避免恢复另一个问题；版本列表随核对快照重建。最终资料界面在实际本机DeepSeek历史上准确高亮、刷新、375px和200%通过，机械检测空数组。规范检查仅覆盖本次新增恢复/分页交互，不是全面无障碍认证。
+
 ## 限制
 
 分页不是长事务快照，新增或改变搜索匹配的记录须重载首屏。游标不授予权限，SQL/对象校验仍是边界。尚未提供跨刷新未发送表单恢复、多设备未知写请求outbox或多副本共享并发名额；后台任务不能由关闭页面撤销。邮件禁用，关键决定与资料核对继续由有权负责人独立确认，正式保密试点仍须专业复核。

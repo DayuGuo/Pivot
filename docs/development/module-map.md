@@ -28,4 +28,4 @@
 
 尚存边界：dossier_chat仍复用正式chat的failure_code/sanitized_telemetry/tool_schema三个协议辅助函数；本轮没有触碰其正式流程，可在下一批抽成共享协议模块。客户端请求状态与部署管理器也按各自真实问题分批整理，不能把资料区拆分说成全项目已模块化完成。
 
-前端`use-history-pages.ts`复用版本/导入分页，调用组件必须以对象与revision为key；workspace保留路由/操作隔离，代理透传Retry-After并在缓冲上传前限重任务。spec019记录恢复协议和单进程范围。
+前端`use-history-pages.ts`复用版本/导入分页，调用组件须随对象、版本/revision或核对快照变化重建；workspace保留路由/操作隔离，代理透传Retry-After并在缓冲上传前限重任务。spec019记录恢复协议和单进程范围。

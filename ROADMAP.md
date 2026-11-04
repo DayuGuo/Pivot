@@ -1,6 +1,6 @@
 # 路线图
 
-当前执行spec018第二批，规格见[spec019](specs/019-recovery-pagination-and-admission.md)：断线/页面恢复、资料与消息/版本/导入分页、小内存重任务准入。完成后转作者关联不确定性和句子级证据评测；原六阶段路线保留。实际完成状态以PROGRESS为准。
+spec018第二批已在spec019验收，规格见[spec019](specs/019-recovery-pagination-and-admission.md)：断线/页面恢复、资料与消息/版本/导入分页、小内存重任务准入。下一批转作者关联不确定性和句子级证据评测；原六阶段路线保留。实际完成状态以PROGRESS为准。
 
 当前按[spec018](specs/018-dossier-reliability-and-maintenance.md)执行安装后的可靠性迭代：第一批已验收：修确认重放、原件校验和批量查询并建立[模块维护边界](docs/development/module-map.md)；第二批处理使用反馈、明示分页/失联恢复和低内存并发；第三批完善作者关联与语义证据评测；第四批运维与专业复核。用户已报告VPS安装完成，当前不自动更新服务器。
 
