@@ -141,5 +141,12 @@
     "No new independent native-paper corpus or expert blind scoring",
     "Single feedback snapshot max32KiB; no evidence truncation",
     "No private VPS bundle for this phase; preview.4 remains previous implementation"
-  ]
+  ],
+  "integration": {
+    "pull_request": "https://github.com/DayuGuo/Pivot/pull/2",
+    "merged": false,
+    "main_source": "f67f24e0dc2fef8639d122cc0e545ccdfe73332f",
+    "main_contains_authorized_pr1_only": true,
+    "vps_deployed": false
+  }
 }

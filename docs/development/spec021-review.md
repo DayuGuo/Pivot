@@ -48,4 +48,4 @@ claim_reviews复用现有对象/角色/会话/CSRF及Action Gateway，内部Revi
 
 冻结运行源码21f10f9c20446bab6f9e6993ce7396c691acc807。 [完整CI41922935042](https://github.com/DayuGuo/Pivot/actions/runs/41922935042)实际日志**1260 Pytest（383.22秒）＋84 Playwright（1.9m）**，全部工作步骤含清理success、无error；[静态CI41922935021](https://github.com/DayuGuo/Pivot/actions/runs/41922935021)11＋11通过（11.9/11.4秒）。准确汇总状态在spec021-results.json，未把尚未结束的步骤当通过。后续提交仅交付文档，不改运行代码。
 
-尚未合入下一阶段main，不自动部署VPS或发布新私人包。本机资料区可打开结论旁“人工复核”；现有preview.4仍是上一阶段安装包。下一阶段PR将带全部差异、16字段迁移、失败修复与验收记录供审查。
+尚未合入下一阶段main，不自动部署VPS或发布新私人包。本机资料区可打开结论旁“人工复核”；现有preview.4仍是上一阶段安装包。[PR #2](https://github.com/DayuGuo/Pivot/pull/2)已带全部差异、16字段迁移、失败修复与验收记录供审查；尚未自动合并。

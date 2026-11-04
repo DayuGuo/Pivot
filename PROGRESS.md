@@ -2,6 +2,8 @@
 
 ## 当前增量：2026-11-04，spec021人工证据反馈（本机与远端已验收）
 
+下一阶段可审查交付：[PR #2](https://github.com/DayuGuo/Pivot/pull/2)，未自动合并。main当前f67f24e仅包含用户明确授权的PR #1；新功能已在本机开发服务运行，VPS未改变。
+
 最终冻结源码21f10f9已完成scripts/verify.sh：**1260后端381.97秒＋84浏览器2.3m**，静态/研究/依赖/迁移漂移/准确构建启动全部通过，5条同类第三方弃用提醒。完整交付docs/development/spec021-review.md及结构化spec021-results.json；同一源码远端完整CI41922935042实际1260后端383.22秒＋84浏览器1.9m、全部步骤success；静态41922935021为11＋11通过。后续仅文档更新，不改运行源码，VPS未部署。
 
 用户明确授权PR #1合并，已合并main f67f24e0dc2fef8639d122cc0e545ccdfe73332f。先前main授权阻塞已解除，不再适用PR #1；用户明确要求不部署VPS。本阶段分支codex/review-feedback，未推送下一阶段到main，也不自动合并后续PR。
