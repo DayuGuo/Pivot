@@ -1,5 +1,7 @@
 # Pivot
 
+第八批本机已验收：[正式 PDF/Word 导入与修回对照](specs/025-formal-document-revisions/spec.md)。原件/提取全文独立人工核对后保存为当前草稿文件，正式修回比较已分享要求、原稿、修订稿与作者回复，可定位原件页/段及已核对全文。1382后端＋103浏览器通过；3组公开许可版本对及未改正文反例的真实DeepSeek回归共68条引文逐字/版本/原件定位通过，科学判断仍待负责人核对。Word为许可XML转制，作者材料为真实修订说明节选，未验证完整回复信。详[交付报告](docs/development/spec025-review.md)与[PR #6](https://github.com/DayuGuo/Pivot/pull/6)；PR #4/#5已授权合并，新PR不自动合并。本机增量迁移保留所有旧数据，VPS未更新、邮件禁用、关键决定人工确认。
+
 第七批已在本机验收：[上下文建议与正式修回对照](specs/024-contextual-guidance-and-revision-comparison.md)。资料区/正式出版对话上方给出按角色、阶段、缺项与已有证据选择的建议，只填草稿；正式修回逐项比较已分享要求、原/修订全文和回复，显示版本、原文行号及历史提示。AI判断仍须负责人核对，不自动发信、确认修回或作决定。本机1344后端＋93浏览器通过；真实DeepSeek合成两阶段协议通过，非真实论文准确率。同源码GitHub完整CI1344＋93通过，详[报告](docs/development/spec024-review.md)与[PR #5](https://github.com/DayuGuo/Pivot/pull/5)（PR #4/#5已按用户授权合并main）。保留数据，无新迁移，不部署VPS。
 
 第六批已验收：[独立评价人工核对、回传和分歧](specs/023-independent-evaluation-returns.md)。在已有回答下打开“独立评价回传”，指定代号登记v2包，进入独立核对页下载/上传JSON，逐条对照原文并勾选后确认。按代号最新确认汇总，待核对/未评价单列，不改原回答/资料核对/出版决定。旧v1包不具备回传映射；代号不是身份认证。本机与同源码CI **1319后端＋91浏览器**通过，详[验收报告](docs/development/spec023-review.md)。本轮不部署VPS，邮件继续禁发。

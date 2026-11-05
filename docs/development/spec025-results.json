@@ -1,0 +1,275 @@
+{
+  "schema": "spec025-results.v1",
+  "status": "acceptance_passed",
+  "runtime_source": "4995bb15d2e3673dfa79ccf088c8de0794b126f2",
+  "fixture_source": "eca4675b9d0188fc5902505173e377786a35fee0",
+  "migration": "f59230d88725",
+  "public_corpus": {
+    "version_pairs": 3,
+    "licensed_review_paragraphs": 9,
+    "article_pdf_excerpts": 6,
+    "xml_derived_docx": 9,
+    "publisher_native_docx": 0,
+    "published_revision_note_excerpts": 3,
+    "complete_rebuttal_letters": 0
+  },
+  "live": {
+    "provider": "deepseek",
+    "model": "deepseek-flash",
+    "success": true,
+    "processing_items": 40,
+    "citations_verified": 68,
+    "batches": 8,
+    "tool_calls": 16,
+    "input_tokens": 158313,
+    "output_tokens": 4158,
+    "duration_ms": 104286,
+    "cost_usd": null,
+    "restored_verification_mock": true,
+    "counts_before": {
+      "publishing_action_proposals": 825,
+      "publishing_human_confirmations": 825,
+      "publishing_editorial_decisions": 72
+    },
+    "counts_after": {
+      "publishing_action_proposals": 825,
+      "publishing_human_confirmations": 825,
+      "publishing_editorial_decisions": 72
+    },
+    "mailpit_messages": 0,
+    "cases": [
+      {
+        "id": "oath",
+        "formats": [
+          "pdf",
+          "docx"
+        ],
+        "adversarial_unchanged_manuscript": false,
+        "passed": true,
+        "processing_items": 10,
+        "citations_verified": 19,
+        "batches": 2,
+        "http_statuses": [
+          200,
+          200
+        ],
+        "statuses": {
+          "uncertain": 10
+        }
+      },
+      {
+        "id": "13-921",
+        "formats": [
+          "pdf",
+          "pdf"
+        ],
+        "adversarial_unchanged_manuscript": false,
+        "passed": true,
+        "processing_items": 9,
+        "citations_verified": 13,
+        "batches": 2,
+        "http_statuses": [
+          200,
+          200
+        ],
+        "statuses": {
+          "not_applicable": 2,
+          "uncertain": 7
+        }
+      },
+      {
+        "id": "13-6",
+        "formats": [
+          "docx",
+          "docx"
+        ],
+        "adversarial_unchanged_manuscript": false,
+        "passed": true,
+        "processing_items": 11,
+        "citations_verified": 19,
+        "batches": 2,
+        "http_statuses": [
+          200,
+          200
+        ],
+        "statuses": {
+          "uncertain": 10,
+          "not_applicable": 1
+        }
+      },
+      {
+        "id": "oath-unchanged-adversarial",
+        "formats": [
+          "docx",
+          "docx"
+        ],
+        "adversarial_unchanged_manuscript": true,
+        "passed": true,
+        "processing_items": 10,
+        "citations_verified": 17,
+        "batches": 2,
+        "http_statuses": [
+          200,
+          200
+        ],
+        "statuses": {
+          "not_applicable": 2,
+          "uncertain": 8
+        }
+      }
+    ],
+    "semantic_accuracy_measured": false,
+    "expert_reviewers": 0
+  },
+  "live_experiment_history": {
+    "experiments": [
+      {
+        "name": "first",
+        "success": false,
+        "duration_ms": 96073,
+        "restored_mock": true
+      },
+      {
+        "name": "second",
+        "success": false,
+        "duration_ms": 110658,
+        "restored_mock": true
+      },
+      {
+        "name": "third",
+        "success": false,
+        "duration_ms": 111433,
+        "restored_mock": true
+      },
+      {
+        "name": "fourth",
+        "success": false,
+        "duration_ms": 102954,
+        "restored_mock": true
+      },
+      {
+        "name": "fifth",
+        "success": false,
+        "duration_ms": 93359,
+        "restored_mock": true
+      },
+      {
+        "name": "catalog",
+        "success": true,
+        "duration_ms": 104286,
+        "restored_mock": true
+      }
+    ],
+    "http_attempts": 39,
+    "http_200": 29,
+    "tool_attempts_metered": 80,
+    "diagnostic_attempts_metered": 2,
+    "diagnostic_attempts_unmetered": 3,
+    "input_tokens_metered": 628561,
+    "output_tokens_metered": 36859,
+    "schema_repair_attempts": 12,
+    "cost_usd": null,
+    "cost_basis": "provider invoice unavailable; three earlier read-only diagnostic calls have no retained token telemetry; counts are engineering observations across changing protocols, not accuracy estimates"
+  },
+  "validation": {
+    "initial_full_backend": {
+      "passed": 1377,
+      "failed": 4,
+      "duration_seconds": 632.7,
+      "reason": "historical fixtures had prior migration head/table sets; fixed without deleting tests"
+    },
+    "migration_targeted": {
+      "passed": 5,
+      "duration_seconds": 7.58
+    },
+    "production_contracts": {
+      "passed": 53,
+      "duration_seconds": 47.69
+    },
+    "final_full_backend": {
+      "passed": 1382,
+      "failed": 0,
+      "warnings": 7,
+      "duration_seconds": 448.52
+    },
+    "final_playwright": {
+      "passed": 103,
+      "failed": 0,
+      "duration": "4.3m"
+    },
+    "ci": {
+      "source": "4995bb15d2e3673dfa79ccf088c8de0794b126f2",
+      "push_verify": {
+        "run_id": 42054578463,
+        "conclusion": "success",
+        "all_jobs_and_steps": "success",
+        "backend_passed": 1382,
+        "backend_seconds": 557.73,
+        "playwright_passed": 103,
+        "playwright_duration": "2.8m"
+      },
+      "pr_verify": {
+        "run_id": 42054588405,
+        "conclusion": "success",
+        "all_jobs_and_steps": "success",
+        "backend_passed": 1382,
+        "backend_seconds": 649.11,
+        "playwright_passed": 103,
+        "playwright_duration": "3.2m"
+      },
+      "push_static": {
+        "run_id": 42054578663,
+        "conclusion": "success",
+        "all_jobs_and_steps": "success"
+      },
+      "pr_static": {
+        "run_id": 42054588474,
+        "conclusion": "success",
+        "all_jobs_and_steps": "success"
+      }
+    },
+    "verify_exit_code": 0,
+    "verify_log": "artifacts/spec025/verify-final-fifth.log",
+    "persisted_live_browser": {
+      "passed": true,
+      "scope": "persisted_actual_deepseek_http_turn_rendered_in_browser_no_new_inference",
+      "runtime_source": "4995bb15d2e3673dfa79ccf088c8de0794b126f2",
+      "provider": "deepseek",
+      "source_exact": true,
+      "batch_guidance_resumes": 9,
+      "post_requests": 0,
+      "page_errors": 0,
+      "desktop": true,
+      "mobile375": true
+    }
+  },
+  "data": {
+    "initial_business_tables": 35,
+    "initial_business_rows": 956,
+    "cas_files": 24,
+    "backup_verified": true,
+    "main_upgrade_performed": true,
+    "vps_deployed": false,
+    "all_old_tables": 51,
+    "all_old_rows": 3560,
+    "all_old_rows_unchanged": true,
+    "publishing_old_tables": 35,
+    "publishing_old_rows": 956,
+    "new_tables": 2,
+    "new_table_rows": 0,
+    "cas_files_unchanged": 24,
+    "provider": "deepseek",
+    "model": "deepseek-flash",
+    "email_send_enabled": false,
+    "mailpit_messages": 0,
+    "runtime_source": "4995bb15d2e3673dfa79ccf088c8de0794b126f2"
+  },
+  "safety": {
+    "email_send_enabled": false,
+    "human_confirmation_for_decisions": true,
+    "real_mail_attempts": 0,
+    "global_codex_config_changed": false
+  },
+  "comparison_protocol_source": "f12fe0a4dc26267b2ccda7454cc1566faeaee6ec",
+  "delivery_documents_only_after_runtime_validation": true
+}
