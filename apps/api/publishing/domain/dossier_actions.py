@@ -46,12 +46,21 @@ def gateway(
     return result
 
 
-def event(db: Session, actor: Actor, row: Dossier, action: str, version_id: str):
+def event(
+    db: Session,
+    actor: Actor,
+    row: Dossier,
+    action: str,
+    version_id: str,
+    *,
+    evidence_id: str | None = None,
+):
     record(
         db,
         actor_id=actor.user.id,
         journal_id=actor.journal_id,
         action=f"publishing.dossier_{action}",
         entity_id=row.id,
-        details={"version_id": version_id, "revision": row.revision},
+        details={"version_id": version_id, "revision": row.revision}
+        | ({"evidence_id": evidence_id} if evidence_id else {}),
     )

@@ -530,6 +530,8 @@ def test_migration_matches_metadata_and_empty_downgrade(review_db):
     # its own complete-head metadata comparison, so exclude only its new tables.
     later_tables = {
         "publishing_claim_reviews",
+        "publishing_evaluation_packages",
+        "publishing_evaluation_returns",
         "publishing_document_imports",
         "publishing_document_approvals",
         "publishing_document_sources",

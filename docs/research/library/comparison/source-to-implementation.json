@@ -10970,6 +10970,387 @@
           "scope": "Append-only human feedback target/source/sequence; not publication authority"
         }
       ]
+    },
+    {
+      "class": "EvaluationPackage",
+      "module": "apps/api/publishing/domain/evaluation_models.py",
+      "table": "publishing_evaluation_packages",
+      "contract_source": "specs/023-independent-evaluation-returns.md",
+      "slice": "independent_evaluation_returns",
+      "implementation_status": "implemented",
+      "migration_id": "17d51aeb9408",
+      "migration_status": "static_source_binding_only_runtime_verification_recorded_by_lead_in_PROGRESS",
+      "field_groups": [
+        {
+          "our_fields": [
+            "id",
+            "answer_id",
+            "dossier_id",
+            "journal_id",
+            "version_id",
+            "content_digest",
+            "evaluator_code",
+            "packet_json",
+            "claim_map",
+            "packet_digest",
+            "created_by",
+            "session_hash",
+            "created_at"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+              "entity_type": "source"
+            },
+            {
+              "system": "janeway",
+              "source_id": "submission-model-fields.txt",
+              "entity_type": "source"
+            }
+          ],
+          "origin": "project_governance",
+          "adaptation": "Project governance: immutable issued evaluation material and owner-confirmed returns, fixed source/version and private assessment; not an upstream identity or publication decision.",
+          "migration_id": "17d51aeb9408"
+        }
+      ],
+      "our_fields": [
+        "id",
+        "answer_id",
+        "dossier_id",
+        "journal_id",
+        "version_id",
+        "content_digest",
+        "evaluator_code",
+        "packet_json",
+        "claim_map",
+        "packet_digest",
+        "created_by",
+        "session_hash",
+        "created_at"
+      ],
+      "constraints": [
+        {
+          "rule": "Exact historical answer/claim mapping and owner-only explicit confirmed return",
+          "intended_acceptance": "No model approval, decision or mail; latest per declared code only"
+        }
+      ],
+      "intended_acceptance": [
+        "Manual preview/confirmation, version/owner checks, idempotency, conflicts, immutable history and disagreement tests; actual results in PROGRESS."
+      ],
+      "current_baseline": {
+        "system": "current-system",
+        "source_id": "apps/api/publishing/models.py",
+        "entity_type": "class",
+        "entity": "Manuscript"
+      },
+      "source_binding": {
+        "path": "apps/api/publishing/domain/evaluation_models.py",
+        "class_line": 20,
+        "fields": [
+          {
+            "name": "id",
+            "line": 48,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
+          },
+          {
+            "name": "answer_id",
+            "line": 49,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('publishing_dossier_answers.id'))"
+          },
+          {
+            "name": "dossier_id",
+            "line": 50,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "journal_id",
+            "line": 51,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "version_id",
+            "line": 52,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "content_digest",
+            "line": 53,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "evaluator_code",
+            "line": 54,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(40))"
+          },
+          {
+            "name": "packet_json",
+            "line": 55,
+            "annotation": "Mapped[dict]",
+            "declaration": "mapped_column(JSONB)"
+          },
+          {
+            "name": "claim_map",
+            "line": 56,
+            "annotation": "Mapped[dict]",
+            "declaration": "mapped_column(JSONB)"
+          },
+          {
+            "name": "packet_digest",
+            "line": 57,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "created_by",
+            "line": 58,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
+          },
+          {
+            "name": "session_hash",
+            "line": 59,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "created_at",
+            "line": 60,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True), default=now)"
+          }
+        ],
+        "table_args": {
+          "line": 22,
+          "declaration": "(ForeignKeyConstraint(['version_id', 'dossier_id', 'journal_id'], ['publishing_dossier_versions.id', 'publishing_dossier_versions.dossier_id', 'publishing_dossier_versions.journal_id'], name='fk_evaluation_package_version'), UniqueConstraint('answer_id', 'evaluator_code', name='uq_evaluation_package_slot'), UniqueConstraint('id', 'dossier_id', 'journal_id', 'version_id', name='uq_evaluation_package_scope'), CheckConstraint(\"evaluator_code ~ '^[a-z0-9][a-z0-9_-]{0,39}$'\", name='ck_evaluation_package_code'), CheckConstraint(\"content_digest ~ '^[0-9a-f]{64}$' AND packet_digest ~ '^[0-9a-f]{64}$' AND session_hash ~ '^[0-9a-f]{64}$'\", name='ck_evaluation_package_hashes'), CheckConstraint(\"jsonb_typeof(packet_json)='object' AND octet_length(packet_json::text)<=2097152 AND jsonb_typeof(claim_map)='object' AND octet_length(claim_map::text)<=262144\", name='ck_evaluation_package_json'))"
+        }
+      },
+      "field_revision_bindings": {
+        "id": "17d51aeb9408",
+        "answer_id": "17d51aeb9408",
+        "dossier_id": "17d51aeb9408",
+        "journal_id": "17d51aeb9408",
+        "version_id": "17d51aeb9408",
+        "content_digest": "17d51aeb9408",
+        "evaluator_code": "17d51aeb9408",
+        "packet_json": "17d51aeb9408",
+        "claim_map": "17d51aeb9408",
+        "packet_digest": "17d51aeb9408",
+        "created_by": "17d51aeb9408",
+        "session_hash": "17d51aeb9408",
+        "created_at": "17d51aeb9408"
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "17d51aeb9408",
+          "names": [
+            "fk_evaluation_package_version",
+            "uq_evaluation_package_slot",
+            "uq_evaluation_package_scope",
+            "ck_evaluation_package_code",
+            "ck_evaluation_package_hashes",
+            "ck_evaluation_package_json"
+          ],
+          "scope": "Immutable evaluation scope, packet bounds, owner and serial confirmation"
+        }
+      ]
+    },
+    {
+      "class": "EvaluationReturn",
+      "module": "apps/api/publishing/domain/evaluation_models.py",
+      "table": "publishing_evaluation_returns",
+      "contract_source": "specs/023-independent-evaluation-returns.md",
+      "slice": "independent_evaluation_returns",
+      "implementation_status": "implemented",
+      "migration_id": "17d51aeb9408",
+      "migration_status": "static_source_binding_only_runtime_verification_recorded_by_lead_in_PROGRESS",
+      "field_groups": [
+        {
+          "our_fields": [
+            "id",
+            "package_id",
+            "dossier_id",
+            "journal_id",
+            "version_id",
+            "content_digest",
+            "packet_digest",
+            "assessments_json",
+            "digest",
+            "return_no",
+            "submitted_by",
+            "session_hash",
+            "created_at"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+              "entity_type": "source"
+            },
+            {
+              "system": "janeway",
+              "source_id": "submission-model-fields.txt",
+              "entity_type": "source"
+            }
+          ],
+          "origin": "project_governance",
+          "adaptation": "Project governance: immutable issued evaluation material and owner-confirmed returns, fixed source/version and private assessment; not an upstream identity or publication decision.",
+          "migration_id": "17d51aeb9408"
+        }
+      ],
+      "our_fields": [
+        "id",
+        "package_id",
+        "dossier_id",
+        "journal_id",
+        "version_id",
+        "content_digest",
+        "packet_digest",
+        "assessments_json",
+        "digest",
+        "return_no",
+        "submitted_by",
+        "session_hash",
+        "created_at"
+      ],
+      "constraints": [
+        {
+          "rule": "Exact historical answer/claim mapping and owner-only explicit confirmed return",
+          "intended_acceptance": "No model approval, decision or mail; latest per declared code only"
+        }
+      ],
+      "intended_acceptance": [
+        "Manual preview/confirmation, version/owner checks, idempotency, conflicts, immutable history and disagreement tests; actual results in PROGRESS."
+      ],
+      "current_baseline": {
+        "system": "current-system",
+        "source_id": "apps/api/publishing/models.py",
+        "entity_type": "class",
+        "entity": "Manuscript"
+      },
+      "source_binding": {
+        "path": "apps/api/publishing/domain/evaluation_models.py",
+        "class_line": 63,
+        "fields": [
+          {
+            "name": "id",
+            "line": 87,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
+          },
+          {
+            "name": "package_id",
+            "line": 88,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "dossier_id",
+            "line": 89,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "journal_id",
+            "line": 90,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "version_id",
+            "line": 91,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "content_digest",
+            "line": 92,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "packet_digest",
+            "line": 93,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "assessments_json",
+            "line": 94,
+            "annotation": "Mapped[dict]",
+            "declaration": "mapped_column(JSONB)"
+          },
+          {
+            "name": "digest",
+            "line": 95,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "return_no",
+            "line": 96,
+            "annotation": "Mapped[int]",
+            "declaration": "mapped_column(Integer)"
+          },
+          {
+            "name": "submitted_by",
+            "line": 97,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
+          },
+          {
+            "name": "session_hash",
+            "line": 98,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "created_at",
+            "line": 99,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True), default=now)"
+          }
+        ],
+        "table_args": {
+          "line": 65,
+          "declaration": "(ForeignKeyConstraint(['package_id', 'dossier_id', 'journal_id', 'version_id'], ['publishing_evaluation_packages.id', 'publishing_evaluation_packages.dossier_id', 'publishing_evaluation_packages.journal_id', 'publishing_evaluation_packages.version_id'], name='fk_evaluation_return_package'), UniqueConstraint('package_id', 'return_no', name='uq_evaluation_return_sequence'), CheckConstraint('return_no>=1', name='ck_evaluation_return_sequence'), CheckConstraint(\"content_digest ~ '^[0-9a-f]{64}$' AND packet_digest ~ '^[0-9a-f]{64}$' AND digest ~ '^[0-9a-f]{64}$' AND session_hash ~ '^[0-9a-f]{64}$'\", name='ck_evaluation_return_hashes'), CheckConstraint(\"jsonb_typeof(assessments_json)='object' AND octet_length(assessments_json::text)<=131072\", name='ck_evaluation_return_json'))"
+        }
+      },
+      "field_revision_bindings": {
+        "id": "17d51aeb9408",
+        "package_id": "17d51aeb9408",
+        "dossier_id": "17d51aeb9408",
+        "journal_id": "17d51aeb9408",
+        "version_id": "17d51aeb9408",
+        "content_digest": "17d51aeb9408",
+        "packet_digest": "17d51aeb9408",
+        "assessments_json": "17d51aeb9408",
+        "digest": "17d51aeb9408",
+        "return_no": "17d51aeb9408",
+        "submitted_by": "17d51aeb9408",
+        "session_hash": "17d51aeb9408",
+        "created_at": "17d51aeb9408"
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "17d51aeb9408",
+          "names": [
+            "fk_evaluation_return_package",
+            "uq_evaluation_return_sequence",
+            "ck_evaluation_return_sequence",
+            "ck_evaluation_return_hashes",
+            "ck_evaluation_return_json"
+          ],
+          "scope": "Immutable evaluation scope, packet bounds, owner and serial confirmation"
+        }
+      ]
     }
   ],
   "additional_contracts": [
@@ -11071,6 +11452,16 @@
       "migration_id": "16c40fda8397",
       "new_models": {
         "ClaimReview": "publishing_claim_reviews"
+      },
+      "extended_fields": {},
+      "extended_constraints": {}
+    },
+    {
+      "path": "specs/023-independent-evaluation-returns.md",
+      "migration_id": "17d51aeb9408",
+      "new_models": {
+        "EvaluationPackage": "publishing_evaluation_packages",
+        "EvaluationReturn": "publishing_evaluation_returns"
       },
       "extended_fields": {},
       "extended_constraints": {}
@@ -11407,6 +11798,37 @@
           "sha256": "9bddf66e49e3bebc8cb66d9c7aa3adc3b2c86f6cb79aacfef11cea3efaa8b05c"
         }
       ]
+    },
+    {
+      "revision": "17d51aeb9408",
+      "down_revision": "16c40fda8397",
+      "path": "infrastructure/migrations/versions/17d51aeb9408_evaluation_returns.py",
+      "sha256": "6b538047a1d9c128a2e6baaabeed512def236b8c3887dc582bd37e3f0b6550c7",
+      "validation_scope": "Static bindings only; executed validation recorded separately in PROGRESS",
+      "sql_functions": [
+        "publishing_evaluation_guard"
+      ],
+      "deferred_triggers": [],
+      "row_triggers": [],
+      "truncate_triggers": [
+        {
+          "name": "evaluation_truncate",
+          "table": "publishing_evaluation_packages",
+          "function": "publishing_dossier_immutable"
+        },
+        {
+          "name": "evaluation_truncate",
+          "table": "publishing_evaluation_returns",
+          "function": "publishing_dossier_immutable"
+        }
+      ],
+      "sql_function_fingerprints": [
+        {
+          "name": "publishing_evaluation_guard",
+          "normalization": "strip_and_create_or_replace",
+          "sha256": "1ca711a450596f964532e2611312832d1d4cc55713a336a798f1d03a2234c947"
+        }
+      ]
     }
   ],
   "implementation_helper_bindings": [
@@ -11434,21 +11856,21 @@
   ],
   "component_evidence": [
     {
-      "date": "2026-11-04",
+      "date": "2026-11-05",
       "suite": "tests/api/test_production_models.py",
       "observed_passed": 53,
-      "elapsed_seconds": 36.625,
+      "elapsed_seconds": 36.408,
       "warnings": [
         "existing Starlette/httpx deprecation"
       ],
-      "scope": "53 production cases from combined 81-case JUnit; complete-head assertion includes16c human feedback; historical fixture boundaries preserved",
+      "scope": "53 actual production cases within 81-case report; complete head includes17d, historical fixtures retained",
       "public_database_modified_by_component_agent": false,
-      "evidence_report": "artifacts/spec021/schema-focused.xml",
-      "report_sha256": "fa426b100433abb7a8319c8309482b55b62defd01eea3f6f540af4c2404ecc4d",
+      "evidence_report": "artifacts/spec023/schema-focused.xml",
+      "report_sha256": "8539fad49f6ad9451822af5761f3e89952d94137132b69835fe9a552e8490cd2",
       "report_availability": "ephemeral observed JUnit; recorded hash, not required by offline gate",
       "token_usage": null,
       "api_cost": null,
-      "suite_sha256": "60941a94e6bb10fa037f78f1a0d4daa34debb0e2b08a75683695d081bc615c25",
+      "suite_sha256": "99d5c4c17985f0ae86dc2ba6c35858a5b036497d61449b55ca5305db91778f8b",
       "migration_id": "12e06b9c4f53",
       "required_test_functions": [
         "test_complete_chain_metadata_has_zero_drift",
@@ -11737,7 +12159,17 @@
       "report_suite_counts": {
         "tests.api.test_production_models": 53,
         "tests.api.test_dossiers": 28
-      }
+      },
+      "previous_observations": [
+        {
+          "date": "2026-11-04",
+          "suite_sha256": "60941a94e6bb10fa037f78f1a0d4daa34debb0e2b08a75683695d081bc615c25",
+          "observed_passed": 53,
+          "elapsed_seconds": 36.625,
+          "report_sha256": "fa426b100433abb7a8319c8309482b55b62defd01eea3f6f540af4c2404ecc4d",
+          "scope": "53 production cases from combined 81-case JUnit; complete-head assertion includes16c human feedback; historical fixture boundaries preserved"
+        }
+      ]
     }
   ]
 }

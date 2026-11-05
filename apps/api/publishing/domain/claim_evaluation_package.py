@@ -52,16 +52,16 @@ def citation_projection(citation, *, version, text, file_sha256):
     }
 
 
-def package_projection(source, claims):
+def package_projection(source, claims, *, claim_ids=None):
     """Random identifiers/order do not reveal adopted/withheld groups or indexes."""
     entries = [
         {
-            "id": str(uuid4()),
+            "id": claim_ids[index] if claim_ids is not None else str(uuid4()),
             "text": c["text"],
             "citations": deepcopy(c["citations"]),
             "assessment": {"verdict": None, "note": ""},
         }
-        for c in claims
+        for index, c in enumerate(claims)
     ]
     SystemRandom().shuffle(entries)
     return {
