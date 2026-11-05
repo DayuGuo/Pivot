@@ -194,7 +194,7 @@ function PointReview({ pointId, packet, security }: { pointId: string; packet: R
     if (!before) setLatest(page.items[0] ?? null);
   }
   async function save(event: FormEvent) {
-    event.preventDefault(); if (lock.current || !ack) return;
+    event.preventDefault(); if (lock.current || (!ack && !pending.current?.saved)) return;
     lock.current = true; setBusy(true); setNotice("");
     // Loading history after an unknown/known write must not silently rebase its
     // optimistic head or replace the original UUID with a second mutation.
@@ -236,7 +236,7 @@ function PointReview({ pointId, packet, security }: { pointId: string; packet: R
       <label>编辑处理<select name={`editor-${pointId}`} value={editor} required onChange={e => { setEditor(e.target.value); changed(); }}><option value="">请选择</option>{Object.entries(editorLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
       <label>本人核对理由<textarea name={`reason-${pointId}`} required minLength={5} maxLength={2000} value={reason} onChange={e => { setReason(e.target.value); changed(); }} /></label>
       <label className={local.check}><input type="checkbox" name={`review-ack-${pointId}`} checked={ack} onChange={e => { setAck(e.target.checked); security.dirty(pointId, true); }} />我已对照原文核对本条，确认上述人工判断。</label>
-    </fieldset><button disabled={busy || !ack}>{busy ? "正在保存…" : recoverRead ? "恢复已保存判断" : "保存人工判断"}</button></form>
+    </fieldset><button disabled={busy || (!ack && !recoverRead)}>{busy ? "正在保存…" : recoverRead ? "恢复已保存判断" : "保存人工判断"}</button></form>
     {notice && <p role="status">{notice}</p>}
     <details><summary onClick={() => { if (!history.length) void historyPage(); }}>人工判断历史</summary><ul className={local.history}>{history.map(item => <li key={item.id}>第 {item.review_no} 次：{responseLabels[item.response_verdict]}；{implementationLabels[item.implementation_verdict]}；{editorLabels[item.editor_verdict]}。{item.reason}</li>)}</ul>{cursor && <button type="button" disabled={busy} onClick={() => void historyPage(cursor)}>加载更早人工判断</button>}</details>
   </section>;

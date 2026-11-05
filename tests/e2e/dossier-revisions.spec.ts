@@ -139,7 +139,7 @@ test("人工判断写后读取失败再刷新历史：重新勾选，恢复不�
   await point.getByText("人工判断历史", { exact: true }).click();
   await expect(point.getByText(/第 1 次：已回应；部分落实；需要进一步处理/)).toBeVisible();
   await expect(point.getByRole("checkbox")).not.toBeChecked();
-  await point.getByRole("checkbox").check();
+  await expect(point.getByRole("button", { name: "恢复已保存判断", exact: true })).toBeEnabled();
   await point.getByRole("button", { name: "恢复已保存判断", exact: true }).click();
   await expect(point.getByRole("status")).toHaveText("人工判断已保存。");
   expect(posts).toBe(1);
