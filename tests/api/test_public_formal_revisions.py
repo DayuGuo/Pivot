@@ -196,6 +196,13 @@ def test_all_requirement_batches_are_reachable_and_replay_keeps_exact_batch(
     ids = [r["point_id"] for r in first["rows"] + report["rows"]]
     assert len(ids) == len(set(ids)) == first["point_count"]
     assert first["source_fingerprint"] == report["source_fingerprint"]
+    hint = client.get(f"/api/publishing/manuscripts/{mid}/guidance").json()["suggestions"][0]
+    assert hint["id"] == "revision-followup" and "最近一批" in hint["reason"]
+    assert hint["label"] == "核对待核实项" and "其他批次" in hint["reason"]
+    assert hint["prompt"].startswith("请从第9项开始")
+    resumed = post(client, hint["prompt"], mid)
+    assert resumed.status_code == 200
+    assert resumed.json()["messages"][1]["revision_comparison"]["point_offset"] == 8
     assert post(client, "请从第999项开始，逐条对照修回与作者回复。", mid).status_code == 422
     assert post(client, "请从第0项开始，逐条对照修回与作者回复。", mid).status_code == 422
 

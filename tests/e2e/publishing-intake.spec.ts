@@ -231,7 +231,7 @@ test("常驻对话贯通投稿、评审、正式修回、校样与鉴权本地�
   await expect(editorPage.getByLabel("修回复核结果", { exact: true })).toHaveValue("");
   await editorPage.reload();
   await expect(editorPage.getByRole("region", { name: "修回逐项对照", exact: true })).toBeVisible();
-  await expect(editorPage.getByRole("button", { name: "核对未落实项", exact: true })).toBeVisible();
+  await expect(editorPage.getByRole("button", { name: "核对待核实项", exact: true })).toBeVisible();
   await editorPage.getByRole("region", { name: "修回逐项对照", exact: true }).scrollIntoViewIfNeeded();
   await editorPage.screenshot({ path: test.info().outputPath("revision-comparison-desktop.png") });
   await expect(editorPage.getByRole("checkbox", { name: "我已人工检查当前修回版本", exact: true })).not.toBeChecked();
