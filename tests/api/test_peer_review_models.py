@@ -15,8 +15,10 @@ from uuid import uuid4
 
 import pytest
 from alembic.autogenerate import compare_metadata
+from alembic.config import Config
 from alembic.migration import MigrationContext
 from alembic.operations import Operations
+from alembic.script import ScriptDirectory
 from sqlalchemy import inspect, select, text
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import Session
@@ -52,6 +54,16 @@ def migration(name):
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def later_migrations(after):
+    """Apply the real current head in complete-schema checks, keeping old fixtures historical."""
+    config = Config(str(ROOT / "alembic.ini"))
+    config.set_main_option("script_location", str(ROOT / "infrastructure/migrations"))
+    scripts = ScriptDirectory.from_config(config)
+    chain = list(reversed(list(scripts.walk_revisions(base="base", head="heads"))))
+    boundary = next(i for i, revision in enumerate(chain) if revision.revision == after)
+    return [revision.module for revision in chain[boundary + 1 :]]
 
 
 MIGRATIONS = [
@@ -526,42 +538,20 @@ def submit(w, i, p, t):
 
 def test_migration_matches_metadata_and_empty_downgrade(review_db):
     db, conn = review_db
-    # This historical migration fixture deliberately stops at D (10c). E has
-    # its own complete-head metadata comparison, so exclude only its new tables.
-    later_tables = {
-        "publishing_formal_document_imports",
-        "publishing_formal_document_bindings",
-        "publishing_claim_reviews",
-        "publishing_evaluation_packages",
-        "publishing_evaluation_returns",
-        "publishing_document_imports",
-        "publishing_document_approvals",
-        "publishing_document_sources",
-        "publishing_dossier_answers",
-        "publishing_editorial_decisions",
-        "publishing_decision_report_releases",
-        "publishing_revision_requests",
-        "publishing_proof_packages",
-        "publishing_proof_responses",
-        "publishing_publication_previews",
-        "publishing_dossiers",
-        "publishing_dossier_versions",
-        "publishing_dossier_checks",
-        "publishing_dossier_turns",
-    }
-    context = MigrationContext.configure(
-        conn,
-        opts={
-            "include_object": lambda obj, name, kind, reflected, compare_to: not (
-                kind == "table" and name in later_tables
-            ),
-        },
-    )
+    # Keep the D fixture unchanged for constraint tests; this one explicitly
+    # reaches the current head and compares every registered table and column.
+    later = later_migrations(MIGRATIONS[-1].revision)
+    with Operations.context(MigrationContext.configure(conn)):
+        for module in later:
+            module.upgrade()
+    context = MigrationContext.configure(conn)
     assert compare_metadata(context, Base.metadata) == []
     assert {"fk_pub_review_round_file_round", "fk_pub_review_round_file_version_file"} <= {
         x["name"] for x in inspect(conn).get_foreign_keys("publishing_review_round_files")
     }
     with Operations.context(MigrationContext.configure(conn)):
+        for module in reversed(later):
+            module.downgrade()
         MIGRATIONS[-1].downgrade()
     assert not inspect(conn).has_table("publishing_review_rounds")
 

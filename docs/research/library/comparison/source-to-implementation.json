@@ -12832,18 +12832,18 @@
       "date": "2026-11-05",
       "suite": "tests/api/test_production_models.py",
       "observed_passed": 53,
-      "elapsed_seconds": 47.528,
+      "elapsed_seconds": 46.202,
       "warnings": [
         "existing Starlette/httpx deprecation"
       ],
-      "scope": "53 actual production cases; full-head comparison now includes f592 formal import/binding tables, historical F fixture and all permission/immutability constraints retained",
+      "scope": "53 actual production cases in 175-case strict migration regression; full metadata through28a internal revision tables and reverse empty downgrades, historical F constraints retained",
       "public_database_modified_by_component_agent": false,
-      "evidence_report": "artifacts/spec025/production-fixtures.xml",
-      "report_sha256": "b9ad41d7d4cd9fabe1eb5190f5ba150859f3f56961a7becbd4aa5169cabca5f0",
+      "evidence_report": "artifacts/spec027/migration-fixtures.xml",
+      "report_sha256": "d13d630d110540b0aa1d80962f6b9ed30cb4cf3c0f46807fa5d2e51f9d03d403",
       "report_availability": "ephemeral observed JUnit; recorded hash, not required by offline gate",
       "token_usage": null,
       "api_cost": null,
-      "suite_sha256": "de068b504d6b7da743557e7ff3b6e78a70aabdde9c20a4fd5ec880ca3f6bfa30",
+      "suite_sha256": "c9fd5b4708f12c6693365222f500975416a6aed9395c358fdf87a7186bce0640",
       "migration_id": "12e06b9c4f53",
       "required_test_functions": [
         "test_complete_chain_metadata_has_zero_drift",
@@ -12862,7 +12862,7 @@
         "test_production_db_conflict_checks_historical_author_email",
         "test_f_confirmation_must_bind_exact_current_workflow"
       ],
-      "reproducible_command": "DATABASE_URL=<isolated-test-db> PYTHONPATH=. .venv/bin/pytest -q tests/api/test_production_models.py --junitxml=artifacts/spec025/production-fixtures.xml",
+      "reproducible_command": "DATABASE_URL=<isolated-test-db> .venv/bin/pytest -q tests/api/test_dossiers.py tests/api/test_editorial_decision_models.py tests/api/test_peer_review_models.py tests/api/test_production_models.py --junitxml=artifacts/spec027/migration-fixtures.xml",
       "verification_policy": "offline gate checks suite source hash/functions and declared observed report metadata; it does not execute or claim to reverify PostgreSQL tests",
       "previous_observation": {
         "date": "2026-11-03",
@@ -13128,8 +13128,11 @@
           }
         }
       ],
-      "elapsed_basis": "sum of 53 JUnit testcase time attributes; actual standalone run 47.69s wall",
+      "elapsed_basis": "Sum of 53 production testcase durations; combined 175-case wall time118.11s, not a standalone53-case wall time",
       "report_suite_counts": {
+        "tests.api.test_dossiers": 28,
+        "tests.api.test_editorial_decision_models": 44,
+        "tests.api.test_peer_review_models": 50,
         "tests.api.test_production_models": 53
       },
       "previous_observations": [
@@ -13148,8 +13151,21 @@
           "elapsed_seconds": 36.408,
           "report_sha256": "8539fad49f6ad9451822af5761f3e89952d94137132b69835fe9a552e8490cd2",
           "scope": "53 actual production cases within 81-case report; complete head includes17d, historical fixtures retained"
+        },
+        {
+          "date": "2026-11-05",
+          "suite_sha256": "de068b504d6b7da743557e7ff3b6e78a70aabdde9c20a4fd5ec880ca3f6bfa30",
+          "observed_passed": 53,
+          "elapsed_seconds": 47.528,
+          "report_sha256": "b9ad41d7d4cd9fabe1eb5190f5ba150859f3f56961a7becbd4aa5169cabca5f0",
+          "scope": "53 actual production cases; full-head comparison now includes f592 formal import/binding tables, historical F fixture and all permission/immutability constraints retained"
         }
-      ]
+      ],
+      "dependent_suite_hashes": {
+        "tests/api/test_peer_review_models.py": "c050a49b2e93db905dece5cd3cb0dad63687ab013b72140dbcf1f00c14891954",
+        "tests/api/test_editorial_decision_models.py": "a1c63eda18a31a35831c6e20e6554f90a142ea182930ba8d0c0b934e66c7f443",
+        "tests/api/test_dossiers.py": "4da7efd2c693650c8fb9349b22cfd633623f6605b6f10bff0990d5cee350db7d"
+      }
     }
   ]
 }
