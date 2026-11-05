@@ -39,6 +39,9 @@ ranks = {
     "dossier_queries": 2,
     "document_sources": 2,
     "dossier_views": 3,
+    "guidance_rules": 3,
+    "revision_compare": 3,
+    "revision_sources": 3,
 }
 route_modules = {
     "dossiers",
@@ -48,6 +51,7 @@ route_modules = {
     "claim_reviews",
     "claim_evaluation",
     "evaluations",
+    "guidance",
 }
 for module, rank in ranks.items():
     source = Path("apps/api/publishing/domain") / f"{module}.py"
@@ -83,3 +87,22 @@ for module in http_routes:
         if any(name.rsplit(".", 1)[-1] in http_routes for name in names):
             raise SystemExit(f"Forbidden dossier route dependency: {source}")
 print("Dossier HTTP routes compose services without importing one another")
+
+# Suggestions and model comparison only produce data, never database authority.
+for module in ("guidance_rules", "revision_compare"):
+    source = Path("apps/api/publishing/domain") / f"{module}.py"
+    for node in ast.walk(ast.parse(source.read_text())):
+        names = (
+            [item.name for item in node.names]
+            if isinstance(node, ast.Import)
+            else [node.module or ""]
+            if isinstance(node, ast.ImportFrom)
+            else []
+        )
+        if any(
+            name.split(".")[0] in {"sqlalchemy", "psycopg", "fastapi", "smtplib"}
+            or name.rsplit(".", 1)[-1] in {"core", "models", "db", "security", "chat"}
+            for name in names
+        ):
+            raise SystemExit(f"Comparison/rule module cannot acquire mutation authority: {source}")
+print("Guidance and revision comparison remain free of database/action authority")

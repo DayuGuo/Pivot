@@ -211,6 +211,27 @@ test("常驻对话贯通投稿、评审、正式修回、校样与鉴权本地�
 
   await editorPage.reload();
   await expect(editorPage.getByLabel("修回复核结果", { exact: true })).toHaveValue("");
+  const hints = editorPage.getByRole("complementary", { name: "下一步建议", exact: true });
+  await hints.getByRole("button", { name: "逐条对照修回", exact: true }).click();
+  const revisionComposer = editorPage.getByRole("textbox", { name: "向出版助手发送消息" });
+  await expect(revisionComposer).toHaveValue(/逐条比对本次修回/);
+  const comparedReply = editorPage.waitForResponse(response => response.url().endsWith("/api/publishing/chat") && response.request().method() === "POST");
+  await editorPage.getByRole("button", { name: "发送消息", exact: true }).click();
+  const compared = await (await comparedReply).json();
+  expect(compared.state_changed).toBe(false);
+  expect(compared.messages[1].action).toBeNull();
+  expect(compared.messages[1].revision_comparison.provider).toBe("mock");
+  const comparison = editorPage.getByRole("region", { name: "修回逐项对照", exact: true });
+  await expect(comparison.getByText("Mock模拟，未作语义判断", { exact: false })).toBeVisible();
+  await expect(comparison.getByText("原稿 v1 → 修订稿 v2", { exact: true })).toBeVisible();
+  await expect(comparison.getByText("历史对照：", { exact: false })).toHaveCount(0);
+  await expect(comparison.getByText("证据不足，待核对", { exact: false }).first()).toBeVisible();
+  await expect(editorPage.getByLabel("修回复核结果", { exact: true })).toHaveValue("");
+  await editorPage.reload();
+  await expect(editorPage.getByRole("region", { name: "修回逐项对照", exact: true })).toBeVisible();
+  await expect(editorPage.getByRole("button", { name: "核对未落实项", exact: true })).toBeVisible();
+  await editorPage.getByRole("region", { name: "修回逐项对照", exact: true }).scrollIntoViewIfNeeded();
+  await editorPage.screenshot({ path: test.info().outputPath("revision-comparison-desktop.png") });
   await expect(editorPage.getByRole("checkbox", { name: "我已人工检查当前修回版本", exact: true })).not.toBeChecked();
   await expect(editorPage.getByRole("checkbox", { name: "我已人工阅读本次修回说明", exact: true })).not.toBeChecked();
   await editorPage.getByLabel("修回复核结果", { exact: true }).selectOption("ready_for_chief");
@@ -219,6 +240,7 @@ test("常驻对话贯通投稿、评审、正式修回、校样与鉴权本地�
   await editorPage.getByRole("checkbox", { name: "我已人工阅读本次修回说明", exact: true }).check();
   await prepareEditorial(editorPage, mid, "assess_revision");
   await approve(editorPage, "确认复核并进入编辑建议");
+  await expect(editorPage.getByRole("region", { name: "修回逐项对照", exact: true }).getByText("历史对照：", { exact: false })).toBeVisible();
   await expect(editorPage.getByLabel("编辑建议", { exact: true })).toHaveValue("");
   await editorPage.getByLabel("编辑建议", { exact: true }).selectOption("accept");
   await editorPage.getByLabel("内部决定依据", { exact: true }).fill("PRIVATE-E-ACCEPT-RECOMMENDATION：V2已完成正式小修并由责任编辑复核，现依据同一固定评审轮与有效修回链建议录用。");

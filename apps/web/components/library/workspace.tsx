@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import NextSteps from "../assistant/next-steps";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type FormEvent, type MouseEvent } from "react";
 import Glyph from "../editorial/icons";
@@ -331,6 +332,7 @@ export default function LibraryWorkspace({ reviewVersionId, importId, evaluation
             {loading ? <p role="status">正在载入资料…</p> : !detail ? <div className={styles.empty}><Glyph name="file" size={28} /><h2>从资料开始</h2><p>选择或新建资料，围绕已保存的全文与作者信息提问。</p></div> : !detail.messages.length ? <div className={styles.empty}><h2>从哪一处开始审阅？</h2><p>回答依据当前已保存资料。点击结论后的引用，可核对原版全文或作者字段；资料不足时不会补造结论。</p><button onClick={() => { setRetry(null); setQuestion("请概括这份全文的研究方法，并引用原文。"); }}>审阅研究方法</button></div> : detail.messages.map(message => <MessageTurn key={message.id} message={message} feedback={{ dossierId: detail.id, session, onDirty: changeFeedbackDirty, onDenied: () => { clearPrivate(true); setError("访问权限或身份已变化，请重新登录。"); } }} currentVersionId={detail.version_id} locating={locating} onCitation={(citation, trigger) => void locateCitation(citation, trigger)} />)}
             <div ref={chatEnd} />
           </div>
+          {detail && !newDossier && !loading && !historicalVersion && <NextSteps key={`${detail.id}:${detail.version_id}:${detail.revision}:${session.user.role}:${detail.messages.at(-1)?.id}`} url={`/api/dossiers/${detail.id}/guidance`} objectId={detail.id} versionId={detail.version_id} revision={detail.revision} role={session.user.role} disabled={!!busy || modelBlocked} onChoose={prompt => { const next = question.trim() ? `${question}\n\n${prompt}` : prompt; if (next.length > 2000) { setError("输入已较长，请先发送或清理当前草稿，再选择建议。"); return; } setRetry(null); setQuestion(next); document.getElementById("library-question")?.focus(); }} />}
           <form className={styles.composer} onSubmit={send}><label htmlFor="library-question" className={styles.srOnly}>询问当前资料</label><textarea id="library-question" name="question" value={question} maxLength={2000} onChange={event => { setRetry(null); setQuestion(event.target.value); }} disabled={!detail || newDossier || !!busy || loading || modelBlocked || historicalVersion} rows={3} placeholder={historicalVersion ? "历史版本只读，请返回当前资料提问" : "询问当前全文、作者或文献来源…"} /><div><span>{detail ? `${detail.is_current ? "当前" : "历史"} v${detail.version_no}${documentImport && !documentImport.confirmed_version_id ? " · 导入候选核对保存后参与问答" : dirty ? " · 有未保存修改，回答依据已保存版本" : ""}` : "先选择资料"}</span><button type="submit" className={styles.primary} disabled={!detail || newDossier || !question.trim() || !!busy || loading || modelBlocked || historicalVersion}>{busy === "assist" ? "回复中…" : "发送"}<Glyph name="arrow" size={16} /></button></div><p className={styles.boundary}>邮件与关键决定须负责人确认。</p></form>
         </main>
         <section className={styles.material} aria-label={importId ? "独立导入核对" : reviewVersionId ? "独立版本核对" : "资料内容"}>

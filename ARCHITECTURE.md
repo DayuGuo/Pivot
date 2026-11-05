@@ -178,3 +178,7 @@ review_access 为UI/API/model/download提供同一显式投影；审稿人永不
 ProofPackage引用FileObject而不追加冻结VersionFile；ProofResponse固定作者逐包回应，PublicationPreview以复合FK和确定性服务绑定同一包、录用版本、批准回应、文件和安全metadata快照。制作角色不读取作者内部声明/旧修回文件；私人FormDraft和正式包分权，上传回执也在幂等锁后重验当前权限。预览只返回鉴权安全文本，status仍accepted，无公开路由。
 
 客户端历史以服务器过滤为准，GET/POST按ID合并，权限拒绝epoch及期刊/用户/角色/稿件scope阻止迟到响应恢复旧内容。独立审核单飞/Abort/序列并清理旧勾选，shell链接保留未保存保护。完整离线797+35证据及当前主服务/真实供应商状态见PROGRESS。
+
+### 当前上下文建议与修回比较（spec024）
+
+`guidance`鉴权路由组合`dossier_views/core`实际投影与纯`guidance_rules`；不推理、不写入，不授予操作权限。共用前端`assistant/next-steps`仅准备草稿。`revision_sources`读取实际正式修回/匿名已发布要求/原新稿/回复及CAS摘要；`revision_compare`只持有传入数据和受限模型协议。`chat`沿用统一期限、并发、权限复查、事务与幂等回执，在已有PublishingChatTurn.response中保存revision-comparison.v1。对比与规则模块禁止数据库/业务核心依赖，路由禁止互相导入；scripts/check-boundaries.py执行约束。没有新增数据库迁移或自动状态转换。
