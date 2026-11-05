@@ -253,6 +253,32 @@ def test_non_bmp_text_scope_uses_unicode_code_points_in_sql_and_original_mapping
     assert located["locations"][0]["number"] == 2 and located["locations"][0]["quote"] == expected
 
 
+def test_migration_refuses_to_drop_existing_original_evidence(
+    client, login, db, monkeypatch, tmp_path
+):
+    from alembic.config import Config
+    from alembic.migration import MigrationContext
+    from alembic.operations import Operations
+    from alembic.script import ScriptDirectory
+    from sqlalchemy.exc import DBAPIError
+
+    monkeypatch.setenv("PUBLISHING_STORAGE_DIR", str(tmp_path))
+    login("author")
+    mid = draft(client)["manuscript_id"]
+    imported, _ = prepare(client, mid)
+    migration = (
+        ScriptDirectory.from_config(Config("alembic.ini")).get_revision("f59230d88725").module
+    )
+    with (
+        pytest.raises(DBAPIError, match="Cannot remove formal document evidence"),
+        db.begin_nested(),
+    ):
+        with Operations.context(MigrationContext.configure(db.connection())):
+            migration.downgrade()
+    restored = client.get(f"/api/publishing/manuscripts/{mid}/document-imports/{imported['id']}")
+    assert restored.status_code == 200 and restored.json()["sha256"] == imported["sha256"]
+
+
 def test_pending_pagination_is_scoped_replay_is_exact_and_stale_import_is_conflict(
     client, login, db, monkeypatch, tmp_path
 ):

@@ -564,6 +564,8 @@ def test_full_migration_metadata_and_safe_empty_downgrade(editorial_world):
     # This fixture stops at the E migration; F separately compares the complete
     # latest schema, including these three later tables, against all metadata.
     later_tables = {
+        "publishing_formal_document_imports",
+        "publishing_formal_document_bindings",
         "publishing_claim_reviews",
         "publishing_evaluation_packages",
         "publishing_evaluation_returns",

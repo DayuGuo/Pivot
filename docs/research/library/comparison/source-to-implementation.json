@@ -12388,18 +12388,18 @@
       "date": "2026-11-05",
       "suite": "tests/api/test_production_models.py",
       "observed_passed": 53,
-      "elapsed_seconds": 36.408,
+      "elapsed_seconds": 47.528,
       "warnings": [
         "existing Starlette/httpx deprecation"
       ],
-      "scope": "53 actual production cases within 81-case report; complete head includes17d, historical fixtures retained",
+      "scope": "53 actual production cases; full-head comparison now includes f592 formal import/binding tables, historical F fixture and all permission/immutability constraints retained",
       "public_database_modified_by_component_agent": false,
-      "evidence_report": "artifacts/spec023/schema-focused.xml",
-      "report_sha256": "8539fad49f6ad9451822af5761f3e89952d94137132b69835fe9a552e8490cd2",
+      "evidence_report": "artifacts/spec025/production-fixtures.xml",
+      "report_sha256": "b9ad41d7d4cd9fabe1eb5190f5ba150859f3f56961a7becbd4aa5169cabca5f0",
       "report_availability": "ephemeral observed JUnit; recorded hash, not required by offline gate",
       "token_usage": null,
       "api_cost": null,
-      "suite_sha256": "99d5c4c17985f0ae86dc2ba6c35858a5b036497d61449b55ca5305db91778f8b",
+      "suite_sha256": "de068b504d6b7da743557e7ff3b6e78a70aabdde9c20a4fd5ec880ca3f6bfa30",
       "migration_id": "12e06b9c4f53",
       "required_test_functions": [
         "test_complete_chain_metadata_has_zero_drift",
@@ -12418,7 +12418,7 @@
         "test_production_db_conflict_checks_historical_author_email",
         "test_f_confirmation_must_bind_exact_current_workflow"
       ],
-      "reproducible_command": "DATABASE_URL=<isolated-test-db> PYTHONPATH=. .venv/bin/pytest tests/api/test_production_models.py tests/api/test_dossiers.py -q --junitxml=<local-report>",
+      "reproducible_command": "DATABASE_URL=<isolated-test-db> PYTHONPATH=. .venv/bin/pytest -q tests/api/test_production_models.py --junitxml=artifacts/spec025/production-fixtures.xml",
       "verification_policy": "offline gate checks suite source hash/functions and declared observed report metadata; it does not execute or claim to reverify PostgreSQL tests",
       "previous_observation": {
         "date": "2026-11-03",
@@ -12684,10 +12684,9 @@
           }
         }
       ],
-      "elapsed_basis": "sum of 53 production testcase time attributes in an actually executed 81-case combined run (48.55s wall); not a standalone wall-clock duration",
+      "elapsed_basis": "sum of 53 JUnit testcase time attributes; actual standalone run 47.69s wall",
       "report_suite_counts": {
-        "tests.api.test_production_models": 53,
-        "tests.api.test_dossiers": 28
+        "tests.api.test_production_models": 53
       },
       "previous_observations": [
         {
@@ -12697,6 +12696,14 @@
           "elapsed_seconds": 36.625,
           "report_sha256": "fa426b100433abb7a8319c8309482b55b62defd01eea3f6f540af4c2404ecc4d",
           "scope": "53 production cases from combined 81-case JUnit; complete-head assertion includes16c human feedback; historical fixture boundaries preserved"
+        },
+        {
+          "date": "2026-11-05",
+          "suite_sha256": "99d5c4c17985f0ae86dc2ba6c35858a5b036497d61449b55ca5305db91778f8b",
+          "observed_passed": 53,
+          "elapsed_seconds": 36.408,
+          "report_sha256": "8539fad49f6ad9451822af5761f3e89952d94137132b69835fe9a552e8490cd2",
+          "scope": "53 actual production cases within 81-case report; complete head includes17d, historical fixtures retained"
         }
       ]
     }
