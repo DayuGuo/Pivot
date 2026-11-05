@@ -90,6 +90,7 @@ test("UI fixture: 审核重载单飞且拒绝后清除旧材料与勾选", async
   await page.goto(`/publishing/review/${PID}`);
   const button = page.getByRole("button", { name: "重新载入", exact: true });
   await expect(button).toBeVisible();
+  await expect(button).toBeEnabled();
   // Two synchronous clicks model a rapid retry before React commits the loading render.
   await button.evaluate(element => { (element as HTMLButtonElement).click(); (element as HTMLButtonElement).click(); });
   await expect.poll(() => calls).toBeGreaterThan(1);

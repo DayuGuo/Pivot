@@ -179,12 +179,18 @@ test.describe("合成编辑工作台 · 跨浏览器验收", () => {
     await persisted(page, value => value.reading, { version: "v2", section: "discussion", paragraph: 0 });
     const reader = page.getByLabel("稿件正文", { exact: true });
     const resumedParagraph = reader.locator("#article-discussion > p").nth(2);
-    const scrollDelta = await resumedParagraph.evaluate(node => {
-      const viewport = node.closest('[aria-label="稿件正文"]')!;
-      return node.getBoundingClientRect().top - viewport.getBoundingClientRect().top - 24;
-    });
     await reader.hover();
-    await page.mouse.wheel(0, scrollDelta);
+    const paragraphTop = () => resumedParagraph.evaluate(node => node.getBoundingClientRect().top - node.closest('[aria-label="稿件正文"]')!.getBoundingClientRect().top);
+    // Firefox caps a single wheel event near one reader viewport. Drive real,
+    // bounded wheel steps and wait for each one; do not assume deltaY was fully
+    // consumed. The persisted paragraph and restored offset remain exact.
+    for (let step = 0; step < 8; step++) {
+      const top = await paragraphTop(); const delta = Math.round(top - 24);
+      if (Math.abs(delta) <= 1) break;
+      const amount = Math.max(-80, Math.min(80, delta));
+      await page.mouse.wheel(0, amount);
+      await expect.poll(async () => Math.abs((await paragraphTop()) - (top - amount))).toBeLessThan(2);
+    }
     await persisted(page, value => value.reading, { version: "v2", section: "discussion", paragraph: 2 });
     await page.reload();
     await expect(page.getByLabel("稿件版本")).toHaveValue("v2");
