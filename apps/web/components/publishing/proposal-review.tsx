@@ -43,7 +43,7 @@ export default function ProposalReview({ proposalId }: { proposalId: string }) {
   useEffect(() => { setReviewContext(proposal?.manuscript_id ?? null); return () => setReviewContext(null); }, [proposal?.manuscript_id, setReviewContext]);
   async function confirm() {
     if (!proposal || proposal.id !== proposalId || !acknowledged || loading || busy || stale) return; setBusy(true); setError("");
-    try { await mutate(`/proposals/${proposal.id}/confirmations`, { expected_revision: proposal.base_revision, digest: proposal.digest, acknowledged: true }); setConfirmed(true); await refresh(); await load(); }
+    try { await mutate(`/proposals/${proposal.id}/confirmations`, { expected_revision: proposal.base_revision, digest: proposal.digest, acknowledged: true }); await refresh(); await load(); }
     catch (failure) { setError((failure as Error).message); if (failure instanceof APIError && failure.status === 409) setStale(true); if (failure instanceof APIError && [401, 403, 404].includes(failure.status)) { setProposal(null); setAcknowledged(false); } } finally { setBusy(false); }
   }
   const peerLabel = proposal ? productionConfirmationLabel(proposal) ?? editorialConfirmationLabel(proposal) ?? peerReviewConfirmationLabel(proposal) : null;

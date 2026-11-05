@@ -100,6 +100,26 @@ test("UI fixture: 审核重载单飞且拒绝后清除旧材料与勾选", async
   await expect(page.getByText(`快照 SHA-256：${proposal.digest}`, { exact: false })).toHaveCount(0);
 });
 
+test('UI fixture: 审核成功提示等待稳定快照，返回稿件不会被后续重载吞掉', async ({ page }) => {
+  await fixtures(page); const read = gate(); let saved = false, refreshing = false;
+  await page.route('**/api/publishing/workspace', async route => {
+    if (saved) { refreshing = true; await read.promise; }
+    return route.fulfill({ json: { submissions: [detail], tasks: [], counts: { actionable: 0, waiting: 0 }, synthetic_only: true } });
+  });
+  await page.route(`**/api/publishing/proposals/${PID}`, route => route.fulfill({ json: { ...proposal, status: saved ? 'confirmed' : 'pending' } }));
+  await page.route(`**/api/publishing/proposals/${PID}/confirmations`, route => { saved = true; return route.fulfill({ json: { confirmed: true } }); });
+  await page.goto(`/publishing/review/${PID}`);
+  await page.getByRole('checkbox', { name: /我已核对/ }).check();
+  await page.getByRole('button', { name: '确认交作者校样', exact: true }).click();
+  await expect.poll(() => refreshing).toBe(true);
+  const success = page.getByRole('status').filter({ hasText: '此操作已由负责人确认，结果已保存。' });
+  try { await expect(success).toHaveCount(0); } finally { read.release(); }
+  await expect(success).toBeVisible();
+  await page.getByRole('link', { name: '返回稿件', exact: true }).click();
+  await expect(page).toHaveURL(new RegExp(`/publishing\\?manuscript=${MID}$`));
+  await expect(page.getByRole('heading', { name: detail.title, exact: true })).toBeVisible();
+});
+
 test("UI fixture: 历史失败只重试 GET，不重放已完成的新回合", async ({ page }) => {
   await fixtures(page); let gets = 0; let posts = 0;
   const old = message("saved-history", "失败恢复后的旧回合"); const fresh = message("saved-post", "已完成且不应重放的新回合");
