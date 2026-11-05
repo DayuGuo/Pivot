@@ -1,5 +1,7 @@
 # Pivot
 
+最新维护已验收：[代码逻辑与三浏览器兼容性复核](docs/development/spec026-review.md)。修复撤权、跨页迟到回执、导入上下文、确认返回竞态及查询放大；拆出共享浏览器能力和授权工作队列。本机及同运行源码CI **1395后端＋366浏览器通过**，scripts/verify.sh退出0；详[PROGRESS](PROGRESS.md)。本机已更新，53表3560行与24原件逐项SHA完全保留，邮件禁用、关键决定人工确认。交付[PR #7](https://github.com/DayuGuo/Pivot/pull/7)依赖未合并#6，不自动合并或更新VPS。真机/历史版本边界见[兼容性说明](docs/development/browser-compatibility.md)。
+
 第八批本机已验收：[正式 PDF/Word 导入与修回对照](specs/025-formal-document-revisions/spec.md)。原件/提取全文独立人工核对后保存为当前草稿文件，正式修回比较已分享要求、原稿、修订稿与作者回复，可定位原件页/段及已核对全文。1382后端＋103浏览器通过；3组公开许可版本对及未改正文反例的真实DeepSeek回归共68条引文逐字/版本/原件定位通过，科学判断仍待负责人核对。Word为许可XML转制，作者材料为真实修订说明节选，未验证完整回复信。详[交付报告](docs/development/spec025-review.md)与[PR #6](https://github.com/DayuGuo/Pivot/pull/6)；PR #4/#5已授权合并，新PR不自动合并。本机增量迁移保留所有旧数据，VPS未更新、邮件禁用、关键决定人工确认。
 
 第七批已在本机验收：[上下文建议与正式修回对照](specs/024-contextual-guidance-and-revision-comparison.md)。资料区/正式出版对话上方给出按角色、阶段、缺项与已有证据选择的建议，只填草稿；正式修回逐项比较已分享要求、原/修订全文和回复，显示版本、原文行号及历史提示。AI判断仍须负责人核对，不自动发信、确认修回或作决定。本机1344后端＋93浏览器通过；真实DeepSeek合成两阶段协议通过，非真实论文准确率。同源码GitHub完整CI1344＋93通过，详[报告](docs/development/spec024-review.md)与[PR #5](https://github.com/DayuGuo/Pivot/pull/5)（PR #4/#5已按用户授权合并main）。保留数据，无新迁移，不部署VPS。
@@ -89,16 +91,7 @@ Demo反馈后：[单人＋Codex单刊审阅第一阶段](specs/011-single-journa
 
 真实v0.1基线为835 Pytest +35 Playwright；2026-11-03展示增量后的完整验证为 **835 Pytest +48 Playwright**，scripts/verify.sh退出0，静态检查、PostgreSQL迁移/结构检查及前后端构建通过。独立原生静态包另通过11项；amd64包已在真实x86 GitHub CI实际安装并通过11项验收，用户VPS未实装，边界见[展示交付记录](docs/development/demo-delivery.md)。既有新领域真实API **6/6（35.178秒）** 与实际浏览器通过；[恢复验收](docs/development/deepseek-recovery.md)与[代码复核](docs/development/v01-code-review.md)记录此前发现、修复及限制，本轮Demo未调用真实模型。
 
-验证新代码使用独立栈，保护当前主服务中的真实模型环境：
-
-```bash
-docker compose -p publishing-os-verification -f compose.yaml -f infrastructure/compose.verify.yaml up -d --build --wait
-COMPOSE_PROJECT_NAME=publishing-os-verification COMPOSE_FILE=compose.yaml:infrastructure/compose.verify.yaml DATABASE_URL=postgresql+psycopg://publishing:publishing_local@localhost:55433/publishing E2E_BASE_URL=http://127.0.0.1:13100 ./scripts/verify.sh
-DATABASE_URL=postgresql+psycopg://publishing:publishing_local@localhost:55433/publishing .venv/bin/python scripts/rehearse-publishing-migration.py
-```
-
-隔离浏览器13100、API18100、DB55433、Mailpit18025；Mock且无供应商凭据。`check-research-library.py` 是离线资料完整性门禁，不会重新下载或执行上游代码。
-
+验证使用独立Mock栈，保护当前主服务中的数据和真实模型环境；启动与完整命令见[自动验证与本地开发](#自动验证与本地开发)。
 
 以对话与 AI Agent 为入口的科研期刊出版操作系统原型。首条业务链真实运行于 PostgreSQL：登录 → 对话创建合成测试稿件 → 提交并分派编辑初筛 → 状态、待办、对话、审计持久化 → 刷新恢复。
 
@@ -179,31 +172,23 @@ Mock 只模拟意图识别，稿件/任务/状态/审计不是前端假数据。
 
 ## 自动验证与本地开发
 
-运行测试工具需 Node.js 22、Python 3.12+、uv 和浏览器系统依赖。先启动服务，再安装项目隔离测试环境：
+测试工具需Node.js 22、Python 3.12+、uv、Docker与浏览器系统依赖。完整验收使用独立Mock数据库，不能与日常真实模型服务混用：
 
 ```bash
 ./scripts/setup.sh
-# Linux 首次若缺 Chromium 系统依赖：npx playwright install-deps chromium
-./scripts/verify.sh
+# Linux首次需要浏览器系统依赖；下载引擎本身不能替代此步
+npx playwright install-deps chromium firefox webkit
+docker compose -p publishing-os-verification -f compose.yaml -f infrastructure/compose.verify.yaml up -d --build --wait
+COMPOSE_PROJECT_NAME=publishing-os-verification COMPOSE_FILE=compose.yaml:infrastructure/compose.verify.yaml DATABASE_URL=postgresql+psycopg://publishing:publishing_local@localhost:55433/publishing E2E_BASE_URL=http://127.0.0.1:13100 ./scripts/verify.sh
 ```
 
-验证包含 Ruff、模型依赖边界、真实 PostgreSQL 迁移/漂移、Pytest、ESLint、TypeScript、Compose 中的 Next.js 生产构建和真实 API 的 Playwright。测试不会删除演示数据；普通 Pytest 使用外部事务回滚，并发测试只保留唯一命名合成数据，E2E 会保留新建演示稿件。
+隔离Web13100、API18100、DB55433、Mailpit18025，无供应商凭据。verify拒绝对真实模型服务运行；不要让Pytest与Playwright共用同一验证库并发。普通Pytest以外部事务回滚，专门并发/E2E保留唯一命名的合成数据，不删除已有演示资料。
 
-证据写入 `artifacts/pytest.xml`、`artifacts/playwright-report/index.html`、`artifacts/playwright-results/`；浏览器截图为 `artifacts/hermes-desktop-chat.png`、`artifacts/hermes-mobile-chat.png` 与 `artifacts/mail-settings.png`。最新实际执行结果见 [PROGRESS.md](PROGRESS.md)。CI 定义在 `.github/workflows/ci.yml`，本次交付不声称远端 GitHub Actions 已执行。
+门禁包含全仓离线语法、Ruff、研究完整性、模块依赖、引文回归、PostgreSQL迁移/漂移、Pytest、ESLint、TypeScript和Compose生产构建。构建后启动相同镜像，再用Chromium、Firefox、WebKit单worker验收。不会安装测试浏览器到VPS。物理设备/真实发行版边界与按引擎执行方式见[兼容性说明](docs/development/browser-compatibility.md)。
 
-分项命令：
+证据写入`artifacts/pytest.xml`、`artifacts/playwright-report/`、`artifacts/playwright-results/`。本轮日志/截图在`artifacts/spec026/`，可分享的结果见[复核报告](docs/development/spec026-review.md)与[PROGRESS](PROGRESS.md)。CI定义在`.github/workflows/ci.yml`和`demo.yml`；报告逐次绑定实际测试SHA，不将取消/失败运行算作通过。
 
-```bash
-.venv/bin/pytest -q
-.venv/bin/alembic check
-npm run lint
-npm run typecheck
-docker compose build web
-npm run test:e2e
-.venv/bin/python scripts/check-boundaries.py
-```
-
-当前宿主环境 `npm run build` 的 PostCSS 内部工作进程端口被沙箱 EPERM 拒绝；验收执行与启动一致的 `docker compose build web`，没有跳过构建。
+静态子检查可直接执行`npm run lint`、`npm run typecheck`、`.venv/bin/python scripts/check-boundaries.py`。重跑数据库/API/浏览器子集时沿用上述隔离环境，不切回主库。生产构建使用`docker compose build web`，与实际运行环境一致。
 
 热更新开发：停止 Compose 中的 Web/API（`docker compose stop web api`），运行 `./scripts/dev.sh`；该脚本继续使用同一 PostgreSQL，启动本地 API 与 Next 开发服务，退出时停止这两个进程。`DATABASE_URL` 可通过环境覆盖；默认是本机项目数据库。只允许 PostgreSQL，不使用 SQLite 替代验收。
 

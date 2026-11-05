@@ -28,7 +28,7 @@
 | `domain/document_imports.py` | 导入/独立确认接口 | 审批路径、版本、digest和回执重放逐项校验 |
 | `domain/dossier_chat.py` | 只读工具循环和对话接口 | 已发放来源、有限预算、提交前再授权；无危险工具 |
 
-路径相对 `apps/api/publishing`。`packages/document_ingest`负责无服务凭据解析；`packages/model_gateway`负责受控传输，不获得业务权限。正式出版的core/stages/reviews/decisions/production仍独立；本轮未重写1423行core或460行部署管理器。
+路径相对 `apps/api/publishing`。`packages/document_ingest`负责无服务凭据解析；`packages/model_gateway`负责受控传输，不获得业务权限。正式出版的core/stages/reviews/decisions/production仍独立，不为资料整理重写正式状态机或部署管理器。
 
 改表时同时改迁移、研究字段映射、不可变/跨刊约束测试；只移动文件时先比较字段和约束声明，再更新 `docs/research/library/comparison/source-to-implementation.json` 的路径/行号，禁止重写历史迁移或重置库。旧回执JSON是已持久化协议，不因整理代码而随意修改指纹算法。
 
@@ -45,3 +45,14 @@
 正式文档增量spec025：formal_document_models定义两表；formal_document_sources验证原件/提取/继承链并提供来源，formal_documents仅组合HTTP与Action Gateway。packages/document_ingest/locations为无DB的精确原文映射；revision_sources读取正式版本/作者可见要求，revision_compare保持无数据库动作权限。frontend formal-documents包含上传、待核对分页与独立核对三个组件，复用正式workspace/常驻对话；路由保留稿件和导入ID。evals/public_revisions的build/workflow/live是开发验收工具，不进入生产镜像，不获得邮件/关键决定模型工具。
 
 原文内联定位：assistant/citation-source只做受控GET、原件/已核对文本双SHA及Unicode位置校验，载入前后核对用户/期刊/角色，卸载取消迟到响应。只读片段不进入浏览器存储，不调用模型、不确认业务；保留原件下载，PDF另有原页码链接。
+
+兼容与恢复增量spec026（路径相对`apps/web/components`）：
+
+| 模块 | 修改它的理由 | 边界 |
+| --- | --- | --- |
+| `browser.ts` | 安全UUID、可选存储、受控期限/取消、SHA、离开提示 | 不全局改浏览器原型，不读业务权限，不降级随机数或摘要 |
+| `publishing/workspace.tsx` | 实际会话、路径/稿件上下文、GET取消、旧回执和未保存保护 | 导入ID从路由取，仍刷新实际权限；旧POST可能已提交，不自动重放 |
+| `library/api.ts` | 资料请求/异常与受控期限 | 不替代资料归属/版本校验；未知结果沿原UUID主动恢复 |
+| `editorial/reader.tsx` | 阅读位置、笔记与指针/捕获清理 | 不改变稿件文本、原文引用或正式编辑决定 |
+
+后端正式`domain/chat.py`的历史权限复用仅限单次GET；任何模型等待后的检查仍独立查库，不能把这个优化复制成跨请求授权缓存。

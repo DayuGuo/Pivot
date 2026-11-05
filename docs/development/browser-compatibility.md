@@ -5,6 +5,7 @@ Pivot按[Next.js现代浏览器边界](https://nextjs.org/docs/architecture/supp
 本地完整验证：先用scripts/setup.sh安装依赖与Chromium/Firefox/WebKit。Linux缺系统库时，按[Playwright官方安装方式](https://playwright.dev/docs/browsers)执行`npx playwright install-deps chromium firefox webkit`；不能假设下载二进制后已能启动全部引擎。
 
 ```sh
+docker compose -p publishing-os-verification -f compose.yaml -f infrastructure/compose.verify.yaml up -d --build --wait
 COMPOSE_PROJECT_NAME=publishing-os-verification \
 COMPOSE_FILE=compose.yaml:infrastructure/compose.verify.yaml \
 DATABASE_URL=postgresql+psycopg://publishing:publishing_local@localhost:55433/publishing \

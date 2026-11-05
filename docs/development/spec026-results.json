@@ -1,0 +1,325 @@
+{
+  "schema": "spec026-results.v1",
+  "status": "complete",
+  "runtime_source": "168f7d6e72257e03f1aefda180e6c0c52898e7d2",
+  "base_source": "897dece62f8c619e7f3faee8bb4d599b8d6c4cd1",
+  "pull_request": 7,
+  "depends_on_pull_request": 6,
+  "merge_performed": false,
+  "source_inventory": {
+    "files": 363,
+    "scope": "runtime, configuration, locks and tracked test fixtures",
+    "roots": {
+      "(root)": 12,
+      ".github": 3,
+      "apps": 149,
+      "evals": 39,
+      "infrastructure": 38,
+      "packages": 17,
+      "scripts": 31,
+      "tests": 74
+    },
+    "syntax": {
+      "syntax_only": true,
+      "files": {
+        ".py": 196,
+        ".mjs": 8,
+        ".json": 11,
+        ".sh": 10,
+        ".cjs": 1
+      },
+      "passed": true
+    }
+  },
+  "targeted": {
+    "mail": {
+      "passed": 61,
+      "warnings": 1,
+      "seconds": 7.65
+    },
+    "browser_first": {
+      "passed": 21,
+      "failed": 12,
+      "reason": "new fixture coordinates and width assumptions"
+    },
+    "browser_second": {
+      "passed": 3,
+      "failed": 9,
+      "reason": "new drag fixture hit width upper bound"
+    },
+    "drag_and_empty_response": {
+      "passed": 12,
+      "seconds": 21.5
+    },
+    "history_queue_authorization": {
+      "passed": 32,
+      "seconds": 41.98
+    },
+    "late_page_write": {
+      "passed": 12,
+      "seconds": 13.3
+    },
+    "readonly_http_fanout": {
+      "requests": 48,
+      "http_200": 32,
+      "http_429": 16,
+      "seconds": 0.179,
+      "after_health": 200,
+      "business_posts": 0
+    },
+    "impeccable_source_findings": 0,
+    "scroll_and_reload_repeated": {
+      "passed": 18,
+      "engines": 3,
+      "repetitions_per_engine": 3,
+      "minutes": 1.1
+    },
+    "import_context_red": {
+      "failed": 1,
+      "expected_journal_reads": 0,
+      "actual_journal_reads": 1
+    },
+    "import_context_repeated": {
+      "passed": 18,
+      "seconds": 34.7
+    },
+    "final_import_and_recovery": {
+      "passed": 87,
+      "minutes": 1.7
+    },
+    "approval_stability_red": {
+      "failed": 1,
+      "reason": "optimistic success while refresh still pending; return link can be removed by subsequent reload"
+    },
+    "approval_and_complete_workflow": {
+      "passed": 60,
+      "minutes": 2.6
+    }
+  },
+  "complete_verify": {
+    "command": "scripts/verify.sh",
+    "status": "completed",
+    "exit_code": 0,
+    "source": "168f7d6e72257e03f1aefda180e6c0c52898e7d2",
+    "seconds": 1186.23,
+    "backend": {
+      "passed": 1395,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 7,
+      "seconds": 470.66
+    },
+    "browser": {
+      "passed": 366,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0,
+      "minutes": 11.4,
+      "per_engine": {
+        "chromium": 122,
+        "firefox": 122,
+        "webkit": 122
+      }
+    },
+    "static_checks": "passed",
+    "migration_check": "no new upgrade operations",
+    "build_and_start": "passed",
+    "log": "artifacts/spec026/verify-final.log",
+    "exit_receipt": "artifacts/spec026/verify-exit.json"
+  },
+  "ci": {
+    "runtime_source": "168f7d6e72257e03f1aefda180e6c0c52898e7d2",
+    "verify_push": {
+      "id": 42088173082,
+      "status": "completed",
+      "conclusion": "success",
+      "all_jobs_and_steps_checked": true,
+      "verify_step": "success",
+      "backend_passed": 1395,
+      "backend_warnings": 7,
+      "backend_seconds": 414.26,
+      "browser_passed": 366,
+      "browser_failed": 0,
+      "browser_flaky": 0,
+      "browser_minutes": 11.5
+    },
+    "verify_pull_request": {
+      "id": 42088185015,
+      "status": "completed",
+      "conclusion": "cancelled",
+      "force_cancellation_requested": true,
+      "validation_counted": false,
+      "reason": "duplicate run stalled in official browser system dependency installation; same SHA push and local complete verification passed"
+    },
+    "static_push": {
+      "id": 42088173400,
+      "status": "completed",
+      "conclusion": "success",
+      "all_jobs_and_steps_checked": true,
+      "static_tests": 33,
+      "offline_amd64_tests": 33
+    },
+    "static_pull_request": {
+      "id": 42088185044,
+      "status": "completed",
+      "conclusion": "success",
+      "all_jobs_and_steps_checked": true,
+      "static_tests": 33,
+      "offline_amd64_tests": 33
+    }
+  },
+  "new_live_model_calls": 0,
+  "model_cost_usd": 0,
+  "main_data": {
+    "tables_before": 53,
+    "rows_before": 3560,
+    "cas_files_before": 24,
+    "main_updated": true,
+    "after_verified": true,
+    "tables_after": 53,
+    "rows_after": 3560,
+    "cas_files_after": 24,
+    "all_row_keys_and_content_hashes_equal": true,
+    "all_cas_paths_sizes_and_bytes_equal": true,
+    "schema_head": "f59230d88725",
+    "new_migrations": 0,
+    "backup_permissions": "0600",
+    "restored_or_overwritten": false
+  },
+  "safety": {
+    "email_send_enabled": false,
+    "human_confirmation_required": true,
+    "vps_deployed": false,
+    "release_published": false,
+    "global_model_configuration_changed": false
+  },
+  "not_verified": [
+    "physical Windows Edge",
+    "physical macOS/iOS Safari",
+    "physical Android",
+    "historical minimum browser versions",
+    "real IME and software keyboard",
+    "physical multi-touch"
+  ],
+  "browser_matrix": {
+    "engines": [
+      "chromium",
+      "firefox",
+      "webkit"
+    ],
+    "tests_per_engine": 122,
+    "planned_total": 366,
+    "workers": 1,
+    "physical_devices": false
+  },
+  "prior_failed_runs": [
+    {
+      "log": "verify-first.log",
+      "backend_passed": 1385,
+      "backend_warnings": 7,
+      "browser_passed": 110,
+      "browser_failed": 5,
+      "stopped": true
+    },
+    {
+      "log": "admission-browser-after.log",
+      "passed": 65,
+      "failed": 31
+    },
+    {
+      "log": "history-browser-after.log",
+      "passed": 93,
+      "failed": 3,
+      "reason": "fixture awaited intentionally canceled GET; now asserts cancellation"
+    },
+    {
+      "log": "late-write-before.log",
+      "failed": 2,
+      "reason": "delayed page write caused cross-manuscript UI side effects"
+    },
+    {
+      "log": "verify-before-scroll.log",
+      "source": "f1351262868e5beca3e731e14790831c1150030d",
+      "backend_passed": 1395,
+      "browser_passed": 358,
+      "browser_failed": 2,
+      "reason": "Firefox wheel displacement clipped by engine; WebKit retry fixture emitted no second GET, now waits for enabled button"
+    },
+    {
+      "log": "verify-session-terminated.log",
+      "source": "62f76971ecd67bdffada62666cf64dd185cf92cd",
+      "backend_passed": 1395,
+      "backend_seconds": 466.66,
+      "browser_passed": 360,
+      "browser_failed": 0,
+      "browser_minutes": 10.9,
+      "tool_session_exit": 143,
+      "counted_as_full_script_success": false
+    },
+    {
+      "ci_run": 42077966223,
+      "source": "62f76971ecd67bdffada62666cf64dd185cf92cd",
+      "conclusion": "success",
+      "backend_passed": 1395,
+      "backend_seconds": 360.73,
+      "browser_passed": 359,
+      "browser_flaky": 1,
+      "browser_minutes": 10.4,
+      "reason": "WebKit import file selection was empty; explicit import-context red regression followed"
+    },
+    {
+      "log": "verify-redundant-stopped.log",
+      "backend_passed": 1395,
+      "backend_seconds": 463.97,
+      "exit_code": -15,
+      "reason": "paused outer shell, allowed pytest to finish all cleanup, stopped duplicate run before browser phase to investigate new CI issue"
+    },
+    {
+      "log": "verify-fc-intake-failure.log",
+      "source": "fc2451f1e353dcbe3ee8e78994cd40291a04d2b6",
+      "backend_passed": 1395,
+      "backend_seconds": 466.03,
+      "browser_passed": 362,
+      "browser_failed": 1,
+      "browser_minutes": 11.1,
+      "exit_code": 1,
+      "reason": "WebKit return click during confirmation snapshot reload; stable confirmation success gate added"
+    }
+  ],
+  "visual": {
+    "passed": true,
+    "source": "fc2451f1e353dcbe3ee8e78994cd40291a04d2b6",
+    "engines": {
+      "chromium": "156.0.8078.4",
+      "firefox": "157.0",
+      "webkit": "27.2"
+    },
+    "screenshots": 6,
+    "screenshots_inspected": 6,
+    "desktop": [
+      1280,
+      900
+    ],
+    "mobile_dark": [
+      375,
+      812
+    ],
+    "source_exact": true,
+    "business_posts": 0,
+    "new_inference_calls": 0,
+    "page_errors": 0,
+    "saved_deepseek_turn_replayed": true,
+    "final_patch_scope": "only confirmation status timing on review route; captured workbench/citation/layout modules unchanged"
+  },
+  "main_runtime": {
+    "source": "168f7d6e72257e03f1aefda180e6c0c52898e7d2",
+    "api_health": 200,
+    "web_health": 200,
+    "editorial_model_provider": "deepseek",
+    "editorial_model": "deepseek-flash",
+    "existing_model_configuration_preserved": true,
+    "model_api_called": false,
+    "email_send_enabled": false,
+    "mailpit_messages": 0
+  }
+}
