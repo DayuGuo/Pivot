@@ -11,13 +11,12 @@ from sqlalchemy.orm import Session
 
 from ..db import get_db
 from ..security import Actor, get_actor
-from . import dossier_access as access
 from .claim_review_metrics import summarize
 from .claim_review_models import ClaimReview
+from .claim_review_queries import history_page, projection, query
+from .claim_review_sources import answer_source, target
 from .core import digest
-from .document_sources import source_projection
 from .dossier_actions import event, gateway
-from .dossier_chat_models import DossierAnswer
 from .dossier_schemas import ExplicitTrue, RequestID
 from .schemas import StrictInput
 
@@ -50,60 +49,6 @@ class ReviewAction(ReviewInput):
     claim_index: int
 
 
-def answer_source(db, actor, dossier_id, answer_id, *, write=False):
-    row = access.load(db, actor, str(dossier_id), write=write)
-    answer = db.get(DossierAnswer, str(answer_id))
-    if not answer or answer.dossier_id != row.id or answer.journal_id != row.journal_id:
-        raise HTTPException(404, "结论不存在或无权访问")
-    item = access.version(db, row, answer.version_id)
-    material = access.file_content(db, item)
-    actual = access.snapshot_digest(
-        item.data_json,
-        material[0].sha256 if material else None,
-        item.file_name,
-        item.file_media_type,
-    )
-    if actual != item.content_digest:
-        raise HTTPException(409, "版本来源已变化，请重新载入")
-    source_projection(db, row, item)
-    return row, item, answer
-
-
-def target(db, actor, dossier_id, answer_id, bucket, index, *, write=False):
-    row, item, answer = answer_source(db, actor, dossier_id, answer_id, write=write)
-    claims = answer.result_json.get(bucket, [])
-    if not isinstance(claims, list):
-        raise HTTPException(409, "原结论格式异常，请联系负责人核对")
-    if index >= len(claims):
-        raise HTTPException(404, "结论不存在或无权访问")
-    if not isinstance(claims[index], dict) or not claims[index].get("citations"):
-        raise HTTPException(409, "原结论缺少可核对来源")
-    return row, item, claims[index]
-
-
-def query(answer_id, bucket, index):
-    return select(ClaimReview).where(
-        ClaimReview.answer_id == str(answer_id),
-        ClaimReview.claim_bucket == bucket,
-        ClaimReview.claim_index == index,
-    )
-
-
-def projection(review):
-    return {
-        k: getattr(review, k)
-        for k in (
-            "id",
-            "verdict",
-            "note",
-            "review_no",
-            "claim_digest",
-            "content_digest",
-            "reviewed_by",
-        )
-    } | {"created_at": review.created_at.isoformat()}
-
-
 @router.get("/{dossier_id}/answers/{answer_id}/claims/{bucket}/{index}/reviews")
 def history(
     dossier_id: UUID,
@@ -116,11 +61,7 @@ def history(
     db: Session = Depends(get_db),
 ):
     _, item, claim = target(db, actor, dossier_id, answer_id, bucket, index)
-    stmt = query(answer_id, bucket, index).order_by(ClaimReview.review_no.desc())
-    latest = db.scalar(stmt.limit(1))
-    rows = db.scalars(
-        (stmt.where(ClaimReview.review_no < before) if before else stmt).limit(limit + 1)
-    ).all()
+    latest_id, rows = history_page(db, answer_id, bucket, index, limit, before)
     for review in rows:
         if (
             review.claim_digest != digest(claim)
@@ -131,7 +72,7 @@ def history(
     return {
         "items": [projection(r) for r in rows[:limit]],
         "next_cursor": rows[limit - 1].review_no if len(rows) > limit else None,
-        "latest_id": latest.id if latest else None,
+        "latest_id": latest_id,
         "claim_digest": digest(claim),
         "content_digest": item.content_digest,
     }

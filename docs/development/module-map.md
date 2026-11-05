@@ -14,7 +14,11 @@
 | `domain/dossier_views.py` | 版本/消息投影、历史来源标签 | 保留旧版引用，不能把旧核对移给新版本 |
 | `domain/document_sources.py` | 原件/审批摘要、继承来源、页/段定位 | 不能给手改字段伪造原件证据，不依赖路由/模型调用 |
 | `domain/claim_review_models.py` | 不可变逐条人工反馈模型 | 独立于AI Answer及稿件批准 |
-| `domain/claim_reviews.py` | 人工反馈路由/来源重验/网关 | 无模型工具、旧回答不改 |
+| `domain/claim_review_sources.py` | 历史Answer/版本/所有者/CAS来源校验 | 共享服务，不导入HTTP路由 |
+| `domain/claim_review_queries.py` | 反馈历史分页/投影 | head和页同SQL快照；有界，不写入 |
+| `domain/claim_reviews.py` | 人工反馈HTTP路由/网关 | 组合共享服务，无模型工具、旧回答不改 |
+| `domain/claim_evaluation_package.py` | 独立评价的Unicode校验和白名单投影 | 纯函数，无网络/DB/业务动作 |
+| `domain/claim_evaluation.py` | 私人独立评价下载 | 原版本/原件重验，无共享授权/回传写入 |
 | `domain/claim_review_metrics.py` | 记录意见与AI判断的一致性 | 纯函数、排除不确定/未检查，不称科学准确率 |
 | `domain/author_links.py` | 正向作者关联、局部重复项与原文跨度 | 纯函数，不授予身份或联网 |
 | `domain/claim_support.py` | 有界AI原文支持检查 | 新上下文、同一期限；不注册业务工具 |
@@ -27,7 +31,7 @@
 
 改表时同时改迁移、研究字段映射、不可变/跨刊约束测试；只移动文件时先比较字段和约束声明，再更新 `docs/research/library/comparison/source-to-implementation.json` 的路径/行号，禁止重写历史迁移或重置库。旧回执JSON是已持久化协议，不因整理代码而随意修改指纹算法。
 
-验证入口：`scripts/check-boundaries.py`限制显式导入方向，`scripts/check-research-library.py`核对全部字段/约束，`scripts/verify.sh`跑完整回归。边界脚本只检查直接Python导入，不证明所有动态依赖或授权安全；真正权限和重放由PostgreSQL/API测试负责。
+验证入口：`scripts/check-boundaries.py`限制显式导入方向及HTTP路由互导，`scripts/check-research-library.py`核对全部字段/约束，`scripts/verify.sh`跑完整回归。边界脚本只检查直接Python导入，不证明所有动态依赖或授权安全；真正权限和重放由PostgreSQL/API测试负责。
 
 排查顺序：先用合成材料复现，检查具体版本、revision、request_id和来源hash，再修最小职责模块、追加失败回归。不要删除旧成功/失败记录，不能因模型偶尔给出合理答案而跳过后端契约。
 

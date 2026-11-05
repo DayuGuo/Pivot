@@ -20,6 +20,10 @@ print("Model gateway dependency boundaries passed")
 # This is a direct-import constraint, not a replacement for runtime authorization.
 ranks = {
     "claim_review_models": 0,
+    "claim_review_sources": 3,
+    "claim_review_queries": 1,
+    "claim_review_metrics": -1,
+    "claim_evaluation_package": 2,
     "author_links": -1,
     "dossier_evidence": 1,
     "claim_support": 2,
@@ -38,6 +42,7 @@ route_modules = {
     "dossier_chat",
     "document_candidates",
     "claim_reviews",
+    "claim_evaluation",
 }
 for module, rank in ranks.items():
     source = Path("apps/api/publishing/domain") / f"{module}.py"
@@ -57,3 +62,19 @@ for module, rank in ranks.items():
             ):
                 raise SystemExit(f"Dossier schemas must remain independent: {source} -> {name}")
 print("Dossier model/schema/access/action/query/view boundaries passed")
+
+# HTTP endpoints must compose services, never import another endpoint module.
+# document_candidates is a model-candidate service (no router), not an endpoint.
+http_routes = route_modules - {"document_candidates"}
+for module in http_routes:
+    source = Path("apps/api/publishing/domain") / f"{module}.py"
+    for node in ast.walk(ast.parse(source.read_text())):
+        if isinstance(node, ast.Import):
+            names = [item.name for item in node.names]
+        elif isinstance(node, ast.ImportFrom):
+            names = [node.module] if node.module else [item.name for item in node.names]
+        else:
+            continue
+        if any(name.rsplit(".", 1)[-1] in http_routes for name in names):
+            raise SystemExit(f"Forbidden dossier route dependency: {source}")
+print("Dossier HTTP routes compose services without importing one another")

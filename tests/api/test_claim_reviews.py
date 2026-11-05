@@ -133,6 +133,9 @@ def test_history_is_bounded_and_feedback_is_valid_for_exact_historical_version(
     assert first["items"][0]["review_no"] == 3 and first["next_cursor"] == 3
     second = client.get(url + "?limit=1&before=3").json()
     assert second["items"][0]["review_no"] == 2
+    exhausted = client.get(url + "?limit=1&before=1").json()
+    assert exhausted["items"] == [] and exhausted["next_cursor"] is None
+    assert exhausted["latest_id"] == first["latest_id"]
     changed = metadata()
     changed["title"] = "New immutable dossier version"
     newer = save(client, item, data=changed)
@@ -244,7 +247,7 @@ def test_feedback_replay_rechecks_current_source_and_refuses_destructive_downgra
     from alembic.operations import Operations
     from fastapi import HTTPException
 
-    from apps.api.publishing.domain import claim_reviews
+    from apps.api.publishing.domain import claim_review_sources
     from tests.api.test_dossiers import migrations
 
     item, answer = reviewed_answer
@@ -258,7 +261,7 @@ def test_feedback_replay_rechecks_current_source_and_refuses_destructive_downgra
     def corrupt(*args):
         raise HTTPException(409, "测试原件已损坏")
 
-    monkeypatch.setattr(claim_reviews.access, "file_content", corrupt)
+    monkeypatch.setattr(claim_review_sources.access, "file_content", corrupt)
     assert client.get(url).status_code == 409
     assert client.post(url, json=data).status_code == 409
 
@@ -320,3 +323,34 @@ def test_invalid_review_notes_fail_before_database_write(client, reviewed_answer
     url = target(item, answer)
     assert client.post(url, json=payload(client.get(url).json(), note=note)).status_code == 422
     assert client.get(url).json()["items"] == []
+
+
+def test_history_head_and_page_share_one_database_snapshot(db, client, reviewed_answer):
+    """A write after the read must not give a stale base ID alongside newer rows."""
+    from sqlalchemy import event
+
+    item, answer = reviewed_answer
+    url = target(item, answer)
+    first = client.post(url, json=payload(client.get(url).json()))
+    assert first.status_code == 200
+    next_body = payload(client.get(url).json())
+    injected = []
+
+    def interleave(state):
+        result = state.invoke_statement()
+        if state.is_select and not injected and "publishing_claim_reviews" in str(state.statement):
+            injected.append(True)
+            saved = client.post(url, json=next_body)
+            assert saved.status_code == 200, saved.text
+        return result
+
+    event.listen(db, "do_orm_execute", interleave, retval=True)
+    try:
+        response = client.get(url)
+    finally:
+        event.remove(db, "do_orm_execute", interleave)
+    assert injected == [True]
+    assert response.status_code == 200, response.text
+    state = response.json()
+    assert state["latest_id"] == state["items"][0]["id"]
+    assert len(client.get(url).json()["items"]) == 2

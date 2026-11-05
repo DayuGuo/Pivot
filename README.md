@@ -1,5 +1,7 @@
 # Pivot
 
+第五批已验收：[读取一致性与独立评价包](specs/022-independent-evaluation-and-integrity.md)。修复反馈历史的并发快照和等待下载时切换账号问题，拆出共享来源/查询服务；回答下可下载隐藏AI判定、保留准确历史全文/作者/引文的私人评价JSON。本人核对与出版决定分离，没有新迁移/评价回传或专家盲评。本机与同源码CI **1287后端＋88浏览器**通过，详[复核与交付记录](docs/development/spec022-review.md)。PR #2已获授权合并；本轮不部署VPS，现有数据保持不变。
+
 第四批源码增量：[逐条结论人工复核](specs/021-human-claim-feedback.md)。在对话中定位原文，再记录个人复核意见和理由；按历史版本追加，不改原回答、不替代稿件决定。支持复核历史和摘要下载，Mock/未检查及待核对意见不进入一致性比较分母。完整验收见PROGRESS；现有preview.4安装包不包含这次新增迁移/界面，本轮不部署VPS。
 
 第三批本机已验收：[作者关联、不确定性与原文支持检查](specs/020-author-links-and-claim-support.md)。真实模型候选的机构、邮箱、ORCID与个人贡献增加正向归属证据，来源不足留空；结论经独立上下文检查，不足或矛盾项转待核对。旧记录不重写、ORCID不冒称已认证；最终已执行结果见[交付记录](docs/development/spec020-review.md)。VPS不自动更新。
@@ -241,3 +243,9 @@ node scripts/accept-live-publishing-browser.mjs --live
 ```
 
 新领域共享60秒期限、网络read idle30秒，跨3轮最多额外重试一次推理，不重复业务工具；数据库等锁后迟到的apply回滚，DB锁/COMMIT本身不宣称硬取消。恢复规则、实际报告与验证边界见 [恢复验收](docs/development/deepseek-recovery.md)。
+
+### 独立评价包（spec022）
+
+在`/library`中打开已有回答，点击“下载独立评价包”。JSON保留该回答对应版本的完整正文、作者和可核对引文，隐藏AI判定及已有人工意见；随机排序的每条候选留空评价。文件仅用于获授权内部核对，作者未匿名，暂不支持评价回传或专家签署。无全文/原件或引用不匹配会拒绝下载，原资料不变。旧版本回答不会导出当前新版正文。
+
+接口：`GET /api/dossiers/{dossier_id}/answers/{answer_id}/evaluation-package`，仍需本人编辑/主编登录；不提供公开共享。无数据库迁移，不修改旧历史，不调用真实模型，不发送邮件或作出关键决定。本阶段不在VPS部署；运行与验收以PROGRESS.md为准。

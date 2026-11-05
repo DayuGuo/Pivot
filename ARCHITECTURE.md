@@ -1,5 +1,9 @@
 # 架构
 
+## 评价与复核服务（spec022）
+
+claim_review_sources集中精确历史来源/对象权限/CAS，claim_review_queries以单语句CTE保证反馈head/page一致。claim_reviews只组合HTTP与网关；claim_evaluation组合只读来源和纯claim_evaluation_package，按白名单输出随机顺序的独立评价JSON。没有新表/迁移/工具或旧指纹变化，模块边界同时检查路由互导。
+
 ## 人工反馈边界（spec021）
 
 ClaimReview独立append-only16字段，复合版本关系和SQL来源/序号守卫；claim_reviews组合现有对象鉴权、CAS、Action Gateway与审计，claim_review_metrics为纯统计。原Answer/Check与模型工具不变。路由目标进入内部ReviewAction指纹，不使用可变数组位置授予权限。
