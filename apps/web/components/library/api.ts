@@ -1,3 +1,4 @@
+import type { Session } from "./types";
 export class LibraryError extends Error {
   constructor(public status: number, message: string) { super(message); }
 }
@@ -29,4 +30,9 @@ export function dossierListURL(query = "", cursor?: string | null): string {
   if (query) params.set("query", query);
   if (cursor) params.set("cursor", cursor);
   return `/api/dossiers${params.size ? `?${params}` : ""}`;
+}
+
+export async function requireLibrarySession(previous: Session) {
+  const current = await readJSON<Session>("/api/publishing/session");
+  if (current.user.id !== previous.user.id || current.journal.id !== previous.journal.id || current.user.role !== previous.user.role || current.csrf_token !== previous.csrf_token) throw new LibraryError(401, "身份已变化，请重新登录核对。");
 }

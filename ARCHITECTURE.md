@@ -1,5 +1,10 @@
 # 架构
 
+## 登记评价与回传（spec023）
+
+EvaluationPackage/EvaluationReturn独立不可变13＋13字段，复合版本FK/来源/序号与禁止历史改删。evaluation_sources重建原文，evaluation_access做登记映射与访问复核，evaluation_protocol纯校验与统计，evaluations组合HTTP和Action Gateway。包保存私有随机ID映射，下载不泄漏AI桶；预览无写入，最终确认绑定完整digest、逐项ID和前置回传。旧v1路由组合共享服务且保持兼容。
+
+
 ## 评价与复核服务（spec022）
 
 claim_review_sources集中精确历史来源/对象权限/CAS，claim_review_queries以单语句CTE保证反馈head/page一致。claim_reviews只组合HTTP与网关；claim_evaluation组合只读来源和纯claim_evaluation_package，按白名单输出随机顺序的独立评价JSON。没有新表/迁移/工具或旧指纹变化，模块边界同时检查路由互导。

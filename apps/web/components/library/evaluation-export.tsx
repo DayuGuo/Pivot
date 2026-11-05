@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import EvaluationOverviewPanel from "./evaluation-overview";
 import { LibraryError, readJSON } from "./api";
 import type { FeedbackContext } from "./claim-feedback";
 import type { Session } from "./types";
@@ -47,6 +48,7 @@ export default function EvaluationExport({ context, answerId, versionId }: { con
       <a href={`/api/dossiers/${context.dossierId}/answers/${answerId}/review-summary`} download={`claim-review-${answerId}.json`}>下载复核摘要</a>
       <button type="button" disabled={busy} aria-busy={busy} onClick={() => void download()}>{busy ? "正在生成评价包…" : "下载独立评价包"}</button>
     </div>
+    <EvaluationOverviewPanel key={`${context.dossierId}:${answerId}`} context={context} answerId={answerId} versionId={versionId} />
     {error && <p role="alert">{error}</p>}{notice && <p className={styles.hint} role="status">{notice}</p>}
   </div>;
 }

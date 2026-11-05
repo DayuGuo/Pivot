@@ -8,6 +8,7 @@ from apps.api.publishing.domain import claim_review_models as claim_review_model
 from apps.api.publishing.domain import document_models as document_models  # noqa: F401
 from apps.api.publishing.domain import dossier_chat_models as dossier_chat_models  # noqa: F401
 from apps.api.publishing.domain import dossier_models as publishing_dossiers  # noqa: F401
+from apps.api.publishing.domain import evaluation_models as evaluation_models  # noqa: F401
 from apps.api.publishing.domain import models as publishing_models  # noqa: F401
 from apps.api.publishing.domain import review_models as publishing_reviews  # noqa: F401
 from apps.api.publishing.models import Base

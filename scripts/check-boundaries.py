@@ -20,6 +20,10 @@ print("Model gateway dependency boundaries passed")
 # This is a direct-import constraint, not a replacement for runtime authorization.
 ranks = {
     "claim_review_models": 0,
+    "evaluation_models": 0,
+    "evaluation_sources": 4,
+    "evaluation_access": 5,
+    "evaluation_protocol": -1,
     "claim_review_sources": 3,
     "claim_review_queries": 1,
     "claim_review_metrics": -1,
@@ -43,6 +47,7 @@ route_modules = {
     "document_candidates",
     "claim_reviews",
     "claim_evaluation",
+    "evaluations",
 }
 for module, rank in ranks.items():
     source = Path("apps/api/publishing/domain") / f"{module}.py"

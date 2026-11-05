@@ -38,3 +38,5 @@
 尚存边界：spec020已把sanitized_telemetry/tool_schema移到packages/model_gateway/protocol.py，正式chat保留兼容导出；dossier_chat仍复用正式chat的failure_code，未重写正式流程。客户端请求状态与部署管理器也按各自真实问题分批整理，不能把资料区拆分说成全项目已模块化完成。
 
 前端`use-history-pages.ts`复用版本/导入分页，调用组件须随对象、版本/revision或核对快照变化重建；workspace保留路由/操作隔离，代理透传Retry-After并在缓冲上传前限重任务。spec019记录恢复协议和单进程范围。
+
+登记评价增量spec023：evaluation_models定义两表；evaluation_sources组合原件/全文/引文材料，v1导出与v2登记共用；evaluation_access只做注册包访问/映射/最新记录；evaluation_protocol纯模板校验和分歧；evaluations组合HTTP与网关。前端evaluation-overview按需加载登记/汇总，evaluation-review位于独立路由右栏，中央对话持续可见；evaluation-types明确协议，requireLibrarySession复用会话前置检查。没有把独立评价回传并入ClaimReview或正式同行评审。

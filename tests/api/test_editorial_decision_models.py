@@ -565,6 +565,8 @@ def test_full_migration_metadata_and_safe_empty_downgrade(editorial_world):
     # latest schema, including these three later tables, against all metadata.
     later_tables = {
         "publishing_claim_reviews",
+        "publishing_evaluation_packages",
+        "publishing_evaluation_returns",
         "publishing_document_imports",
         "publishing_document_approvals",
         "publishing_document_sources",

@@ -240,7 +240,7 @@ def test_archived_bad_citation_refuses_export_without_partial_success(
 ):
     from types import SimpleNamespace
 
-    from apps.api.publishing.domain import claim_evaluation
+    from apps.api.publishing.domain import evaluation_sources as claim_evaluation
 
     item, answer = reviewed_answer
     real = claim_evaluation.answer_source
@@ -282,7 +282,7 @@ def test_source_corruption_and_expired_session_block_download(client, reviewed_a
 def test_withheld_candidates_are_mixed_without_private_labels(client, reviewed_answer, monkeypatch):
     from types import SimpleNamespace
 
-    from apps.api.publishing.domain import claim_evaluation
+    from apps.api.publishing.domain import evaluation_sources as claim_evaluation
 
     item, answer = reviewed_answer
     original_source = claim_evaluation.answer_source
