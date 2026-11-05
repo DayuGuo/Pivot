@@ -1228,3 +1228,69 @@ def test_unique_author_reordering_keeps_email_source_with_the_person_not_the_slo
     assert "document" not in attach_document(
         citation, duplicate["document"], db, db.get(DossierVersion, duplicate["version_id"])
     )
+
+
+@pytest.mark.parametrize("extension", ["pdf", "docx"])
+def test_incomplete_material_can_be_saved_for_reading_without_a_complete_metadata_check(
+    client, db, ready, extension
+):
+    imported = stage(client, ready, extension)
+    incomplete = deepcopy(imported["proposed_data"])
+    incomplete.update(authors=[], abstract="", keywords=[])
+    body = confirm_body(ready, imported, data=incomplete)
+    before = critical_counts(db)
+    path = endpoint(ready, imported["id"], "/save-material")
+    response = client.post(path, json=body)
+    assert response.status_code == 200, response.text
+    current = detail(client, ready["id"])
+    assert current["data"] == incomplete
+    assert current["file"]["text"] == imported["text"]
+    assert current["document"]["sha256"] == imported["sha256"]
+    assert current["verified"] is False and current["verification"] is None
+    assert {issue["field"] for issue in current["missing"]} >= {"authors", "abstract", "keywords"}
+    assert count(db, DossierCheck, version_id=current["version_id"]) == 0
+    assert count(db, DocumentApproval, version_id=current["version_id"]) == 1
+    assert client.post(path, json=body).json() == response.json()
+    # Neither the new path nor its receipt can become the existing complete approval.
+    assert client.post(endpoint(ready, imported["id"], "/confirm"), json=body).status_code == 409
+    after = critical_counts(db)
+    assert after.pop(DossierVersion) == before.pop(DossierVersion) + 1
+    assert after == before
+    result = client.post(
+        f"/api/dossiers/{ready['id']}/chat",
+        json={
+            "request_id": rid(),
+            "expected_revision": current["revision"],
+            "version_id": current["version_id"],
+            "message": "请根据已有正文解释研究方法",
+        },
+    )
+    assert result.status_code == 200, result.text
+    assert result.json()["provider"] == "mock"
+    assert result.json()["version_id"] == current["version_id"]
+    assert count(db, DossierCheck, version_id=current["version_id"]) == 0
+
+
+def test_material_only_save_revalidates_path_permission_csrf_and_exact_snapshot(
+    client, db, world, ready
+):
+    imported = stage(client, ready)
+    body = confirm_body(ready, imported)
+    path = endpoint(ready, imported["id"], "/save-material")
+    csrf = client.headers.pop("X-CSRF-Token")
+    assert client.post(path, json=body).status_code == 403
+    client.headers["X-CSRF-Token"] = csrf
+    assert client.post(path, json={**body, "digest": "0" * 64}).status_code == 409
+    assert client.post(path, json=body).status_code == 200
+    other = stage(client, detail(client, ready["id"]))
+    assert client.post(endpoint(ready, other["id"], "/save-material"), json=body).status_code == 409
+    db.execute(
+        update(Membership)
+        .where(
+            Membership.user_id == world.users["editor"].id,
+            Membership.journal_id == world.journal.id,
+        )
+        .values(role="author")
+    )
+    db.commit()
+    assert client.post(path, json=body).status_code in {403, 404}

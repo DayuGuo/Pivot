@@ -1,10 +1,12 @@
 name: private-app-bundle
 on:
   push:
-    branches: [main, 'codex/vps-*']
+    branches: [main, 'codex/vps-*', codex/single-journal-candidate]
     paths:
       - 'infrastructure/vps/**'
       - 'scripts/*vps*'
+      - 'scripts/install-browser-deps.sh'
+      - 'scripts/ci-ubuntu-apt-fallback.py'
       - 'apps/**'
       - 'packages/**'
       - '.github/workflows/app-bundle.yml'
@@ -13,7 +15,7 @@ permissions:
   contents: read
 jobs:
   amd64:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -26,13 +28,46 @@ jobs:
           version: '0.9.7'
           python-version: '3.12'
       - run: uv sync --frozen && npm ci
-      - run: npx playwright install --with-deps chromium
+      - name: Download the package acceptance browser
+        timeout-minutes: 5
+        run: npx playwright install chromium
+      - name: Use official HTTPS Ubuntu mirrors on the temporary runner
+        timeout-minutes: 1
+        run: |
+          sudo -n --preserve-env=GITHUB_ACTIONS,RUNNER_OS,RUNNER_ARCH,RUNNER_ENVIRONMENT,RUNNER_TEMP \
+            "$(command -v python3)" "$GITHUB_WORKSPACE/scripts/ci-ubuntu-apt-fallback.py"
+      - name: Install browser host dependencies with bounded retry
+        timeout-minutes: 12
+        run: bash scripts/install-browser-deps.sh chromium
       - name: Build offline bundle on native x86
         run: .venv/bin/python scripts/build-vps-app.py --platform linux/amd64
       - name: Install under memory caps, import, review, cite, restart and restore
         run: .venv/bin/python scripts/accept-vps-preview.py --bundle artifacts/pivot-app-linux-amd64
       - name: Bounded concurrent uploads and same-UUID recovery
         run: .venv/bin/python scripts/accept-vps-concurrency.py
+      - name: Fetch the published preview.4 upgrade baseline
+        timeout-minutes: 5
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p artifacts/preview4-download artifacts/preview4
+          gh release download v0.2.0-preview.4 --repo DayuGuo/Pivot --pattern pivot-app-linux-amd64.tar.gz --pattern pivot-app-linux-amd64-SHA256SUMS --dir artifacts/preview4-download
+          python - <<'PY'
+          import hashlib
+          import tarfile
+          from pathlib import Path
+          root = Path('artifacts/preview4-download')
+          archive = root / 'pivot-app-linux-amd64.tar.gz'
+          entries = [line.split() for line in (root / 'pivot-app-linux-amd64-SHA256SUMS').read_text().splitlines() if line.strip()]
+          assert len(entries) == 1 and entries[0][1].lstrip('*') == archive.name
+          with archive.open('rb') as stream:
+              assert hashlib.file_digest(stream, 'sha256').hexdigest() == entries[0][0]
+          with tarfile.open(archive) as package:
+              assert all(item.isfile() or item.isdir() for item in package.getmembers())
+              package.extractall('artifacts/preview4', filter='data')
+          PY
+      - name: Preserve preview.4 data across upgrade and isolated restore
+        run: .venv/bin/python scripts/accept-vps-upgrade.py --old-bundle artifacts/preview4/pivot-app-linux-amd64 --bundle artifacts/pivot-app-linux-amd64 --report artifacts/vps-upgrade-acceptance.json
       - name: Private browser login and exact source navigation
         run: node scripts/accept-vps-browser.mjs
       - uses: actions/upload-artifact@v4
@@ -44,6 +79,13 @@ jobs:
             artifacts/pivot-app-linux-amd64-SHA256SUMS
             artifacts/vps-preview-acceptance.json
             artifacts/vps-concurrency.json
+            artifacts/vps-upgrade-acceptance.json
             artifacts/vps-mock-browser.json
             artifacts/vps-mock-*.png
-      # No credentials.json, database/files, logs or state directories are uploaded.
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: private-app-browser-host-setup
+          if-no-files-found: ignore
+          path: artifacts/browser-deps/
+      # No credentials.json, database/files, application logs or state directories.

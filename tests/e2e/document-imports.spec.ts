@@ -23,12 +23,12 @@ const segments: DocumentSegment[] = [
 const session: Session = { user: { id: "ui-synthetic-editor", name: "合成编辑", email: "editor@synthetic.test", role: "editor" }, journal: { id: "ui-synthetic-journal", name: "本地合成期刊" }, csrf_token: "ui-synthetic-csrf" };
 const proposal: DossierData = { title: "Automatic Candidate Title", abstract: "This completely synthetic candidate validates import review, original text locations and human-only confirmation. No real confidential manuscript or person is included.", language: "en", keywords: ["synthetic"], authors: [{ name: "Synthetic Author Alpha", email: "alpha@synthetic.test", orcid: null, affiliations: ["Synthetic Research Institute"], corresponding: true, contributions: ["Synthetic methods"], source_note: "合成文件内作者字段，仅用于界面测试。" }], source_kind: "synthetic", source_note: "全部为合成界面测试资料，不包含保密信息。" };
 
-type State = { confirmed: boolean; data: DossierData; confirmBodies: Record<string, unknown>[]; uploadBodies: Record<string, unknown>[]; messages: Message[] };
+type State = { materialOnly?: boolean; confirmed: boolean; data: DossierData; confirmBodies: Record<string, unknown>[]; uploadBodies: Record<string, unknown>[]; messages: Message[] };
 function document() { return { import_id: IMPORT, filename: "synthetic-manuscript.pdf", media_type: "application/pdf", sha256: sha(raw), byte_size: raw.length, download_url: `/api/dossiers/${ID}/imports/${IMPORT}/file`, parser: "synthetic-ui-contract", origin_digest: "f".repeat(64), segments, warnings: [], approval: { id: "synthetic-human-approval", by: session.user.id, at: "2026-11-03T15:00:00Z" } }; }
 function snapshot(state: State, version = state.confirmed ? NEXT : BASE): Dossier {
   const next = version === NEXT;
   const body = next ? text : "原有的合成保存正文，尚未使用导入候选。";
-  return { id: ID, revision: state.confirmed ? 3 : 2, version_id: version, version_no: next ? 3 : 2, content_digest: (next ? "d" : "a").repeat(64), is_current: version === (state.confirmed ? NEXT : BASE), verified: next, verification: next ? { id: "synthetic-check", by: session.user.id, at: "2026-11-03T15:00:00Z" } : null, data: next ? state.data : { ...structuredClone(proposal), title: "原有保存资料" }, file: { filename: next ? "synthetic-manuscript.pdf.extracted.txt" : "synthetic-base.txt", sha256: sha(body), byte_size: Buffer.byteLength(body), media_type: "text/plain", text: body, download_url: `/api/dossiers/${ID}/versions/${version}/file` }, missing: [], versions: [...(state.confirmed ? [{ id: NEXT, number: 3, title: state.data.title, created_at: "2026-11-03T15:00:00Z", verified: true }] : []), { id: BASE, number: 2, title: "原有保存资料", created_at: "2026-11-03T14:00:00Z", verified: false }], messages: state.messages, model: { provider: "mock", model: "ui-contract", ready: true }, document: next ? document() : null };
+  return { id: ID, revision: state.confirmed ? 3 : 2, version_id: version, version_no: next ? 3 : 2, content_digest: (next ? "d" : "a").repeat(64), is_current: version === (state.confirmed ? NEXT : BASE), verified: next && !state.materialOnly, verification: next && !state.materialOnly ? { id: "synthetic-check", by: session.user.id, at: "2026-11-03T15:00:00Z" } : null, data: next ? state.data : { ...structuredClone(proposal), title: "原有保存资料" }, file: { filename: next ? "synthetic-manuscript.pdf.extracted.txt" : "synthetic-base.txt", sha256: sha(body), byte_size: Buffer.byteLength(body), media_type: "text/plain", text: body, download_url: `/api/dossiers/${ID}/versions/${version}/file` }, missing: state.materialOnly ? [{ field: "authors", message: "至少填写1位作者" }] : [], versions: [...(state.confirmed ? [{ id: NEXT, number: 3, title: state.data.title, created_at: "2026-11-03T15:00:00Z", verified: true }] : []), { id: BASE, number: 2, title: "原有保存资料", created_at: "2026-11-03T14:00:00Z", verified: false }], messages: state.messages, model: { provider: "mock", model: "ui-contract", ready: true }, document: next ? document() : null };
 }
 function imported(state: State): DocumentImport {
   const title = "Automatic Candidate Title";
@@ -51,7 +51,8 @@ async function fixtures(page: Page, options: { confirmed?: boolean; confirmStatu
     else await route.fulfill({ json: { items: [{ id: IMPORT, filename: "synthetic-manuscript.pdf", created_at: "2026-11-03T15:00:00Z", confirmed_version_id: state.confirmed ? NEXT : null, base_revision: 2 }] } });
   });
   await page.route(`**/api/dossiers/${ID}/imports/${IMPORT}`, route => route.fulfill({ json: imported(state) }));
-  await page.route(`**/api/dossiers/${ID}/imports/${IMPORT}/confirm`, async route => {
+  await page.route(new RegExp(`/api/dossiers/${ID}/imports/${IMPORT}/(confirm|save-material)$`), async route => {
+    state.materialOnly = route.request().url().endsWith("/save-material");
     const body = route.request().postDataJSON(); state.confirmBodies.push(body);
     if (options.confirmStatus) { await route.fulfill({ status: options.confirmStatus, json: { detail: options.confirmStatus === 403 ? "无权访问此资料" : "模型服务暂不可用，请重试。" } }); return; }
     state.data = body.data; state.confirmed = true;
@@ -66,7 +67,7 @@ async function fixtures(page: Page, options: { confirmed?: boolean; confirmStatu
   });
   return state;
 }
-async function openReview(page: Page) { await page.goto(`/library/imports/${IMPORT}?dossier=${ID}`); await expect(page.getByRole("heading", { name: "导入核对", exact: true })).toBeVisible(); }
+async function openReview(page: Page) { await page.goto(`/library/imports/${IMPORT}?dossier=${ID}`); await expect(page.getByRole("heading", { name: "导入核对", exact: true })).toBeVisible(); await page.getByRole("button", { name: "使用本次识别结果", exact: true }).click(); }
 const acknowledge = (page: Page) => page.locator('input[name="import-acknowledged"]');
 
 test("导入 UI：真实上传字节、候选来源核对和人类确认才创建新版本", async ({ page }) => {
@@ -81,6 +82,7 @@ test("导入 UI：真实上传字节、候选来源核对和人类确认才创�
   expect(state.uploadBodies).toHaveLength(1); expect(state.uploadBodies[0].authorized_material).toBe(true);
   const file = state.uploadBodies[0].file as { filename: string; content_base64: string }; expect(file.filename).toBe("synthetic-manuscript.pdf"); expect(Buffer.from(file.content_base64, "base64")).toEqual(raw);
   expect(state.confirmed).toBe(false); await expect(page.getByText(/当前仍为 v2/)).toBeVisible();
+  await page.getByRole("button", { name: "使用本次识别结果", exact: true }).click();
   await expect(page.getByLabel("题名", { exact: true })).toHaveValue(proposal.title);
   await page.screenshot({ path: test.info().outputPath("import-review-desktop.png") });
   const confirm = page.getByRole("button", { name: "核对并保存为新版本", exact: true }); await expect(confirm).toBeDisabled(); await expect(acknowledge(page)).not.toBeChecked();
@@ -89,6 +91,7 @@ test("导入 UI：真实上传字节、候选来源核对和人类确认才创�
   await page.getByLabel("题名", { exact: true }).fill("负责人核对后合成题名"); await expect(acknowledge(page)).not.toBeChecked(); await expect(confirm).toBeDisabled();
   await acknowledge(page).check(); await confirm.click(); await expect(page).toHaveURL(new RegExp(`/library\\?dossier=${ID}$`));
   expect(state.confirmBodies).toHaveLength(1); expect(state.confirmBodies[0].acknowledged).toBe(true); expect(state.confirmBodies[0].digest).toBe("e".repeat(64)); expect((state.confirmBodies[0].data as DossierData).title).toBe("负责人核对后合成题名");
+  expect(state.confirmBodies[0].data).not.toHaveProperty("document_metadata");
   await expect(page.getByLabel("题名", { exact: true })).toHaveValue("负责人核对后合成题名"); await expect(page.getByRole("region", { name: "资料内容", exact: true }).getByText("v3 · 已核对", { exact: true })).toBeVisible();
   await page.getByLabel("询问当前资料").fill("请定位原稿方法与作者资料"); await page.getByRole("button", { name: "发送", exact: true }).click();
   await page.getByRole("button", { name: "定位原文：完整正文，v3", exact: true }).click(); await expect(page.locator('mark[aria-label="已定位引用原文"]')).toHaveText(citation(state).quote); await expect(page.getByText(/synthetic-manuscript.pdf · PDF 第 2 页/)).toBeVisible(); await expect(page.getByRole("link", { name: "下载原稿", exact: true })).toHaveAttribute("href", document().download_url); expect(await page.locator("iframe").count()).toBe(0);
@@ -133,6 +136,7 @@ for (const extension of ["pdf", "docx"] as const) {
     const pending = page.waitForResponse(response => response.url().endsWith(`/api/dossiers/${id}/imports`) && response.request().method() === "POST"); await page.getByRole("button", { name: "提取并打开核对表单", exact: true }).click(); const result = await pending; expect(result.status()).toBe(200); const { import_id: importId } = await result.json();
     await expect(page).toHaveURL(new RegExp(`/library/imports/${importId}`)); const original = await (await page.request.get(`/api/dossiers/${id}`)).json() as Dossier; expect(original.version_no).toBe(1); expect(original.file).toBeNull(); expect(original.verified).toBe(false);
     const candidate = await (await page.request.get(`/api/dossiers/${id}/imports/${importId}`)).json() as DocumentImport; expect(candidate.text).toContain("END-OF-SYNTHETIC-DOCUMENT-TRACE-2026"); expect(candidate.proposed_data.authors.map(author => author.name)).toEqual(["Synthetic Author Alpha", "Synthetic Author Beta"]); expect(candidate.metadata_provider).toBe("mock");
+    await page.getByRole("button", { name: "使用本次识别结果", exact: true }).click();
     await expect(page.getByLabel("题名", { exact: true })).toHaveValue("Synthetic Editorial Review Manuscript"); await expect(acknowledge(page)).not.toBeChecked(); await expect(page.getByRole("button", { name: "核对并保存为新版本", exact: true })).toBeDisabled();
     await page.getByRole("tab", { name: "提取全文", exact: true }).click(); await expect(page.getByText(/END-OF-SYNTHETIC-DOCUMENT-TRACE-2026/)).toBeVisible(); const download = await page.request.get(candidate.original_download_url); expect(download.status()).toBe(200); expect(await download.body()).toEqual(readFileSync(path.resolve(`tests/documents/synthetic-manuscript.${extension}`)));
     await page.getByRole("tab", { name: "核对表单", exact: true }).click(); const reviewedTitle = `负责人核对${extension}稿件 ${Date.now()}`; await page.getByLabel("题名", { exact: true }).fill(reviewedTitle); await acknowledge(page).check(); await page.getByRole("button", { name: "核对并保存为新版本", exact: true }).click(); await expect(page).toHaveURL(new RegExp(`/library\\?dossier=${id}$`));
@@ -168,4 +172,122 @@ test("作者关联：不确定线索可定位，换序不改原候选标签，�
   await expect(page.getByLabel("询问当前资料")).toBeInViewport();
   expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
   await page.screenshot({ path: "artifacts/spec020/association-mobile.png" });
+});
+
+
+test("重新识别保留已有人工字段，缺作者的材料可保存而不称完整核对", async ({ page }) => {
+  const state = await fixtures(page);
+  const partial = imported(state);
+  partial.proposed_data.authors = []; partial.proposed_data.abstract = ""; partial.proposed_data.keywords = [];
+  await page.route(`**/api/dossiers/${ID}/imports/${IMPORT}`, route => route.fulfill({ json: partial }));
+  await page.goto(`/library/imports/${IMPORT}?dossier=${ID}`);
+  await expect(page.getByLabel("题名", { exact: true })).toHaveValue("原有保存资料");
+  await expect(page.getByText(/已有资料字段已保留/)).toBeVisible();
+  await page.getByRole("button", { name: "使用本次识别结果", exact: true }).click();
+  await expect(page.getByLabel("题名", { exact: true })).toHaveValue(proposal.title);
+  await expect(page.getByText("尚无作者。作者身份由录入资料提供，不代表本人认证。", { exact: true })).toBeVisible();
+  await page.getByLabel("先保存材料，作者及其他缺项稍后补齐").check();
+  await expect(acknowledge(page)).not.toBeChecked();
+  const save = page.getByRole("button", { name: "保存材料并继续审阅", exact: true });
+  await expect(save).toBeDisabled(); await acknowledge(page).check(); await save.click();
+  await expect(page).toHaveURL(new RegExp(`/library\\?dossier=${ID}$`));
+  expect(state.materialOnly).toBe(true); expect(state.confirmBodies).toHaveLength(1);
+  expect((state.confirmBodies[0].data as DossierData).authors).toEqual([]);
+  await expect(page.getByRole("region", { name: "资料内容", exact: true }).getByText("v3 · 待核对", { exact: true })).toBeVisible();
+  await page.getByLabel("询问当前资料").fill("研究样本量是什么？");
+  await page.getByRole("button", { name: "发送", exact: true }).click();
+  await expect(page.getByText("合成样本没有设置对照组。", { exact: true })).toBeVisible();
+  await page.reload(); await expect(page.getByLabel("题名", { exact: true })).toHaveValue(proposal.title);
+});
+
+
+test("首次导入正文也保留已经手工保存的作者元数据", async ({ page }) => {
+  const state = await fixtures(page);
+  const manual = structuredClone(proposal);
+  manual.title = "负责人先录入的题名";
+  manual.authors[0].name = "负责人先核对的作者";
+  manual.authors[0].affiliations = ["负责人先核对的机构"];
+  await page.route(`**/api/dossiers/${ID}`, route => route.fulfill({ json: state.confirmed ? snapshot(state) : { ...snapshot(state), file: null, data: manual } }));
+  await page.goto(`/library/imports/${IMPORT}?dossier=${ID}`);
+  await expect(page.getByLabel("题名", { exact: true })).toHaveValue(manual.title);
+  await expect(page.locator('input[name="author-0-name"]')).toHaveValue(manual.authors[0].name);
+  await expect(page.locator('textarea[name="author-0-affiliations"]')).toHaveValue(manual.authors[0].affiliations[0]);
+  await expect(page.getByText(/已有资料字段已保留/)).toBeVisible();
+  await acknowledge(page).check(); await page.getByRole("button", { name: "核对并保存为新版本", exact: true }).click();
+  await expect(page).toHaveURL(new RegExp(`/library\\?dossier=${ID}$`));
+  expect((state.confirmBodies[0].data as DossierData).authors).toEqual(manual.authors);
+});
+
+// These routes exercise UI/source protocol only. Real parser extraction and
+// scientific support require separate backend/public-document evaluation.
+async function metadataFixtures(page: Page) {
+  const state = await fixtures(page);
+  const candidates = { article_type: "Research article", funding_statement: "Funding: SYNTHETIC-GRANT-2026.", declarations_text: "Competing interests: No competing interests declared in this synthetic fixture." };
+  const saved = { funding_statement: "负责人此前核对的合成基金 LOCAL-001。", declarations_text: "负责人此前录入的合成声明原文，不代表本人签署。" };
+  const metadataText = Object.values(candidates).join("\n"), extendedText = text + "\n\n" + metadataText;
+  const extendedSegments: DocumentSegment[] = [...segments, { kind: "pdf_page", number: 3, start: points(text) + 2, end: points(extendedText), text: metadataText }];
+  const locate = (quote: string) => points(extendedText.slice(0, extendedText.indexOf(quote)));
+  function current(version = state.confirmed ? NEXT : BASE) {
+    const value = snapshot(state, version);
+    if (version === BASE) value.data.document_metadata = structuredClone(saved);
+    else {
+      value.file = { ...value.file!, text: extendedText, byte_size: Buffer.byteLength(extendedText), sha256: sha(extendedText) };
+      value.document = { ...document(), segments: extendedSegments };
+    }
+    return value;
+  }
+  await page.route(`**/api/dossiers/${ID}`, route => route.fulfill({ json: current() }));
+  await page.route(`**/api/dossiers/${ID}/versions/*`, route => route.fulfill({ json: current(new URL(route.request().url()).pathname.split("/").at(-1)) }));
+  await page.route(`**/api/dossiers/${ID}/imports/${IMPORT}`, route => route.fulfill({ json: {
+    ...imported(state), text: extendedText, segments: extendedSegments,
+    proposed_data: { ...structuredClone(proposal), document_metadata: structuredClone(candidates) },
+    field_sources: Object.entries(candidates).map(([key, value]) => ({ field_path: `document_metadata.${key}`, value, quote: value, start: locate(value), end: locate(value) + points(value), kind: "pdf_page", number: 3 })),
+  } }));
+  await page.route(`**/api/dossiers/${ID}/chat`, async route => {
+    const quote = candidates.funding_statement, start = locate(quote);
+    const ref: Citation = { source_id: "SYNTHETIC-FUNDING", kind: "metadata", quote, source_text: quote, label: "基金原文", version_id: NEXT, version_no: 3, content_digest: current(NEXT).content_digest, file_sha256: null, start: 0, end: points(quote), line_start: null, line_end: null, field_path: "document_metadata.funding_statement", document: { origin_digest: document().origin_digest, sha256: sha(raw), filename: document().filename, media_type: document().media_type, download_url: document().download_url, locations: [{ kind: "pdf_page", number: 3, start, end: start + points(quote) }], source_start: start, source_end: start + points(quote), source_quote: quote } };
+    const response: Message = { id: "synthetic-funding-source", question: route.request().postDataJSON().message, answer: "Mock模拟基金原文定位", provider: "mock", version_id: NEXT, version_no: 3, claims: [{ text: "这份合成稿件记录了所列基金文字，不构成资助真实性认证。", citations: [ref] }], support_review: { schema: "claim-support.v1", method: "mock", evaluated_claims: 1 } };
+    state.messages = [response]; await route.fulfill({ json: response });
+  });
+  return { state, candidates, saved };
+}
+
+test("稿件扩展资料：保留手工基金与声明，空项采用候选，不代签", async ({ page }) => {
+  const { state, candidates, saved } = await metadataFixtures(page);
+  await page.goto(`/library/imports/${IMPORT}?dossier=${ID}`);
+  await page.getByText("文章类型、基金与声明", { exact: true }).click();
+  await expect(page.getByRole("textbox", { name: "文章类型（原文）", exact: true })).toHaveValue(candidates.article_type);
+  await expect(page.getByRole("textbox", { name: "基金原文", exact: true })).toHaveValue(saved.funding_statement);
+  await expect(page.getByRole("textbox", { name: "声明原文（非本人签署）", exact: true })).toHaveValue(saved.declarations_text);
+  const edited = "负责人本次手工修正的合成基金 LOCAL-002。";
+  await page.getByRole("textbox", { name: "基金原文", exact: true }).fill(edited);
+  await acknowledge(page).check(); await page.getByRole("button", { name: "核对并保存为新版本", exact: true }).click();
+  await expect(page).toHaveURL(new RegExp(`/library\\?dossier=${ID}$`));
+  expect((state.confirmBodies[0].data as DossierData).document_metadata).toEqual({ ...saved, article_type: candidates.article_type, funding_statement: edited });
+  await page.getByText("文章类型、基金与声明", { exact: true }).click();
+  await expect(page.getByRole("textbox", { name: "基金原文", exact: true })).toHaveValue(edited);
+});
+
+test("稿件扩展资料：候选与问答逐字定位PDF来源，独立核对展示原文声明", async ({ page }) => {
+  const { state, candidates } = await metadataFixtures(page);
+  await page.goto(`/library/imports/${IMPORT}?dossier=${ID}`);
+  await page.getByRole("button", { name: "使用本次识别结果", exact: true }).click();
+  await page.getByRole("tab", { name: "识别依据", exact: true }).click();
+  await page.getByRole("button", { name: "基金原文 · PDF 第 3 页", exact: true }).click();
+  await expect(page.locator('mark[aria-label="已定位提取依据"]')).toHaveText(candidates.funding_statement);
+  await page.getByRole("tab", { name: "核对表单", exact: true }).click();
+  await acknowledge(page).check(); await page.getByRole("button", { name: "核对并保存为新版本", exact: true }).click();
+  await expect(page).toHaveURL(new RegExp(`/library\\?dossier=${ID}$`));
+  expect((state.confirmBodies[0].data as DossierData).document_metadata).toEqual(candidates);
+  await page.getByLabel("询问当前资料").fill("请定位基金原文，不能把文本当资助认证或本人声明。");
+  await page.getByRole("button", { name: "发送", exact: true }).click();
+  await page.getByRole("button", { name: "定位原文：基金原文，v3", exact: true }).click();
+  await expect(page.locator('mark[aria-label="已定位引用原文"]')).toHaveText(candidates.funding_statement);
+  await expect(page.getByText(/synthetic-manuscript.pdf · PDF 第 3 页/)).toBeVisible();
+  await expect(page.getByText("稿件资料记录，不代表负责人签署声明。", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "返回当前资料", exact: true }).click();
+  await page.getByRole("link", { name: "核对本版资料", exact: true }).click();
+  await page.getByText("文章类型、基金与声明", { exact: true }).click();
+  await expect(page.getByText(candidates.declarations_text, { exact: true })).toBeVisible();
+  await expect(page.getByText("稿件资料记录，不代表负责人签署声明。", { exact: true })).toBeVisible();
 });

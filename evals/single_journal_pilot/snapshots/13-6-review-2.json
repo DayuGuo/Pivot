@@ -1,0 +1,15 @@
+{
+  "parser": "pinned-upstream-manifest-field-v1",
+  "text": "The predominant concern is about the first step of the random selection of journals from MEDLINE database (ncbijournals[All Fields]). Only a fraction of 12.5% of this list represents PubMed indexed journals (currentlyindexed[All Fields]). On top, in MEDLINE database catalog in addition to scientific journals there are other types of serial publications as well such as conference proceedings or workshops. It is not clear whether an additional screening was performed to ensure that only journals were included in the study. The odds of randomly picking a PubMed, Web of Science or SCImago indexed journal from this catalog appear to be pretty low. The odds may be even lower to pick high impact journals from the list. For this reason, it will add significantly if the authors provide the list of the journals or serial publications used in the survey as a supplement. This is also important because some journals actively support the submission to preprint servers whilst they implement preprint scooping-protection policies ( https://doi.org/10.1371/journal.pbio.3002502). The attitudes of the responders over preprints could be affected by the journals they published. Besides, the presentation of the randomly selected journals is important to ensure reproducibility.",
+  "segments": [
+    {
+      "kind": "manifest_field",
+      "number": 1,
+      "start": 0,
+      "end": 1274
+    }
+  ],
+  "warnings": [
+    "Selected licensed review paragraph only; not a complete report or author reply."
+  ]
+}

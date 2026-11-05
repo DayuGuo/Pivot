@@ -24,6 +24,8 @@ from .domain.claim_evaluation import router as claim_evaluation_router
 from .domain.claim_reviews import router as claim_review_router
 from .domain.document_imports import router as document_import_router
 from .domain.dossier_chat import router as dossier_chat_router
+from .domain.dossier_export import router as dossier_export_router
+from .domain.dossier_revisions import router as dossier_revision_router
 from .domain.dossiers import router as dossier_router
 from .domain.evaluations import router as evaluation_router
 from .domain.formal_documents import router as formal_document_router
@@ -46,6 +48,8 @@ app.add_middleware(HeavyWorkAdmission)
 app.include_router(publishing_router)
 app.include_router(dossier_router)
 app.include_router(dossier_chat_router)
+app.include_router(dossier_export_router)
+app.include_router(dossier_revision_router)
 app.include_router(claim_review_router)
 app.include_router(claim_evaluation_router)
 app.include_router(evaluation_router)

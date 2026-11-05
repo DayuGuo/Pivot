@@ -1,5 +1,15 @@
 # 架构
 
+## 内部多版本核对（spec027）
+
+继续使用模块化单体。`document_imports.approve_import`复用同一原件/表单/版本/幂等校验，完整确认保留原协议；独立save-material动作不建DossierCheck。`dossier_export`只读精确版本及可证明字段来源，不外露聊天或存储路径。
+
+`dossier_revision_models/schemas`定义两张追加式表及输入；`dossier_revision_sources`重建实际两版、原件、来源指纹和回复跨度；`dossier_revisions`组合HTTP、既有纯revision_compare、Action Gateway和审计。生成包绑定当前修订版和更早原稿，历史包可以追加三层人判，不自动迁到新版本。12＋15字段及复合外键/插入/不可变守卫见[合同](specs/027-internal-revision-contract.md)，迁移28a7c1e09462只加两表，旧数据/迁移/确认指纹不改。
+
+前端revision-check维护作用域、已知/未知写结果与前置人判头；重新读取保留草稿，已知保存后恢复仅读取。API和代理将生成核对纳入单重任务准入。私人包保持单worker、应用8进行中/16等待/2秒及重任务1名额，传输32连接/2秒keepalive/64backlog另作硬上限；应用429和传输503分别报告，不将配置推导为容量保证。
+
+候选构建默认要求干净源码；显式本地worktree构建按实际路径/内容/执行位摘要标识并前后重验。原生amd64安装、发布旧preview.4升级及新项目DB＋CAS恢复由独立harness执行，不操作用户VPS。研究取舍、字段绑定与边界脚本随增量维护，未引入事件总线、微服务或新工作流框架。
+
 ## 登记评价与回传（spec023）
 
 EvaluationPackage/EvaluationReturn独立不可变13＋13字段，复合版本FK/来源/序号与禁止历史改删。evaluation_sources重建原文，evaluation_access做登记映射与访问复核，evaluation_protocol纯校验与统计，evaluations组合HTTP和Action Gateway。包保存私有随机ID映射，下载不泄漏AI桶；预览无写入，最终确认绑定完整digest、逐项ID和前置回传。旧v1路由组合共享服务且保持兼容。

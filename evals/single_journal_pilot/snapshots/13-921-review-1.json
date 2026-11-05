@@ -1,0 +1,15 @@
+{
+  "parser": "pinned-upstream-manifest-field-v1",
+  "text": "However, in Ethical consideration: this section could be strengthened by referencing specific guidelines or policies that journals or organizations like COPE (Committee on Publication Ethics) have in place to handle such situations. This would give authors a clearer path to follow.",
+  "segments": [
+    {
+      "kind": "manifest_field",
+      "number": 1,
+      "start": 0,
+      "end": 282
+    }
+  ],
+  "warnings": [
+    "Selected licensed review paragraph only; not a complete report or author reply."
+  ]
+}

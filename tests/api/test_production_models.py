@@ -323,12 +323,8 @@ def test_complete_chain_metadata_has_zero_drift(production_world):
     # The F fixture remains historical; the complete-head assertion also applies
     # the later private-dossier migration in this rolled-back test schema.
     with Operations.context(MigrationContext.configure(w.conn)):
-        e.peer.migration("13f17cad5064").upgrade()
-        e.peer.migration("14a28dbe6175").upgrade()
-        e.peer.migration("15b39ecf7286").upgrade()
-        e.peer.migration("16c40fda8397").upgrade()
-        e.peer.migration("17d51aeb9408").upgrade()
-        e.peer.migration("f59230d88725").upgrade()
+        for module in e.peer.later_migrations(MIGRATION.revision):
+            module.upgrade()
     assert compare_metadata(MigrationContext.configure(w.conn), Base.metadata) == []
     assert [
         len(cls.__table__.columns) for cls in (ProofPackage, ProofResponse, PublicationPreview)

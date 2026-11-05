@@ -37,6 +37,9 @@ def source_label(path: str | None):
         "language": "语言",
         "source_kind": "资料类型",
         "source_note": "资料来源",
+        "article_type": "文章类型（原文）",
+        "funding_statement": "资助说明（原文）",
+        "declarations_text": "声明原文（未签署）",
         "name": "姓名",
         "email": "邮箱",
         "orcid": "ORCID",
@@ -48,6 +51,8 @@ def source_label(path: str | None):
     if path is None:
         return "完整正文"
     parts = path.split(".")
+    if parts[0] == "document_metadata" and len(parts) == 2:
+        return labels.get(parts[1], parts[1])
     if parts[0] == "authors" and len(parts) >= 3:
         return f"作者{int(parts[1]) + 1} · {labels.get(parts[2], parts[2])}"
     return labels.get(parts[0], parts[0])

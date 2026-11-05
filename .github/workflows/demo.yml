@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   demo:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
@@ -19,7 +19,12 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium firefox webkit
+      - name: Download the three browser engines
+        timeout-minutes: 5
+        run: npx playwright install chromium firefox webkit
+      - name: Install browser host dependencies with bounded retry
+        timeout-minutes: 12
+        run: bash scripts/install-browser-deps.sh
       - run: npm run lint && npm run typecheck
       - run: ./scripts/demo.sh
       - name: Verify isolated static artifact
@@ -46,6 +51,7 @@ jobs:
             artifacts/pivot-demo-SHA256SUMS
             artifacts/static-demo-playwright-report/
             artifacts/static-demo-playwright-results/
+            artifacts/browser-deps/
       - if: always()
         run: |
           ./scripts/demo.sh stop

@@ -1,0 +1,16 @@
+{
+  "parser": "defusedxml-0.7.1-ooxml-v2",
+  "text": "We have taken into consideration all of the reviews and comments, and have made the manuscript shorter and clearer. We have further discussed what we hope to achieve from researchers using the oath, and we have balanced the article to explain how we believe the oath can encourage the practice of open science. The oath itself now comprises four concise principles, and we elucidate the open-science principle with accompanying guidelines, which should make it easier to apply in practice.",
+  "segments": [
+    {
+      "kind": "docx_paragraph",
+      "number": 1,
+      "start": 0,
+      "end": 489
+    }
+  ],
+  "warnings": [
+    "docx_paragraph_numbers_are_extraction_order_not_page_numbers",
+    "tables_notes_headers_footers_are_linearized"
+  ]
+}

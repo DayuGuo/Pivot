@@ -1,3 +1,37 @@
+# 已完成：PR #8 最后一轮CI复核
+
+用户要求检查4bf09e7的CI，失败修复并更新PR/文档，不合并或部署VPS。应用源码仍为3307df6，CI工具/专项测试/工作流修复为6f76d7d；本轮不更新本机主服务、数据库、原件或模型配置。[完整复核](docs/development/spec027/ci-followup.md)与[结构化证据](docs/development/spec027/ci-followup.json)优先于下方历史快照。
+
+完整[push 42119052986](https://github.com/DayuGuo/Pivot/actions/runs/42119052986)与[PR 42119062980](https://github.com/DayuGuo/Pivot/actions/runs/42119062980)均顶层及全部步骤success：各1559后端（10条提醒，579.79/667.98秒）＋399浏览器（三引擎各133，13.8/16.1分钟），0失败/跳过/flaky/浏览器重试。各依赖首次28/80秒成功。静态push42119052972/PR42119062915各17步骤success、各33＋33项；PR首次300秒超时后实际官方HTTPS回退、第二次成功（总357秒），push首次27秒。37项离线专项、静态/迁移/准确构建通过，不累计重叠覆盖。
+
+原生amd64包42119052983全部20步骤success，官方HTTPS预检后Chromium依赖14秒完成。302150234字节归档外/七内部SHA及实际镜像ID匹配；preview.4原48表62行4CAS全部保留，测试后55表72行5CAS在新项目恢复全等，PDF/DOCX引用定位/刷新、重启、4并发200/429与同UUID恢复通过；旧cookie/引文可读，邮件/正式决定0，其他服务ID不变。仅候选CI artifact，不发布Release或部署。
+
+原失败不覆盖：4bf原生42115429481两次300秒/124，共602秒，未构建且后续跳过；原完整push成功，PR因新提交concurrency取消。6f本机会话143中断，1559后端/390浏览器已过但无完整结束，不计exit0；最终完整结论依据远端两轮实际verify.sh。原日志/中断回执保留，未删测试或通过清库掩盖问题。
+
+本机只读API200、EMAIL_SEND_ENABLED=false/Mailpit0，本轮DeepSeek0请求，关键决定仍由负责人确认。未合并、未Release、未连接VPS。实际编辑评价及专业复核尚未执行，见[交接](docs/development/spec027/external-handoff.md)。
+
+# spec027 工程候选交付（3307历史验收，最新CI见顶部）
+
+已按[用户执行建议](docs/consultation/Pivot-candidate-execution-brief-2026-11-05.txt)完成任务A/B工程候选，草稿[PR #8](https://github.com/DayuGuo/Pivot/pull/8)叠加未合并#7/#6。应用运行源码冻结3307df676cc64a84c0ab6a591f66c2e9d2901582；后续CI工具、专项测试和工作流修复为6f76d7d，最新结果见顶部复核记录，不合并main、不更新VPS、不发布Release。[操作指南](docs/development/spec027/operating-guide.md) · [交付记录](docs/development/spec027/review.md) · [精确结果](docs/development/spec027/results.json) · [合同](specs/027-internal-revision-contract.md)。以下保留3307当时的验收快照，最新CI以顶部为准。
+
+历史3307本机scripts/verify.sh实际exit0、1246.54秒：**1530后端474.58秒（10条提醒）＋399浏览器12.2m**，Chromium/Firefox/WebKit各133项、0失败/跳过/重试。全仓语法、Ruff/format、研究完整性/模块边界、18条离线引文、PostgreSQL迁移无漂移、ESLint/TypeScript与准确镜像构建/启动通过。证据artifacts/spec027/verify-final.log、verify-final-exit.json、pytest-final.xml。迁移175、资料/导入/来源/兼容/安装器132、三引擎专项57与全量重叠，不累加。
+
+任务A：缺项PDF/DOCX可先保存材料并正文审阅，不建完整DossierCheck；首次上传前/后人工字段保留，显式切换候选；资料与缺项按精确版本导出。新增可选文章类型、基金、声明原文及来源，空扩展不改旧序列化/指纹；声明不代签。类型须明确标识、基金/声明完整有界，拒绝已覆盖的他文/限定语截断反例；模型候选和纠正提示均限实际14k窗口，完整摘要/联系人规则补充分开。具体归属和语义仍由编辑核对。
+
+任务B：私人真实原/新版本＋编辑预拆要求/原上下文＋来源明确的粘贴回复及四项完整度，生成冻结核对包；三层人判和理由追加、并发头/同UUID恢复、导出/历史不转当前批准。新增28a7c1e09462两表27字段，旧表/迁移/回执不改。已修多标签重读仍旧头、读取恢复误要求再签、人工草稿丢失及新元数据边界问题，Codex交叉审查不等于外部专业审核。
+
+6篇独立许可论文/42项工程问题（A27/B15）、9项后续保留题及空白人评/净耗时模板已准备，原件/快照/许可/逐字位置离线校验通过。语料此前用于调试，非未知盲测；完整逐点回复信0、实际编辑评价0人，不报告科学准确率、节时或继续使用结果。
+
+真实DeepSeek合成私有两版核对＋问答6 HTTP/5条精确版本引用通过，最终3307元数据一次请求/三项完整原文和限定语通过。全部实验11 HTTP、输入21623/输出1741Token，按当日官方峰值未缓存口径估价0.0085761美元，账单未知。原10次预算末次非法根字段被拒且预算挡纠正；另立2次/0.02美元小额补测，实际1次成功，失败保留。无签署/业务确认/邮件/决定请求；key只在安全环境内存传递。合成供应商协议不替代许可论文专业评价，原生跨供应商Codex子Agent仍未验证。
+
+历史3307原生amd64 [CI42110416671](https://github.com/DayuGuo/Pivot/actions/runs/42110416671)全部步骤成功：3307包302151650字节，SHA及七内部文件/运行镜像ID一致；实际preview.4升级保留48表62行4CAS，累计新增7表空，新增核对/人判后55表72行5CAS在新项目恢复全等，旧cookie/引文可读。4并发200/429、同UUID恢复、原件/引用/刷新/重启通过，1472MiB容器总硬限下无OOM，非用户VPS容量认证。仅CI artifact，不Release。中间ARM64/amd64实验另列，不替代最终源。静态push同源两轮33项通过；重复PR安装卡下载已取消，不记成功。
+
+CI依赖失败保留：5ded两次完整门禁在Ubuntu26慢镜像超时，用户timeout无法杀root apt；固定Ubuntu24并把timeout置于提权内部，3307主CI安装35秒完成。后续静态/打包入口同样改用已验证helper，下载5m/依赖12m、保留日志，YAML解析和离线8项通过；新入口远端状态与已成功的应用验收分列。同应用源码完整[push CI42110416792](https://github.com/DayuGuo/Pivot/actions/runs/42110416792)与[PR CI42110424097](https://github.com/DayuGuo/Pivot/actions/runs/42110424097)均全部作业/步骤success：1530后端641.00/650.29秒＋399浏览器15.4m，0重试；新caller配置是其后的独立增量，精确状态以results快照和Actions为准，不借用旧步骤成功冒称新入口已远端执行。
+
+**本机已更新且旧数据完整保留**：0600 DB/CAS备份已验证pg_restore目录及tar全文件；原53表3560行的主键/全部字段SHA与24CAS路径/长度/字节SHA全部相同，新两表空，schema f592→28a7。API/Web健康200，DeepSeek/deepseek-flash配置保留。更新验收仅GET，业务POST/新模型调用0；EMAIL_SEND_ENABLED=false、Mailpit0。未覆盖恢复/删除/重置，不改Codex主模型/全局配置，不连接VPS或改变公开静态站。
+
+实际Linux三引擎，最终原生包桌面Word引用/375px图及中间真实DeepSeek修回/引文图已人工查看，页面无错误/横溢出，Impeccable源码检测[]。真实Edge/Safari/Android、IME/软键盘未测。下一阶段需要负责人安排两名获授权编辑及许可完整修回包，按净耗时/有效覆盖/严重错误评价；专业工程师复核文件、权限、版本确认、模型出域、备份恢复、部署维护。自动复合拆解/完整回复文件导入/结构化外部投稿来源仍未做，日历等长期目标按反馈推进。工程候选通过不等于报告全部试用条件或生产放行完成。
+
 # 当前增量：2026-11-05，spec026已完成代码逻辑与三浏览器复核
 
 交付[PR #7](https://github.com/DayuGuo/Pivot/pull/7)，依赖尚未合并的PR #6，均不自动合并、不部署VPS。[范围](specs/026-browser-and-logic-audit/spec.md) · [完整审计报告](docs/development/spec026-review.md) · [结构化结果](docs/development/spec026-results.json) · [兼容性边界](docs/development/browser-compatibility.md) · [模块维护地图](docs/development/module-map.md)。运行/测试/脚本固定提交168f7d6e72257e03f1aefda180e6c0c52898e7d2，其后仅文档调整。

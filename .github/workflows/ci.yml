@@ -7,7 +7,9 @@ concurrency:
   cancel-in-progress: true
 jobs:
   prototype:
-    runs-on: ubuntu-latest
+    # Keep the browser OS/dependency baseline stable instead of inheriting a
+    # new distribution and mirror when ubuntu-latest advances.
+    runs-on: ubuntu-24.04
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
@@ -22,7 +24,9 @@ jobs:
           version: '0.9.7'
           python-version: '3.12'
       - run: ./scripts/setup.sh
-      - run: npx playwright install-deps chromium firefox webkit
+      - name: Install all browser host dependencies with bounded retry
+        timeout-minutes: 12
+        run: bash scripts/install-browser-deps.sh
       - run: ./scripts/start.sh
       - run: ./scripts/verify.sh
       - if: always()
