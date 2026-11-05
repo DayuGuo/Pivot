@@ -1,0 +1,95 @@
+{
+  "schema": "spec027-ci-followup.v1",
+  "status": "in_progress",
+  "requested_source": "4bf09e74c0c4b178094e01c02795fd17f94ac1d7",
+  "application_source": "3307df676cc64a84c0ab6a591f66c2e9d2901582",
+  "observed_at": "2026-11-05T22:08:55.624107+00:00",
+  "original_runs": {
+    "static_push": {
+      "id": 42115429771,
+      "conclusion": "success",
+      "static_tests": 33,
+      "offline_image_tests": 33,
+      "per_engine_per_stage": 11,
+      "browser_retries": 0,
+      "installer_attempts": 1,
+      "install_seconds": 26
+    },
+    "static_pr": {
+      "id": 42115440795,
+      "conclusion": "success",
+      "static_tests": 33,
+      "offline_image_tests": 33,
+      "per_engine_per_stage": 11,
+      "browser_retries": 0,
+      "installer_attempts": 1,
+      "install_seconds": 50
+    },
+    "native_bundle": {
+      "id": 42115429481,
+      "conclusion": "failure",
+      "failed_step": "Install browser host dependencies with bounded retry",
+      "seconds": 602,
+      "attempts": 2,
+      "attempt_exit_codes": [
+        124,
+        124
+      ],
+      "candidate_built": false,
+      "downstream_acceptance": "skipped",
+      "cause": "Very slow Azure Ubuntu deb transfer; no demonstrated HTTP/DNS/TLS error or lock wait",
+      "evidence": "artifacts/spec027/amd64-followup-ci/failure-audit.json"
+    },
+    "verify_push": {
+      "id": 42115429493,
+      "status": "in_progress"
+    },
+    "verify_pr": {
+      "id": 42115441284,
+      "status": "in_progress"
+    }
+  },
+  "fix": {
+    "native_dependencies": [
+      "chromium"
+    ],
+    "full_and_static_dependencies": [
+      "chromium",
+      "firefox",
+      "webkit"
+    ],
+    "fallback_scope": "ephemeral GitHub-hosted Ubuntu24 amd64 only; root guard, fixed paths and private backup",
+    "mirror_urls": [
+      "https://archive.ubuntu.com/ubuntu/",
+      "https://security.ubuntu.com/ubuntu/"
+    ],
+    "apt_signature_or_tls_checks_disabled": false,
+    "installer_max_attempts": 2,
+    "attempt_timeout_seconds": 300,
+    "configured_apt_transport_timeout_seconds": 30,
+    "configured_apt_retries": 1,
+    "fallback": "native explicit preflight; full/static after first failed install"
+  },
+  "targeted": {
+    "passed": 37,
+    "warnings": 1,
+    "seconds": 0.33,
+    "evidence": "artifacts/spec027/ci-followup/installer-fix.xml",
+    "local_platform_guard_refusal": true,
+    "actual_local_etc_changes": false,
+    "bash_ruff_syntax_research_boundaries_yaml": "passed"
+  },
+  "final_validation": {
+    "status": "pending",
+    "source": null
+  },
+  "safety": {
+    "main_application_or_database_changed": false,
+    "vps_updated": false,
+    "merged": false,
+    "release_published": false,
+    "email_send_enabled": false,
+    "key_decisions": "responsible human confirmation unchanged",
+    "deepseek_api_calls_this_followup": 0
+  }
+}

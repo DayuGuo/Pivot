@@ -1,5 +1,6 @@
 """Offline shell contract: bounded retries never convert an install failure to green."""
 
+import json
 import os
 import shutil
 import subprocess
@@ -15,6 +16,15 @@ def installer(tmp_path):
     (tmp_path / "scripts").mkdir()
     script = tmp_path / "scripts/install-browser-deps.sh"
     shutil.copyfile(ROOT / "scripts/install-browser-deps.sh", script)
+    (tmp_path / "scripts/ci-ubuntu-apt-fallback.py").write_text(
+        """import json, os
+from pathlib import Path
+keys = ['GITHUB_ACTIONS', 'RUNNER_OS', 'RUNNER_ARCH', 'RUNNER_TEMP', 'RUNNER_ENVIRONMENT']
+Path(os.environ['TASK_FIXTURE_ROOT'], 'fallback-context.json').write_text(json.dumps({k:os.environ.get(k) for k in keys}))
+print('Synthetic fallback boundary only; no /etc or real privilege access.')
+raise SystemExit(int(os.environ.get('TASK_FIXTURE_FALLBACK_STATUS', '0')))
+"""
+    )
     cli = tmp_path / "node_modules/.bin/playwright"
     cli.parent.mkdir(parents=True)
     cli.write_text(
@@ -58,6 +68,10 @@ exec "$@"
 set -eu
 printf '%s\\0' "$@" >> "$TASK_FIXTURE_ROOT/sudo-arguments"
 [[ "$1" == -n ]]; shift
+if [[ "${1:-}" == --preserve-env=* ]]; then
+  [[ "$1" == --preserve-env=GITHUB_ACTIONS,RUNNER_OS,RUNNER_ARCH,RUNNER_TEMP,RUNNER_ENVIRONMENT ]]
+  shift
+fi
 # Intentionally no privilege change: test the command boundary, not root access.
 exec "$@"
 """
@@ -69,11 +83,11 @@ exec "$@"
     )
     sleep.chmod(0o755)
 
-    def run(statuses="0", timeout="", uid="1000"):
+    def run(statuses="0", timeout="", uid="1000", args=(), github=False, fallback_status="0"):
         # A minimal environment prevents unrelated developer/provider configuration
         # from entering this offline installer fixture.
         return subprocess.run(
-            ["bash", str(script)],
+            ["bash", str(script), *args],
             cwd=tmp_path,
             env={
                 "PATH": str(fake_bin) + os.pathsep + os.defpath,
@@ -81,6 +95,12 @@ exec "$@"
                 "TASK_FIXTURE_STATUSES": statuses,
                 "TASK_FIXTURE_TIMEOUT": timeout,
                 "TASK_FIXTURE_UID": uid,
+                "GITHUB_ACTIONS": "true" if github else "false",
+                "RUNNER_OS": "Linux",
+                "RUNNER_ARCH": "X64",
+                "RUNNER_TEMP": "/home/runner/work/_temp",
+                "RUNNER_ENVIRONMENT": "github-hosted",
+                "TASK_FIXTURE_FALLBACK_STATUS": fallback_status,
             },
             capture_output=True,
             text=True,
@@ -157,3 +177,58 @@ def test_root_path_does_not_invoke_sudo_or_inherit_env_flags(installer):
     assert run(uid="0").returncode == 0
     assert not (root / "sudo-arguments").exists()
     assert (root / "cli-count").read_text().strip() == "1"
+
+
+@pytest.mark.parametrize("args", [("chromium",), ("webkit", "firefox")])
+def test_explicit_engine_subset_installs_exactly_requested_dependencies(installer, args):
+    root, run = installer
+    assert run(args=args).returncode == 0
+    assert (
+        "cli: install-deps " + " ".join(args)
+        in (root / "artifacts/browser-deps/attempt-1.log").read_text()
+    )
+
+
+@pytest.mark.parametrize("args", [("",), ("--with-deps",), ("chrome",), ("chromium", "chromium")])
+def test_invalid_engine_arguments_fail_before_privileged_work(installer, args):
+    root, run = installer
+    assert run(args=args).returncode == 2
+    assert not (root / "sudo-arguments").exists()
+    assert not (root / "node-count").exists()
+
+
+def test_github_retry_invokes_fallback_with_only_safe_preserved_context(installer):
+    root, run = installer
+    result = run("17 0", github=True)
+    assert result.returncode == 0
+    commands = (root / "sudo-arguments").read_bytes().rstrip(b"\x00").split(b"\x00")
+    preserve = b"--preserve-env=GITHUB_ACTIONS,RUNNER_OS,RUNNER_ARCH,RUNNER_TEMP,RUNNER_ENVIRONMENT"
+    assert commands.count(preserve) == 1
+    index = commands.index(preserve)
+    assert commands[index - 1] == b"-n"
+    assert commands[index + 1 : index + 3] == [
+        b"/usr/bin/python3",
+        str(root / "scripts/ci-ubuntu-apt-fallback.py").encode(),
+    ]
+    assert json.loads((root / "fallback-context.json").read_text()) == {
+        "GITHUB_ACTIONS": "true",
+        "RUNNER_OS": "Linux",
+        "RUNNER_ARCH": "X64",
+        "RUNNER_TEMP": "/home/runner/work/_temp",
+        "RUNNER_ENVIRONMENT": "github-hosted",
+    }
+    assert (root / "cli-count").read_text().strip() == "2"
+
+
+def test_fallback_refusal_is_visible_and_does_not_hide_the_second_install_failure(installer):
+    root, run = installer
+    result = run("17 23", github=True, fallback_status="2")
+    assert result.returncode == 23
+    assert "fallback was not confirmed" in result.stderr
+    assert (root / "cli-count").read_text().strip() == "2"
+
+
+def test_local_retry_does_not_attempt_ci_mirror_changes(installer):
+    root, run = installer
+    assert run("17 0").returncode == 0
+    assert not (root / "fallback-context.json").exists()

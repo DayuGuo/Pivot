@@ -5,6 +5,8 @@ on:
     paths:
       - 'infrastructure/vps/**'
       - 'scripts/*vps*'
+      - 'scripts/install-browser-deps.sh'
+      - 'scripts/ci-ubuntu-apt-fallback.py'
       - 'apps/**'
       - 'packages/**'
       - '.github/workflows/app-bundle.yml'
@@ -29,9 +31,14 @@ jobs:
       - name: Download the package acceptance browser
         timeout-minutes: 5
         run: npx playwright install chromium
+      - name: Use official HTTPS Ubuntu mirrors on the temporary runner
+        timeout-minutes: 1
+        run: |
+          sudo -n --preserve-env=GITHUB_ACTIONS,RUNNER_OS,RUNNER_ARCH,RUNNER_ENVIRONMENT,RUNNER_TEMP \
+            "$(command -v python3)" "$GITHUB_WORKSPACE/scripts/ci-ubuntu-apt-fallback.py"
       - name: Install browser host dependencies with bounded retry
         timeout-minutes: 12
-        run: bash scripts/install-browser-deps.sh
+        run: bash scripts/install-browser-deps.sh chromium
       - name: Build offline bundle on native x86
         run: .venv/bin/python scripts/build-vps-app.py --platform linux/amd64
       - name: Install under memory caps, import, review, cite, restart and restore

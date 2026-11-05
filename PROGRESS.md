@@ -1,3 +1,13 @@
+# 当前执行：PR #8 最后一轮CI复核
+
+用户要求继续检查4bf09e7的最后CI，失败修复并更新PR/文档，不合并或部署VPS。本轮仅维护CI工具、工作流和证据，应用代码仍为3307df6，不重启或迁移现有主服务。详细[复核记录](docs/development/spec027/ci-followup.md)与[结构化状态](docs/development/spec027/ci-followup.json)优先于下方历史快照。
+
+4bf静态push42115429771/PR42115440795均全部17步骤success、每轮33＋33三引擎测试通过/0重试，新安装器各首轮26/50秒成功。原生包42115429481确实失败：慢Azure镜像两次300秒退出124，共602秒，未构建包，后续验收全部跳过。失败日志保留，没有当作通过或直接重新运行掩盖原因。
+
+修复已实现并经37项离线专项及静态检查：原生验收只装实际Chromium依赖，全量/静态仍三引擎；临时GitHub hosted Ubuntu24 amd64受控切换官方HTTPS镜像、30秒APT网络timeout/retry1，保留签名/TLS和0700/0600私有备份；拒绝本机、自托管、其他系统、异常源和APT/临时目录symlink。默认两次300秒总预算不变。实际新CI与完整verify待执行，不用离线专项代替远端证明。
+
+本机只读检查API200、邮件false/Mailpit0，未新调用DeepSeek、未修改主库/原件/运行配置，关键决定继续负责人确认。此前工程候选与数据保留证据见下方。
+
 # 当前交付：spec027 单刊辅助核对工程候选版
 
 已按[用户执行建议](docs/consultation/Pivot-candidate-execution-brief-2026-11-05.txt)完成任务A/B工程候选，草稿[PR #8](https://github.com/DayuGuo/Pivot/pull/8)叠加未合并#7/#6。运行/测试/脚本冻结3307df676cc64a84c0ab6a591f66c2e9d2901582；之后仅CI安装入口和交付文档，不合并main、不更新VPS、不发布Release。[操作指南](docs/development/spec027/operating-guide.md) · [交付记录](docs/development/spec027/review.md) · [精确结果](docs/development/spec027/results.json) · [合同](specs/027-internal-revision-contract.md)。以下旧切片为当时历史，以本段为准。

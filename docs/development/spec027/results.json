@@ -507,9 +507,10 @@
   "ci_entry_followup": {
     "scope": "same application, tests and script bytes as frozen 3307; only static/native workflow callers now reuse bounded host installer and retain install logs",
     "validation": "YAML parsed; installer eight offline contracts passed; the same installer already executed successfully in primary 3307 CI",
-    "remote_new_callers_status": "not yet run",
+    "remote_new_callers_status": "4bf static passed; native failed before build; repair in progress, see timestamped followup",
     "full_application_retest_required_by_runtime_change": false,
-    "status_as_of_evidence_snapshot": "YAML and offline contracts checked; new remote callers not yet pushed/run"
+    "status_as_of_evidence_snapshot": "YAML and offline contracts checked; new remote callers not yet pushed/run",
+    "current_followup": "ci-followup.json"
   },
   "evidence_snapshot_at": "2026-11-05T21:44:24.929310+00:00"
 }
