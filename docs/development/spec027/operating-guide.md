@@ -8,7 +8,7 @@
 
 资料仅对录入它的当前有效编辑/主编开放，同刊其他编辑或主编没有默认访问权。试用管理范围建议一本期刊、2—5名指定编辑、10—30篇分批材料，尚未测得相应容量或共同编辑权限。
 
-候选amd64离线归档来自[原生CI 42110416671](https://github.com/DayuGuo/Pivot/actions/runs/42110416671)，artifact名`pivot-private-app-linux-amd64`，源3307df6；不是新Release或已经部署的VPS版本。包及摘要可在本机`artifacts/spec027/amd64-final-ci/`找到，精确SHA见results。安装/保留数据升级与新项目恢复步骤沿用[私人包说明](../../../infrastructure/vps/README.md)和[升级指南](../../deployment/private-preview-upgrade.md)。
+最新已验收候选amd64离线归档来自[原生CI 42119052983](https://github.com/DayuGuo/Pivot/actions/runs/42119052983)，artifact名`pivot-private-app-linux-amd64`，源6f76d7d（应用代码仍为3307df6）；不是新Release或已经部署的VPS版本。包及摘要在本机`artifacts/spec027/amd64-repaired-ci/`，302150234字节，SHA256为`959164d7a77fcff11e6ccaf7cf6ffaeb8db55591c5d485a37883c5f5f692dcf0`。旧3307候选及失败记录保留，详见[CI复核](ci-followup.md)。安装/保留数据升级与新项目恢复步骤沿用[私人包说明](../../../infrastructure/vps/README.md)和[升级指南](../../deployment/private-preview-upgrade.md)。
 
 以后获准更新VPS时，先在新目录校验并解包，保留旧包、静态站及原私密state目录；在新包目录执行`python3.11 manage.py update --state /原有私密状态目录的绝对路径`，不要重新init或删除卷。update先备份DB＋CAS再增量启动，恢复演练只到新项目/新卷。本轮仅在隔离CI实际执行旧preview.4升级及新卷恢复，没有执行此VPS命令。
 

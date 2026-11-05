@@ -72,7 +72,8 @@
     "static_checks": "passed",
     "migration_check": "no new upgrade operations",
     "build_and_start": "passed",
-    "logs_actual_built_application": true
+    "logs_actual_built_application": true,
+    "historical_3307_local_gate": true
   },
   "previous_full_attempts": [
     {
@@ -98,57 +99,112 @@
     }
   ],
   "ci": {
-    "source": "3307df676cc64a84c0ab6a591f66c2e9d2901582",
+    "source": "6f76d7d117622e4756b021ae3834188ed76d4925",
+    "application_source": "3307df676cc64a84c0ab6a591f66c2e9d2901582",
     "verify_push": {
-      "id": 42110416792,
+      "id": 42119052986,
       "status": "completed",
       "conclusion": "success",
       "all_jobs_and_steps_success": true,
-      "backend_passed": 1530,
-      "backend_seconds": 641.0,
+      "backend_passed": 1559,
+      "backend_seconds": 579.79,
       "backend_warnings": 10,
       "browser_passed": 399,
-      "browser_minutes": 15.4,
+      "browser_minutes": 13.8,
       "browser_retries": 0,
-      "evidence": "artifacts/spec027/ci-verify-push-final.log"
+      "browser_per_engine": {
+        "chromium": 133,
+        "firefox": 133,
+        "webkit": 133
+      },
+      "installer": {
+        "seconds": 28.0,
+        "conclusion": "success",
+        "attempts": [
+          1
+        ],
+        "failed_attempts": [],
+        "official_https_fallback_invoked": false,
+        "official_https_fallback_success": false,
+        "second_attempt_selected_official_mirrors": false,
+        "eventual_install_success": true
+      },
+      "evidence": "artifacts/spec027/ci-followup/repaired-verify-push.log"
     },
     "verify_pr": {
-      "id": 42110424097,
+      "id": 42119062980,
       "status": "completed",
       "conclusion": "success",
       "all_jobs_and_steps_success": true,
-      "backend_passed": 1530,
-      "backend_seconds": 650.29,
+      "backend_passed": 1559,
+      "backend_seconds": 667.98,
       "backend_warnings": 10,
       "browser_passed": 399,
-      "browser_minutes": 15.4,
+      "browser_minutes": 16.1,
       "browser_retries": 0,
-      "evidence": "artifacts/spec027/ci-verify-pr-final.log"
+      "browser_per_engine": {
+        "chromium": 133,
+        "firefox": 133,
+        "webkit": 133
+      },
+      "installer": {
+        "seconds": 80.0,
+        "conclusion": "success",
+        "attempts": [
+          1
+        ],
+        "failed_attempts": [],
+        "official_https_fallback_invoked": false,
+        "official_https_fallback_success": false,
+        "second_attempt_selected_official_mirrors": false,
+        "eventual_install_success": true
+      },
+      "evidence": "artifacts/spec027/ci-followup/repaired-verify-pr.log"
     },
     "static_push": {
-      "id": 42110416647,
-      "status": "completed",
+      "event": "push",
+      "id": 42119052972,
       "conclusion": "success",
-      "all_jobs_and_steps_success": true
+      "all_17_steps_success": true,
+      "static_passed": 33,
+      "offline_image_passed": 33,
+      "per_engine_per_stage": 11,
+      "browser_retries": 0,
+      "browser_failed": 0,
+      "browser_skipped": 0,
+      "installer_seconds": 27,
+      "installer_attempts": 1,
+      "first_attempt_exit": 0,
+      "official_https_fallback_applied": false
     },
     "static_pr": {
-      "id": 42110424058,
-      "status": "completed",
-      "conclusion": "cancelled",
-      "reason": "duplicate PR host dependency install hung; same-source push static passed. Ordinary cancel completed before force-cancel request returned 409."
+      "event": "pr",
+      "id": 42119062915,
+      "conclusion": "success",
+      "all_17_steps_success": true,
+      "static_passed": 33,
+      "offline_image_passed": 33,
+      "per_engine_per_stage": 11,
+      "browser_retries": 0,
+      "browser_failed": 0,
+      "browser_skipped": 0,
+      "installer_seconds": 357,
+      "installer_attempts": 2,
+      "first_attempt_exit": 124,
+      "official_https_fallback_applied": true
     },
     "native_bundle": {
-      "id": 42110416671,
+      "id": 42119052983,
       "status": "completed",
       "conclusion": "success",
       "all_jobs_and_steps_success": true
     },
-    "previous_dependency_failures": [
-      42106817769,
-      42106953431
-    ],
-    "dependency_failure": "Ubuntu26 azure mirror slow download; original user timeout could not terminate root installer. Pin Ubuntu24.04 and elevate timeout itself.",
-    "dependency_fix_remote_install_seconds": 35
+    "original_followup_failure": {
+      "id": 42115429481,
+      "cause": "Very slow Azure Ubuntu deb transfer; no demonstrated HTTP/DNS/TLS error or lock wait",
+      "evidence": "artifacts/spec027/amd64-followup-ci/failure-audit.json"
+    },
+    "followup_details": "ci-followup.json"
   },
   "licensed_preparation": {
     "passed": true,
@@ -275,6 +331,175 @@
   },
   "native_packages": {
     "final": {
+      "status": "completed",
+      "passed": true,
+      "source": "6f76d7d117622e4756b021ae3834188ed76d4925",
+      "platform": "linux/amd64",
+      "ci_run": 42119052983,
+      "all_jobs_and_steps_success": true,
+      "archive_bytes": 302150234,
+      "archive_sha256": "959164d7a77fcff11e6ccaf7cf6ffaeb8db55591c5d485a37883c5f5f692dcf0",
+      "source_tree_sha256": "c93a19762c44a2e50b745a3e4c7e60e2794c82d921b62936e1496653bb1c8bae",
+      "worktree": false,
+      "inner_file_hashes_verified": true,
+      "image_ids_match_running_report": true,
+      "upgrade": {
+        "old_tables": 48,
+        "old_rows": 62,
+        "new_empty_tables": 7,
+        "old_cas_files": 4,
+        "new_cas_files": 0,
+        "schema_before": "15b39ecf7286",
+        "schema_after": "28a7c1e09462",
+        "all_old_tables_equal": true,
+        "all_old_cas_equal": true
+      },
+      "old_cookie_and_citations_preserved": true,
+      "restore": {
+        "old_tables": 55,
+        "old_rows": 72,
+        "new_empty_tables": 0,
+        "old_cas_files": 5,
+        "new_cas_files": 0,
+        "schema_before": "28a7c1e09462",
+        "schema_after": "28a7c1e09462",
+        "all_old_tables_equal": true,
+        "all_old_cas_equal": true
+      },
+      "upgrade_duration_ms": 116229,
+      "candidate_memory": {
+        "db": {
+          "limit_bytes": 335544320,
+          "oom_killed": false,
+          "running": true,
+          "restarts": 0,
+          "image_id": "sha256:aac5ed9e090c8b3e134bf1dcf3f9fe0787a29cecdf7867de8b53b5d8abc3eef2",
+          "observed_peak_bytes": 27967488
+        },
+        "api": {
+          "limit_bytes": 805306368,
+          "oom_killed": false,
+          "running": true,
+          "restarts": 0,
+          "image_id": "sha256:4dcc4295c438cde470f83227f0f88430c0ee797f7f6eb34dd43434e2819505c8",
+          "observed_peak_bytes": 117694464
+        },
+        "web": {
+          "limit_bytes": 402653184,
+          "oom_killed": false,
+          "running": true,
+          "restarts": 0,
+          "image_id": "sha256:3464ef2eb112731db3e8a19b965f7a471ef8a9264c02fa7d16bcc7e259fe8a75",
+          "observed_peak_bytes": 56045568
+        }
+      },
+      "restore_memory": {
+        "db": {
+          "limit_bytes": 335544320,
+          "oom_killed": false,
+          "running": true,
+          "restarts": 0,
+          "image_id": "sha256:aac5ed9e090c8b3e134bf1dcf3f9fe0787a29cecdf7867de8b53b5d8abc3eef2",
+          "observed_peak_bytes": 83595264
+        },
+        "api": {
+          "limit_bytes": 805306368,
+          "oom_killed": false,
+          "running": true,
+          "restarts": 0,
+          "image_id": "sha256:4dcc4295c438cde470f83227f0f88430c0ee797f7f6eb34dd43434e2819505c8",
+          "observed_peak_bytes": 117653504
+        },
+        "web": {
+          "limit_bytes": 402653184,
+          "oom_killed": false,
+          "running": true,
+          "restarts": 0,
+          "image_id": "sha256:3464ef2eb112731db3e8a19b965f7a471ef8a9264c02fa7d16bcc7e259fe8a75",
+          "observed_peak_bytes": 55898112
+        }
+      },
+      "install_and_restart_restore_passed": true,
+      "concurrency": {
+        "passed": true,
+        "parallel_requests": 4,
+        "memory": {
+          "web": {
+            "limit_bytes": 402653184,
+            "observed_peak_bytes": 61038592,
+            "oom_killed": false
+          },
+          "api": {
+            "limit_bytes": 805306368,
+            "observed_peak_bytes": 120602624,
+            "oom_killed": false
+          },
+          "db": {
+            "limit_bytes": 335544320,
+            "observed_peak_bytes": 91607040,
+            "oom_killed": false
+          }
+        },
+        "statuses": [
+          200,
+          429,
+          429,
+          429
+        ],
+        "same_uuid_recovery_and_replay": true,
+        "full_dossier_unchanged": true,
+        "confirmations": 0,
+        "mail_or_decision_requests": 0,
+        "duration_ms": 7590,
+        "scope": "isolated Mock preview; single process, not user VPS capacity"
+      },
+      "browser": {
+        "passed": true,
+        "page_errors": 0,
+        "confirmations": 0,
+        "mail_or_decisions": 0,
+        "cases": [
+          {
+            "format": "pdf",
+            "exact_citation_highlight": true,
+            "refresh_preserved": true
+          },
+          {
+            "format": "docx",
+            "exact_citation_highlight": true,
+            "refresh_preserved": true
+          }
+        ]
+      },
+      "mail_and_formal_decision_counts": {
+        "email_drafts": 0,
+        "email_approvals": 0,
+        "publishing_editorial_decisions": 0,
+        "publishing_human_confirmations": 0
+      },
+      "test_projects_stopped": true,
+      "data_volumes_retained": true,
+      "evidence_directory": "artifacts/spec027/amd64-repaired-ci",
+      "existing_service_ids_unchanged": true
+    },
+    "intermediate_arm64_source": "1b37c96b49186ae23c40db1614f923a962ec72b5",
+    "intermediate_amd64_sources": [
+      "1b37c96b49186ae23c40db1614f923a962ec72b5",
+      "5dedcef0b6b24d1ecc6a5ec7ef4a140ae7758dac"
+    ],
+    "intermediate_preview4_upgrade": {
+      "old_source": "d7c90b03f612f8761d167eed866a8b63165acbfa",
+      "old_tables": 48,
+      "old_rows": 62,
+      "old_cas": 4,
+      "new_empty_tables": 7,
+      "restore_tables": 55,
+      "restore_rows": 72,
+      "restore_cas": 5,
+      "equal": true
+    },
+    "user_vps_capacity_measured": false,
+    "previous_3307": {
       "status": "completed",
       "passed": true,
       "source": "3307df676cc64a84c0ab6a591f66c2e9d2901582",
@@ -424,24 +649,7 @@
       "test_projects_stopped": true,
       "data_volumes_retained": true,
       "evidence_directory": "artifacts/spec027/amd64-final-ci"
-    },
-    "intermediate_arm64_source": "1b37c96b49186ae23c40db1614f923a962ec72b5",
-    "intermediate_amd64_sources": [
-      "1b37c96b49186ae23c40db1614f923a962ec72b5",
-      "5dedcef0b6b24d1ecc6a5ec7ef4a140ae7758dac"
-    ],
-    "intermediate_preview4_upgrade": {
-      "old_source": "d7c90b03f612f8761d167eed866a8b63165acbfa",
-      "old_tables": 48,
-      "old_rows": 62,
-      "old_cas": 4,
-      "new_empty_tables": 7,
-      "restore_tables": 55,
-      "restore_rows": 72,
-      "restore_cas": 5,
-      "equal": true
-    },
-    "user_vps_capacity_measured": false
+    }
   },
   "local_main": {
     "updated": true,
@@ -505,12 +713,85 @@
     "Journal Membership remains one role per journal with no validity-period/revoked_at fields; role/removal and session revocation are checked, not date-based appointment management"
   ],
   "ci_entry_followup": {
-    "scope": "same application, tests and script bytes as frozen 3307; only static/native workflow callers now reuse bounded host installer and retain install logs",
-    "validation": "YAML parsed; installer eight offline contracts passed; the same installer already executed successfully in primary 3307 CI",
-    "remote_new_callers_status": "4bf static passed; native failed before build; repair in progress, see timestamped followup",
-    "full_application_retest_required_by_runtime_change": false,
-    "status_as_of_evidence_snapshot": "YAML and offline contracts checked; new remote callers not yet pushed/run",
-    "current_followup": "ci-followup.json"
+    "scope": "Application/packages/infrastructure/lock bytes unchanged from 3307; bounded installer, guarded official HTTPS fallback, CI callers, verification lint list and 29 additional offline test cases changed in 6f76d7d",
+    "validation": "37 targeted offline cases; both full remote gates 1559 backend +399 browser; static and native gates all passed; local full attempt interrupted143 after1559 backend and390 browser cases, not counted as full success",
+    "remote_new_callers_status": "all repaired-source runs completed/success, including real hosted-runner official HTTPS preflight and timeout/fallback/retry",
+    "status_as_of_evidence_snapshot": "completed",
+    "current_followup": "ci-followup.json",
+    "full_application_retest_required_by_runtime_change": false
   },
-  "evidence_snapshot_at": "2026-11-05T21:44:24.929310+00:00"
+  "evidence_snapshot_at": "2026-11-05T22:44:32.866203+00:00",
+  "ci_history_3307": {
+    "source": "3307df676cc64a84c0ab6a591f66c2e9d2901582",
+    "verify_push": {
+      "id": 42110416792,
+      "status": "completed",
+      "conclusion": "success",
+      "all_jobs_and_steps_success": true,
+      "backend_passed": 1530,
+      "backend_seconds": 641.0,
+      "backend_warnings": 10,
+      "browser_passed": 399,
+      "browser_minutes": 15.4,
+      "browser_retries": 0,
+      "evidence": "artifacts/spec027/ci-verify-push-final.log"
+    },
+    "verify_pr": {
+      "id": 42110424097,
+      "status": "completed",
+      "conclusion": "success",
+      "all_jobs_and_steps_success": true,
+      "backend_passed": 1530,
+      "backend_seconds": 650.29,
+      "backend_warnings": 10,
+      "browser_passed": 399,
+      "browser_minutes": 15.4,
+      "browser_retries": 0,
+      "evidence": "artifacts/spec027/ci-verify-pr-final.log"
+    },
+    "static_push": {
+      "id": 42110416647,
+      "status": "completed",
+      "conclusion": "success",
+      "all_jobs_and_steps_success": true
+    },
+    "static_pr": {
+      "id": 42110424058,
+      "status": "completed",
+      "conclusion": "cancelled",
+      "reason": "duplicate PR host dependency install hung; same-source push static passed. Ordinary cancel completed before force-cancel request returned 409."
+    },
+    "native_bundle": {
+      "id": 42110416671,
+      "status": "completed",
+      "conclusion": "success",
+      "all_jobs_and_steps_success": true
+    },
+    "previous_dependency_failures": [
+      42106817769,
+      42106953431
+    ],
+    "dependency_failure": "Ubuntu26 azure mirror slow download; original user timeout could not terminate root installer. Pin Ubuntu24.04 and elevate timeout itself.",
+    "dependency_fix_remote_install_seconds": 35
+  },
+  "local_ci_followup": {
+    "source": "6f76d7d117622e4756b021ae3834188ed76d4925",
+    "command": "scripts/verify.sh",
+    "status": "interrupted",
+    "observed_exec_exit_code": 143,
+    "wrapper_completion_receipt_present": false,
+    "backend": {
+      "passed": 1559,
+      "warnings": 10,
+      "seconds": 487.96
+    },
+    "browser_completed_in_log": {
+      "chromium": 133,
+      "firefox": 133,
+      "webkit": 124
+    },
+    "browser_final_summary_present": false,
+    "not_a_completed_full_gate": true,
+    "log": "artifacts/spec027/ci-followup/verify.log"
+  }
 }

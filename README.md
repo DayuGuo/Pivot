@@ -1,8 +1,8 @@
 # Pivot
 
-[PR #8 最后一轮CI复核](docs/development/spec027/ci-followup.md)进行中：已定位原生包慢镜像超时并修复，最终结果与失败历史按该记录和Actions更新。本轮不合并或部署VPS。
+[PR #8 最后一轮CI复核](docs/development/spec027/ci-followup.md)已完成：修复原生包慢镜像超时，6f76d7d完整push/PR各1559后端＋399浏览器通过，静态双轮和原生amd64包验收通过；真实超时回退路径也已验证。未合并、未部署VPS，失败及本机会话中断记录保留。
 
-当前分支推进单刊辅助核对候选版：PDF/Word资料核对、带原文的问答、私人多版本修回核对和三层人工判断。使用说明见[操作指南](docs/development/spec027/operating-guide.md)，准确源码、测试、真实模型、升级恢复及限制见[交付记录](docs/development/spec027/review.md)和[PROGRESS](PROGRESS.md)。本机完整门禁退出0：1530后端＋399浏览器（三引擎各133）通过，原生amd64安装、preview.4升级和隔离恢复通过。本机已更新，原53表3560行/24原件摘要全部保留；远端完整CI状态与后续仅CI配置/文档提交分别记录，不据此宣称专家内容验收。
+当前分支提供单刊辅助核对候选版：PDF/Word资料核对、带原文的问答、私人多版本修回核对和三层人工判断。使用说明见[操作指南](docs/development/spec027/operating-guide.md)，准确源码、测试、真实模型、升级恢复及限制见[交付记录](docs/development/spec027/review.md)和[PROGRESS](PROGRESS.md)。应用代码仍为3307df6，CI修复源码为6f76d7d；历史本机完整门禁1530＋399通过，本次本机会话143中断不计完整成功。此前本机更新保留原53表3560行/24原件，本轮不再改主服务或数据；工程通过不等于专家内容验收。
 
 草稿[PR #8](https://github.com/DayuGuo/Pivot/pull/8)叠加未合并#7/#6，本轮不自动合并或更新VPS。公开静态站、已安装preview.4与本分支候选包分开；日历、多身份和完整出版仍按[路线图](ROADMAP.md)后续推进。真实编辑评价尚未执行，不能据工程测试宣称节时或科学准确率。
 
