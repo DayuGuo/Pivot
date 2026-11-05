@@ -34,12 +34,16 @@ from .review_schemas import (
     ReportCandidates,
 )
 from .reviews import save_report_candidates
+from .revision_compare import compare as compare_revision
+from .revision_compare import reply as revision_reply
+from .revision_sources import comparison_requested, load_revision
 from .schemas import IntakeCandidates, IntakeData, StrictInput
 from .stages import CheckNotes, download_report, save_check_notes
 
 SAFE_TURN_ERROR_CODES = frozenset(
     {
         "publishing_tool_not_allowed",
+        "revision_comparison_invalid",
         "publishing_tool_arguments_invalid",
         "publishing_response_evidence_invalid",
         "publishing_mutation_limit",
@@ -877,7 +881,27 @@ def conversation(db: Session, actor: Actor, request_id: str, body: ChatInput) ->
             if set_deadline:
                 set_deadline(deadline)
         runtime.message_id = uid()
-        if provider.name == "mock":
+        comparison = None
+        if comparison_requested(body.message) and runtime.current_id:
+            source = load_revision(db, actor, runtime.current_id, body.context.version_id)
+
+            def validate_comparison():
+                runtime.validate_scopes()
+                current = load_revision(db, actor, runtime.current_id, source["revised_version_id"])
+                if current["source_fingerprint"] != source["source_fingerprint"]:
+                    raise HTTPException(409, "修回依据已变化，请重新载入后对照")
+
+            comparison = compare_revision(source, provider, validate_comparison, telemetry)
+            validate_comparison()
+            runtime.receipts.append(
+                {
+                    "tool": "compare_revision",
+                    "status": "read_only",
+                    "manuscript_id": runtime.current_id,
+                }
+            )
+            reply = {"content": revision_reply(comparison), "references": []}
+        elif provider.name == "mock":
             reply = mock_reply(runtime)
         else:
             messages = [
@@ -976,6 +1000,7 @@ def conversation(db: Session, actor: Actor, request_id: str, body: ChatInput) ->
                     "id": uid(),
                     "role": "assistant",
                     "content": reply["content"],
+                    **({"revision_comparison": comparison} if comparison else {}),
                     "created_at": timestamp,
                     "provider": provider.name,
                     "context": context,
@@ -1029,6 +1054,16 @@ def conversation(db: Session, actor: Actor, request_id: str, body: ChatInput) ->
         for mid in stored.context_snapshot.get("read_manuscript_ids", []):
             core.load_submission(db, actor, mid)
         verify_visibility(db, actor, stored.context_snapshot.get("visibility_scopes", {}))
+        for message in stored.response.get("messages", []):
+            report = message.get("revision_comparison")
+            if report:
+                current = load_revision(
+                    db, actor, report["manuscript_id"], report["revised_version_id"]
+                )
+                if current["source_fingerprint"] != report["source_fingerprint"]:
+                    raise HTTPException(
+                        409, "原修回对照依据已变化；历史可查看，请重新发起当前版本对照"
+                    )
 
     try:
         return core.run_action(

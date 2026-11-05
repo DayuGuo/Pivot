@@ -1,0 +1,11 @@
+.hints { margin-block: 0 10px; padding: 8px 10px; border: 1px solid var(--p-line, var(--line, #e3e8f0)); border-radius: 6px; background: var(--p-sidebar, var(--toolbar, #f8f9fb)); color: var(--p-ink, var(--ink, #30343b)); }
+.heading { display: flex; align-items: center; gap: 12px; }
+.heading p { margin: 0; min-width: 0; flex: 1; font-size: 12px; line-height: 1.5; }
+.heading button { flex-shrink: 0; background: transparent; border: 0; font-size: 12px; min-height: 36px; cursor: pointer; }
+.choices { display: flex; flex-wrap: wrap; gap: 6px; }
+.choices button { min-height: 36px; padding: 5px 9px; font: inherit; font-size: 13px; border: 1px solid var(--p-line, var(--line, #e3e8f0)); border-radius: 5px; background: var(--p-canvas, var(--canvas, #fff)); color: var(--p-ink, var(--ink, #30343b)); cursor: pointer; touch-action: manipulation; }
+.hints button:disabled { opacity: .55; cursor: default; }
+.hints button:hover:enabled { border-color: var(--p-accent, var(--blue, #2463ff)); color: var(--p-accent, var(--blue, #2463ff)); }
+.hints button:focus-visible { outline: 2px solid var(--p-accent, var(--blue, #2463ff)); outline-offset: 2px; }
+
+@media (pointer: coarse) { .hints button { min-height: 44px; } }
