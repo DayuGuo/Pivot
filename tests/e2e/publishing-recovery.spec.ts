@@ -15,6 +15,9 @@ async function fixtures(page: Page) {
   await page.route("**/api/publishing/**", async route => {
     const path = new URL(route.request().url()).pathname;
     if (route.request().method() !== "GET") throw new Error(`Unexpected real mutation: ${path}`);
+    // This recovery fixture has no registered guidance data. Keep all unknown
+    // routes/mutations strict; real guidance is tested in context-guidance.spec.
+    if (path === "/api/publishing/guidance" || [MID, OTHER].some(id => path === `/api/publishing/manuscripts/${id}/guidance`)) return route.fulfill({ status: 404, json: { detail: "合成恢复夹具未登记下一步建议" } });
     if (path.endsWith("/session")) return route.fulfill({ json: session });
     if (path.endsWith("/workspace")) return route.fulfill({ json: { submissions: [detail, { ...detail, id: OTHER, number: "UI-RECOVERY-2", title: "另一篇合成稿件" }], tasks: [], counts: { actionable: 0, waiting: 0 }, synthetic_only: true } });
     if (path.includes("/manuscripts/")) return route.fulfill({ json: { ...detail, id: path.split("/").at(-1) } });
