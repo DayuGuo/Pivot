@@ -1,4 +1,5 @@
 "use client";
+import { sha256Bytes, warnBeforeUnload } from "../browser";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Anchor, Candidate, Case, CaseState, PatchState } from "./types";
@@ -34,7 +35,7 @@ function Feedback({ saver }: { saver: ReturnType<typeof useSave> }) {
 function useUnsaved(dirty: boolean) {
   useEffect(() => {
     if (!dirty) return;
-    const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); };
+    const warn = warnBeforeUnload;
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
   }, [dirty]);
@@ -111,8 +112,7 @@ function useDraftPersistence<T extends object>({ draft, saved, cacheKey, restore
   return { dirty, recovered, conflict: conflicts[0]?.draft, restoreConflict, discardConflict: () => setConflicts(items => items.slice(1)) };
 }
 async function fingerprint(value: object) {
-  const bytes = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify(value)));
-  return Array.from(new Uint8Array(bytes), b => b.toString(16).padStart(2, "0")).join("");
+  return sha256Bytes(new TextEncoder().encode(JSON.stringify(value)).buffer);
 }
 function DraftPreview({ snapshot, manuscript, onClose }: { snapshot: Snapshot; manuscript: Case; onClose: () => void }) {
   const ref = useRef<HTMLElement>(null);

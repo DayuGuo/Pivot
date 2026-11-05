@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from "react";
+import { warnBeforeUnload } from "../browser";
 import type { Anchor, Case, CaseState, PatchState, View } from "./types";
 import styles from "./reader.module.css";
 
@@ -57,6 +58,8 @@ export default function Reader({ manuscript, state, onSave, onNavigate, anchor, 
   const readingTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const retryPatch = useRef<Partial<Omit<CaseState, "revision">> | undefined>(undefined);
   const pending = useRef(0);
+  const stopResize = useRef<(() => void) | null>(null);
+  useEffect(() => () => stopResize.current?.(), []);
   const restoreSection = useRef(state.reading.section);
   const restoreParagraph = useRef(state.reading.paragraph ?? 0);
   const lastReading = useRef<ReadingPosition>({ version: firstVersion.id, section: state.reading.section || firstVersion.sections[0]?.id || "", paragraph: state.reading.paragraph ?? 0 });
@@ -181,7 +184,7 @@ export default function Reader({ manuscript, state, onSave, onNavigate, anchor, 
   useEffect(() => {
     const warnUnsaved = (event: BeforeUnloadEvent) => {
       if (!dirtyNotes.current && !pending.current && !retryPatch.current) return;
-      event.preventDefault();
+      warnBeforeUnload(event);
     };
     window.addEventListener("beforeunload", warnUnsaved);
     return () => window.removeEventListener("beforeunload", warnUnsaved);
@@ -193,7 +196,7 @@ export default function Reader({ manuscript, state, onSave, onNavigate, anchor, 
     const bounds = element.getBoundingClientRect();
     const offset = centered ? Math.max(24, (container.clientHeight - bounds.height) / 2) : 24;
     const top = bounds.top - container.getBoundingClientRect().top + container.scrollTop - offset;
-    container.scrollTo({ top: Math.max(0, top), behavior: "instant" });
+    container.scrollTo({ top: Math.max(0, top), behavior: "auto" });
   }, []);
 
   const jump = useCallback((destination: Anchor) => {
@@ -236,7 +239,7 @@ export default function Reader({ manuscript, state, onSave, onNavigate, anchor, 
         if (highlighted) scrollArticleTo(highlighted, true);
         else if (restoreParagraph.current > 0 && paragraph) scrollArticleTo(paragraph);
         else if (section && section !== version.sections[0]?.id) scrollArticleTo(sectionRefs.current[section]);
-        else if (scrollRef.current) scrollRef.current.scrollTo({ top: 0, behavior: "instant" });
+        else if (scrollRef.current) scrollRef.current.scrollTo({ top: 0, behavior: "auto" });
       });
     });
     return () => { active = false; if (frame !== undefined) cancelAnimationFrame(frame); };
@@ -304,15 +307,25 @@ export default function Reader({ manuscript, state, onSave, onNavigate, anchor, 
   };
 
   const resize = (event: PointerEvent<HTMLDivElement>) => {
+    if (!event.isPrimary || event.button !== 0 || stopResize.current) return;
     event.preventDefault();
     const startX = event.clientX;
     const startWidth = prefs.width;
-    event.currentTarget.setPointerCapture(event.pointerId);
-    const move = (next: globalThis.PointerEvent) => setPrefs(p => ({ ...p, width: boundedWidth(startWidth + startX - next.clientX) }));
-    const stop = () => { window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", stop); window.removeEventListener("pointercancel", stop); };
+    const target = event.currentTarget, pointerId = event.pointerId;
+    const move = (next: globalThis.PointerEvent) => { if (next.pointerId === pointerId) setPrefs(p => ({ ...p, width: boundedWidth(startWidth + startX - next.clientX) })); };
+    const stop = () => {
+      stopResize.current = null;
+      window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", end); window.removeEventListener("pointercancel", end);
+      window.removeEventListener("blur", stop); target.removeEventListener("lostpointercapture", stop);
+      if (target.hasPointerCapture(pointerId)) target.releasePointerCapture(pointerId);
+    };
+    const end = (next: globalThis.PointerEvent) => { if (next.pointerId === pointerId) stop(); };
+    stopResize.current = stop;
+    target.setPointerCapture(pointerId);
     window.addEventListener("pointermove", move);
-    window.addEventListener("pointerup", stop, { once: true });
-    window.addEventListener("pointercancel", stop, { once: true });
+    window.addEventListener("pointerup", end);
+    window.addEventListener("pointercancel", end);
+    window.addEventListener("blur", stop); target.addEventListener("lostpointercapture", stop);
   };
   const resizeKey = (event: KeyboardEvent<HTMLDivElement>) => {
     const change = event.key === "ArrowLeft" ? 16 : event.key === "ArrowRight" ? -16 : 0;

@@ -227,3 +227,36 @@ test("UI fixture: 同账号角色收窄后重新加载历史并隐藏旧角色�
   await expect(page.getByText("当前作者角色安全历史", { exact: true })).toHaveCount(1);
   expect(gets).toBe(2); expect(posts).toBe(1);
 });
+
+test('UI fixture: 刷新收到稿件撤权时移除旧材料与确认入口', async ({ page }) => {
+  await fixtures(page); let denied = false;
+  await page.route(`**/api/publishing/manuscripts/${MID}`, route => route.fulfill(denied ? { status: 403, json: { detail: '合成访问已撤销' } } : { json: detail }));
+  await page.route('**/api/publishing/chat', route => {
+    if (route.request().method() === 'GET') return route.fulfill({ json: { messages: [] } });
+    denied = true; return route.fulfill({ json: { messages: [], state_changed: true } });
+  });
+  await page.goto(`/publishing?manuscript=${MID}`);
+  await expect(page.getByRole('heading', { name: metadata.title, exact: true })).toBeVisible();
+  await page.getByLabel('向出版助手发送消息', { exact: true }).fill('合成刷新撤权回归');
+  await page.getByRole('button', { name: '发送消息', exact: true }).click();
+  await expect(page.getByText('合成访问已撤销', { exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: metadata.title, exact: true })).toHaveCount(0);
+  await expect(page.getByLabel('正文校样文件', { exact: true })).toHaveCount(0);
+});
+
+test('UI fixture: HTTP 200 空响应保留输入，同UUID主动重试才恢复', async ({ page }) => {
+  await fixtures(page); const ids: string[] = [];
+  await page.route('**/api/publishing/chat', route => {
+    if (route.request().method() === 'GET') return route.fulfill({ json: { messages: [] } });
+    ids.push(route.request().postDataJSON().request_id);
+    return ids.length === 1 ? route.fulfill({ status: 200, body: '' }) : route.fulfill({ json: { messages: [message('restored-empty-response', '同请求恢复的合成只读回合')], state_changed: false } });
+  });
+  await page.goto(`/publishing?manuscript=${MID}`);
+  const input = page.getByLabel('向出版助手发送消息', { exact: true }); await input.fill('空回执保留的合成问题');
+  await page.getByRole('button', { name: '发送消息', exact: true }).click();
+  await expect(page.getByRole('alert').filter({ hasText: '响应未完整收到' })).toBeVisible();
+  await expect(input).toHaveValue('空回执保留的合成问题'); expect(ids).toHaveLength(1);
+  await page.getByRole('button', { name: '重试', exact: true }).click();
+  await expect(page.getByText('同请求恢复的合成只读回合', { exact: true })).toBeVisible();
+  await expect(input).toHaveValue(''); expect(ids).toHaveLength(2); expect(ids[1]).toBe(ids[0]);
+});

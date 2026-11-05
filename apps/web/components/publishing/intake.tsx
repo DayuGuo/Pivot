@@ -1,4 +1,5 @@
 "use client";
+import { warnBeforeUnload } from "../browser";
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -38,7 +39,7 @@ function IntakeForm({ detail }: { detail: Detail }) {
   const errorRef = useRef<HTMLDivElement>(null); const uploadInput = useRef<HTMLInputElement>(null);
   const serverChanged = detail.revision !== baseRevision;
   useEffect(() => { setUnsaved(dirty); return () => setUnsaved(false); }, [dirty, setUnsaved]);
-  useEffect(() => { if (!dirty) return; function warn(event: BeforeUnloadEvent) { event.preventDefault(); } window.addEventListener("beforeunload", warn); return () => window.removeEventListener("beforeunload", warn); }, [dirty]);
+  useEffect(() => { if (!dirty) return; const warn = warnBeforeUnload; window.addEventListener("beforeunload", warn); return () => window.removeEventListener("beforeunload", warn); }, [dirty]);
   if (!dirty && !busy && detail.revision !== baseRevision && detail.version) { setData(structuredClone(detail.version.data)); setBaseRevision(detail.revision); }
   function update<K extends keyof IntakeData>(key: K, value: IntakeData[K]) { setData(previous => ({ ...previous, [key]: value })); setDirty(true); setPending(null); setNotice(""); }
   function author(index: number, patch: Partial<Author>) { update("authors", data.authors.map((item, position) => position === index ? { ...item, ...patch } : item)); }

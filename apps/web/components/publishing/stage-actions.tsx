@@ -1,4 +1,5 @@
 "use client";
+import { warnBeforeUnload } from "../browser";
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -25,7 +26,7 @@ export function StageActions({ detail }: { detail: Detail }) {
   const staff = detail.staff_review;
   const action = detail.allowed_actions.find(item => item.action === (staff?.kind === "assign_editor" ? "assign_editor" : "record_check"));
   useEffect(() => { setUnsaved(dirty); return () => setUnsaved(false); }, [dirty, setUnsaved]);
-  useEffect(() => { if (!dirty) return; function warn(event: BeforeUnloadEvent) { event.preventDefault(); } window.addEventListener("beforeunload", warn); return () => window.removeEventListener("beforeunload", warn); }, [dirty]);
+  useEffect(() => { if (!dirty) return; const warn = warnBeforeUnload; window.addEventListener("beforeunload", warn); return () => window.removeEventListener("beforeunload", warn); }, [dirty]);
   if (detail.revision !== baseRevision) {
     setBaseRevision(detail.revision); setDeclarations(emptyDeclarations()); setReviewURL(null);
     setNotice("稿件材料已更新，请重新核对后勾选人工复核声明。");

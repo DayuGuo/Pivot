@@ -56,7 +56,7 @@ async function noHorizontalOverflow(page: Page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
 }
 
-test.describe("合成编辑工作台 · Linux Chromium acceptance", () => {
+test.describe("合成编辑工作台 · 跨浏览器验收", () => {
   test.setTimeout(60_000);
 
   test("已有编辑入口贯穿四页，队列筛选、常用视图与滚动位置恢复", async ({ page }) => {
@@ -442,4 +442,23 @@ test.describe("合成编辑工作台 · Linux Chromium acceptance", () => {
       await expect(page.getByRole("table")).toHaveCount(0);
     }
   });
+});
+
+for (const interruption of ['blur', 'lostpointercapture', 'pointercancel'] as const) test(`面板拖动遇到${interruption}停止，忽略其他指针且可再次拖动`, async ({ page }) => {
+  await login(page); await reset(page); await page.setViewportSize({ width: 1920, height: 1000 }); await open(page, 'read'); await readingTools(page);
+  const separator = page.getByRole('separator', { name: '调整问题面板宽度', exact: true });
+  await separator.focus(); await page.keyboard.press('Home');
+  const box = (await separator.boundingBox())!;
+  await separator.evaluate(el => el.addEventListener('pointerdown', event => { (el as HTMLElement).dataset.pointerForTest = String((event as PointerEvent).pointerId); }, { once: true }));
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2); await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 - 40, box.y + box.height / 2);
+  const width = await separator.getAttribute('aria-valuenow'); expect(Number(width)).toBeGreaterThan(264); expect(Number(width)).toBeLessThan(480);
+  await separator.dispatchEvent('pointermove', { pointerId: 9999, clientX: box.x - 140 });
+  await expect(separator).toHaveAttribute('aria-valuenow', width!);
+  if (interruption === 'blur') await page.evaluate(() => window.dispatchEvent(new Event('blur')));
+  else await separator.dispatchEvent(interruption, { pointerId: Number(await separator.getAttribute('data-pointer-for-test')) });
+  await page.mouse.move(box.x + box.width / 2 - 90, box.y + box.height / 2); await page.mouse.up();
+  await expect(separator).toHaveAttribute('aria-valuenow', width!);
+  const next = (await separator.boundingBox())!; await page.mouse.move(next.x + next.width / 2, next.y + next.height / 2); await page.mouse.down(); await page.mouse.move(next.x + next.width / 2 - 35, next.y + next.height / 2); await page.mouse.up();
+  expect(Number(await separator.getAttribute('aria-valuenow'))).toBeGreaterThan(Number(width));
 });

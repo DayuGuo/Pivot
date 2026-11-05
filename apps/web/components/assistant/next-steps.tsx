@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from 'react';
+import { withRequestTimeout } from '../browser';
 import styles from './next-steps.module.css';
 
 type Hint = { id: string; label: string; prompt: string; reason: string };
@@ -25,22 +26,26 @@ export default function NextSteps({ url, objectId, versionId, revision, role, di
   const alive = useRef(true);
   useEffect(() => {
     let ignore = false;
+    const control = new AbortController();
     alive.current = true;
-    fetch(url, { credentials: 'same-origin', cache: 'no-store', signal: AbortSignal.timeout(15000) })
+    withRequestTimeout(15000, control.signal, signal => fetch(url, { credentials: 'same-origin', cache: 'no-store', signal })
       .then(r => { if (!r.ok) throw Error('建议未载入'); return r.json(); })
+    )
       .then(data => { if (!ignore && matches(data, { objectId, versionId, revision, role })) setResult(data); })
       // Optional hints cannot block the authorized manuscript or its conversation.
       .catch(() => {});
-    return () => { ignore = true; alive.current = false; };
+    return () => { ignore = true; alive.current = false; control.abort(); };
   }, [url, objectId, versionId, revision, role]);
 
   async function refresh() {
     if (busy) return;
     setBusy(true); setError('');
     try {
-      const response = await fetch(url, { credentials: 'same-origin', cache: 'no-store', signal: AbortSignal.timeout(15000) });
-      if (!response.ok) throw Error('建议暂不可用，请稍后重新载入。');
-      const data = await response.json();
+      const data = await withRequestTimeout(15000, null, async signal => {
+        const response = await fetch(url, { credentials: 'same-origin', cache: 'no-store', signal });
+        if (!response.ok) throw Error('建议暂不可用，请稍后重新载入。');
+        return response.json();
+      });
       if (!alive.current) return;
       if (!matches(data, { objectId, versionId, revision, role })) throw Error('稿件版本或身份已变化，请重新载入工作区。');
       setResult(data);

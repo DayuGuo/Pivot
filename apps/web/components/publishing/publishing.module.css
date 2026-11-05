@@ -181,5 +181,5 @@
   .shell button, .shell select { min-height: 38px; }
   .fields input:not([type="checkbox"]), .fields textarea, .fields select { font-size: 16px; }
 }
-@media (max-height: 500px) and (max-width: 850px) { .shell { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; } .center { grid-row: 1; grid-column: 1; border-right: 1px solid var(--p-line); } .material { grid-row: 1; grid-column: 2; } .chatContext { display: none; } }
+@media (max-height: 500px) and (min-width: 650px) and (max-width: 850px) { .shell { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; } .center { grid-row: 1; grid-column: 1; border-right: 1px solid var(--p-line); } .material { grid-row: 1; grid-column: 2; } .chatContext { display: none; } }
 @media (prefers-reduced-motion: reduce) { .shell *, .shell *::before, .shell *::after { animation: none; transition: none; scroll-behavior: auto; } }
