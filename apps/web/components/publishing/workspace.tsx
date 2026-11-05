@@ -52,11 +52,15 @@ export default function PublishingWorkspace({ children }: { children: ReactNode 
   const theme = useSyncExternalStore(subscribeTheme, themeSnapshot, () => "system");
   const dirty = useRef(false); const requests = useRef(new Map<string, string>()); const sequence = useRef(0);
   const previousIdentity = useRef<string | null>(null);
+  const refreshController = useRef<AbortController | null>(null);
   const selectedId = (pathname.includes("/review/") || pathname.includes("/preview/") || pathname.includes("/document-imports/")) ? reviewContext : search.get("manuscript");
   const refresh = useCallback(async () => {
+    refreshController.current?.abort();
+    const control = new AbortController(); refreshController.current = control;
     const generation = ++sequence.current;
+    let active = true;
     try {
-      const nextSession = await fetchJSON<PublishingSession>("/session");
+      const nextSession = await fetchJSON<PublishingSession>("/session", { signal: control.signal });
       if (generation !== sequence.current) return;
       const identity = JSON.stringify([nextSession.journal.id, nextSession.user.id, nextSession.user.role, nextSession.csrf_token]);
       if (previousIdentity.current !== null && previousIdentity.current !== identity) {
@@ -65,22 +69,24 @@ export default function PublishingWorkspace({ children }: { children: ReactNode 
       previousIdentity.current = identity;
       setSession(nextSession);
       const [nextWorkspace, nextDetail] = await Promise.all([
-        fetchJSON<Workspace>("/workspace"), selectedId ? fetchJSON<Detail>(`/manuscripts/${selectedId}`) : Promise.resolve(null),
+        fetchJSON<Workspace>("/workspace", { signal: control.signal }).then(value => { if (active && generation === sequence.current) setWorkspace(value); return value; }),
+        (selectedId ? fetchJSON<Detail>(`/manuscripts/${encodeURIComponent(selectedId)}`, { signal: control.signal }) : Promise.resolve(null)).then(value => { if (active && generation === sequence.current) setDetail(value); return value; }),
       ]);
       if (generation !== sequence.current) return;
       setSession(nextSession); setWorkspace(nextWorkspace); setDetail(nextDetail); setAuthLost(false); setError("");
-    } catch (failure) { if (generation === sequence.current) {
+    } catch (failure) { active = false; control.abort(); if (generation === sequence.current) {
       setError((failure as Error).message);
       const denied = failure instanceof APIError && [401, 403].includes(failure.status);
       if (denied) { setWorkspace(null); setDetail(null); requests.current.clear(); dirty.current = false; }
       else if (failure instanceof APIError && failure.status === 404) setDetail(null);
       setAuthLost(denied);
     } }
-    finally { if (generation === sequence.current) setRefreshing(false); }
+    finally { if (refreshController.current === control) refreshController.current = null; if (generation === sequence.current) setRefreshing(false); }
   }, [selectedId]);
+  const invalidateRefresh = useCallback(() => { sequence.current++; refreshController.current?.abort(); }, []);
   // Network responses update this external server snapshot; no derived state is recomputed here.
   // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { void refresh(); }, [refresh]);
+  useEffect(() => { void refresh(); return invalidateRefresh; }, [refresh, invalidateRefresh]);
   const navigate = useCallback((url: string) => { if (dirty.current && !window.confirm("当前资料尚未保存。离开并放弃这些修改？")) return; dirty.current = false; setDrawer(false); router.push(url); }, [router]);
   const setUnsaved = useCallback((value: boolean) => { dirty.current = value; }, []);
   function guardLink(event: MouseEvent<HTMLDivElement>) {
@@ -129,6 +135,7 @@ function Conversation({ navigate }: { navigate: (url: string) => void }) {
   const [busy, setBusy] = useState(false);
   const pending = useRef<{ scopeKey: string; request_id: string; message: string; context: { manuscript_id: string | null; version_id: string | null; scope: string; view: string } } | null>(null);
   const bottom = useRef<HTMLDivElement>(null); const composing = useRef(false); const historySequence = useRef(0);
+  const historyController = useRef<AbortController | null>(null);
   const inFlightHistory = useRef<{ generation: number; key: string; messages: ChatMessage[] } | null>(null);
   const permissionEpoch = useRef(new Map<string, number>());
   // Derive the visible transcript by context immediately, before a history response arrives.
@@ -137,12 +144,14 @@ function Conversation({ navigate }: { navigate: (url: string) => void }) {
   const loaded = transcript.key === contextKey && transcript.loaded;
   const historyError = transcript.key === contextKey ? transcript.historyError : "";
   const load = useCallback(async () => {
+    historyController.current?.abort();
+    const control = new AbortController(); historyController.current = control;
     const generation = ++historySequence.current;
     const authorizedAtStart = permissionEpoch.current.get(contextKey) ?? 0;
     inFlightHistory.current = { generation, key: contextKey, messages: [] };
     setTranscript(previous => previous.key === contextKey ? { ...previous, historyError: "", historyLoading: true } : { key: contextKey, messages: [], loaded: false, error: "", historyError: "", historyLoading: true });
     try {
-      const result = await fetchJSON<{ messages: ChatMessage[] }>(selectedId ? `/chat?manuscript_id=${encodeURIComponent(selectedId)}` : "/chat");
+      const result = await fetchJSON<{ messages: ChatMessage[] }>(selectedId ? `/chat?manuscript_id=${encodeURIComponent(selectedId)}` : "/chat", { signal: control.signal });
       if (generation !== historySequence.current) return;
       if (authorizedAtStart !== (permissionEpoch.current.get(contextKey) ?? 0)) {
         setTranscript(previous => previous.key === contextKey ? { ...previous, loaded: true, historyLoading: false } : previous); return;
@@ -152,17 +161,19 @@ function Conversation({ navigate }: { navigate: (url: string) => void }) {
       const fresh = inFlightHistory.current?.generation === generation ? inFlightHistory.current.messages : [];
       setTranscript(previous => previous.key === contextKey ? { ...previous, messages: mergeMessages(result.messages, fresh), loaded: true, historyError: "", historyLoading: false } : previous);
     } catch (failure) {
+      if (control.signal.aborted) return;
       const denied = failure instanceof APIError && [401, 403, 404].includes(failure.status);
       if (generation === historySequence.current) {
         if (denied) permissionEpoch.current.set(contextKey, (permissionEpoch.current.get(contextKey) ?? 0) + 1);
         setTranscript(previous => previous.key === contextKey ? { ...previous, messages: denied ? [] : previous.messages, loaded: true, historyError: (failure as Error).message, historyLoading: false } : previous);
       }
     } finally {
+      if (historyController.current === control) historyController.current = null;
       if (inFlightHistory.current?.generation === generation) inFlightHistory.current = null;
     }
   }, [selectedId, contextKey]);
   // Restore only the selected manuscript's persisted transcript, or the journal transcript.
-  useEffect(() => { void load(); return () => { historySequence.current += 1; inFlightHistory.current = null; }; }, [load]);
+  useEffect(() => { void load(); return () => { historySequence.current += 1; historyController.current?.abort(); inFlightHistory.current = null; }; }, [load]);
   // The always-mounted composer preserves its unsent per-user draft across route changes.
   useEffect(() => { writeStorage("sessionStorage", cacheKey, input); }, [input, cacheKey]);
   useEffect(() => { bottom.current?.scrollIntoView({ block: "end" }); }, [messages, busy]);

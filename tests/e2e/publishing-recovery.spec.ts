@@ -260,3 +260,13 @@ test('UI fixture: HTTP 200 空响应保留输入，同UUID主动重试才恢复'
   await expect(page.getByText('同请求恢复的合成只读回合', { exact: true })).toBeVisible();
   await expect(input).toHaveValue(''); expect(ids).toHaveLength(2); expect(ids[1]).toBe(ids[0]);
 });
+
+test('UI fixture: 工作列表慢响应不阻止当前稿件和对话载入', async ({ page }) => {
+  await fixtures(page); const list = gate();
+  await page.route('**/api/publishing/workspace', async route => { await list.promise; return route.fulfill({ json: { submissions: [], tasks: [], counts: { actionable: 0, waiting: 0 }, synthetic_only: true } }); });
+  try {
+    await page.goto(`/publishing?manuscript=${MID}`);
+    await expect(page.getByRole('heading', { name: metadata.title, exact: true })).toBeVisible();
+    await expect(page.getByLabel('向出版助手发送消息', { exact: true })).toBeEditable();
+  } finally { list.release(); }
+});

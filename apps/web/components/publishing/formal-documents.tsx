@@ -193,9 +193,8 @@ function Review({ manuscriptId, importId }: {
         if (!alive.current)
             return;
         setUnsaved(false);
-        await refresh();
-        if (alive.current)
-            await load();
+        await load();
+        if (alive.current) void refresh();
     }
     catch (e) {
         if (!alive.current)

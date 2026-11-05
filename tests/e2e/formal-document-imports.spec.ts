@@ -152,3 +152,13 @@ test('文件字节被篡改，SHA不符不展示引用上下文',async({page})=>
  await page.getByRole('button',{name:'定位已核对全文',exact:true}).click();
  await expect(page.getByRole('alert').filter({hasText:'原文校验未通过'})).toBeVisible();await expect(page.getByLabel('已定位原文引用',{exact:true})).toHaveCount(0);
 });
+
+test('确认导入成功后先恢复核对记录，不等待工作列表刷新', async ({ page }) => {
+  const mid = await start(page); await prepare(page, mid, 'docx'); await acknowledge(page);
+  let release!: () => void; const waiting = new Promise<void>(resolve => { release = resolve; });
+  await page.route('**/api/publishing/workspace', async route => { await waiting; return route.continue(); });
+  try {
+    await page.getByRole('button', { name: '确认导入到当前草稿', exact: true }).click();
+    await expect(page.getByLabel('已保存的提取全文', { exact: true })).toHaveValue(/Synthetic/);
+  } finally { release(); }
+});

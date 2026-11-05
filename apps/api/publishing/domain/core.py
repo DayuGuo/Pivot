@@ -6,7 +6,7 @@ from collections.abc import Callable
 from datetime import timedelta
 
 from fastapi import HTTPException
-from sqlalchemy import and_, delete, exists, func, or_, select, text
+from sqlalchemy import and_, delete, func, or_, select, text
 from sqlalchemy.orm import Session
 
 from ..audit import record
@@ -1361,67 +1361,7 @@ def submission_projection(db: Session, actor: Actor, manuscript_id: str, *, deta
     return result
 
 
-def workspace(db: Session, actor: Actor):
-    from .review_access import visible_condition
+def workspace(db: Session, actor: Actor, include_id: str | None = None):
+    from .work_queue import workspace as project_workspace
 
-    role_caps = {
-        "editor": {"precheck", "handling_editor"},
-        "chief_editor": {"chief"},
-        "production_editor": {"production"},
-        "reviewer": {"reviewer"},
-    }.get(actor.role, set())
-    explicit_access = exists(
-        select(Assignment.id).where(
-            Assignment.manuscript_id == Manuscript.id,
-            Assignment.journal_id == actor.journal_id,
-            Assignment.user_id == actor.user.id,
-            Assignment.capability.in_(role_caps | {"author"}),
-            Assignment.starts_at <= now(),
-            or_(Assignment.ends_at.is_(None), Assignment.ends_at > now()),
-        )
-    )
-    visible_clause = or_(
-        Manuscript.author_id == actor.user.id,
-        and_(
-            SubmissionWorkflow.stage != "author_draft",
-            or_(actor.role == "chief_editor", explicit_access, visible_condition(actor)),
-        ),
-    )
-    rows = db.execute(
-        select(Manuscript, SubmissionWorkflow)
-        .join(SubmissionWorkflow, SubmissionWorkflow.manuscript_id == Manuscript.id)
-        .where(Manuscript.journal_id == actor.journal_id, visible_clause)
-        .order_by(SubmissionWorkflow.updated_at.desc(), Manuscript.id)
-        .limit(200)
-    ).all()
-    visible = [(m, w) for m, w in rows if can_view(db, actor, m, w)]
-    submissions = [submission_projection(db, actor, m.id, detail=False) for m, _ in visible]
-    projection_titles = {s["id"]: s["title"] for s in submissions}
-    allowed = {m.id: (m, w) for m, w in visible}
-    tasks = []
-    for task in db.scalars(
-        select(WorkItem)
-        .where(
-            WorkItem.journal_id == actor.journal_id,
-            WorkItem.assignee_id == actor.user.id,
-            WorkItem.status.in_(["pending", "waiting"]),
-        )
-        .order_by(
-            WorkItem.priority.desc(),
-            WorkItem.due_at.asc().nullslast(),
-            WorkItem.created_at,
-            WorkItem.id,
-        )
-    ):
-        if task.manuscript_id in allowed and not allowed[task.manuscript_id][1].is_legacy:
-            m, flow = allowed[task.manuscript_id]
-            tasks.append({**task_projection(task, flow, m), "title": projection_titles[m.id]})
-    return {
-        "submissions": submissions,
-        "tasks": tasks,
-        "counts": {
-            "actionable": sum(t["status"] == "pending" for t in tasks),
-            "waiting": sum(t["status"] == "waiting" for t in tasks),
-        },
-        "synthetic_only": True,
-    }
+    return project_workspace(db, actor, include_id)

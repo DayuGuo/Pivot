@@ -28,7 +28,12 @@ async function proxy(request: NextRequest, context: Context) {
       body: request.method === "GET" ? undefined : await request.text(),
       cache: "no-store",
       redirect: "manual",
-      signal: AbortSignal.timeout((formalImport || ["editorial-demo/chat", "publishing/chat"].includes(path.join("/")) || /^dossiers\/[^/]+\/(chat|imports)$/.test(path.join("/"))) ? 75_000 : 30_000),
+      signal: AbortSignal.any([
+        AbortSignal.timeout(heavy ? 75_000 : 30_000),
+        // Cancel obsolete reads across the proxy; an abandoned POST still has
+        // an unknown outcome and must only be recovered with its original UUID.
+        ...(request.method === "GET" ? [request.signal] : []),
+      ]),
     });
     const resultHeaders = new Headers({ "Cache-Control": "no-store" });
     const retryAfter = upstream.headers.get("retry-after");

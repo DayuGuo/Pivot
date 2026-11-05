@@ -189,7 +189,7 @@
 .documentOrigin { margin-block: 12px; font-size: 13px; overflow-wrap: anywhere; }
 .documentOrigin > p { margin: 0 0 8px; }
 .documentOrigin blockquote { margin: 12px 0; white-space: pre-wrap; color: var(--muted); }
-.materialHeader:has(> .documentImportButton) { flex-wrap: wrap; }
+.materialHeader { flex-wrap: wrap; }
 .originalHeading { flex-wrap: wrap; }
 .originalHeading h2 { flex: 1 1 180px; min-width: 0; overflow-wrap: anywhere; }
 .claim { margin-block: 16px 22px; }

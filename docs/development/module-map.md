@@ -9,7 +9,8 @@
 | `domain/dossier_access.py` | 身份/角色/期刊/所有者、版本和CAS完整性读取 | 不调用模型、不注册路由 |
 | `domain/dossier_actions.py` | 幂等回执适配和业务审计 | 所有修改继续走core.run_action；不把确认交给LLM |
 | `domain/pagination.py` | 有界游标与排序条件 | 位置不授予权限，SQL仍独立限定访问范围 |
-| `work_limits.py` | 单worker重任务准入 | 正文/DB前429，无队列；不代替对象权限 |
+| `domain/work_queue.py` | 期刊/归属限定的轻量稿件与本人待办列表 | 不复用材料/动作投影，不发放文件权限；较旧待办与显式有权对话目标不受最近200篇浏览窗口限制 |
+| `work_limits.py` | 单worker重任务准入和通用API背压 | 重任务不排队；通用8进行中/16等待/2秒，DB与正文前受限等待；不代替对象权限 |
 | `domain/dossier_queries.py` | 列表读取、批量查询与所有者过滤 | 不按每份资料逐条查版本，不扩大主编访问范围 |
 | `domain/dossier_views.py` | 版本/消息投影、历史来源标签 | 保留旧版引用，不能把旧核对移给新版本 |
 | `domain/document_sources.py` | 原件/审批摘要、继承来源、页/段定位 | 不能给手改字段伪造原件证据，不依赖路由/模型调用 |
