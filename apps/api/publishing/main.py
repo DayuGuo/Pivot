@@ -36,11 +36,12 @@ from .policy import EDITOR_ROLES, can_view_manuscript
 from .runtime import execute_command
 from .security import Actor, check_password, get_actor, hash_password, new_session
 from .serialization import manuscript_json, message_json, user_json
-from .work_limits import HeavyWorkAdmission
+from .work_limits import HeavyWorkAdmission, RequestAdmission
 
 # The original intake slice stays Mock. Workbench live configuration is independent.
 provider = MockModelProvider()
 app = FastAPI(title="Publishing OS", version="0.1.0")
+app.add_middleware(RequestAdmission)
 app.add_middleware(HeavyWorkAdmission)
 app.include_router(publishing_router)
 app.include_router(dossier_router)

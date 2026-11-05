@@ -1,4 +1,6 @@
 "use client";
+import { warnBeforeUnload } from "../browser";
+import { requestId as newRequestId } from "../browser";
 
 import Link from "next/link";
 import NextSteps from "../assistant/next-steps";
@@ -104,7 +106,7 @@ export default function LibraryWorkspace({ reviewVersionId, importId, evaluation
     return () => window.removeEventListener("popstate", moved);
   }, [invalidate, selectedId, reviewVersionId, importId, evaluationId]);
   useEffect(() => {
-    const guard = (event: BeforeUnloadEvent) => { if (dirtyRef.current || busyRef.current) event.preventDefault(); };
+    const guard = (event: BeforeUnloadEvent) => { if (dirtyRef.current || busyRef.current) warnBeforeUnload(event); };
     window.addEventListener("beforeunload", guard);
     return () => window.removeEventListener("beforeunload", guard);
   }, []);
@@ -161,7 +163,7 @@ export default function LibraryWorkspace({ reviewVersionId, importId, evaluation
     if (!session) throw new LibraryError(401, "请先登录。");
     const key = `${epoch.current}:${session.user.id}:${session.journal.id}:${path}:${JSON.stringify(data)}`;
     let requestId = requests.current.get(key);
-    if (!requestId) { requestId = crypto.randomUUID(); requests.current.set(key, requestId); }
+    if (!requestId) { requestId = newRequestId(); requests.current.set(key, requestId); }
     const result = await readJSON<T>(path, { method: "POST", headers: { "Content-Type": "application/json", "X-CSRF-Token": session.csrf_token }, body: JSON.stringify({ request_id: requestId, ...data }) });
     requests.current.delete(key);
     return result;

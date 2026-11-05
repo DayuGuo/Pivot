@@ -565,3 +565,53 @@ def test_unowned_credential_reference_cannot_be_reused(
     assert db.get(MailAccount, account["id"]).status == "credentials_required"
     events = db.scalars(select(AuditEvent).where(AuditEvent.entity_id == account["id"])).all()
     assert secret not in json.dumps([event.details for event in events])
+
+
+@pytest.mark.parametrize("change", ["role", "journal", "session"])
+def test_mail_probe_cannot_save_after_original_authority_changes(
+    client, login, db, world, monkeypatch, change
+):
+    from datetime import timedelta
+
+    from sqlalchemy import update
+
+    from apps.api.publishing import mail_accounts
+    from apps.api.publishing.models import LoginSession, Membership, now
+    from packages.mail_adapters import ProbeResult
+
+    login()
+    account = save_account(client)
+
+    def revoked_during_probe(*args, **kwargs):
+        if change == "session":
+            db.execute(
+                update(LoginSession)
+                .where(LoginSession.user_id == world.users["editor"].id)
+                .values(expires_at=now() - timedelta(seconds=1))
+            )
+        else:
+            db.execute(
+                update(Membership)
+                .where(Membership.user_id == world.users["editor"].id)
+                .values(
+                    **(
+                        {"role": "author"}
+                        if change == "role"
+                        else {"journal_id": world.other_journal.id}
+                    )
+                )
+            )
+        db.flush()
+        return ProbeResult("verified")
+
+    monkeypatch.setattr(mail_accounts, "probe", revoked_during_probe)
+    response = client.post(f"/api/mail/accounts/{account['id']}/verify")
+    assert response.status_code == 403
+    db.expire_all()
+    stored = db.get(MailAccount, account["id"])
+    assert stored.status == "unverified" and stored.last_checked_at is None
+    assert not db.scalar(
+        select(AuditEvent).where(
+            AuditEvent.entity_id == account["id"], AuditEvent.action == "mail.account_verified"
+        )
+    )

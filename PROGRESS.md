@@ -1,3 +1,17 @@
+# 当前增量：2026-11-05，spec026已完成代码逻辑与三浏览器复核
+
+交付[PR #7](https://github.com/DayuGuo/Pivot/pull/7)，依赖尚未合并的PR #6，均不自动合并、不部署VPS。[范围](specs/026-browser-and-logic-audit/spec.md) · [完整审计报告](docs/development/spec026-review.md) · [结构化结果](docs/development/spec026-results.json) · [兼容性边界](docs/development/browser-compatibility.md) · [模块维护地图](docs/development/module-map.md)。运行/测试/脚本固定提交168f7d6e72257e03f1aefda180e6c0c52898e7d2，其后仅文档调整。
+
+最终scripts/verify.sh**实际退出0**，独立退出记录1186.23秒：**1395后端通过470.66秒（7条第三方提醒）＋366浏览器通过11.4m**，每引擎122项，0失败/跳过/重试；语法、Ruff、研究完整性、模块边界、18条离线引文、迁移无漂移、ESLint/TypeScript和生产构建/启动均通过。GitHub同源码[push verify42088173082](https://github.com/DayuGuo/Pivot/actions/runs/42088173082)全部作业及已执行步骤成功，实际1395后端414.26秒＋366浏览器11.5m，0重试。static push42088173400/PR42088185044均所有实际步骤通过，静态站和原生amd64离线安装后各33项三引擎通过；与完整回归有重叠，不累加。重复PR verify42088185015卡在官方浏览器系统依赖安装，已取消，不计为测试成功；准确终态见结构化结果。
+
+修复实际复现的问题：撤权刷新保留旧材料、邮箱probe等待期间角色/期刊/会话失效仍保存状态；旧写回合清空后稿草稿、解除新表单保护或跳回旧稿；最近200篇遗漏较旧本人待办、历史重复权限投影和连接池拥塞；禁止存储/缺较新UUID与Abort API、IME229、拖动中断和短视口；导入页短暂切入期刊主对话并重建文件框；确认成功提示早于快照重载导致快速返回可能丢失。复用ensure_actor，拆出work_queue与browser能力，权限缓存仅一次历史GET，通用准入8进行中/16等待/2秒且不占DB等待，重任务单名额不排队保持。工作队列不授予材料权限，POST未知结果仍按原UUID主动恢复。只删除重复次级说明，保留模拟、来源和人工确认信息。
+
+保留所有失败证据：首次完整门禁1385后端过、Chromium110过/5失败后停止，后续队列/历史修复；f135126完整1395后端过/358浏览器过2失败（Firefox滚轮截断与WebKit夹具可用等待）；62f7697子项1395/360全过但工具会话退出143，不冒称exit0，同源码CI359过/1重试揭示导入上下文问题；fc2451f1395后端过/362浏览器过1失败，随后受控红测定位确认提示竞态。新夹具按钮名称错误单独记录，未算产品红测；没有删除测试或放宽权限/摘要/精确位置断言。最终168f7d6全量通过后没有再改运行代码。详报告，不用中间检查点代替最终验收。
+
+**本机主服务已更新且数据完整保留**：启动前已做0600本地DB/CAS备份；53张应用表3560行逐行主键与全部字段内容SHA全部相同，24原件路径、长度和字节SHA全部相同。无新迁移，schema head仍f59230d88725；API/Web健康200，现有DeepSeek/deepseek-flash配置保留。EMAIL_SEND_ENABLED=false、Mailpit0封；本轮真实模型调用0/新模型API费用0，未重新验证凭据可用性。负责人确认、旧批准/历史指纹不变，没有恢复覆盖、删除数据或更改Codex全局/主模型。
+
+实际Linux引擎Chromium156.0.8078.4、Firefox157.0、WebKit27.2。公开历史DeepSeek回答只读回放逐字定位、续批第9项草稿、0业务POST/错误，6张桌面/深色375px截图已检查（fc2451f；最后补丁只改审核成功时序，截图相关模块未改）。Impeccable源码检查[]。不代表真实Edge/macOS或iOS Safari、Android、历史最低版本、真实IME/软键盘与物理多指认证；2.5GB VPS新容量/完整应用发行包未在本轮重验。下一步按ROADMAP补真机与专业安全/备份/资源复核，继续单刊试点，不自动上线。
+
 # 当前增量：2026-11-05，spec025本机与最终远端验收通过
 
 PR #4/#5已按授权合并main（ecc884d6d8ab443969bfccecd77e935ee25773ea、eae5e2f137fda928751a6601efd4594a277e0f2f）。新交付[PR #6](https://github.com/DayuGuo/Pivot/pull/6)不自动合并，不连接VPS。详细[审查记录](docs/development/spec025-review.md)、[精确结果](docs/development/spec025-results.json)、[许可语料](evals/public_revisions/README.md)。以下旧切片“尚未合并”等均为当时状态，以本段为准。

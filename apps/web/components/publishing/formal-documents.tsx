@@ -1,7 +1,9 @@
 "use client";
+import { warnBeforeUnload } from "../browser";
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { withRequestTimeout } from '../browser';
 import { APIError, usePublishing } from './workspace';
 import styles from './publishing.module.css';
 type Segment = {
@@ -33,11 +35,13 @@ type Imported = {
     confirmed_range: {first_segment:number;last_segment:number}|null;
 };
 async function getImport(url: string, signal: AbortSignal) {
-    const response = await fetch(url, { cache: 'no-store', credentials: 'same-origin', signal: AbortSignal.any([signal, AbortSignal.timeout(15000)]) });
+    return withRequestTimeout(15000, signal, async signal => {
+    const response = await fetch(url, { cache: 'no-store', credentials: 'same-origin', signal });
     const data = await response.json();
     if (!response.ok)
         throw new APIError(response.status, typeof data.detail === 'string' ? data.detail : '暂时无法读取导入记录，请重新载入。');
     return data as Imported;
+    });
 }
 export default function FormalDocumentPage({ manuscriptId, importId }: {
     manuscriptId: string;
@@ -60,7 +64,7 @@ function Upload({ detail }: {
     const dirty = !!file || !!note || authorized;
     useEffect(() => { setUnsaved(dirty); return () => setUnsaved(false); }, [dirty, setUnsaved]);
     useEffect(() => { if (!dirty)
-        return; const warn = (e: BeforeUnloadEvent) => e.preventDefault(); window.addEventListener('beforeunload', warn); return () => window.removeEventListener('beforeunload', warn); }, [dirty]);
+        return; const warn = warnBeforeUnload; window.addEventListener('beforeunload', warn); return () => window.removeEventListener('beforeunload', warn); }, [dirty]);
     if (!detail.can_edit_intake || !detail.version)
         return <p>只有稿件负责人能在可编辑草稿中准备导入。</p>;
     const version = detail.version;
@@ -114,18 +118,20 @@ function PendingImports({ manuscriptId }: {
         editable: boolean;
     }[]>([]), [cursor, setCursor] = useState<string | null>(null), [busy, setBusy] = useState(false), [error, setError] = useState('');
     const alive = useRef(true);
-    useEffect(() => { let ignore = false; alive.current = true; fetch(`/api/publishing/manuscripts/${manuscriptId}/document-imports`, { cache: 'no-store', credentials: 'same-origin', signal: AbortSignal.timeout(15000) }).then(r => { if (!r.ok)
-        throw Error('无法载入待核对导入，请刷新重试。'); return r.json(); }).then(data => { if (!ignore) {
+    useEffect(() => { let ignore = false; const control = new AbortController(); alive.current = true; withRequestTimeout(15000, control.signal, signal => fetch(`/api/publishing/manuscripts/${manuscriptId}/document-imports`, { cache: 'no-store', credentials: 'same-origin', signal }).then(r => { if (!r.ok)
+        throw Error('无法载入待核对导入，请刷新重试。'); return r.json(); })).then(data => { if (!ignore) {
         setItems(data.items);
         setCursor(data.next_cursor);
     } }).catch(e => { if (!ignore)
-        setError(e.message); }); return () => { ignore = true; alive.current = false; }; }, [manuscriptId]);
+        setError(e.message); }); return () => { ignore = true; alive.current = false; control.abort(); }; }, [manuscriptId]);
     async function more() { if (!cursor || busy)
         return; setBusy(true); setError(''); try {
-        const r = await fetch(`/api/publishing/manuscripts/${manuscriptId}/document-imports?cursor=${encodeURIComponent(cursor)}`, { cache: 'no-store', credentials: 'same-origin', signal: AbortSignal.timeout(15000) });
+        const data = await withRequestTimeout(15000, null, async signal => {
+        const r = await fetch(`/api/publishing/manuscripts/${manuscriptId}/document-imports?cursor=${encodeURIComponent(cursor)}`, { cache: 'no-store', credentials: 'same-origin', signal });
         if (!r.ok)
             throw Error('无法加载更多，请重试。');
-        const data = await r.json();
+        return r.json();
+        });
         if (alive.current) {
             setItems(old => [...old, ...data.items.filter((next: {
                     id: string;
@@ -178,7 +184,7 @@ function Review({ manuscriptId, importId }: {
     const dirty = !!item?.editable && (original || text || scope || first !== 1 || last !== item.segments.length);
     useEffect(() => { setUnsaved(dirty); return () => setUnsaved(false); }, [dirty, setUnsaved]);
     useEffect(() => { if (!dirty)
-        return; const warn = (e: BeforeUnloadEvent) => e.preventDefault(); window.addEventListener('beforeunload', warn); return () => window.removeEventListener('beforeunload', warn); }, [dirty]);
+        return; const warn = warnBeforeUnload; window.addEventListener('beforeunload', warn); return () => window.removeEventListener('beforeunload', warn); }, [dirty]);
     function range(changedFirst: number, changedLast: number) { setFirst(changedFirst); setLast(changedLast); setScope(false); setText(false); pending.current = null; }
     async function confirm() { if (!item || busy)
         return; setBusy(true); setError(''); try {
@@ -187,9 +193,8 @@ function Review({ manuscriptId, importId }: {
         if (!alive.current)
             return;
         setUnsaved(false);
-        await refresh();
-        if (alive.current)
-            await load();
+        await load();
+        if (alive.current) void refresh();
     }
     catch (e) {
         if (!alive.current)

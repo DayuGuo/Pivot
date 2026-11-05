@@ -1,4 +1,5 @@
 "use client";
+import { warnBeforeUnload } from "../browser";
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -36,7 +37,7 @@ export default function ProductionWork({ detail, production }: { detail: Detail;
   const unchangedCorrection = production.mode === "production" && active?.response?.outcome === "request_corrections" && production.draft_file?.sha256 === active.file.sha256;
   const sendAction = detail.allowed_actions.find(action => action.action === "send_proof"); const responseAction = detail.allowed_actions.find(action => action.action === "confirm_proof"); const previewAction = detail.allowed_actions.find(action => action.action === "prepare_local_preview");
   useEffect(() => { setUnsaved(dirty); return () => setUnsaved(false); }, [dirty, setUnsaved]);
-  useEffect(() => { if (!dirty) return; const warn = (event: BeforeUnloadEvent) => event.preventDefault(); window.addEventListener("beforeunload", warn); return () => window.removeEventListener("beforeunload", warn); }, [dirty]);
+  useEffect(() => { if (!dirty) return; const warn = warnBeforeUnload; window.addEventListener("beforeunload", warn); return () => window.removeEventListener("beforeunload", warn); }, [dirty]);
   if (baseRevision !== detail.revision) { setBaseRevision(detail.revision); setMetadataReviewed(false); setProofReviewed(false); setApprovedReviewed(false); setReviewURL(null); }
   function edited() { setDirty(true); setReviewURL(null); setNotice(""); }
   function fail(message: string) { setError(message); requestAnimationFrame(() => errorRef.current?.focus()); }

@@ -1,4 +1,5 @@
 "use client";
+import { requestId as newRequestId } from "../browser";
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import type { FeedbackContext } from './claim-feedback';
@@ -39,7 +40,7 @@ export default function EvaluationOverviewPanel({ context, answerId, versionId }
     } }
     async function issue() { if (!data || running.current)
         return; running.current = true; setBusy(true); setError(''); if (pending.current?.code !== code)
-        pending.current = { code, id: crypto.randomUUID() }; try {
+        pending.current = { code, id: newRequestId() }; try {
         await requireLibrarySession(context.session);
         if (!alive.current)
             return;

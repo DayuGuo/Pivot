@@ -1,4 +1,5 @@
 "use client";
+import { requestId as newRequestId } from "../browser";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { LibraryError, readJSON } from "./api";
 import type { ReviewClaim, Session } from "./types";
@@ -43,7 +44,7 @@ export default function ClaimFeedback({ context, answerId, bucket, index, claim 
     running.current = true; setBusy(true); setError("");
     const payload = { content_digest: history.content_digest, claim_digest: history.claim_digest, expected_review_id: history.latest_id, verdict, note: note.trim(), acknowledged: true };
     const encoded = JSON.stringify(payload);
-    if (request.current?.key !== encoded) request.current = { key: encoded, id: crypto.randomUUID() };
+    if (request.current?.key !== encoded) request.current = { key: encoded, id: newRequestId() };
     try {
       const current = await readJSON<Session>("/api/publishing/session");
       if (!alive.current) return;

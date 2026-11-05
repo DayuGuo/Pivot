@@ -1,4 +1,5 @@
 "use client";
+import { warnBeforeUnload } from "../browser";
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -14,7 +15,7 @@ const allowed = (detail: Detail, action: string) => detail.allowed_actions.find(
 function useDraftGuard(dirty: boolean, enabled = true) {
   const { setUnsaved } = usePublishing();
   useEffect(() => { if (!enabled) return; setUnsaved(dirty); return () => setUnsaved(false); }, [dirty, enabled, setUnsaved]);
-  useEffect(() => { if (!dirty) return; const warn = (event: BeforeUnloadEvent) => event.preventDefault(); window.addEventListener("beforeunload", warn); return () => window.removeEventListener("beforeunload", warn); }, [dirty]);
+  useEffect(() => { if (!dirty) return; const warn = warnBeforeUnload; window.addEventListener("beforeunload", warn); return () => window.removeEventListener("beforeunload", warn); }, [dirty]);
 }
 
 function useReviewProposal(detail: Detail) {

@@ -1,4 +1,5 @@
 "use client";
+import { requestId as newRequestId } from "../browser";
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { FeedbackContext } from './claim-feedback';
@@ -96,7 +97,7 @@ export default function EvaluationReview({ context, packageId }: {
             input.current.value = '';
     } }
     async function confirm() { if (!detail || !preview || !packet || running.current)
-        return; running.current = true; setBusy(true); setError(''); pending.current ??= crypto.randomUUID(); try {
+        return; running.current = true; setBusy(true); setError(''); pending.current ??= newRequestId(); try {
         await requireLibrarySession(context.session);
         if (!alive.current)
             return;

@@ -24,6 +24,27 @@ async function acknowledge(page: Page) {
     await page.getByRole('checkbox', { name: '我已对照原件核对提取全文，没有漏页或漏段', exact: true }).check();
     await page.getByRole('checkbox', { name: '我已核对所选范围符合文件用途，不混入评审附录或其他材料', exact: true }).check();
 }
+test('进入导入页保持稿件上下文，刷新不清空已选文件', async ({ page }) => {
+    const mid = await start(page);
+    await page.goto(`/publishing?manuscript=${mid}`);
+    const link = page.getByRole('link', { name: '导入 PDF / Word 并核对', exact: true });
+    await expect(link).toBeVisible();
+    let journalReads = 0;
+    page.on('request', request => {
+        const url = new URL(request.url());
+        if (request.method() === 'GET' && url.pathname === '/api/publishing/chat' && !url.searchParams.has('manuscript_id')) journalReads++;
+    });
+    const refreshed = page.waitForResponse(response => response.request().method() === 'GET' && response.url().endsWith(`/api/publishing/manuscripts/${mid}`));
+    await link.click();
+    const file = page.getByLabel('选择 PDF / Word', { exact: true });
+    await file.setInputFiles(path.resolve('tests/documents/synthetic-unicode.docx'));
+    await page.getByLabel('来源与授权说明', { exact: true }).fill('纯合成上下文切换回归。');
+    await page.getByRole('checkbox', { name: '我有权使用此资料', exact: false }).check();
+    expect((await refreshed).status()).toBe(200);
+    expect(journalReads).toBe(0);
+    expect(await file.evaluate(input => (input as HTMLInputElement).files?.[0]?.name)).toBe('synthetic-unicode.docx');
+    await expect(page.getByRole('button', { name: '提取并打开核对页', exact: true })).toBeEnabled();
+});
 for (const extension of ['pdf', 'docx'] as const)
     test(`正式${extension}：提取不入版，人工核对后持久化，常驻对话与原件`, async ({ page }) => {
         const mid = await start(page);
@@ -151,4 +172,14 @@ test('文件字节被篡改，SHA不符不展示引用上下文',async({page})=>
  await page.route(`**/api/publishing/files/${file.id}`,route=>route.fulfill({status:200,contentType:'text/plain;charset=utf-8',body:'不是绑定版本的原文。'}));
  await page.getByRole('button',{name:'定位已核对全文',exact:true}).click();
  await expect(page.getByRole('alert').filter({hasText:'原文校验未通过'})).toBeVisible();await expect(page.getByLabel('已定位原文引用',{exact:true})).toHaveCount(0);
+});
+
+test('确认导入成功后先恢复核对记录，不等待工作列表刷新', async ({ page }) => {
+  const mid = await start(page); await prepare(page, mid, 'docx'); await acknowledge(page);
+  let release!: () => void; const waiting = new Promise<void>(resolve => { release = resolve; });
+  await page.route('**/api/publishing/workspace', async route => { await waiting; return route.continue(); });
+  try {
+    await page.getByRole('button', { name: '确认导入到当前草稿', exact: true }).click();
+    await expect(page.getByLabel('已保存的提取全文', { exact: true })).toHaveValue(/Synthetic/);
+  } finally { release(); }
 });

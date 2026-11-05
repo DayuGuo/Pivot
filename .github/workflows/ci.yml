@@ -2,10 +2,13 @@ name: verify
 on: [push, pull_request]
 permissions:
   contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   prototype:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
         with:
@@ -19,7 +22,7 @@ jobs:
           version: '0.9.7'
           python-version: '3.12'
       - run: ./scripts/setup.sh
-      - run: npx playwright install-deps chromium
+      - run: npx playwright install-deps chromium firefox webkit
       - run: ./scripts/start.sh
       - run: ./scripts/verify.sh
       - if: always()
