@@ -182,3 +182,9 @@ ProofPackage引用FileObject而不追加冻结VersionFile；ProofResponse固定�
 ### 当前上下文建议与修回比较（spec024）
 
 `guidance`鉴权路由组合`dossier_views/core`实际投影与纯`guidance_rules`；不推理、不写入，不授予操作权限。共用前端`assistant/next-steps`仅准备草稿。`revision_sources`读取实际正式修回/匿名已发布要求/原新稿/回复及CAS摘要；`revision_compare`只持有传入数据和受限模型协议。`chat`沿用统一期限、并发、权限复查、事务与幂等回执，在已有PublishingChatTurn.response中保存revision-comparison.v1。对比与规则模块禁止数据库/业务核心依赖，路由禁止互相导入；scripts/check-boundaries.py执行约束。没有新增数据库迁移或自动状态转换。
+
+## 正式文档原件与修回来源（spec025）
+
+FormalDocumentImport保存与可编辑稿件版本绑定的原件/提取快照；FormalDocumentBinding保存显式负责人批准或原批准的继承。formal_documents路由只组合Action Gateway、解析器和formal_document_sources服务；模型不可访问确认路由。独立packages/document_ingest/locations把实际文本字符区间映射到PDF页/Word提取段，不带数据库权限。revision_sources只读取本轮作者可见要求及实际原/新/回复文件，revision_compare为无数据库写权的有界服务。路由、纯比较、来源服务、持久模型的依赖由scripts/check-boundaries.py约束。
+
+新增迁移f59230d88725只建两表32字段及守卫/索引，不改旧表/旧摘要。可变草稿删除文件链接时保留档案批准；读取活跃来源必须匹配完整文件元组。新修回继承原件依据，不虚构新负责人批准。对照批次和完整/节选覆盖单独投影，不把AI已完成或文件存在提升为业务通过。数据字段及上游经验绑定在研究索引和spec025，实际验证另见PROGRESS。

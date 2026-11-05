@@ -140,6 +140,110 @@ def test_unchanged_quote_cannot_be_called_successful_revision():
     assert r["rows"][1]["status"] == "uncertain"
 
 
+def test_adjacent_read_windows_allow_exact_cross_boundary_quote_but_not_unread_gap():
+    source = synthetic_source()
+    marker = "UNIQUE-CROSS-BOUNDARY-MARKER"
+    source["files"]["revised"]["text"] = "a" * 990 + marker + "b" * 15000
+    windows, coverage = revision_compare.material_windows(source)
+    assert not coverage["revised"]["complete"]
+    assert len(windows["revised"]) == 1 and windows["revised"][0]["end"] == 12000
+    cite = revision_compare.citation(source, windows, "revised", marker)
+    assert cite["start"] == 990 and cite["quote"] == marker
+    # A real, unique substring spanning an unselected gap is still rejected.
+    text = "left SELECTED-A gap SELECTED-B right"
+    source["files"]["revised"]["text"] = text
+    disjoint = {"revised": [{"start": 0, "end": 15}, {"start": 20, "end": len(text)}]}
+    with pytest.raises(GatewayError, match="revision_comparison_invalid"):
+        revision_compare.citation(source, disjoint, "revised", "SELECTED-A gap SELECTED-B")
+
+
+def test_long_exact_quotes_are_bounded_without_losing_sentence_context():
+    row = findings()[0]
+    row["revised_quote"] = "x" * 400
+    assert len(revision_compare.Finding.model_validate(row).revised_quote) == 400
+    row["revised_quote"] = "x" * 513
+    with pytest.raises(ValueError):
+        revision_compare.Finding.model_validate(row)
+
+
+def test_catalog_ids_bind_exact_source_without_model_transcribing_pdf_line_breaks():
+    source = synthetic_source()
+    source["files"]["revised"]["text"] = "已更正样本量为80，\n按预先规定规则分成两组。"
+
+    class Referenced(Supplier):
+        def completion(self, messages, tools):
+            if self.calls == 0:
+                payload = json.loads(messages[1]["content"])
+                catalog = payload["evidence_catalog"]
+                schema = tools[0]["function"]["parameters"]["properties"]["findings"]["items"][
+                    "properties"
+                ]
+                assert "revised_quote" not in schema
+                assert catalog["revised"][0]["id"] in schema["revised_evidence_id"]["enum"]
+                self.rows = [
+                    {
+                        "point_id": p["id"],
+                        "status": "uncertain",
+                        "reason": "选择实际原文片段，不能据此直接认定全部修改完成。",
+                        **{
+                            kind + "_evidence_id": catalog[kind][0]["id"]
+                            for kind in ["base", "revised", "response"]
+                        },
+                    }
+                    for p in source["points"]
+                ]
+            return super().completion(messages, tools)
+
+    provider = Referenced([])
+    result = revision_compare.compare(source, provider, lambda: None, [])
+    assert provider.calls == 2
+    assert any(
+        "\n" in c["quote"] for r in result["rows"] for c in r["citations"] if c["kind"] == "revised"
+    )
+    for row in result["rows"]:
+        for cite in row["citations"]:
+            assert (
+                source["files"][cite["kind"]]["text"][cite["start"] : cite["end"]] == cite["quote"]
+            )
+
+
+def test_catalog_does_not_drop_read_text_or_allow_cross_kind_or_repeated_reference():
+    source = synthetic_source()
+    source["files"]["base"]["text"] = ("read original text " * 400) + " unique-tail"
+    windows, _ = revision_compare.material_windows(source)
+    catalog = revision_compare.evidence_catalog(source, windows)
+    all_ids = [c["id"] for entries in catalog.values() for c in entries]
+    assert len(all_ids) == len(set(all_ids))
+    for kind, entries in catalog.items():
+        assert "".join("".join(c["text"].split()) for c in entries) == "".join(
+            "".join(w["text"].split()) for w in windows[kind]
+        )
+        for c in entries:
+            assert source["files"][kind]["text"][c["start"] : c["end"]] == c["text"]
+            assert len(c["text"]) <= 480
+    wrong = revision_compare.Finding.model_validate(
+        {
+            "point_id": "P01",
+            "status": "resolved",
+            "reason": "故意串用证据编号",
+            "base_evidence_id": catalog["revised"][0]["id"],
+        }
+    )
+    with pytest.raises(GatewayError, match="revision_comparison_invalid"):
+        revision_compare._resolve_evidence(wrong, catalog)
+    repeated = next(c for c in catalog["base"] if not c["citable"])
+    wrong = wrong.model_copy(update={"base_evidence_id": repeated["id"]})
+    with pytest.raises(GatewayError, match="revision_comparison_invalid"):
+        revision_compare._resolve_evidence(wrong, catalog)
+
+
+def test_overlapping_repeated_quote_is_ambiguous():
+    source = synthetic_source()
+    source["files"]["base"]["text"] = "ABABA"
+    with pytest.raises(GatewayError, match="revision_comparison_invalid"):
+        revision_compare.citation(source, {"base": [{"start": 0, "end": 5}]}, "base", "ABA")
+
+
 def test_independent_support_check_downgrades_unjustified_judgement():
     rows = findings()
     checks = [{"point_id": r["point_id"], "supported": False} for r in rows]
@@ -159,6 +263,97 @@ def test_model_cannot_fabricate_citations_or_skip_points(kind):
         rows.pop()
     with pytest.raises(GatewayError, match="revision_comparison_invalid"):
         revision_compare.compare(s, Supplier(rows), lambda: None, [])
+
+
+def test_missing_point_gets_one_bounded_repair_with_exact_schema_and_snapshot():
+    class Recovering(Supplier):
+        def completion(self, messages, tools):
+            schema = tools[0]["function"]["parameters"]["properties"]
+            if "findings" in schema:
+                assert schema["findings"]["minItems"] == schema["findings"]["maxItems"] == 2
+                assert schema["findings"]["items"]["properties"]["point_id"]["enum"] == [
+                    "P01",
+                    "P02",
+                ]
+            payload = json.loads(messages[1]["content"])
+            if self.calls == 0:
+                self.rows = findings()[:1]
+                assert "validation_feedback" not in payload
+            elif self.calls == 1:
+                self.rows = findings()
+                assert payload["validation_feedback"]["code"] == "schema_or_point_coverage"
+                assert payload["expected_point_ids"] == ["P01", "P02"]
+            return super().completion(messages, tools)
+
+    provider = Recovering(findings())
+    result = revision_compare.compare(synthetic_source(), provider, lambda: None, [])
+    assert provider.calls == 3 and len(result["rows"]) == 2
+    assert all(r["support_checked"] for r in result["rows"])
+
+
+def test_format_repair_stops_after_two_attempts_without_support_pass():
+    provider = Supplier(findings()[:1])
+    with pytest.raises(GatewayError, match="revision_comparison_invalid"):
+        revision_compare.compare(synthetic_source(), provider, lambda: None, [])
+    assert provider.calls == 2
+
+
+def test_schema_repair_feedback_does_not_echo_untrusted_property_names_or_values():
+    marker = "untrusted-private-property-and-value"
+
+    class InvalidThenFixed(Supplier):
+        def completion(self, messages, tools):
+            result = super().completion(messages, tools)
+            if self.calls == 1:
+                args = json.loads(
+                    result["choices"][0]["message"]["tool_calls"][0]["function"]["arguments"]
+                )
+                args["findings"][0][marker] = marker
+                result["choices"][0]["message"]["tool_calls"][0]["function"]["arguments"] = (
+                    json.dumps(args)
+                )
+            elif self.calls == 2:
+                payload = json.loads(messages[1]["content"])
+                assert marker not in json.dumps(payload)
+                errors = payload["validation_feedback"]["errors"]
+                assert errors[0]["path"] == ["findings", 0, "unknown_field"]
+                assert errors[0]["code"] == "extra_forbidden"
+            return result
+
+    provider = InvalidThenFixed(findings())
+    assert (
+        len(revision_compare.compare(synthetic_source(), provider, lambda: None, [])["rows"]) == 2
+    )
+    assert provider.calls == 3
+
+
+def test_format_repair_reports_all_bad_quotes_and_only_reuses_verified_source_text():
+    class MultipleInvalidThenFixed(Supplier):
+        def completion(self, messages, tools):
+            if self.calls == 0:
+                self.rows = findings()
+                self.rows[0]["revised_quote"] = "虚构新稿引文"
+                self.rows[1]["base_quote"] = "虚构旧稿引文"
+            elif self.calls == 1:
+                payload = json.loads(messages[1]["content"])
+                errors = payload["validation_feedback"]["errors"]
+                assert {(e["point_id"], e["kind"]) for e in errors} == {
+                    ("P01", "revised"),
+                    ("P02", "base"),
+                }
+                for evidence in payload["verified_source_quotes"]:
+                    assert (
+                        evidence["quote"] in synthetic_source()["files"][evidence["kind"]]["text"]
+                    )
+                assert "虚构" not in json.dumps(payload, ensure_ascii=False)
+                self.rows = findings()
+            return super().completion(messages, tools)
+
+    provider = MultipleInvalidThenFixed(findings())
+    assert (
+        len(revision_compare.compare(synthetic_source(), provider, lambda: None, [])["rows"]) == 2
+    )
+    assert provider.calls == 3
 
 
 def test_partial_retrieval_cannot_prove_absence_and_mock_cannot_claim_resolution():

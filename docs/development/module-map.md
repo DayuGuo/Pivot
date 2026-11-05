@@ -40,3 +40,5 @@
 前端`use-history-pages.ts`复用版本/导入分页，调用组件须随对象、版本/revision或核对快照变化重建；workspace保留路由/操作隔离，代理透传Retry-After并在缓冲上传前限重任务。spec019记录恢复协议和单进程范围。
 
 登记评价增量spec023：evaluation_models定义两表；evaluation_sources组合原件/全文/引文材料，v1导出与v2登记共用；evaluation_access只做注册包访问/映射/最新记录；evaluation_protocol纯模板校验和分歧；evaluations组合HTTP与网关。前端evaluation-overview按需加载登记/汇总，evaluation-review位于独立路由右栏，中央对话持续可见；evaluation-types明确协议，requireLibrarySession复用会话前置检查。没有把独立评价回传并入ClaimReview或正式同行评审。
+
+正式文档增量spec025：formal_document_models定义两表；formal_document_sources验证原件/提取/继承链并提供来源，formal_documents仅组合HTTP与Action Gateway。packages/document_ingest/locations为无DB的精确原文映射；revision_sources读取正式版本/作者可见要求，revision_compare保持无数据库动作权限。frontend formal-documents包含上传、待核对分页与独立核对三个组件，复用正式workspace/常驻对话；路由保留稿件和导入ID。evals/public_revisions的build/workflow/live是开发验收工具，不进入生产镜像，不获得邮件/关键决定模型工具。

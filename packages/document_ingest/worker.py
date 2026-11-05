@@ -29,6 +29,7 @@ from pypdf.generic import (  # noqa: E402
     DictionaryObject,
     FloatObject,
     IndirectObject,
+    NameObject,
     NullObject,
     NumberObject,
 )
@@ -134,6 +135,7 @@ def passive_pdf_destination(value):
 def check_pdf_graph(reader):
     seen = set()
     count = 0
+    fonts = []
 
     def walk(value, depth=0):
         nonlocal count
@@ -155,6 +157,12 @@ def check_pdf_graph(reader):
         if count > 10000:
             raise Rejected("document_resource_limit")
         if isinstance(value, DictionaryObject):
+            if (
+                value.get("/Subtype") in {"/Type1", "/MMType1", "/TrueType"}
+                and value.get("/Encoding") == "/WinAnsiEncoding"
+                and "/ToUnicode" not in value
+            ):
+                fonts.append(value)
             banned = {
                 "/JavaScript",
                 "/JS",
@@ -190,6 +198,7 @@ def check_pdf_graph(reader):
                 walk(child, depth + 1)
 
     walk(reader.trailer)
+    return fonts
 
 
 def pdf(raw):
@@ -198,12 +207,28 @@ def pdf(raw):
         raise Rejected("document_encrypted")
     if not 1 <= len(reader.pages) <= 60:
         raise Rejected("document_page_limit")
-    check_pdf_graph(reader)
+    fonts = check_pdf_graph(reader)
     parts = []
     warnings = [
         "pdf_text_reading_order_requires_review",
         "figures_images_and_equations_not_interpreted",
     ]
+    # PDF WinAnsi differs from Windows CP1252: the unused slots below are
+    # bullets, not C1 controls (PDF Reference Appendix D; PDFBOX-1713).
+    # Only normalize an explicit WinAnsi font without a ToUnicode override.
+    # Validate the entire input graph before changing this in-memory encoding.
+    for font in fonts:
+        differences = ArrayObject()
+        for code in (127, 129, 141, 143, 144, 157):
+            differences.extend([NumberObject(code), NameObject("/bullet")])
+        font[NameObject("/Encoding")] = DictionaryObject(
+            {
+                NameObject("/BaseEncoding"): NameObject("/WinAnsiEncoding"),
+                NameObject("/Differences"): differences,
+            }
+        )
+    if fonts:
+        warnings.append("pdf_winansi_bullet_encoding_normalized")
     if "/OpenAction" in reader.trailer["/Root"]:
         warnings.append("pdf_initial_page_destination_ignored")
     for page in reader.pages:
@@ -211,7 +236,7 @@ def pdf(raw):
         if not value or not value.strip():
             raise Rejected("document_text_missing")
         parts.append((value, None))
-    return result(parts, "pdf_page", "pypdf-6.21.4-text-v2", warnings)
+    return result(parts, "pdf_page", "pypdf-6.21.4-text-v3", warnings)
 
 
 def xml(data):

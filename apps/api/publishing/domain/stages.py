@@ -277,18 +277,21 @@ def clone_for_return(
             VersionFile.purpose.in_(["manuscript", "blinded_manuscript"]),
         )
     ):
-        db.add(
-            VersionFile(
-                manuscript_id=manuscript.id,
-                journal_id=manuscript.journal_id,
-                version_id=draft.id,
-                file_object_id=link.file_object_id,
-                purpose=link.purpose,
-                visibility=link.visibility,
-                display_name=link.display_name,
-                created_by=actor.user.id,
-            )
+        copied = VersionFile(
+            manuscript_id=manuscript.id,
+            journal_id=manuscript.journal_id,
+            version_id=draft.id,
+            file_object_id=link.file_object_id,
+            purpose=link.purpose,
+            visibility=link.visibility,
+            display_name=link.display_name,
+            created_by=actor.user.id,
         )
+        db.add(copied)
+        db.flush()
+        from .formal_document_sources import inherit
+
+        inherit(db, link, copied)
     db.flush()
     flow.draft_version_id = draft.id
     task = core.start_step(

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_date": "2026-11-04",
+  "updated_date": "2026-11-05",
   "scope": "Foundation14 + C1 + D4 + E3 + F3 + internal dossier4 =29 classes/357 fields. Internal dossiers are private pre-submission preparation artifacts, with static source bindings only; runtime/service/browser verification is maintained by lead in PROGRESS.md. Existing C/D/E/F evidence is preserved. Spec021 adds 1 project-governance human claim feedback class /16 fields; source binding is not execution proof.",
   "data_contract": "specs/007-data-contract.md",
   "source_manifests": {
@@ -5791,6 +5791,28 @@
           "entity_type": "source"
         }
       ]
+    },
+    {
+      "id": "DB25",
+      "targets": [
+        "FormalDocumentImport",
+        "FormalDocumentBinding"
+      ],
+      "adopted": "正式版本原件与提取、负责人核对、正文范围与继承批准分离；文件替换保留旧证据，修回只读实际发布给作者的要求和精确新旧版本。",
+      "rejected": "不让上传自动提交、不冒称继承为人审、不因原文可见放开含作者属性的二进制给审稿人、不把作者修订说明节选或评论附录当正文修改证据。",
+      "intended_acceptance": "公开许可版本对、逐字页/段定位、实际正式修回链、原样旧稿反例、长意见/批次无遗漏、权限和幂等/SQL不可变，真实模型和Mock分别记录。",
+      "source_refs": [
+        {
+          "system": "ojs",
+          "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+          "entity_type": "source"
+        },
+        {
+          "system": "janeway",
+          "source_id": "submission-model-fields.txt",
+          "entity_type": "source"
+        }
+      ]
     }
   ],
   "source_limitations": [
@@ -11351,6 +11373,448 @@
           "scope": "Immutable evaluation scope, packet bounds, owner and serial confirmation"
         }
       ]
+    },
+    {
+      "class": "FormalDocumentImport",
+      "module": "apps/api/publishing/domain/formal_document_models.py",
+      "table": "publishing_formal_document_imports",
+      "contract_source": "specs/025-formal-document-revisions/spec.md",
+      "slice": "formal_document_revisions",
+      "implementation_status": "implemented",
+      "migration_id": "f59230d88725",
+      "migration_status": "static_source_binding_only_runtime_verification_recorded_by_lead_in_PROGRESS",
+      "field_groups": [
+        {
+          "our_fields": [
+            "id",
+            "manuscript_id",
+            "journal_id",
+            "version_id",
+            "base_revision",
+            "purpose",
+            "filename",
+            "media_type",
+            "byte_size",
+            "sha256",
+            "storage_key",
+            "extraction_json",
+            "source_kind",
+            "source_note",
+            "digest",
+            "created_by",
+            "created_at"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+              "entity_type": "source"
+            },
+            {
+              "system": "janeway",
+              "source_id": "submission-model-fields.txt",
+              "entity_type": "source"
+            }
+          ],
+          "origin": "project_governance",
+          "adaptation": "Independently implemented immutable original/extraction proposal and explicit owner/session/scope/version binding. OJS review-round/revision file affiliation and Janeway FileHistory/RevisionRequest inspire separation only; upstream tables do not provide this exact approval or model-evidence contract.",
+          "migration_id": "f59230d88725"
+        }
+      ],
+      "our_fields": [
+        "id",
+        "manuscript_id",
+        "journal_id",
+        "version_id",
+        "base_revision",
+        "purpose",
+        "filename",
+        "media_type",
+        "byte_size",
+        "sha256",
+        "storage_key",
+        "extraction_json",
+        "source_kind",
+        "source_note",
+        "digest",
+        "created_by",
+        "created_at"
+      ],
+      "constraints": [
+        {
+          "rule": "Exact manuscript/journal/version/original/selection binding; archival approval cannot be modified or inherited as new human confirmation.",
+          "intended_acceptance": "Actual API/CAS/SQL guard, replay/stale scope, public version pair and browser regressions; no mail or automatic editorial decision."
+        }
+      ],
+      "intended_acceptance": [
+        "Public licensed PDF/DOCX formal revision chain with explicit owner confirmations, exact original locations, immutable source and bounded retries; executed evidence separately in PROGRESS."
+      ],
+      "current_baseline": {
+        "system": "current-system",
+        "source_id": "apps/api/publishing/models.py",
+        "entity_type": "class",
+        "entity": "Manuscript"
+      },
+      "source_binding": {
+        "path": "apps/api/publishing/domain/formal_document_models.py",
+        "class_line": 27,
+        "fields": [
+          {
+            "name": "id",
+            "line": 54,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
+          },
+          {
+            "name": "manuscript_id",
+            "line": 55,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "journal_id",
+            "line": 56,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "version_id",
+            "line": 57,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "base_revision",
+            "line": 58,
+            "annotation": "Mapped[int]",
+            "declaration": "mapped_column(Integer)"
+          },
+          {
+            "name": "purpose",
+            "line": 59,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(40))"
+          },
+          {
+            "name": "filename",
+            "line": 60,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(255))"
+          },
+          {
+            "name": "media_type",
+            "line": 61,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(100))"
+          },
+          {
+            "name": "byte_size",
+            "line": 62,
+            "annotation": "Mapped[int]",
+            "declaration": "mapped_column(Integer)"
+          },
+          {
+            "name": "sha256",
+            "line": 63,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "storage_key",
+            "line": 64,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(100))"
+          },
+          {
+            "name": "extraction_json",
+            "line": 65,
+            "annotation": "Mapped[dict]",
+            "declaration": "mapped_column(JSONB)"
+          },
+          {
+            "name": "source_kind",
+            "line": 66,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(30))"
+          },
+          {
+            "name": "source_note",
+            "line": 67,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(2000))"
+          },
+          {
+            "name": "digest",
+            "line": 68,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "created_by",
+            "line": 69,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
+          },
+          {
+            "name": "created_at",
+            "line": 70,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True), default=now)"
+          }
+        ],
+        "table_args": {
+          "line": 29,
+          "declaration": "(_tenant_manuscript('fk_formal_import_manuscript'), _same_manuscript('version_id', 'publishing_versions', 'fk_formal_import_version'), UniqueConstraint('id', 'manuscript_id', 'journal_id', name='uq_formal_import_tenant'), Index('ix_formal_import_pending', 'journal_id', 'manuscript_id', 'version_id', 'created_at', 'id'), CheckConstraint(\"purpose IN ('manuscript','blinded_manuscript','response')\", name='ck_formal_import_purpose'), CheckConstraint(\"source_kind IN ('synthetic','public_authorized') AND length(source_note) BETWEEN 5 AND 2000\", name='ck_formal_import_authorization'), CheckConstraint(\"base_revision>=0 AND byte_size BETWEEN 1 AND 5242880 AND sha256 ~ '^[0-9a-f]{64}$' AND digest ~ '^[0-9a-f]{64}$'\", name='ck_formal_import_evidence'))"
+        }
+      },
+      "field_revision_bindings": {
+        "id": "f59230d88725",
+        "manuscript_id": "f59230d88725",
+        "journal_id": "f59230d88725",
+        "version_id": "f59230d88725",
+        "base_revision": "f59230d88725",
+        "purpose": "f59230d88725",
+        "filename": "f59230d88725",
+        "media_type": "f59230d88725",
+        "byte_size": "f59230d88725",
+        "sha256": "f59230d88725",
+        "storage_key": "f59230d88725",
+        "extraction_json": "f59230d88725",
+        "source_kind": "f59230d88725",
+        "source_note": "f59230d88725",
+        "digest": "f59230d88725",
+        "created_by": "f59230d88725",
+        "created_at": "f59230d88725"
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "f59230d88725",
+          "names": [
+            "ck_formal_import_authorization",
+            "ck_formal_import_evidence",
+            "ck_formal_import_purpose",
+            "fk_formal_import_manuscript",
+            "fk_formal_import_version",
+            "ix_formal_import_pending",
+            "uq_formal_import_tenant"
+          ],
+          "scope": "Original evidence, scope, tenant, draft/version and confirmed/inherited provenance"
+        }
+      ]
+    },
+    {
+      "class": "FormalDocumentBinding",
+      "module": "apps/api/publishing/domain/formal_document_models.py",
+      "table": "publishing_formal_document_bindings",
+      "contract_source": "specs/025-formal-document-revisions/spec.md",
+      "slice": "formal_document_revisions",
+      "implementation_status": "implemented",
+      "migration_id": "f59230d88725",
+      "migration_status": "static_source_binding_only_runtime_verification_recorded_by_lead_in_PROGRESS",
+      "field_groups": [
+        {
+          "our_fields": [
+            "id",
+            "file_id",
+            "manuscript_id",
+            "journal_id",
+            "version_id",
+            "file_object_id",
+            "import_id",
+            "kind",
+            "parent_id",
+            "confirmed_by",
+            "session_hash",
+            "selection_start",
+            "selection_end",
+            "digest",
+            "created_at"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+              "entity_type": "source"
+            },
+            {
+              "system": "janeway",
+              "source_id": "submission-model-fields.txt",
+              "entity_type": "source"
+            }
+          ],
+          "origin": "project_governance",
+          "adaptation": "Independently implemented immutable original/extraction proposal and explicit owner/session/scope/version binding. OJS review-round/revision file affiliation and Janeway FileHistory/RevisionRequest inspire separation only; upstream tables do not provide this exact approval or model-evidence contract.",
+          "migration_id": "f59230d88725"
+        }
+      ],
+      "our_fields": [
+        "id",
+        "file_id",
+        "manuscript_id",
+        "journal_id",
+        "version_id",
+        "file_object_id",
+        "import_id",
+        "kind",
+        "parent_id",
+        "confirmed_by",
+        "session_hash",
+        "selection_start",
+        "selection_end",
+        "digest",
+        "created_at"
+      ],
+      "constraints": [
+        {
+          "rule": "Exact manuscript/journal/version/original/selection binding; archival approval cannot be modified or inherited as new human confirmation.",
+          "intended_acceptance": "Actual API/CAS/SQL guard, replay/stale scope, public version pair and browser regressions; no mail or automatic editorial decision."
+        }
+      ],
+      "intended_acceptance": [
+        "Public licensed PDF/DOCX formal revision chain with explicit owner confirmations, exact original locations, immutable source and bounded retries; executed evidence separately in PROGRESS."
+      ],
+      "current_baseline": {
+        "system": "current-system",
+        "source_id": "apps/api/publishing/models.py",
+        "entity_type": "class",
+        "entity": "Manuscript"
+      },
+      "source_binding": {
+        "path": "apps/api/publishing/domain/formal_document_models.py",
+        "class_line": 73,
+        "fields": [
+          {
+            "name": "id",
+            "line": 125,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
+          },
+          {
+            "name": "file_id",
+            "line": 126,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "manuscript_id",
+            "line": 127,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "journal_id",
+            "line": 128,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "version_id",
+            "line": 129,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "file_object_id",
+            "line": 130,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "import_id",
+            "line": 131,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "kind",
+            "line": 132,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(20))"
+          },
+          {
+            "name": "parent_id",
+            "line": 133,
+            "annotation": "Mapped[str | None]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "confirmed_by",
+            "line": 134,
+            "annotation": "Mapped[str | None]",
+            "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
+          },
+          {
+            "name": "session_hash",
+            "line": 135,
+            "annotation": "Mapped[str | None]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "selection_start",
+            "line": 136,
+            "annotation": "Mapped[int]",
+            "declaration": "mapped_column(Integer)"
+          },
+          {
+            "name": "selection_end",
+            "line": 137,
+            "annotation": "Mapped[int]",
+            "declaration": "mapped_column(Integer)"
+          },
+          {
+            "name": "digest",
+            "line": 138,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "created_at",
+            "line": 139,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True), default=now)"
+          }
+        ],
+        "table_args": {
+          "line": 75,
+          "declaration": "(_tenant_manuscript('fk_formal_binding_manuscript'), _same_manuscript('version_id', 'publishing_versions', 'fk_formal_binding_version'), ForeignKeyConstraint(['import_id', 'manuscript_id', 'journal_id'], ['publishing_formal_document_imports.id', 'publishing_formal_document_imports.manuscript_id', 'publishing_formal_document_imports.journal_id'], name='fk_formal_binding_import'), ForeignKeyConstraint(['parent_id', 'import_id', 'manuscript_id', 'journal_id'], ['publishing_formal_document_bindings.id', 'publishing_formal_document_bindings.import_id', 'publishing_formal_document_bindings.manuscript_id', 'publishing_formal_document_bindings.journal_id'], name='fk_formal_binding_parent'), ForeignKeyConstraint(['file_object_id', 'journal_id'], ['publishing_file_objects.id', 'publishing_file_objects.journal_id'], name='fk_formal_binding_blob'), UniqueConstraint('id', 'import_id', 'manuscript_id', 'journal_id', name='uq_formal_binding_identity'), CheckConstraint('selection_start>=0 AND selection_end>selection_start', name='ck_formal_binding_selection'), UniqueConstraint('file_id', name='uq_formal_binding_file'), Index('uq_formal_import_confirmation', 'import_id', unique=True, postgresql_where=text(\"kind='confirmed'\")), CheckConstraint(\"(kind='confirmed' AND parent_id IS NULL AND confirmed_by IS NOT NULL AND session_hash IS NOT NULL) OR (kind='inherited' AND parent_id IS NOT NULL AND confirmed_by IS NULL AND session_hash IS NULL)\", name='ck_formal_binding_kind'), CheckConstraint(\"digest ~ '^[0-9a-f]{64}$' AND (session_hash IS NULL OR session_hash ~ '^[0-9a-f]{64}$')\", name='ck_formal_binding_digest'))"
+        }
+      },
+      "field_revision_bindings": {
+        "id": "f59230d88725",
+        "file_id": "f59230d88725",
+        "manuscript_id": "f59230d88725",
+        "journal_id": "f59230d88725",
+        "version_id": "f59230d88725",
+        "file_object_id": "f59230d88725",
+        "import_id": "f59230d88725",
+        "kind": "f59230d88725",
+        "parent_id": "f59230d88725",
+        "confirmed_by": "f59230d88725",
+        "session_hash": "f59230d88725",
+        "selection_start": "f59230d88725",
+        "selection_end": "f59230d88725",
+        "digest": "f59230d88725",
+        "created_at": "f59230d88725"
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "f59230d88725",
+          "names": [
+            "ck_formal_binding_digest",
+            "ck_formal_binding_kind",
+            "ck_formal_binding_selection",
+            "fk_formal_binding_blob",
+            "fk_formal_binding_import",
+            "fk_formal_binding_manuscript",
+            "fk_formal_binding_parent",
+            "fk_formal_binding_version",
+            "uq_formal_binding_file",
+            "uq_formal_binding_identity",
+            "uq_formal_import_confirmation"
+          ],
+          "scope": "Original evidence, scope, tenant, draft/version and confirmed/inherited provenance"
+        }
+      ]
     }
   ],
   "additional_contracts": [
@@ -11462,6 +11926,16 @@
       "new_models": {
         "EvaluationPackage": "publishing_evaluation_packages",
         "EvaluationReturn": "publishing_evaluation_returns"
+      },
+      "extended_fields": {},
+      "extended_constraints": {}
+    },
+    {
+      "path": "specs/025-formal-document-revisions/spec.md",
+      "migration_id": "f59230d88725",
+      "new_models": {
+        "FormalDocumentImport": "publishing_formal_document_imports",
+        "FormalDocumentBinding": "publishing_formal_document_bindings"
       },
       "extended_fields": {},
       "extended_constraints": {}
@@ -11827,6 +12301,61 @@
           "name": "publishing_evaluation_guard",
           "normalization": "strip_and_create_or_replace",
           "sha256": "1ca711a450596f964532e2611312832d1d4cc55713a336a798f1d03a2234c947"
+        }
+      ]
+    },
+    {
+      "revision": "f59230d88725",
+      "down_revision": "17d51aeb9408",
+      "path": "infrastructure/migrations/versions/f59230d88725_formal_document_imports_and_immutable_.py",
+      "sha256": "344d3259744dbdaa08011853b327b15bfec687bf73d339a970af91366a47cdba",
+      "validation_scope": "Static bindings only; executed isolated/local validation in PROGRESS",
+      "sql_functions": [
+        "publishing_formal_document_guard"
+      ],
+      "deferred_triggers": [],
+      "row_triggers": [],
+      "truncate_triggers": [
+        {
+          "name": "formal_document_truncate",
+          "table": "publishing_formal_document_imports",
+          "function": "publishing_dossier_immutable"
+        },
+        {
+          "name": "formal_document_truncate",
+          "table": "publishing_formal_document_bindings",
+          "function": "publishing_dossier_immutable"
+        }
+      ],
+      "insert_triggers": [
+        {
+          "name": "formal_document_insert",
+          "table": "publishing_formal_document_imports",
+          "function": "publishing_formal_document_guard"
+        },
+        {
+          "name": "formal_document_insert",
+          "table": "publishing_formal_document_bindings",
+          "function": "publishing_formal_document_guard"
+        }
+      ],
+      "update_delete_triggers": [
+        {
+          "name": "formal_document_immutable",
+          "table": "publishing_formal_document_imports",
+          "function": "publishing_dossier_immutable"
+        },
+        {
+          "name": "formal_document_immutable",
+          "table": "publishing_formal_document_bindings",
+          "function": "publishing_dossier_immutable"
+        }
+      ],
+      "sql_function_fingerprints": [
+        {
+          "name": "publishing_formal_document_guard",
+          "normalization": "strip_and_create_or_replace",
+          "sha256": "a7e4e446cbdaaffe633bddc153134c4b47d6a650d11f165fdf1e4b4900ad0fb3"
         }
       ]
     }

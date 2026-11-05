@@ -36,7 +36,7 @@ from .review_schemas import (
 from .reviews import save_report_candidates
 from .revision_compare import compare as compare_revision
 from .revision_compare import reply as revision_reply
-from .revision_sources import comparison_requested, load_revision
+from .revision_sources import comparison_offset, comparison_requested, load_revision
 from .schemas import IntakeCandidates, IntakeData, StrictInput
 from .stages import CheckNotes, download_report, save_check_notes
 
@@ -883,11 +883,23 @@ def conversation(db: Session, actor: Actor, request_id: str, body: ChatInput) ->
         runtime.message_id = uid()
         comparison = None
         if comparison_requested(body.message) and runtime.current_id:
-            source = load_revision(db, actor, runtime.current_id, body.context.version_id)
+            source = load_revision(
+                db,
+                actor,
+                runtime.current_id,
+                body.context.version_id,
+                offset=comparison_offset(body.message),
+            )
 
             def validate_comparison():
                 runtime.validate_scopes()
-                current = load_revision(db, actor, runtime.current_id, source["revised_version_id"])
+                current = load_revision(
+                    db,
+                    actor,
+                    runtime.current_id,
+                    source["revised_version_id"],
+                    offset=source["point_offset"],
+                )
                 if current["source_fingerprint"] != source["source_fingerprint"]:
                     raise HTTPException(409, "修回依据已变化，请重新载入后对照")
 

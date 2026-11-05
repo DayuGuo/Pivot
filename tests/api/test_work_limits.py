@@ -80,6 +80,7 @@ def test_saturated_http_has_no_receipt_and_does_not_block_human_reads(
             f"/api/dossiers/{item['id']}/imports",
             "/api/publishing/chat",
             "/api/editorial-demo/chat",
+            f"/api/publishing/manuscripts/{item['id']}/document-imports",
         ):
             response = client.post(path, content=b"deliberately not valid JSON")
             assert response.status_code == 429

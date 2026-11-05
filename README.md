@@ -1,6 +1,6 @@
 # Pivot
 
-第七批已在本机验收：[上下文建议与正式修回对照](specs/024-contextual-guidance-and-revision-comparison.md)。资料区/正式出版对话上方给出按角色、阶段、缺项与已有证据选择的建议，只填草稿；正式修回逐项比较已分享要求、原/修订全文和回复，显示版本、原文行号及历史提示。AI判断仍须负责人核对，不自动发信、确认修回或作决定。本机1344后端＋93浏览器通过；真实DeepSeek合成两阶段协议通过，非真实论文准确率。同源码GitHub完整CI1344＋93通过，详[报告](docs/development/spec024-review.md)与[PR #5](https://github.com/DayuGuo/Pivot/pull/5)（依赖未合并PR #4）。保留数据，无新迁移，不部署VPS。
+第七批已在本机验收：[上下文建议与正式修回对照](specs/024-contextual-guidance-and-revision-comparison.md)。资料区/正式出版对话上方给出按角色、阶段、缺项与已有证据选择的建议，只填草稿；正式修回逐项比较已分享要求、原/修订全文和回复，显示版本、原文行号及历史提示。AI判断仍须负责人核对，不自动发信、确认修回或作决定。本机1344后端＋93浏览器通过；真实DeepSeek合成两阶段协议通过，非真实论文准确率。同源码GitHub完整CI1344＋93通过，详[报告](docs/development/spec024-review.md)与[PR #5](https://github.com/DayuGuo/Pivot/pull/5)（PR #4/#5已按用户授权合并main）。保留数据，无新迁移，不部署VPS。
 
 第六批已验收：[独立评价人工核对、回传和分歧](specs/023-independent-evaluation-returns.md)。在已有回答下打开“独立评价回传”，指定代号登记v2包，进入独立核对页下载/上传JSON，逐条对照原文并勾选后确认。按代号最新确认汇总，待核对/未评价单列，不改原回答/资料核对/出版决定。旧v1包不具备回传映射；代号不是身份认证。本机与同源码CI **1319后端＋91浏览器**通过，详[验收报告](docs/development/spec023-review.md)。本轮不部署VPS，邮件继续禁发。
 
@@ -27,6 +27,14 @@
 以稿件资料为基础的对话式科研出版工作台。编辑从自己的待办进入稿件，在中心对话中审阅，随时在右侧核对原文、作者资料和引用；正式操作保留负责人的确认权。
 
 **[在线体验 Pivot](https://pivot.anotherdayu.com/)**
+
+## 正式稿件 PDF / Word 与修回
+
+作者以 `author@publishing.test` / `AuthorDemo2026!` 登录，打开[出版工作台](http://localhost:3100/publishing)并新建投稿或进入本人修回草稿，在资料栏选择“导入 PDF / Word 并核对”。明确授权与完整/节选范围后提取；独立核对原件、全文和正文起止页/段，三项勾选后才保存为当前正式草稿文件。已有作者元数据/声明保持原样，正式提交仍另行负责人确认。待核对导入可在同页找回；响应丢失重试原请求，不重复保存。
+
+正式修回请求和作者可见报告齐备时，在中心对话发起“逐条对照修回与作者回复”。引用包含新旧版本、原文行号和受控PDF页/Word段位置；超过8项可点击继续，保留未发送草稿。长意见分段、回复节选、未完整读取与不确定判断明确标注，AI不确认完成、不发邮件、不作编辑决定。
+
+规格：[spec025](specs/025-formal-document-revisions/spec.md)；许可与限制：[公开版本对语料](evals/public_revisions/README.md)。样本包含真实版本文章和真实文章内修订说明节选；Word是明确的许可XML转换，不是出版社原生Word，没有完整rebuttal letter。真实模型实验与完整自动化状态见PROGRESS，不以Mock或小样本推导科学准确率。
 
 ## 本地试用真实资料录入
 

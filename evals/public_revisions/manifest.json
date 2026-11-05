@@ -1,0 +1,369 @@
+{
+  "schema": "public-revision-corpus.v1",
+  "scope": "licensed real article version pairs with published revision-note excerpts; sandbox workflow only",
+  "cases": [
+    {
+      "id": "oath",
+      "article_url": "https://f1000research.com/articles/3-271",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "versions": {
+        "1": {
+          "doi": "10.12688/f1000research.5686.1",
+          "title": "The Open Science Peer Review Oath",
+          "authors": [
+            "Aleksic Jelena",
+            "Alexa Adrian",
+            "Attwood Teresa K",
+            "Chue Hong Neil",
+            "Dahlö Martin",
+            "Davey Robert",
+            "Dinkel Holger",
+            "Förstner Konrad U",
+            "Grigorov Ivo",
+            "Hériché Jean-Karim",
+            "Lahti Leo",
+            "MacLean Dan",
+            "Markie Michael L",
+            "Molloy Jenny",
+            "Schneider Maria Victoria",
+            "Scott Camille",
+            "Smith-Unna Richard",
+            "Vieira Bruno Miguel"
+          ],
+          "publisher_pdf_url": "https://f1000research.com/articles/3-271/v1/pdf",
+          "publisher_xml_url": "https://f1000research.com/articles/3-271/v1/xml",
+          "publisher_pdf_sha256": "61e597fda84a099c8689350a0bb5f7617fbaac810f6cafae8e58ea25e2228a3e",
+          "publisher_xml_sha256": "ff767aebf4bbc543a372defad20af2981656d00cf8cc8ae631d1301053a6b617",
+          "original_page_count": 15,
+          "article_page_count": 5,
+          "body_first_page": 3,
+          "pdf": {
+            "path": "evals/public_revisions/oath/v1.pdf",
+            "sha256": "189ff227534606caa05daa7328dd1a073f3978730581c4ab96fb4598e38fd6f0",
+            "transformation": "article-page excerpt without retypesetting; interactive annotations removed; appended reports/comments excluded"
+          },
+          "docx": {
+            "path": "evals/public_revisions/oath/v1.docx",
+            "sha256": "f6b0f8e8770110f241596454e58f1a86eb746ade970b5b2481790803264be9db",
+            "transformation": "derived OOXML from licensed publisher XML body; no publisher-native Word claim",
+            "paragraph_count": 64
+          },
+          "xml_body_guards": [
+            "The Open Science Peer Review Oath",
+            "I will happily engage in conversation with you about your work, providing c",
+            "Leek JT Taub MA Pineda FJ : Cooperation between referees and authors increa"
+          ]
+        },
+        "2": {
+          "doi": "10.12688/f1000research.5686.2",
+          "title": "An Open Science Peer Review Oath",
+          "authors": [
+            "Aleksic Jelena",
+            "Alexa Adrian",
+            "Attwood Teresa K",
+            "Chue Hong Neil",
+            "Dahlö Martin",
+            "Davey Robert",
+            "Dinkel Holger",
+            "Förstner Konrad U",
+            "Grigorov Ivo",
+            "Hériché Jean-Karim",
+            "Lahti Leo",
+            "MacLean Dan",
+            "Markie Michael L",
+            "Molloy Jenny",
+            "Schneider Maria Victoria",
+            "Scott Camille",
+            "Smith-Unna Richard",
+            "Vieira Bruno Miguel"
+          ],
+          "publisher_pdf_url": "https://f1000research.com/articles/3-271/v2/pdf",
+          "publisher_xml_url": "https://f1000research.com/articles/3-271/v2/xml",
+          "publisher_pdf_sha256": "8fb0084ee835a8003fdf89979ecded70d70500218fb0a8237d1e4cf7590bff58",
+          "publisher_xml_sha256": "6bd6431eab68d33a25a2f2ea31f0fed6c0092ec690e2c8fb3735e3233cc40be2",
+          "original_page_count": 17,
+          "article_page_count": 4,
+          "body_first_page": 3,
+          "pdf": {
+            "path": "evals/public_revisions/oath/v2.pdf",
+            "sha256": "cf923f5199804959933cd9ba9ac434151c70ba876580951b2c31fa6923534aa4",
+            "transformation": "article-page excerpt without retypesetting; interactive annotations removed; appended reports/comments excluded"
+          },
+          "docx": {
+            "path": "evals/public_revisions/oath/v2.docx",
+            "sha256": "02ac9e5ab954c169f149e3bd37a2546cbb4d2219c49ff459e24c0792f9434deb",
+            "transformation": "derived OOXML from licensed publisher XML body; no publisher-native Word claim",
+            "paragraph_count": 40
+          },
+          "xml_body_guards": [
+            "An Open Science Peer Review Oath",
+            "We believe that combining the open-science principle with some of the other",
+            "MacLean D Aleksic J Attwood TK : Open Science Peer Review Oath. figshare. 2"
+          ]
+        }
+      },
+      "review_requirements": [
+        {
+          "text": "While I am supportive of this initiative, I do have some concerns about the way it is presented and I also wonder how adhering to it could be incentivised. I will outline below some suggestions for possible improvement: The authors begin by outlining the 17 key practices and only at the end do they group them together within governing principles. I think the overall structure of the paper would be clearer if this order were reversed - beginning with the five principles, explaining the key practices in each case that serve them, before returning to the code of practice or \"oath\" as the authors call it. Some of the individual practices in the oath are somewhat ambiguous to me, and others seem to overlap. For instance, what exactly does it mean for a reviewer to \"state their limits\"? This is elaborated later under principle 2 but I would recommend clearer descriptions at all times. Other practices seem very similar, or least belong to common subsets of behaviour; e.g. practice 7 and practice 10; practice 2 and 6; practices 13, 14, 15 and 16 are all very similar and not clearly distinguished. With some careful attention I suspect the number of practices here could be halved, which would improve readability and likely uptake. The language expanding on some of the core principles is perhaps little purple in places, e.g. \" I will use the majority of ‘doves’ to balance the ‘hawks’ in my review by sharing the content.\" I'm not entirely sure what this means, but if it refers to the intention to balance sharp critical feedback with constructive suggestions or positive feedback, this could perhaps we said in a more straightforward way. The authors should bear in mind that not all readers will have English as a first language, and so more direct and less metaphorical phrasing could widen the appeal. Two concerns with signed reviews need to be addressed. The first is the potential negative consequences felt by junior (non-tenured) scientists or minorities, who could, at least in theory, face severe repercussions for criticizing the work of senior/powerful colleagues who sit on editorial boards or grant panels. In my mind this conflict has never been properly addressed; while I believe it is completely reasonable for tenured scientists to be open and accountable in their reviews (I always sign mine), it is questionable whether this should be required uniformly across science. The second concern with open reviewing is the potential legal backlash of scientists being sued by litigious authors who feel aggrieved by a reviewer's published comments. We are seeing this already on PubPeer and elsewhere. This raises the question of who assumes legal responsibility for the content of a signed review. In the case of F1000Research, for instance, does it or will it provide legal indemnity to reviewers who choose to unmask themselves? Finally, I would prompt the authors of this paper to consider, and ideally speculate on, ways their oath (or code of practice as I would call it) might be implemented and incentivised in science. Could it, for instance, be worked into the next REF in some way? How could this be achieved and what challenges would need to be overcome? How does this initiative relate to other emerging group-led initiatives, such as the Agenda for Open Research (https://agendaforopenresearch.org/)? There authors have no shortage of good intentions but as we know, there lies a world of groupthink and social inertia between good intentions and good practices. Regardless of the above concerns, I applaud this much-needed call for greater transparency in the peer review process.",
+          "doi": "10.5256/f1000research.6078.r6797",
+          "source_url": "https://doi.org/10.5256/f1000research.6078.r6797",
+          "license_url": "https://creativecommons.org/licenses/by/4.0/",
+          "credit": "Chambers Christopher D",
+          "paragraph_index": 1
+        },
+        {
+          "text": "Those goals are clearly highly laudable, and I completely agree that the process of scientific refereeing would greatly improve by going 'open'. I do, however, feel very ill at ease about acting as a referee for this particular paper, for the following three main reasons: This is not a scientific manuscript, and it neither contains data, nor reviews a scientific topic. I am thus left wondering why such a manuscript should need to be peer reviewed. After reading it, I certainly cannot conclude that it is scientifically sound. The best I can conclude is that it is not scientifically unsound. Although this manuscript is very short, I must say that I found it rather difficult to read because of its structure which contains many redundancies and of the fuzziness of its purpose. One aspect that particularly bothers me is the unquestioned assumption that open refereeing will improve reproducibility. The first thing the authors should clarify is what they mean by reproducibility since there are at least two types that I can think of: The first one concerns data reproducibility (or robustness). In other words will similar data, leading to the same conclusions, be obtained if the experiment is repeated (on a different day and/or with different samples and/or in a different place and/or by different people etc…). The second type of reproducibility relates to the capacity of other scientists to reproduce an experiment described in a published manuscript. I suspect that when they refer to 'science reproducibility', the authors refer to the latter type, although the first type is the most important one in my eyes. The authors duly acknowledge that they have been inspired by reviewer's oaths previously proposed by others (refs 13-15), and if I am being completely honest, I do not find that the set of 17 rules they propose represent a significant improvement on those previously proposed oaths. Because I do not want to plagiarise Jonathan Eisen, I will simply suggest that the authors should very seriously consider following the many suggestions he has made on his blog to improve this paper ( http://icis.ucdavis.edu/?p=505 ), and especially the idea of reversing the Oath and the Manifesto.",
+          "doi": "10.5256/f1000research.6078.r6802",
+          "source_url": "https://doi.org/10.5256/f1000research.6078.r6802",
+          "license_url": "https://creativecommons.org/licenses/by/4.0/",
+          "credit": "Joly Etienne",
+          "paragraph_index": 1
+        },
+        {
+          "text": "The principles outlined here are important, and this piece is certainly timely. I have two suggestions to improve the manuscript. First, as currently constituted, the manuscript is a bit repetitive, with a large text box recapitulating what is also laid out in much the same format in the body of the manuscript. Perhaps each of the major points could be expounded upon in the text.",
+          "doi": "10.5256/f1000research.6078.r6800",
+          "source_url": "https://doi.org/10.5256/f1000research.6078.r6800",
+          "license_url": "https://creativecommons.org/licenses/by/4.0/",
+          "credit": "Kane Lawrence Patrick",
+          "paragraph_index": 0
+        }
+      ],
+      "response": {
+        "path": "evals/public_revisions/oath/author-revision-note.docx",
+        "sha256": "9bf8c946407b3059ff350e17579495580fc7d26b129b7f1a5916657a8454bc13",
+        "source_url": "https://f1000research.com/articles/3-271/v2/xml",
+        "source_element": "article sec[sec-type=version-changes]",
+        "license_url": "https://creativecommons.org/licenses/by/4.0/",
+        "scope": "published_author_revision_note_excerpt",
+        "transformation": "licensed article revision note converted to DOCX; not a complete rebuttal letter",
+        "text": "We have taken into consideration all of the reviews and comments, and have made the manuscript shorter and clearer. We have further discussed what we hope to achieve from researchers using the oath, and we have balanced the article to explain how we believe the oath can encourage the practice of open science. The oath itself now comprises four concise principles, and we elucidate the open-science principle with accompanying guidelines, which should make it easier to apply in practice."
+      }
+    },
+    {
+      "id": "13-921",
+      "article_url": "https://f1000research.com/articles/13-921",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "versions": {
+        "1": {
+          "doi": "10.12688/f1000research.154614.1",
+          "title": "Key Guidelines for Responding to Reviewers",
+          "authors": [
+            "Hidouri Saida",
+            "Kamoun Hela",
+            "Salah Sana",
+            "Jellad Anis",
+            "Ben Saad Helmi"
+          ],
+          "publisher_pdf_url": "https://f1000research.com/articles/13-921/v1/pdf",
+          "publisher_xml_url": "https://f1000research.com/articles/13-921/v1/xml",
+          "publisher_pdf_sha256": "9a1a30bc782655709f63d844dbb6c5c4b24b1b8aa78c36ae33318e62197e8080",
+          "publisher_xml_sha256": "4ad5528ec97637a2e5d98da108cfe8ee9c8486ab3fa6dba28ce9c85de092f757",
+          "original_page_count": 26,
+          "article_page_count": 10,
+          "body_first_page": 3,
+          "pdf": {
+            "path": "evals/public_revisions/13-921/v1.pdf",
+            "sha256": "059b30d63a3acec2f999ed1892f086e8eb00000df82569ca88538071ee79a1c1",
+            "transformation": "article-page excerpt without retypesetting; interactive annotations removed; appended reports/comments excluded"
+          },
+          "docx": {
+            "path": "evals/public_revisions/13-921/v1.docx",
+            "sha256": "3ad86d94ff00d69e9f8c34902982b0d15f96f96477f7b737f7440d9fc1911ce3",
+            "transformation": "derived OOXML from licensed publisher XML body; no publisher-native Word claim",
+            "paragraph_count": 159
+          },
+          "xml_body_guards": [
+            "Key Guidelines for Responding to Reviewers",
+            "In some instances, authors may perceive reviewers’ criticisms as discourteo",
+            "Dergaa I Chamari K Zmijewski P : From human writing to artificial intellige"
+          ]
+        },
+        "2": {
+          "doi": "10.12688/f1000research.154614.2",
+          "title": "Key Guidelines for Responding to Reviewers",
+          "authors": [
+            "Hidouri Saida",
+            "Kamoun Hela",
+            "Salah Sana",
+            "Jellad Anis",
+            "Ben Saad Helmi"
+          ],
+          "publisher_pdf_url": "https://f1000research.com/articles/13-921/v2/pdf",
+          "publisher_xml_url": "https://f1000research.com/articles/13-921/v2/xml",
+          "publisher_pdf_sha256": "54889fdc58015cab06aa6d77ca001b47bfcebfd55574609e2e5d161b424e81bb",
+          "publisher_xml_sha256": "e82a9df91fad02c167864927cc3d2fb2fe322fc1cae43d442254d9dbee244a2a",
+          "original_page_count": 27,
+          "article_page_count": 11,
+          "body_first_page": 3,
+          "pdf": {
+            "path": "evals/public_revisions/13-921/v2.pdf",
+            "sha256": "a6f67a44b7f68127c6f9f118a25760b46ae1f381e7d9c1aa25b43418b74e9c30",
+            "transformation": "article-page excerpt without retypesetting; interactive annotations removed; appended reports/comments excluded"
+          },
+          "docx": {
+            "path": "evals/public_revisions/13-921/v2.docx",
+            "sha256": "6a65b97bbe837a939280a48699dd7327b24a419a5c2c53aa5e7d62b501a9bd7c",
+            "transformation": "derived OOXML from licensed publisher XML body; no publisher-native Word claim",
+            "paragraph_count": 163
+          },
+          "xml_body_guards": [
+            "Key Guidelines for Responding to Reviewers",
+            "Generally, reviews are bulleted. 23 If two distinct issues are brought up w",
+            "Dergaa I Chamari K Zmijewski P : From human writing to artificial intellige"
+          ]
+        }
+      },
+      "review_requirements": [
+        {
+          "text": "Despite these strengths, there are several areas where the manuscript could be further enhanced by incorporating additional insights and clarifying certain points. I offer the following suggestions based on my personal experience as both an author and a reviewer: Addressing Requests for Non-Citation of Specific Authors in the \"Ambiguous Situations\" Section: It would be beneficial for the manuscript to include guidance on handling situations where reviewers request that specific authors not be cited due to reputational concerns or prior behavior. In such cases, it is vital to determine whether the request pertains to the author as an individual or to the research itself. If the request is directed at the author for personal or ethical reasons, authors should consider contacting the editor privately to discuss the best course of action. This scenario is increasingly relevant in light of the growing prominence of post-publication peer review platforms such as PubPeer, where scholars openly critique the work of their peers. This transparency can sometimes lead to contentious situations, where certain researchers may be effectively \"blacklisted\" due to their public critiques. Addressing this issue would provide authors with a clearer understanding of how to manage such delicate situations. Incorporating a Practice of Acknowledging Reviewers in the \"Express Gratitude Again\" Section: The manuscript could be further enriched by suggesting the inclusion of reviewers in the acknowledgements section of the article when their feedback has substantially contributed to improving the manuscript. Beyond thanking reviewers in the response letter, a formal mention in the acknowledgements section demonstrates the authors’ appreciation for the constructive role reviewers play in refining scholarly work. This practice not only fosters goodwill but also acknowledges the often-overlooked labor of peer reviewers who contribute to the advancement of knowledge through their insights. Highlighting the Issue of Plagiarism of Reviewers' Comments: An additional point worth addressing is the problematic practice of directly copying and pasting reviewers' comments into the manuscript. This practice may be viewed as a lack of originality and could raise concerns regarding academic integrity. It is advisable that if reviewers' comments provide valuable suggestions for improvement, these ideas should be paraphrased and integrated into the manuscript in the authors’ own words. An extreme example can be drawn from my own experience, where authors copied nearly a full page of my comments verbatim to create a new \"Limitations\" section in a paper published by a “gray” publisher. Emphasizing the importance of originality in incorporating reviewer feedback would help maintain the scholarly standards of the work. Reducing Redundancies and Repetition for Greater Clarity: While the manuscript provides many useful insights, there are instances where certain points, such as those concerning professionalism and the manner of responding to reviewers, are repeated multiple times throughout the text. Streamlining these sections by consolidating similar points would help reduce redundancies and improve the overall flow of the manuscript, making it more concise and engaging for the reader. To sum up, this manuscript is a highly valuable resource for authors seeking to effectively navigate the peer review process. The incorporation of the suggested improvements would further enhance its comprehensiveness and clarity, ensuring that it continues to serve as a practical guide for both new and experienced researchers.",
+          "doi": "10.5256/f1000research.169662.r316498",
+          "source_url": "https://doi.org/10.5256/f1000research.169662.r316498",
+          "license_url": "https://creativecommons.org/licenses/by/4.0/",
+          "credit": "Maddi Abdelghani",
+          "paragraph_index": 3
+        },
+        {
+          "text": "However, in Ethical consideration: this section could be strengthened by referencing specific guidelines or policies that journals or organizations like COPE (Committee on Publication Ethics) have in place to handle such situations. This would give authors a clearer path to follow.",
+          "doi": "10.5256/f1000research.169662.r316507",
+          "source_url": "https://doi.org/10.5256/f1000research.169662.r316507",
+          "license_url": "https://creativecommons.org/licenses/by/4.0/",
+          "credit": "Khaled Meghit Boumediene",
+          "paragraph_index": 13
+        },
+        {
+          "text": "Moreover, it provides valuable, practical advice for authors dealing with the peer review process. It balances the need to respect both reviewers' suggestions and the authors' original vision, while also emphasizing the importance of organization and clarity in presenting revisions. Some improvements could be made by simplifying certain recommendations, providing clearer guidance on seeking editorial approval, and streamlining references.",
+          "doi": "10.5256/f1000research.169662.r316507",
+          "source_url": "https://doi.org/10.5256/f1000research.169662.r316507",
+          "license_url": "https://creativecommons.org/licenses/by/4.0/",
+          "credit": "Khaled Meghit Boumediene",
+          "paragraph_index": 16
+        }
+      ],
+      "response": {
+        "path": "evals/public_revisions/13-921/author-revision-note.docx",
+        "sha256": "2064ec798811318e62f4f74e18da5a15cb7f0930cf0980b97ba8d529c1b0692d",
+        "source_url": "https://f1000research.com/articles/13-921/v2/xml",
+        "source_element": "article sec[sec-type=version-changes]",
+        "license_url": "https://creativecommons.org/licenses/by/4.0/",
+        "scope": "published_author_revision_note_excerpt",
+        "transformation": "licensed article revision note converted to DOCX; not a complete rebuttal letter",
+        "text": "Our paper was approved by both reviewers. The second reviewer identified four areas where our manuscript could be strengthened by incorporating additional insights and clarifying certain points. We carefully considered the reviewer's suggestions and have revised our paper accordingly. Specific revisions include: 1. Addressing requests for non-citation of specific authors: We have addressed any requests to avoid citing certain authors due to reputational concerns or previous behavior. 2. Incorporating reviewer acknowledgements: We have included a section in the acknowledgements to formally recognize the valuable contributions of the reviewers. 3. Highlighting the issue of plagiarism: We have emphasized the importance of avoiding plagiarism of reviewers' comments and ensured that all feedback is integrated into the manuscript in authors' own words. 4. Reducing redundancies and repetition: We have carefully reviewed the manuscript for redundancies and repetition, making necessary revisions to improve clarity and conciseness. In addition to these revisions, we have: 1. Added three new references to support our arguments. 2. Improved Table 1 to enhance its clarity and relevance. 3. Acknowledged the reviewers in the acknowledgements section. We believe that these revisions have significantly strengthened our manuscript and addressed the reviewer's comments effectively."
+      }
+    },
+    {
+      "id": "13-6",
+      "article_url": "https://f1000research.com/articles/13-6",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "versions": {
+        "1": {
+          "doi": "10.12688/f1000research.143013.1",
+          "title": "An international, cross-sectional survey of preprint attitudes among biomedical researchers",
+          "authors": [
+            "Ng Jeremy Y.",
+            "Chow Valerie",
+            "Santoro Lucas J.",
+            "Armond Anna Catharina Vieira",
+            "Pirshahid Sanam Ebrahimzadeh",
+            "Cobey Kelly D.",
+            "Moher David"
+          ],
+          "publisher_pdf_url": "https://f1000research.com/articles/13-6/v1/pdf",
+          "publisher_xml_url": "https://f1000research.com/articles/13-6/v1/xml",
+          "publisher_pdf_sha256": "e87dafa1f85c92eb4a12450c9bc3cbeddf5583561ae61ba47f49128b8fb10e04",
+          "publisher_xml_sha256": "d681ef0ac88be071468e5956ba042f7bd15717ea139a784216b8a8fff50251c9",
+          "original_page_count": 23,
+          "article_page_count": 14,
+          "body_first_page": 3,
+          "pdf": {
+            "path": "evals/public_revisions/13-6/v1.pdf",
+            "sha256": "79a344e26282b51056f7739a7848861e45cc87704ef963c93cc6b44361fe8c2a",
+            "transformation": "article-page excerpt without retypesetting; interactive annotations removed; appended reports/comments excluded"
+          },
+          "docx": {
+            "path": "evals/public_revisions/13-6/v1.docx",
+            "sha256": "4433d0966d43636151bb6f4621fc526d3b824f69b866a5713fabec664577e9fd",
+            "transformation": "derived OOXML from licensed publisher XML body; no publisher-native Word claim",
+            "paragraph_count": 295
+          },
+          "xml_body_guards": [
+            "An international, cross-sectional survey of preprint attitudes among biomed",
+            "Other (please specify)",
+            "McKiernan EC Schimanski LA Muñoz Nieves C : Use of the journal impact facto"
+          ]
+        },
+        "2": {
+          "doi": "10.12688/f1000research.143013.2",
+          "title": "An international, cross-sectional survey of preprint attitudes among biomedical researchers",
+          "authors": [
+            "Ng Jeremy Y.",
+            "Chow Valerie",
+            "Santoro Lucas J.",
+            "Armond Anna Catharina Vieira",
+            "Pirshahid Sanam Ebrahimzadeh",
+            "Cobey Kelly D.",
+            "Moher David"
+          ],
+          "publisher_pdf_url": "https://f1000research.com/articles/13-6/v2/pdf",
+          "publisher_xml_url": "https://f1000research.com/articles/13-6/v2/xml",
+          "publisher_pdf_sha256": "becc56cd47cfe8d7899e435eb38cecb060b84e43753a787b96efa4ba8622c0e7",
+          "publisher_xml_sha256": "ee48c32924e7a0848e54dd1eee225b66371a84311283c48a9eeffac7915b02b0",
+          "original_page_count": 33,
+          "article_page_count": 15,
+          "body_first_page": 3,
+          "pdf": {
+            "path": "evals/public_revisions/13-6/v2.pdf",
+            "sha256": "8b46fdf9b56dcbd235a9e194d566781c75ad6ddc50173aa0b7571d31907cff1b",
+            "transformation": "article-page excerpt without retypesetting; interactive annotations removed; appended reports/comments excluded"
+          },
+          "docx": {
+            "path": "evals/public_revisions/13-6/v2.docx",
+            "sha256": "2471e7f30c9e6c47f0fafe8104c801050294f01c039937738cbcffcff142f8cf",
+            "transformation": "derived OOXML from licensed publisher XML body; no publisher-native Word claim",
+            "paragraph_count": 302
+          },
+          "xml_body_guards": [
+            "An international, cross-sectional survey of preprint attitudes among biomed",
+            "Third sector (e.g., NGO, non-profit)",
+            "McKiernan EC Schimanski LA Muñoz Nieves C : Use of the journal impact facto"
+          ]
+        }
+      },
+      "review_requirements": [
+        {
+          "text": "This pre-registered cross-sectional online survey study ( https://doi.org/10.17605/OSF.IO/QA9GN) aims to assess biomedical researchers' attitudes towards preprinting as well as the factors, incentives and motivations that affect their opinions or decisions about preprints. Factors such as scientific journal policies, co-author consensus, lead author consensus, funding agency policies, and employers or host research institute perspectives were considered. The scientific questions posed by the authors are important in understanding the behavior of biomedical scientists in authoring, searching, accessing, reading, reviewing, citing, accepting or rejecting the evidence presented in preprints. The survey includes demographics, scientific publishing, preprint and peer review related questions. The collected survey data suggested a significant degree of familiarity with the preprint concept in biomedical scientific communication, viewing or downloading a preprint. However, the participants exhibited limited previous preprint contributions and lack of willingness to contribute or cite one in the future. Also, only a handful of the responders have participated in peer reviewing of preprints.",
+          "doi": "10.5256/f1000research.156628.r280674",
+          "source_url": "https://doi.org/10.5256/f1000research.156628.r280674",
+          "license_url": "https://creativecommons.org/licenses/by/4.0/",
+          "credit": "Chaleplioglou Artemis",
+          "paragraph_index": 0
+        },
+        {
+          "text": "Specific comments and suggestions are enumerated below: Methods section open science statement offers a reference link for the OSF datafiles. Please also provide a reference link for the MedRxiv preprint. The first paragraph of the introduction includes two parenthetical references to https://asapbio.org. With another instance in the third paragraph of the discussion. Additional context clues this reference in the discussion indicate that the proper citation should be made the ASAPbio blog page from 2020-07-27 available here: https://asapbio.org/biopreprints2020-survey-initial-results. All ASAPbio citations should be updated to formally appear in the reference list with their direct blog links. The references in the introduction do not offer enough information to track down the intended citations but should be updated to the appropriate reference information as well. A fourth orphaned ASAPbio reference is also made in the second paragraph of the “External Factors…” section of the discussion. Final sentence of the Methods paragraph on Participant Recruitment predicts a 10% response rate. Since this is remarkably different the that 3.2% response rate, I wonder if the authors could provide any justification or rationale for the 10% prediction. Was this estimate based on similar author-response studies? Length/survey presentation/etc. Citations supporting this estimate would be appreciated for further research and study design. I was confused by the inclusion of ResearchGate as a common preprint server to view/download preprints as presented in the Discussion section on Viewing/downloading preprints. Did 20.53% of respondents think downloading articles from ResearchGate equated to engaging with preprints? What about those cases where ResearchGate allows for downloading of the final publisher version? Can additional context around this survey question be provided to indicate how respondents thought ResearchGate related to preprints? I think to present it primarily as preprint server is a very concerning misunderstanding of the ResearchGate platform. I was startled by the data presented in Table 2 and I do not think the introduction appropriately framed the issue of mandating peer review in the preprinting process as something that would even be asked in such a survey. When the first sentence of the manuscript offers a definition of preprint as something “which has not yet undergone formal peer review” the survey question of mandating peer-review become incongruous with the definition of what is being studied. Similarly, if authors wish to present trust in peer-review as a key takeaway of the survey results, concerns around peer-review, and the role of preprints as one possible alternative, would be better introduced in the introduction of the manuscript. Table 3 respondent column should be presented as a percentage of the total responses for that question, as provided in all other figures. The first paragraph of the discussion presents three main findings of the study that fear of misinformation, lack of peer review, and unsupportive journal policies were the most impactful preventative factors against preprinting. I am not convinced this is an appropriate representation of the data. While the first two points may indeed be primary concerns, I think unsupportive journal policies is an overstatement of the presented data which instead highlights respondents lack of awareness around journal policies and policy tools. While Figure 1 does show Journal Policy to be a more significant influence on choose to preprint than other factors, Figure 2 highlights that over 50% of authors aren’t familiar with journal policies at all or don’t remember the journal policies towards preprints for their last submissions. These data seem to support a lack of awareness on the part of the author, and not unsupportive journals. In fact, only 5% of authors are shown to be aware that their last journal for submission prohibited preprinting. The lack of author awareness is further discussed in the seventh paragraph of the discussion but the summarizing of this as “unsupportive journal policies” needs further justification. Relatedly, please add reference(s) to the claims that “most, but not all, life science journals accept preprinted manuscripts for submission” as this should be a key point of context.",
+          "doi": "10.5256/f1000research.156628.r291988",
+          "source_url": "https://doi.org/10.5256/f1000research.156628.r291988",
+          "license_url": "https://creativecommons.org/licenses/by/4.0/",
+          "credit": "Powell Kimberly",
+          "paragraph_index": 2
+        },
+        {
+          "text": "The predominant concern is about the first step of the random selection of journals from MEDLINE database (ncbijournals[All Fields]). Only a fraction of 12.5% of this list represents PubMed indexed journals (currentlyindexed[All Fields]). On top, in MEDLINE database catalog in addition to scientific journals there are other types of serial publications as well such as conference proceedings or workshops. It is not clear whether an additional screening was performed to ensure that only journals were included in the study. The odds of randomly picking a PubMed, Web of Science or SCImago indexed journal from this catalog appear to be pretty low. The odds may be even lower to pick high impact journals from the list. For this reason, it will add significantly if the authors provide the list of the journals or serial publications used in the survey as a supplement. This is also important because some journals actively support the submission to preprint servers whilst they implement preprint scooping-protection policies ( https://doi.org/10.1371/journal.pbio.3002502). The attitudes of the responders over preprints could be affected by the journals they published. Besides, the presentation of the randomly selected journals is important to ensure reproducibility.",
+          "doi": "10.5256/f1000research.156628.r280674",
+          "source_url": "https://doi.org/10.5256/f1000research.156628.r280674",
+          "license_url": "https://creativecommons.org/licenses/by/4.0/",
+          "credit": "Chaleplioglou Artemis",
+          "paragraph_index": 4
+        }
+      ],
+      "response": {
+        "path": "evals/public_revisions/13-6/author-revision-note.docx",
+        "sha256": "8c233eefac58112306962020a7b3c1ee31091d20a08ce1e732c339aef2cfccdd",
+        "source_url": "https://f1000research.com/articles/13-6/v2/xml",
+        "source_element": "article sec[sec-type=version-changes]",
+        "license_url": "https://creativecommons.org/licenses/by/4.0/",
+        "scope": "published_author_revision_note_excerpt",
+        "transformation": "licensed article revision note converted to DOCX; not a complete rebuttal letter",
+        "text": "The title of the manuscript remained unchanged. However, the abstract has been updated to provide a more neutral framing of the study, ensuring that the discussion of preprints and peer review is balanced and supported by the study data, rather than presenting a preconceived notion in favor of preprinting. Regarding the author list, no changes were required. In the methods section, we revised the sampling framework to address concerns about journal selection. We clarified the use of filters from the NLM catalog to ensure that only journal entries were included, and provided a list of the 400 journals used as supplementary data. Additional clarifications were made regarding the expected response rate, citing literature to support our initial prediction and addressing the reviewer’s request for more context on ResearchGate's inclusion as a preprint platform. We also added a reference for the MedRxiv preprint and revised citations to conform with F1000Research’s citation guidelines for web links. In the results section, Table 3 has been updated to include percentages, improving the consistency of data presentation across all tables. Moreover, we re-emphasized the unfamiliarity of journal policies regarding preprints, rather than attributing the lack of preprinting behavior solely to unsupportive journal policies, as initially suggested. Lastly, in the discussion, we addressed concerns about the framing of peer review and preprints. Changes were made to the introduction and background to better contextualize the survey results, highlighting concerns around peer review and preprinting in a balanced manner. The strengths and limitations section was also updated to reflect limitations regarding the dominance of clinical researchers in the sample."
+      }
+    }
+  ]
+}

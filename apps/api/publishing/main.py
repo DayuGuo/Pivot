@@ -26,6 +26,7 @@ from .domain.document_imports import router as document_import_router
 from .domain.dossier_chat import router as dossier_chat_router
 from .domain.dossiers import router as dossier_router
 from .domain.evaluations import router as evaluation_router
+from .domain.formal_documents import router as formal_document_router
 from .domain.guidance import router as guidance_router
 from .editorial_chat import router as editorial_chat_router
 from .editorial_demo import router as editorial_demo_router
@@ -48,6 +49,7 @@ app.include_router(claim_review_router)
 app.include_router(claim_evaluation_router)
 app.include_router(evaluation_router)
 app.include_router(guidance_router)
+app.include_router(formal_document_router)
 app.include_router(document_import_router)
 app.include_router(mail_router)
 app.include_router(editorial_demo_router)

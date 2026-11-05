@@ -426,6 +426,10 @@ def verify_version_files(db: Session, version: ManuscriptVersion):
             raise HTTPException(409, "附件丢失或校验失败，请重新上传后审核") from None
         if len(content) != blob.byte_size or hashlib.sha256(content).hexdigest() != blob.sha256:
             raise HTTPException(409, "附件内容已变化，请重新上传后审核")
+    from .formal_document_sources import origin_for
+
+    for link, _ in pairs:
+        origin_for(db, link)
 
 
 def form_draft(db: Session, manuscript: Manuscript, version: ManuscriptVersion):

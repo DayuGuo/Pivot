@@ -27,6 +27,25 @@ async function fixtures(page: Page) {
   });
 }
 
+test("UI fixture: 修回后续批次只填草稿，原件页码受控定位，历史不继续", async ({page})=>{
+ await fixtures(page);
+ const fileID="40000000-0000-4000-8000-000000000001";
+ const report={schema:"revision-comparison.v1",provider:"deepseek",base_version_id:"old-ui-version",revised_version_id:"accepted-ui-version",workflow_revision:1,point_count:10,point_offset:0,next_offset:8,all_points_included:false,rereview_required:false,coverage:{response:{read_characters:100,total_characters:100,complete:true,source_complete:false}},rows:[{point_id:"P01",status:"uncertain",reason:"合成界面夹具：仅验证原文定位和继续按钮，不作科学判断。",point:{text:"合成待核对要求",label:"已分享意见1",complete:true},citations:[{kind:"revised",version_no:2,quote:"合成原件的逐字引文。",line_start:2,line_end:2,sha256:"a".repeat(64),original:{filename:"合成稿.pdf",sha256:"b".repeat(64),download_url:`/api/publishing/files/${fileID}/original`,locations:[{kind:"pdf_page",number:3,quote:"合成原件的逐字引文。"}]}}]}]};
+ await page.route("**/api/publishing/chat*", route=>route.fulfill({json:{messages:[{...message("revision-ui","合成修回对照"),revision_comparison:report}]}}));
+ let posts=0;page.on('request',r=>{if(r.method()==='POST')posts++;});
+ await page.goto(`/publishing?manuscript=${MID}`);
+ const panel=page.getByRole('region',{name:'修回逐项对照',exact:true});
+ await expect(panel.getByText('AI辅助判断，仍须负责人核对',{exact:false})).toBeVisible();
+ await panel.getByText('核对原文依据（1）',{exact:true}).click();
+ await expect(panel.getByRole('link',{name:'PDF 第3页',exact:true})).toHaveAttribute('href',`/api/publishing/files/${fileID}/original#page=3`);
+ const composer=page.getByLabel('向出版助手发送消息',{exact:true});await composer.fill('保留已有问题');
+ await panel.getByRole('button',{name:'继续核对剩余意见（2）',exact:true}).click();
+ await expect(composer).toHaveValue(/^保留已有问题\n\n请从第9项开始/);expect(posts).toBe(0);
+ await page.getByLabel('外观',{exact:true}).selectOption('dark');await panel.scrollIntoViewIfNeeded();await page.screenshot({path:test.info().outputPath('revision-original-dark.png')});
+ await page.route(`**/api/publishing/manuscripts/${MID}`,route=>route.fulfill({json:{...detail,revision:2}}));
+ await page.reload();await expect(panel.getByText('历史对照：',{exact:false})).toBeVisible();await expect(panel.getByRole('button',{name:'继续核对剩余意见（2）',exact:true})).toHaveCount(0);
+});
+
 for (const order of ["history-last", "post-last"] as const) {
   test(`UI fixture: 历史与新回合双向合并且去重 ${order}`, async ({ page }) => {
     await fixtures(page); const history = gate(); const post = gate(); let posts = 0;

@@ -10,6 +10,7 @@ from . import core
 from .decision_models import DecisionReportRelease, EditorialDecision, RevisionRequest
 from .dossier_evidence import credential_like
 from .files import FileValidationError, read_bytes
+from .formal_document_sources import origin_for
 from .models import FileObject, ManuscriptVersion, VersionFile
 
 
@@ -20,7 +21,7 @@ def comparison_requested(message):
     )
 
 
-def point_spans(text):
+def legacy_point_spans(text):
     starts = [0] + [m.end() for m in re.finditer(r"\n\s*\n|\n(?=\s*(?:\d+[.)、]|[-*•]\s))", text)]
     for i, start in enumerate(starts):
         end = starts[i + 1] if i + 1 < len(starts) else len(text)
@@ -32,7 +33,29 @@ def point_spans(text):
         yield start, min(start + len(value), start + 1200), value[:1200], len(value) <= 1200
 
 
-def load_revision(db, actor, mid, expected_version=None):
+def point_spans(text):
+    """Cover long original paragraphs without losing their tail or certifying fragments."""
+    for start, _, _, complete in legacy_point_spans(text):
+        # Locate the original paragraph boundary using the same frozen split rule.
+        boundary = re.search(r"\n\s*\n|\n(?=\s*(?:\d+[.)、]|[-*•]\s))", text[start:])
+        end = start + boundary.start() if boundary else len(text)
+        whole = text[start:end].rstrip()
+        for offset in range(0, len(whole), 1200):
+            part = whole[offset : offset + 1200]
+            yield start + offset, start + offset + len(part), part, complete
+
+
+def comparison_offset(message):
+    matches = list(re.finditer(r"(?:^|\n)\s*请?从第\s*(\d+)\s*项", message))
+    if not matches:
+        return 0
+    value = matches[-1].group(1)
+    if len(value) > 6:
+        raise HTTPException(422, "起始意见超出本次实际要求范围")
+    return int(value) - 1
+
+
+def load_revision(db, actor, mid, expected_version=None, *, offset=0):
     manuscript, flow = core.load_submission(db, actor, mid)
     owner = manuscript.author_id == actor.user.id
     caps = core.capabilities(db, actor, manuscript)
@@ -128,6 +151,7 @@ def load_revision(db, actor, mid, expected_version=None):
             "version_no": version.version_no,
             "sha256": blob.sha256,
             "text": text,
+            "origin": origin_for(db, link),
         }
     requirements = [
         ("修回要求", request.author_instructions),
@@ -149,36 +173,47 @@ def load_revision(db, actor, mid, expected_version=None):
             value = snapshot.get("answers", {}).get(question["key"])
             if question.get("kind") == "text" and isinstance(value, str) and value.strip():
                 requirements.append((f"已分享意见 {release.ordinal} · {question['label']}", value))
-    points = []
-    for label, text in requirements:
-        for start, end, value, complete in point_spans(text):
-            points.append(
-                {
-                    "id": f"P{len(points) + 1:02d}",
-                    "text": value,
-                    "label": label,
-                    "start": start,
-                    "end": end,
-                    "complete": complete,
-                }
-            )
+
+    def enumerate_points(split):
+        out = []
+        for label, text in requirements:
+            for start, end, value, complete in split(text):
+                out.append(
+                    {
+                        "id": f"P{len(out) + 1:02d}",
+                        "text": value,
+                        "label": label,
+                        "start": start,
+                        "end": end,
+                        "complete": complete,
+                    }
+                )
+        return out
+
+    points = enumerate_points(point_spans)
+    legacy_points = enumerate_points(legacy_point_spans)
     if not points:
         raise HTTPException(409, "没有实际向作者分享的修回要求，不以编辑私密意见要求作者回应")
     if credential_like(
         "\n".join([v["text"] for v in files.values()] + [p["text"] for p in points])
     ):
         raise HTTPException(422, "修回材料含疑似密钥，已阻止发送至模型")
-    fingerprint = core.digest(
-        {
-            "request": request.id,
-            "decision": decision.id,
-            "revision": flow.revision,
-            "versions": [s for _, s in versions],
-            "files": {k: f["sha256"] for k, f in files.items()},
-            "points": points,
-            "requirements_digest": core.digest(requirements),
+    signature = {
+        "request": request.id,
+        "decision": decision.id,
+        "revision": flow.revision,
+        "versions": [s for _, s in versions],
+        "files": {k: f["sha256"] for k, f in files.items()},
+        "points": legacy_points,
+        "requirements_digest": core.digest(requirements),
+    }
+    if any(f["origin"] for f in files.values()):
+        signature["origins"] = {
+            k: f["origin"]["digest"] if f["origin"] else None for k, f in files.items()
         }
-    )
+    fingerprint = core.digest(signature)
+    if not 0 <= offset < len(points):
+        raise HTTPException(422, "起始意见超出本次实际要求范围")
     return {
         "manuscript_id": mid,
         "request_id": request.id,
@@ -187,8 +222,12 @@ def load_revision(db, actor, mid, expected_version=None):
         "revised_version_id": target,
         "rereview_required": request.rereview_required,
         "files": files,
-        "points": points[:8],
+        "points": points[offset : offset + 8],
+        "point_offset": offset,
+        "next_offset": offset + 8 if offset + 8 < len(points) else None,
         "point_count": len(points),
-        "all_points_included": len(points) <= 8 and all(p["complete"] for p in points),
+        "all_points_included": offset == 0
+        and len(points) <= 8
+        and all(p["complete"] for p in points),
         "source_fingerprint": fingerprint,
     }

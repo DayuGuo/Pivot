@@ -17,6 +17,7 @@ heavy_slots = BoundedSemaphore(HEAVY_LIMIT)
 def heavy_path(path):
     return path in {"/api/publishing/chat", "/api/editorial-demo/chat"} or bool(
         re.fullmatch(r"/api/dossiers/[^/]+/(chat|imports)", path)
+        or re.fullmatch(r"/api/publishing/manuscripts/[^/]+/document-imports", path)
     )
 
 

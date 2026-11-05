@@ -1,3 +1,15 @@
+# 当前增量：2026-11-05，spec025开发与验收中
+
+用户明确授权PR #4和#5合并，不在VPS部署。已按顺序合并：#4 ecc884d6d8ab443969bfccecd77e935ee25773ea；#5先改基线为main，再以授权头ce8efc5合并main eae5e2f137fda928751a6601efd4594a277e0f2f。当前开发分支codex/formal-document-revisions，后续新PR不自动合并。原spec023/024未合并记载为历史，已被本次授权解除。
+
+正在打通正式稿件PDF/DOCX提取、独立人工核对及正文范围、正式版本文件绑定、继承来源与修回引文页/段定位。新迁移f59230d88725仅在publishing-os-verification隔离DB回演，新增不可变FormalDocumentImport/Binding两表；可变草稿替换文件时保留历史批准，不把继承来源冒称新负责人确认。主服务与VPS尚未升级，现有数据不改。原件5MiB、全文1MiB、解析子进程/60页等原限制沿用。
+
+先行3API因正式草稿revision从0开始而初版错误要求>=1失败，已按现有合同修复ge0，三项PDF/Word及显式核对回归通过2.23秒。完整verify尚未执行；当前代码和UI仍在迭代，不能宣称完成。
+
+公开研究发现F1000 PDF附加评审/回复，纳入整篇比较可能假报正文完成；本轮明确人审正文页/段范围并保留原件映射。文章/报告许可与网页评论许可分开核对，选择CC BY正文中的作者公开修订说明作真实回复节选，详细网页评论未作为获许可原件归档。已暂存Oath v1/v2、13-921和13-6原生PDF/XML在忽略目录，尚未进入最终语料，仍需逐文件证据和金标准。派生Word必须明确标为格式转换而非出版社原生Word。已知回复节选将标范围不完整，不据此断言作者未回应。
+
+EMAIL_SEND_ENABLED=false，关键决定与邮件仍人类确认。实际证据artifacts/spec025，后续完成后更新本段与spec025交付记录。
+
 # 当前增量：2026-11-05，spec024本机与末版远端验收通过
 
 当前稿件建议栏与正式修回逐项对照已在本机更新。规格见spec024；完整边界/失败修复见[验收报告](docs/development/spec024-review.md)，精确状态见[结果](docs/development/spec024-results.json)。可审查交付[PR #5](https://github.com/DayuGuo/Pivot/pull/5)，新分支codex/contextual-guidance依赖仍未合并的PR #4；两者均未自动合并，不部署VPS。
