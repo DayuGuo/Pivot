@@ -114,3 +114,41 @@ test('确认时权限失败清除原文和勾选；恢复必须重新核对', as
  await expect(page.getByRole('checkbox',{name:'我已核对原件及其来源授权',exact:true})).not.toBeChecked();
  await expect(page.getByRole('button',{name:'确认导入到当前草稿',exact:true})).toBeDisabled();
 });
+
+async function citedUnicodeSource(page:Page){
+ const mid=await start(page);await prepare(page,mid,'docx','synthetic-unicode.docx');
+ const iid=new URL(page.url()).pathname.split('/').at(-1)!;
+ const imported=await(await page.request.get(`/api/publishing/manuscripts/${mid}/document-imports/${iid}`)).json();
+ await page.getByLabel('正文起始段落',{exact:true}).fill('2');await page.getByLabel('正文结束段落',{exact:true}).fill('2');await acknowledge(page);await page.getByRole('button',{name:'确认导入到当前草稿',exact:true}).click();
+ await expect(page.getByLabel('已保存的提取全文',{exact:true})).toHaveValue('第二段：𝛽 和 😀 均须完整保留。');
+ const detail=await(await page.request.get(`/api/publishing/manuscripts/${mid}`)).json(),file=detail.version.files[0];
+ const full='第二段：𝛽 和 😀 均须完整保留。',quote='😀 均须完整保留';const quoteStart=Array.from(full.slice(0,full.indexOf(quote))).length,quoteEnd=quoteStart+Array.from(quote).length;
+ const report={schema:'revision-comparison.v1',provider:'mock',base_version_id:'synthetic-old',revised_version_id:detail.version.id,workflow_revision:detail.revision,point_count:1,all_points_included:true,rereview_required:false,coverage:{revised:{read_characters:Array.from(full).length,total_characters:Array.from(full).length,complete:true}},rows:[{point_id:'P01',status:'uncertain',reason:'合成浏览器夹具，仅验证实际导入原文的定位，不作科学判断。',point:{text:'合成核对要求',label:'合成界面验收',complete:true},citations:[{kind:'revised',file_id:file.id,start:quoteStart,end:quoteEnd,version_no:1,quote,line_start:1,line_end:1,sha256:file.sha256,original:{filename:'synthetic-unicode.docx',sha256:imported.sha256,download_url:`/api/publishing/files/${file.id}/original`,locations:[{kind:'docx_paragraph',number:2,quote}]}}]}]};
+ await page.route('**/api/publishing/chat*',route=>{expect(route.request().method()).toBe('GET');return route.fulfill({json:{messages:[{id:'synthetic-source-locator',role:'assistant',provider:'mock',created_at:'2026-11-05T00:00:00Z',content:'明确合成原文定位夹具',references:[],tool_receipts:[],action:null,revision_comparison:report}]}});});
+ await page.goto(`/publishing?manuscript=${mid}`);await page.getByText('核对原文依据（1）',{exact:true}).click();
+ return {file,quote};
+}
+
+test('引文定位真实已核对Word全文，高亮Unicode并保留原件下载',async({page})=>{
+ const {quote}=await citedUnicodeSource(page);let posts=0;page.on('request',r=>{if(r.method()==='POST')posts++;});
+ await page.getByRole('button',{name:'定位已核对全文',exact:true}).click();
+ const mark=page.getByLabel('已定位原文引用',{exact:true});await expect(mark).toHaveText(quote);await expect(mark).toBeFocused();
+ await expect(page.getByRole('link',{name:'Word 第2段 · 下载原件',exact:true})).toBeVisible();expect(posts).toBe(0);
+ await page.screenshot({path:test.info().outputPath('word-source-desktop.png')});
+ await page.getByLabel('外观',{exact:true}).selectOption('dark');await page.setViewportSize({width:375,height:812});await mark.scrollIntoViewIfNeeded();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:test.info().outputPath('word-source-mobile-dark.png')});
+});
+
+test('等待原件期间切换身份，迟到的已核对全文不显示',async({page})=>{
+ const {file}=await citedUnicodeSource(page);let release!:()=>void,held=false;const gate=new Promise<void>(resolve=>{release=resolve;});
+ await page.route(`**/api/publishing/files/${file.id}/original`,async route=>{const response=await route.fetch();held=true;await gate;await route.fulfill({response});});
+ await page.getByRole('button',{name:'定位已核对全文',exact:true}).click();await expect.poll(()=>held).toBe(true);
+ const changed=await page.request.post('/api/auth/login',{data:{email:'editor@publishing.test',password:'EditorDemo2026!'}});expect(changed.status()).toBe(200);release();
+ await expect(page.getByRole('alert').filter({hasText:'身份或访问权限已变化'})).toBeVisible();await expect(page.getByLabel('已定位原文引用',{exact:true})).toHaveCount(0);
+});
+
+test('文件字节被篡改，SHA不符不展示引用上下文',async({page})=>{
+ const {file}=await citedUnicodeSource(page);
+ await page.route(`**/api/publishing/files/${file.id}`,route=>route.fulfill({status:200,contentType:'text/plain;charset=utf-8',body:'不是绑定版本的原文。'}));
+ await page.getByRole('button',{name:'定位已核对全文',exact:true}).click();
+ await expect(page.getByRole('alert').filter({hasText:'原文校验未通过'})).toBeVisible();await expect(page.getByLabel('已定位原文引用',{exact:true})).toHaveCount(0);
+});

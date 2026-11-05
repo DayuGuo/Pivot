@@ -42,3 +42,5 @@
 登记评价增量spec023：evaluation_models定义两表；evaluation_sources组合原件/全文/引文材料，v1导出与v2登记共用；evaluation_access只做注册包访问/映射/最新记录；evaluation_protocol纯模板校验和分歧；evaluations组合HTTP与网关。前端evaluation-overview按需加载登记/汇总，evaluation-review位于独立路由右栏，中央对话持续可见；evaluation-types明确协议，requireLibrarySession复用会话前置检查。没有把独立评价回传并入ClaimReview或正式同行评审。
 
 正式文档增量spec025：formal_document_models定义两表；formal_document_sources验证原件/提取/继承链并提供来源，formal_documents仅组合HTTP与Action Gateway。packages/document_ingest/locations为无DB的精确原文映射；revision_sources读取正式版本/作者可见要求，revision_compare保持无数据库动作权限。frontend formal-documents包含上传、待核对分页与独立核对三个组件，复用正式workspace/常驻对话；路由保留稿件和导入ID。evals/public_revisions的build/workflow/live是开发验收工具，不进入生产镜像，不获得邮件/关键决定模型工具。
+
+原文内联定位：assistant/citation-source只做受控GET、原件/已核对文本双SHA及Unicode位置校验，载入前后核对用户/期刊/角色，卸载取消迟到响应。只读片段不进入浏览器存储，不调用模型、不确认业务；保留原件下载，PDF另有原页码链接。
