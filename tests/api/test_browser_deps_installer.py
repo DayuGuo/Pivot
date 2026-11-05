@@ -32,16 +32,15 @@ exit "${statuses[count - 1]:-0}"
     cli.chmod(0o755)
     fake_bin = tmp_path / "bin"
     fake_bin.mkdir()
-    timeout = fake_bin / "timeout"
-    timeout.write_text(
+    node = fake_bin / "node"
+    node.write_text(
         """#!/usr/bin/env bash
 set -eu
-counter="$TASK_FIXTURE_ROOT/timeout-count"
+counter="$TASK_FIXTURE_ROOT/node-count"
 count=0; [[ ! -f "$counter" ]] || read -r count < "$counter"
 count=$((count + 1)); echo "$count" > "$counter"
-echo "$*" >> "$TASK_FIXTURE_ROOT/timeout-arguments"
-[[ "$1" == --signal=TERM && "$2" == --kill-after=15s && "$3" == 300s ]]
-shift 3
+echo "$*" >> "$TASK_FIXTURE_ROOT/node-arguments"
+[[ "$1" == "$TASK_FIXTURE_ROOT/node_modules/.bin/playwright" ]]
 if [[ "${TASK_FIXTURE_TIMEOUT:-}" == all || "${TASK_FIXTURE_TIMEOUT:-}" == "$count" ]]; then
   echo "simulated timeout $count" >&2
   exit 124
@@ -49,14 +48,28 @@ fi
 exec "$@"
 """
     )
-    timeout.chmod(0o755)
+    node.chmod(0o755)
+    identity = fake_bin / "id"
+    identity.write_text('#!/usr/bin/env bash\n[[ "$1" == -u ]]\necho "$TASK_FIXTURE_UID"\n')
+    identity.chmod(0o755)
+    sudo = fake_bin / "sudo"
+    sudo.write_text(
+        """#!/usr/bin/env bash
+set -eu
+printf '%s\\0' "$@" >> "$TASK_FIXTURE_ROOT/sudo-arguments"
+[[ "$1" == -n ]]; shift
+# Intentionally no privilege change: test the command boundary, not root access.
+exec "$@"
+"""
+    )
+    sudo.chmod(0o755)
     sleep = fake_bin / "sleep"
     sleep.write_text(
         '#!/usr/bin/env bash\nset -eu\necho "$*" >> "$TASK_FIXTURE_ROOT/sleep-arguments"\n'
     )
     sleep.chmod(0o755)
 
-    def run(statuses="0", timeout=""):
+    def run(statuses="0", timeout="", uid="1000"):
         # A minimal environment prevents unrelated developer/provider configuration
         # from entering this offline installer fixture.
         return subprocess.run(
@@ -67,6 +80,7 @@ exec "$@"
                 "TASK_FIXTURE_ROOT": str(tmp_path),
                 "TASK_FIXTURE_STATUSES": statuses,
                 "TASK_FIXTURE_TIMEOUT": timeout,
+                "TASK_FIXTURE_UID": uid,
             },
             capture_output=True,
             text=True,
@@ -103,7 +117,7 @@ def test_timeout_is_bounded_retried_and_never_hidden(installer, timeout, expecte
     root, run = installer
     result = run(timeout=timeout)
     assert result.returncode == expected
-    assert (root / "timeout-count").read_text().strip() == "2"
+    assert (root / "node-count").read_text().strip() == "2"
     assert "simulated timeout 1" in (root / "artifacts/browser-deps/attempt-1.log").read_text()
     assert "failed with status 124" in result.stderr
     if expected == 124:
@@ -115,5 +129,31 @@ def test_missing_local_cli_does_not_fetch_or_succeed(installer):
     (root / "node_modules/.bin/playwright").unlink()
     result = run()
     assert result.returncode == 2
-    assert not (root / "timeout-count").exists()
+    assert not (root / "node-count").exists()
     assert not (root / "artifacts/browser-deps").exists()
+
+
+def test_nonroot_elevates_timeout_before_node_and_retains_all_engines(installer):
+    root, run = installer
+    assert run().returncode == 0
+    arguments = (root / "sudo-arguments").read_bytes().rstrip(b"\x00").split(b"\x00")
+    assert [part.decode() for part in arguments] == [
+        "-n",
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=15s",
+        "300s",
+        str(root / "bin/node"),
+        str(root / "node_modules/.bin/playwright"),
+        "install-deps",
+        "chromium",
+        "firefox",
+        "webkit",
+    ]
+
+
+def test_root_path_does_not_invoke_sudo_or_inherit_env_flags(installer):
+    root, run = installer
+    assert run(uid="0").returncode == 0
+    assert not (root / "sudo-arguments").exists()
+    assert (root / "cli-count").read_text().strip() == "1"

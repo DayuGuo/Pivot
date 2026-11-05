@@ -91,6 +91,7 @@ test("导入 UI：真实上传字节、候选来源核对和人类确认才创�
   await page.getByLabel("题名", { exact: true }).fill("负责人核对后合成题名"); await expect(acknowledge(page)).not.toBeChecked(); await expect(confirm).toBeDisabled();
   await acknowledge(page).check(); await confirm.click(); await expect(page).toHaveURL(new RegExp(`/library\\?dossier=${ID}$`));
   expect(state.confirmBodies).toHaveLength(1); expect(state.confirmBodies[0].acknowledged).toBe(true); expect(state.confirmBodies[0].digest).toBe("e".repeat(64)); expect((state.confirmBodies[0].data as DossierData).title).toBe("负责人核对后合成题名");
+  expect(state.confirmBodies[0].data).not.toHaveProperty("document_metadata");
   await expect(page.getByLabel("题名", { exact: true })).toHaveValue("负责人核对后合成题名"); await expect(page.getByRole("region", { name: "资料内容", exact: true }).getByText("v3 · 已核对", { exact: true })).toBeVisible();
   await page.getByLabel("询问当前资料").fill("请定位原稿方法与作者资料"); await page.getByRole("button", { name: "发送", exact: true }).click();
   await page.getByRole("button", { name: "定位原文：完整正文，v3", exact: true }).click(); await expect(page.locator('mark[aria-label="已定位引用原文"]')).toHaveText(citation(state).quote); await expect(page.getByText(/synthetic-manuscript.pdf · PDF 第 2 页/)).toBeVisible(); await expect(page.getByRole("link", { name: "下载原稿", exact: true })).toHaveAttribute("href", document().download_url); expect(await page.locator("iframe").count()).toBe(0);
@@ -215,4 +216,78 @@ test("首次导入正文也保留已经手工保存的作者元数据", async ({
   await acknowledge(page).check(); await page.getByRole("button", { name: "核对并保存为新版本", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/library\\?dossier=${ID}$`));
   expect((state.confirmBodies[0].data as DossierData).authors).toEqual(manual.authors);
+});
+
+// These routes exercise UI/source protocol only. Real parser extraction and
+// scientific support require separate backend/public-document evaluation.
+async function metadataFixtures(page: Page) {
+  const state = await fixtures(page);
+  const candidates = { article_type: "Research article", funding_statement: "Funding: SYNTHETIC-GRANT-2026.", declarations_text: "Competing interests: No competing interests declared in this synthetic fixture." };
+  const saved = { funding_statement: "负责人此前核对的合成基金 LOCAL-001。", declarations_text: "负责人此前录入的合成声明原文，不代表本人签署。" };
+  const metadataText = Object.values(candidates).join("\n"), extendedText = text + "\n\n" + metadataText;
+  const extendedSegments: DocumentSegment[] = [...segments, { kind: "pdf_page", number: 3, start: points(text) + 2, end: points(extendedText), text: metadataText }];
+  const locate = (quote: string) => points(extendedText.slice(0, extendedText.indexOf(quote)));
+  function current(version = state.confirmed ? NEXT : BASE) {
+    const value = snapshot(state, version);
+    if (version === BASE) value.data.document_metadata = structuredClone(saved);
+    else {
+      value.file = { ...value.file!, text: extendedText, byte_size: Buffer.byteLength(extendedText), sha256: sha(extendedText) };
+      value.document = { ...document(), segments: extendedSegments };
+    }
+    return value;
+  }
+  await page.route(`**/api/dossiers/${ID}`, route => route.fulfill({ json: current() }));
+  await page.route(`**/api/dossiers/${ID}/versions/*`, route => route.fulfill({ json: current(new URL(route.request().url()).pathname.split("/").at(-1)) }));
+  await page.route(`**/api/dossiers/${ID}/imports/${IMPORT}`, route => route.fulfill({ json: {
+    ...imported(state), text: extendedText, segments: extendedSegments,
+    proposed_data: { ...structuredClone(proposal), document_metadata: structuredClone(candidates) },
+    field_sources: Object.entries(candidates).map(([key, value]) => ({ field_path: `document_metadata.${key}`, value, quote: value, start: locate(value), end: locate(value) + points(value), kind: "pdf_page", number: 3 })),
+  } }));
+  await page.route(`**/api/dossiers/${ID}/chat`, async route => {
+    const quote = candidates.funding_statement, start = locate(quote);
+    const ref: Citation = { source_id: "SYNTHETIC-FUNDING", kind: "metadata", quote, source_text: quote, label: "基金原文", version_id: NEXT, version_no: 3, content_digest: current(NEXT).content_digest, file_sha256: null, start: 0, end: points(quote), line_start: null, line_end: null, field_path: "document_metadata.funding_statement", document: { origin_digest: document().origin_digest, sha256: sha(raw), filename: document().filename, media_type: document().media_type, download_url: document().download_url, locations: [{ kind: "pdf_page", number: 3, start, end: start + points(quote) }], source_start: start, source_end: start + points(quote), source_quote: quote } };
+    const response: Message = { id: "synthetic-funding-source", question: route.request().postDataJSON().message, answer: "Mock模拟基金原文定位", provider: "mock", version_id: NEXT, version_no: 3, claims: [{ text: "这份合成稿件记录了所列基金文字，不构成资助真实性认证。", citations: [ref] }], support_review: { schema: "claim-support.v1", method: "mock", evaluated_claims: 1 } };
+    state.messages = [response]; await route.fulfill({ json: response });
+  });
+  return { state, candidates, saved };
+}
+
+test("稿件扩展资料：保留手工基金与声明，空项采用候选，不代签", async ({ page }) => {
+  const { state, candidates, saved } = await metadataFixtures(page);
+  await page.goto(`/library/imports/${IMPORT}?dossier=${ID}`);
+  await page.getByText("文章类型、基金与声明", { exact: true }).click();
+  await expect(page.getByRole("textbox", { name: "文章类型（原文）", exact: true })).toHaveValue(candidates.article_type);
+  await expect(page.getByRole("textbox", { name: "基金原文", exact: true })).toHaveValue(saved.funding_statement);
+  await expect(page.getByRole("textbox", { name: "声明原文（非本人签署）", exact: true })).toHaveValue(saved.declarations_text);
+  const edited = "负责人本次手工修正的合成基金 LOCAL-002。";
+  await page.getByRole("textbox", { name: "基金原文", exact: true }).fill(edited);
+  await acknowledge(page).check(); await page.getByRole("button", { name: "核对并保存为新版本", exact: true }).click();
+  await expect(page).toHaveURL(new RegExp(`/library\\?dossier=${ID}$`));
+  expect((state.confirmBodies[0].data as DossierData).document_metadata).toEqual({ ...saved, article_type: candidates.article_type, funding_statement: edited });
+  await page.getByText("文章类型、基金与声明", { exact: true }).click();
+  await expect(page.getByRole("textbox", { name: "基金原文", exact: true })).toHaveValue(edited);
+});
+
+test("稿件扩展资料：候选与问答逐字定位PDF来源，独立核对展示原文声明", async ({ page }) => {
+  const { state, candidates } = await metadataFixtures(page);
+  await page.goto(`/library/imports/${IMPORT}?dossier=${ID}`);
+  await page.getByRole("button", { name: "使用本次识别结果", exact: true }).click();
+  await page.getByRole("tab", { name: "识别依据", exact: true }).click();
+  await page.getByRole("button", { name: "基金原文 · PDF 第 3 页", exact: true }).click();
+  await expect(page.locator('mark[aria-label="已定位提取依据"]')).toHaveText(candidates.funding_statement);
+  await page.getByRole("tab", { name: "核对表单", exact: true }).click();
+  await acknowledge(page).check(); await page.getByRole("button", { name: "核对并保存为新版本", exact: true }).click();
+  await expect(page).toHaveURL(new RegExp(`/library\\?dossier=${ID}$`));
+  expect((state.confirmBodies[0].data as DossierData).document_metadata).toEqual(candidates);
+  await page.getByLabel("询问当前资料").fill("请定位基金原文，不能把文本当资助认证或本人声明。");
+  await page.getByRole("button", { name: "发送", exact: true }).click();
+  await page.getByRole("button", { name: "定位原文：基金原文，v3", exact: true }).click();
+  await expect(page.locator('mark[aria-label="已定位引用原文"]')).toHaveText(candidates.funding_statement);
+  await expect(page.getByText(/synthetic-manuscript.pdf · PDF 第 3 页/)).toBeVisible();
+  await expect(page.getByText("稿件资料记录，不代表负责人签署声明。", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "返回当前资料", exact: true }).click();
+  await page.getByRole("link", { name: "核对本版资料", exact: true }).click();
+  await page.getByText("文章类型、基金与声明", { exact: true }).click();
+  await expect(page.getByText(candidates.declarations_text, { exact: true })).toBeVisible();
+  await expect(page.getByText("稿件资料记录，不代表负责人签署声明。", { exact: true })).toBeVisible();
 });

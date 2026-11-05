@@ -13,7 +13,7 @@ permissions:
   contents: read
 jobs:
   amd64:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4

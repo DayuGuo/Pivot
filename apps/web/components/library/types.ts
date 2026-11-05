@@ -4,7 +4,8 @@ export type Session = {
   csrf_token: string;
 };
 export type Author = { name: string; email: string; orcid: string | null; affiliations: string[]; corresponding: boolean; contributions?: string[]; source_note: string };
-export type DossierData = { title: string; abstract: string; language: "zh" | "en"; keywords: string[]; authors: Author[]; source_kind: "synthetic" | "public_authorized"; source_note: string };
+export type DocumentMetadata = { article_type?: string; funding_statement?: string; declarations_text?: string };
+export type DossierData = { title: string; abstract: string; language: "zh" | "en"; keywords: string[]; authors: Author[]; source_kind: "synthetic" | "public_authorized"; source_note: string; document_metadata?: DocumentMetadata | null };
 export type DossierItem = { id: string; title: string; revision: number; version_id: string; version_no: number; verified: boolean; updated_at: string };
 export type Citation = {
   source_id: string; kind: "text" | "metadata"; quote: string; source_text: string; label: string;

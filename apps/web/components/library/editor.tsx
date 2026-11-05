@@ -1,6 +1,6 @@
 "use client";
 import { useRef, useState, type FormEvent, type ReactNode } from "react";
-import type { Author, Dossier, DossierData, MetadataIssue, Upload } from "./types";
+import type { Author, DocumentMetadata, Dossier, DossierData, MetadataIssue, Upload } from "./types";
 import { currentAuthorIssues, originalIssueLabel, uncertaintyText } from "./uncertainty";
 import { fieldLabel } from "./import-labels";
 import styles from "./library.module.css";
@@ -19,6 +19,7 @@ export default function DossierEditor({ detail, hidden, busy, saving, onDirty, o
   const completeImport = !!importReview && !importReview.materialOnly;
   function markDirty() { setChanged(true); onDirty(true); }
   function update<K extends keyof DossierData>(key: K, value: DossierData[K]) { setData(previous => ({ ...previous, [key]: value })); markDirty(); }
+  function documentMetadata(key: keyof DocumentMetadata, value: string) { update("document_metadata", { ...(data.document_metadata ?? {}), [key]: value }); }
   function author(index: number, patch: Partial<Author>) { update("authors", data.authors.map((value, position) => position === index ? { ...value, ...patch } : value)); }
   function move(index: number, direction: -1 | 1) { const authors = [...data.authors]; [authors[index], authors[index + direction]] = [authors[index + direction], authors[index]]; update("authors", authors); }
   async function readFile(value: File | undefined) {
@@ -60,6 +61,11 @@ export default function DossierEditor({ detail, hidden, busy, saving, onDirty, o
       <label>题名<input name="title" required={completeImport} minLength={completeImport ? 3 : undefined} autoComplete="off" value={data.title} maxLength={500} onChange={event => update("title", event.target.value)} /></label>
       <label>摘要<textarea name="abstract" required={completeImport} minLength={completeImport ? 40 : undefined} value={data.abstract} maxLength={12000} rows={7} onChange={event => update("abstract", event.target.value)} /></label>
       <div className={styles.fieldPair}><label>语言<select name="language" value={data.language} onChange={event => update("language", event.target.value as "zh" | "en")}><option value="zh">中文</option><option value="en">English</option></select></label><label>关键词<input name="keywords" required={completeImport} autoComplete="off" value={keywords} maxLength={2000} onChange={event => { setKeywords(event.target.value); markDirty(); }} placeholder="用逗号分隔…" /></label></div>
+      <details><summary>文章类型、基金与声明</summary>
+        <label>文章类型（原文）<input name="document-article-type" autoComplete="off" value={data.document_metadata?.article_type ?? ""} maxLength={200} onChange={event => documentMetadata("article_type", event.target.value)} /></label>
+        <label>基金原文<textarea name="document-funding" autoComplete="off" value={data.document_metadata?.funding_statement ?? ""} maxLength={4000} rows={3} onChange={event => documentMetadata("funding_statement", event.target.value)} /></label>
+        <label>声明原文（非本人签署）<textarea name="document-declarations" autoComplete="off" value={data.document_metadata?.declarations_text ?? ""} maxLength={8000} rows={5} onChange={event => documentMetadata("declarations_text", event.target.value)} /></label>
+      </details>
       {!!importIssues?.length && <details className={styles.warning}><summary>{importIssues.length} 项原稿关联需要核对</summary><ul>{importIssues.map((issue, i) => <li key={i}>{originalIssueLabel(issue.field_path, detail.data.authors)} · {fieldLabel(issue.field_path)}：{uncertaintyText(issue.reason)}</li>)}</ul><p>这是导入时的识别结果；编辑表单不会把旧线索变成新的原文依据。</p></details>}
       {!!issues.length && <ul className={styles.warning} aria-label="作者关联提示">{issues.map((issue, i) => <li key={i}>{fieldLabel(issue.field_path)}：{uncertaintyText(issue.reason)}</li>)}</ul>}
       <section className={styles.authors}><div className={styles.sectionHeading}><h2>作者与机构</h2><button type="button" disabled={data.authors.length >= 20} onClick={() => update("authors", [...data.authors, emptyAuthor()])}>添加作者</button></div>

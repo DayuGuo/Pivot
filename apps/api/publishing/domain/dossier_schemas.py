@@ -3,7 +3,7 @@
 from typing import Annotated, Literal
 from uuid import UUID
 
-from pydantic import BeforeValidator, Field
+from pydantic import BeforeValidator, Field, field_validator
 
 from .author_links import author_issues
 from .schemas import AuthorInput, Keyword, StrictInput, _email_format_valid
@@ -11,6 +11,21 @@ from .schemas import AuthorInput, Keyword, StrictInput, _email_format_valid
 
 class DossierAuthor(AuthorInput):
     source_note: str = Field(default="", max_length=1000)
+
+
+class DocumentMetadata(StrictInput):
+    """Verbatim manuscript statements, never signed human declarations."""
+
+    article_type: str = Field(default="", max_length=200, exclude_if=lambda value: not value)
+    funding_statement: str = Field(default="", max_length=4000, exclude_if=lambda value: not value)
+    declarations_text: str = Field(default="", max_length=8000, exclude_if=lambda value: not value)
+
+    @field_validator("article_type", "funding_statement", "declarations_text")
+    @classmethod
+    def no_null_characters(cls, value):
+        if "\x00" in value:
+            raise ValueError("文稿原文字段不能含空字符")
+        return value
 
 
 class DossierData(StrictInput):
@@ -21,6 +36,10 @@ class DossierData(StrictInput):
     authors: list[DossierAuthor] = Field(default_factory=list, max_length=20)
     source_kind: Literal["synthetic", "public_authorized"]
     source_note: str = Field(min_length=5, max_length=2000)
+    # Absent/None/empty extensions must not change historical snapshots or receipts.
+    document_metadata: DocumentMetadata | None = Field(
+        default=None, exclude_if=lambda value: value is None or not value.model_dump()
+    )
 
 
 def require_explicit_true(value):

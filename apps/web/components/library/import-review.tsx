@@ -20,7 +20,7 @@ export default function ImportReview({ imported, detail, busy, onDirty, onConfir
   const [tab, setTab] = useState<(typeof tabs)[number][0]>("fields");
   const [acknowledged, setAcknowledged] = useState(false);
   const [materialOnly, setMaterialOnly] = useState(false);
-  const hasSavedFields = !!detail.file || detail.version_no > 1 || !!(detail.data.title.trim() || detail.data.abstract.trim() || detail.data.authors.length || detail.data.keywords.length);
+  const hasSavedFields = !!detail.file || detail.version_no > 1 || !!(detail.data.title.trim() || detail.data.abstract.trim() || detail.data.authors.length || detail.data.keywords.length || Object.values(detail.data.document_metadata ?? {}).some(value => value?.trim()));
   const [useSaved, setUseSaved] = useState(hasSavedFields);
   const [formEdits, setFormEdits] = useState(false);
   const [formGeneration, setFormGeneration] = useState(0);
@@ -30,6 +30,11 @@ export default function ImportReview({ imported, detail, busy, onDirty, onConfir
   const original = fileDownloadURL(imported.original_download_url);
   const confirmed = imported.confirmed_version_id;
   const editable = imported.editable && !confirmed && detail.revision === imported.base_revision && detail.version_id === imported.base_version_id;
+  const savedMetadata = detail.data.document_metadata, proposedMetadata = imported.proposed_data.document_metadata;
+  const preservedMetadata = savedMetadata || proposedMetadata ? {
+    ...savedMetadata, ...proposedMetadata,
+    ...Object.fromEntries(Object.entries(savedMetadata ?? {}).filter(([, value]) => value?.trim())),
+  } : null;
   const preservedData: DossierData = {
     ...imported.proposed_data,
     title: detail.data.title.trim() ? detail.data.title : imported.proposed_data.title,
@@ -38,6 +43,7 @@ export default function ImportReview({ imported, detail, busy, onDirty, onConfir
     authors: detail.data.authors.length ? detail.data.authors : imported.proposed_data.authors,
     language: detail.version_no > 1 ? detail.data.language : imported.proposed_data.language,
     source_kind: detail.data.source_kind, source_note: detail.data.source_note,
+    ...(preservedMetadata ? { document_metadata: preservedMetadata } : {}),
   };
   const candidate: Dossier = { ...detail, data: useSaved && !confirmed ? preservedData : imported.proposed_data, missing: [] };
   const characters = Array.from(imported.text);

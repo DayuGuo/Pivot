@@ -1,12 +1,16 @@
 # 当前执行：spec027 单刊资料与修回核对候选版
 
-已按用户提供的[执行建议](docs/consultation/Pivot-candidate-execution-brief-2026-11-05.txt)开始实际开发。基线f9a1dbc，隔离分支codex/single-journal-candidate，保留之前未提交的计划与咨询稿；PR #6/#7没有合并，不更新VPS、不发布Release。
+已按用户提供的[执行建议](docs/consultation/Pivot-candidate-execution-brief-2026-11-05.txt)实际开发，草稿[PR #8](https://github.com/DayuGuo/Pivot/pull/8)叠加未合并#7/#6。基线f9a1dbc，分支codex/single-journal-candidate；保留既有改动与历史，不合并、不更新VPS、不发布Release。操作见[指南](docs/development/spec027/operating-guide.md)、[差距](docs/development/spec027/gap-audit.md)和[合同](specs/027-internal-revision-contract.md)。
 
-执行前[差距清单](docs/development/spec027/gap-audit.md)、[数据/权限/接口合同](specs/027-internal-revision-contract.md)已经整理，复用已有领域、原件、证据、网关与比较器。当前在修缺项导入、人工字段保护、资料导出、私人多版本修回及三层人判，并核对低内存入口/候选源码身份/CI安装边界。完整verify、安装升级恢复、真实模型、真机与实际编辑评价分别记录，尚不能据专项通过宣称整个候选阶段已验收。
+已实现缺项材料保存、首次上传前后人工字段保护、精确版本资料导出、私人双版本修回包及三层追加人判。追加可选类型/基金/声明原文，空扩展不改变旧序列化与指纹；声明不代签，候选须有完整有界原文。6篇独立许可论文/42项工程参考及空白编辑评价模板已准备，实际编辑评价仍0人，完整逐点回复信0份。
 
-已实际执行的阶段证据：资料导入与精确版本导出68项通过；私人修回与工作准入29项通过；隔离库已增量到28a7c1e09462且alembic check无漂移。上述集合与之后完整回归重叠，不累加宣传。此前沙盒DB连接拒绝、两条新测试误把合法新增版本也要求零增量、开发中refs lint问题分别保留为环境/夹具/静态修正记录，不冒充通过或内容准确率。
+阶段验证：迁移专项175项；扩展资料/导入/来源/兼容/安装器专项132项24.53秒；三引擎导入/修回专项57项1.4m通过，集合重叠不累加。首次完整1487过/4历史迁移夹具失败已修，第二次1491后端510.54秒/10提醒及262浏览器通过，但WebKit131项均因缺共享库未启动，整体exit1/989.2秒，未当作通过。WebKit专用缓存补官方运行库后实际空白页启动通过；新增完整门禁前置浏览器启动检查。CI两次5ded完整回归卡Ubuntu26镜像下载并超时，均failure而非测试成功；修正特权内部timeout、固定Ubuntu24.04，待最终源码重跑。
 
-日常3100/8100和主库尚未更新；所有当前DB测试仅55433隔离Mock库。EMAIL_SEND_ENABLED=false，负责人确认不变。真实DeepSeek、外部编辑评价和VPS实测本轮尚未执行。
+真实DeepSeek已有合成两版核对/问答6 HTTP、5条精确引用通过；新metadata schema另两次实验共3 HTTP通过，三项原文与限定语保留，无签署/业务确认。实际用量和严格上限见忽略目录artifacts/spec027/live-*.json，后续报告注明准确源码。不得以此宣称真实论文专业准确率或实际编辑节时。
+
+原生amd64的1b37c96和5dedcef候选安装CI已通过；1b实际preview.4升级：48表62行4CAS原样保留，新增7表空，新增核对/人判后55表72行5CAS备份并在新项目恢复完全相同。它们是中间源码，最终扩展字段与CI修正版本仍需完整verify及最终原生包；本机ARM64的1b安装/引用/并发/重启/隔离恢复亦通过，不当作x86或用户VPS实测。
+
+日常3100/8100与主库本轮尚未更新；当前DB测试仅55433隔离Mock库与独立私人包。后续先完成最终门禁，备份且逐表/逐原件核对后再更新本机。EMAIL_SEND_ENABLED=false，负责人确认权不变，用户VPS和公开静态站保持原状。
 
 # 当前增量：2026-11-05，spec026已完成代码逻辑与三浏览器复核
 

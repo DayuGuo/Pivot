@@ -7,7 +7,9 @@ concurrency:
   cancel-in-progress: true
 jobs:
   prototype:
-    runs-on: ubuntu-latest
+    # Keep the browser OS/dependency baseline stable instead of inheriting a
+    # new distribution and mirror when ubuntu-latest advances.
+    runs-on: ubuntu-24.04
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4

@@ -27,6 +27,10 @@
 | `domain/dossiers.py` | 资料HTTP路由与兼容导出 | 组合服务；旧模块导入路径保持可用 |
 | `domain/document_imports.py` | 导入/独立确认接口 | 审批路径、版本、digest和回执重放逐项校验 |
 | `domain/dossier_chat.py` | 只读工具循环和对话接口 | 已发放来源、有限预算、提交前再授权；无危险工具 |
+| `domain/dossier_export.py` | 精确版本的资料与缺项导出 | 当前所有者与原件重验，不导出私人问答/存储路径 |
+| `domain/dossier_revision_models.py` / `dossier_revision_schemas.py` | 私人多版本核对包、三层人判和输入 | 不伪造正式投稿或轮次；模型不写人判 |
+| `domain/dossier_revision_sources.py` | 两版来源、回复SHA、原件与引文 | 无模型/业务变更，历史不得转为当前批准 |
+| `domain/dossier_revisions.py` | 内部核对路由、纯比较器、网关及审计组合 | 复核等待后授权，追加人判/前置头/同UUID恢复 |
 
 路径相对 `apps/api/publishing`。`packages/document_ingest`负责无服务凭据解析；`packages/model_gateway`负责受控传输，不获得业务权限。正式出版的core/stages/reviews/decisions/production仍独立，不为资料整理重写正式状态机或部署管理器。
 
@@ -56,3 +60,7 @@
 | `editorial/reader.tsx` | 阅读位置、笔记与指针/捕获清理 | 不改变稿件文本、原文引用或正式编辑决定 |
 
 后端正式`domain/chat.py`的历史权限复用仅限单次GET；任何模型等待后的检查仍独立查库，不能把这个优化复制成跨请求授权缓存。
+
+spec027前端：`library/revision-check.tsx`维护材料包、三层人工草稿和已知/未知写入恢复，`revision-types.ts`定义协议，`metadata-export.tsx`保护下载前后身份；不把编辑的人判交给对话工具。`scripts/accept-vps-upgrade.py`只在随机隔离项目验证旧版升级与新卷恢复；`build-vps-app.py`绑定实际源码身份，`install-browser-deps.sh`对CI依赖安装设次数/时限，均不操作用户VPS。改变这些边界时运行相应有意义的失败回归，再统一verify。
+
+可选`DocumentMetadata`属于版本data_json中的原文字符串，不是正式DeclarationsInput。空扩展在Pydantic序列化时省略，旧快照/回执不增键；`document_candidates`只接受类型标识和基金/声明完整区块，模型引文与纠正反馈限定实际发送窗口。`dossier_evidence`通用leaf索引、`document_sources`字段值匹配及`dossier_export`统一使用版本来源；前端evidence保留显式可定位字段白名单。新增字段时必须同时检查此白名单、来源和人工改值不能冒领原件的回归。
