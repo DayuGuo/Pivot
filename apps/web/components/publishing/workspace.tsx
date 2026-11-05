@@ -4,7 +4,7 @@ import { requestId as newRequestId, readStorage, writeStorage, withRequestTimeou
 import Link from "next/link";
 import NextSteps from "../assistant/next-steps";
 import RevisionComparisonPanel from "../assistant/revision-comparison";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode, type MouseEvent } from "react";
 import Glyph from "../editorial/icons";
 import type { ChatMessage, Detail, PublishingSession, Workspace } from "./types";
@@ -42,7 +42,7 @@ let memoryTheme = "system";
 function themeSnapshot() { const value = readStorage("localStorage", "publishing-theme") ?? memoryTheme; return value && ["light", "dark", "system"].includes(value) ? value : "system"; }
 
 export default function PublishingWorkspace({ children }: { children: ReactNode }) {
-  const router = useRouter(); const pathname = usePathname(); const search = useSearchParams();
+  const router = useRouter(); const pathname = usePathname(); const search = useSearchParams(); const params = useParams();
   const [session, setSession] = useState<PublishingSession | null>(null);
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [detail, setDetail] = useState<Detail | null>(null);
@@ -56,15 +56,20 @@ export default function PublishingWorkspace({ children }: { children: ReactNode 
   useLayoutEffect(() => { activeScope.current = uiScope; return () => { activeScope.current = null; }; }, [uiScope]);
   const previousIdentity = useRef<string | null>(null);
   const refreshController = useRef<AbortController | null>(null);
-  const selectedId = (pathname.includes("/review/") || pathname.includes("/preview/") || pathname.includes("/document-imports/")) ? reviewContext : search.get("manuscript");
+  // Import routes already name the manuscript. Waiting for a child effect
+  // briefly selects journal chat and can unmount a newly populated file form.
+  // Proposal/preview IDs still require their authorized server DTO context.
+  const selectedId = pathname.includes("/document-imports/") ? (typeof params.manuscriptId === "string" ? params.manuscriptId : null) : (pathname.includes("/review/") || pathname.includes("/preview/")) ? reviewContext : search.get("manuscript");
   const refresh = useCallback(async () => {
+    if (pathname !== window.location.pathname) return;
     refreshController.current?.abort();
     const control = new AbortController(); refreshController.current = control;
     const generation = ++sequence.current;
+    const isCurrent = () => generation === sequence.current && pathname === window.location.pathname;
     let active = true;
     try {
       const nextSession = await fetchJSON<PublishingSession>("/session", { signal: control.signal });
-      if (generation !== sequence.current) return;
+      if (!isCurrent()) return;
       const identity = JSON.stringify([nextSession.journal.id, nextSession.user.id, nextSession.user.role, nextSession.csrf_token]);
       if (previousIdentity.current !== null && previousIdentity.current !== identity) {
         setWorkspace(null); setDetail(null); requests.current.clear(); dirty.current.clear();
@@ -72,20 +77,20 @@ export default function PublishingWorkspace({ children }: { children: ReactNode 
       previousIdentity.current = identity;
       setSession(nextSession);
       const [nextWorkspace, nextDetail] = await Promise.all([
-        fetchJSON<Workspace>("/workspace", { signal: control.signal }).then(value => { if (active && generation === sequence.current) setWorkspace(value); return value; }),
-        (selectedId ? fetchJSON<Detail>(`/manuscripts/${encodeURIComponent(selectedId)}`, { signal: control.signal }) : Promise.resolve(null)).then(value => { if (active && generation === sequence.current) setDetail(value); return value; }),
+        fetchJSON<Workspace>("/workspace", { signal: control.signal }).then(value => { if (active && isCurrent()) setWorkspace(value); return value; }),
+        (selectedId ? fetchJSON<Detail>(`/manuscripts/${encodeURIComponent(selectedId)}`, { signal: control.signal }) : Promise.resolve(null)).then(value => { if (active && isCurrent()) setDetail(value); return value; }),
       ]);
-      if (generation !== sequence.current) return;
+      if (!isCurrent()) return;
       setSession(nextSession); setWorkspace(nextWorkspace); setDetail(nextDetail); setAuthLost(false); setError("");
-    } catch (failure) { active = false; control.abort(); if (generation === sequence.current) {
+    } catch (failure) { active = false; control.abort(); if (isCurrent()) {
       setError((failure as Error).message);
       const denied = failure instanceof APIError && [401, 403].includes(failure.status);
       if (denied) { setWorkspace(null); setDetail(null); requests.current.clear(); dirty.current.clear(); }
       else if (failure instanceof APIError && failure.status === 404) setDetail(null);
       setAuthLost(denied);
     } }
-    finally { if (refreshController.current === control) refreshController.current = null; if (generation === sequence.current) setRefreshing(false); }
-  }, [selectedId]);
+    finally { if (refreshController.current === control) refreshController.current = null; if (isCurrent()) setRefreshing(false); }
+  }, [selectedId, pathname]);
   const latestRefresh = useRef<null | (() => Promise<void>)>(refresh);
   useLayoutEffect(() => { latestRefresh.current = refresh; return () => { latestRefresh.current = null; }; }, [refresh]);
   const refreshCurrent = useCallback(() => latestRefresh.current?.() ?? Promise.resolve(), []);
