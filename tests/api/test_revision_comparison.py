@@ -316,3 +316,11 @@ def test_changed_source_during_comparison_is_not_saved(client, db, revision_case
     response = post(client, "请逐条对照修回与作者回复。", revision_case)
     assert response.status_code == 409, response.text
     assert db.scalar(select(func.count()).select_from(PublishingChatTurn)) == before
+
+
+def test_quoted_author_reply_cannot_be_called_no_response_even_if_model_check_agrees():
+    rows = findings()
+    rows[1]["status"] = "not_addressed"
+    report = revision_compare.compare(synthetic_source(), Supplier(rows), lambda: None, [])
+    assert report["rows"][1]["status"] == "uncertain"
+    assert "初步结论" in report["rows"][1]["reason"]

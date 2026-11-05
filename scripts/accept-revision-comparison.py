@@ -72,7 +72,7 @@ def main():
         original = source()
         report = compare(original, provider, lambda: None, telemetry)
         states = {r["point_id"]: r["status"] for r in report["rows"]}
-        assert len(report["rows"]) == 2 and states["P02"] != "resolved"
+        assert len(report["rows"]) == 2 and states["P02"] in {"partial", "explained", "uncertain"}
         for row in report["rows"]:
             for citation in row["citations"]:
                 text = original["files"][citation["kind"]]["text"]
