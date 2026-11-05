@@ -35,5 +35,5 @@ export async function sha256Bytes(bytes: ArrayBuffer): Promise<string> {
 }
 
 export function warnBeforeUnload(event: BeforeUnloadEvent) {
-  event.preventDefault(); event.returnValue = '';
+  event.preventDefault(); event.returnValue = 'true';
 }
