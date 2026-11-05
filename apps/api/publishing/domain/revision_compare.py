@@ -152,7 +152,8 @@ def evidence_catalog(source, windows):
                             "start": start,
                             "end": start + len(value),
                             "text": value,
-                            "citable": text.find(value) == start and text.find(value, start + 1) == -1,
+                            "citable": text.find(value) == start
+                            and text.find(value, start + 1) == -1,
                         }
                     )
                 cursor = end
