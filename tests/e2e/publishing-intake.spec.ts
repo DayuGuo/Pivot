@@ -223,6 +223,8 @@ test("常驻对话贯通投稿、评审、正式修回、校样与鉴权本地�
   expect(compared.messages[1].revision_comparison.provider).toBe("mock");
   const comparison = editorPage.getByRole("region", { name: "修回逐项对照", exact: true });
   await expect(comparison.getByText("Mock模拟，未作语义判断", { exact: false })).toBeVisible();
+  await expect(comparison.getByText("原稿 v1 → 修订稿 v2", { exact: true })).toBeVisible();
+  await expect(comparison.getByText("历史对照：", { exact: false })).toHaveCount(0);
   await expect(comparison.getByText("证据不足，待核对", { exact: false }).first()).toBeVisible();
   await expect(editorPage.getByLabel("修回复核结果", { exact: true })).toHaveValue("");
   await editorPage.reload();
@@ -238,6 +240,7 @@ test("常驻对话贯通投稿、评审、正式修回、校样与鉴权本地�
   await editorPage.getByRole("checkbox", { name: "我已人工阅读本次修回说明", exact: true }).check();
   await prepareEditorial(editorPage, mid, "assess_revision");
   await approve(editorPage, "确认复核并进入编辑建议");
+  await expect(editorPage.getByRole("region", { name: "修回逐项对照", exact: true }).getByText("历史对照：", { exact: false })).toBeVisible();
   await expect(editorPage.getByLabel("编辑建议", { exact: true })).toHaveValue("");
   await editorPage.getByLabel("编辑建议", { exact: true }).selectOption("accept");
   await editorPage.getByLabel("内部决定依据", { exact: true }).fill("PRIVATE-E-ACCEPT-RECOMMENDATION：V2已完成正式小修并由责任编辑复核，现依据同一固定评审轮与有效修回链建议录用。");
