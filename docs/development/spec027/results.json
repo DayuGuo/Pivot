@@ -1,0 +1,515 @@
+{
+  "schema": "spec027-results.v1",
+  "status": "engineering_candidate_verified_external_trial_pending",
+  "runtime_source": "3307df676cc64a84c0ab6a591f66c2e9d2901582",
+  "base_source": "f9a1dbca2378a91fc25e5ae9573208893ee2b1ed",
+  "pull_request": 8,
+  "depends_on_pull_requests": [
+    6,
+    7
+  ],
+  "merge_performed": false,
+  "release_published": false,
+  "vps_updated": false,
+  "public_demo_updated": false,
+  "data_contract": {
+    "migration": "28a7c1e09462",
+    "parent": "f59230d88725",
+    "new_tables": 2,
+    "new_fields": 27,
+    "old_tables_altered": false,
+    "optional_metadata": "data_json; empty extension serialization and old receipt fingerprints unchanged"
+  },
+  "targeted": {
+    "migration_fixtures": {
+      "passed": 175,
+      "warnings": 6,
+      "seconds": 118.11,
+      "evidence": "artifacts/spec027/migration-fixtures.xml"
+    },
+    "metadata_import_export_installer": {
+      "passed": 132,
+      "warnings": 1,
+      "seconds": 24.53,
+      "evidence": "artifacts/spec027/metadata-final.xml"
+    },
+    "browser_import_revision": {
+      "passed": 57,
+      "engines": 3,
+      "minutes": 1.4,
+      "evidence": "artifacts/spec027/metadata-browser.log"
+    },
+    "impeccable_findings": 0,
+    "sets_overlap": true
+  },
+  "complete_verify": {
+    "status": "completed",
+    "source": "3307df676cc64a84c0ab6a591f66c2e9d2901582",
+    "command": "scripts/verify.sh",
+    "log": "artifacts/spec027/verify-final.log",
+    "exit_receipt": "artifacts/spec027/verify-final-exit.json",
+    "backend": {
+      "passed": 1530,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 10,
+      "seconds": 474.58
+    },
+    "exit_code": 0,
+    "seconds": 1246.54,
+    "browser": {
+      "passed": 399,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0,
+      "minutes": 12.2,
+      "per_engine": {
+        "chromium": 133,
+        "firefox": 133,
+        "webkit": 133
+      }
+    },
+    "static_checks": "passed",
+    "migration_check": "no new upgrade operations",
+    "build_and_start": "passed",
+    "logs_actual_built_application": true
+  },
+  "previous_full_attempts": [
+    {
+      "source": "1b37c96b49186ae23c40db1614f923a962ec72b5",
+      "exit_code": 1,
+      "backend_passed": 1487,
+      "backend_failed": 4,
+      "reason": "historical migration fixtures omitted newly registered models; fixed full-chain zero-drift fixtures",
+      "evidence": "artifacts/spec027/verify-first.log"
+    },
+    {
+      "backend_source": "c0f44dc3a8445422cbe6419669ad063ddd700a4d",
+      "frontend_source": "5dedcef0b6b24d1ecc6a5ec7ef4a140ae7758dac",
+      "exit_code": 1,
+      "seconds": 989.2,
+      "backend_passed": 1491,
+      "backend_warnings": 10,
+      "backend_seconds": 510.54,
+      "browser_passed": 262,
+      "browser_failed_to_launch": 131,
+      "reason": "missing WebKit host libraries; engine never started",
+      "evidence": "artifacts/spec027/webkit-host-failure/verify.log"
+    }
+  ],
+  "ci": {
+    "source": "3307df676cc64a84c0ab6a591f66c2e9d2901582",
+    "verify_push": {
+      "id": 42110416792,
+      "status": "completed",
+      "conclusion": "success",
+      "all_jobs_and_steps_success": true,
+      "backend_passed": 1530,
+      "backend_seconds": 641.0,
+      "backend_warnings": 10,
+      "browser_passed": 399,
+      "browser_minutes": 15.4,
+      "browser_retries": 0,
+      "evidence": "artifacts/spec027/ci-verify-push-final.log"
+    },
+    "verify_pr": {
+      "id": 42110424097,
+      "status": "completed",
+      "conclusion": "success",
+      "all_jobs_and_steps_success": true,
+      "backend_passed": 1530,
+      "backend_seconds": 650.29,
+      "backend_warnings": 10,
+      "browser_passed": 399,
+      "browser_minutes": 15.4,
+      "browser_retries": 0,
+      "evidence": "artifacts/spec027/ci-verify-pr-final.log"
+    },
+    "static_push": {
+      "id": 42110416647,
+      "status": "completed",
+      "conclusion": "success",
+      "all_jobs_and_steps_success": true
+    },
+    "static_pr": {
+      "id": 42110424058,
+      "status": "completed",
+      "conclusion": "cancelled",
+      "reason": "duplicate PR host dependency install hung; same-source push static passed. Ordinary cancel completed before force-cancel request returned 409."
+    },
+    "native_bundle": {
+      "id": 42110416671,
+      "status": "completed",
+      "conclusion": "success",
+      "all_jobs_and_steps_success": true
+    },
+    "previous_dependency_failures": [
+      42106817769,
+      42106953431
+    ],
+    "dependency_failure": "Ubuntu26 azure mirror slow download; original user timeout could not terminate root installer. Pin Ubuntu24.04 and elevate timeout itself.",
+    "dependency_fix_remote_install_seconds": 35
+  },
+  "licensed_preparation": {
+    "passed": true,
+    "counts": {
+      "independent_papers": 6,
+      "checkpoints": 42,
+      "sources": 21,
+      "verified_distinct_original_bytes": 13,
+      "tasks": {
+        "A": 27,
+        "B": 15
+      },
+      "splits": {
+        "development": 33,
+        "retained_for_followup": 9
+      },
+      "reference_categories": {
+        "bounded_fact": 20,
+        "qualified_fact": 7,
+        "located_change": 7,
+        "missing_material": 2,
+        "partial_implementation": 3,
+        "response_claim_unverified": 2,
+        "explained_no_change": 1
+      }
+    },
+    "actual_editor_evaluators": 0,
+    "full_response_letters": 0,
+    "unseen_paper_blind_test": false,
+    "efficiency_or_use_intent_measured": false,
+    "evidence": "artifacts/spec027/pilot-preparation-final.json"
+  },
+  "live_deepseek": {
+    "provider": "deepseek",
+    "model": "deepseek-flash",
+    "materials": "synthetic only",
+    "experiments": [
+      {
+        "evidence": "artifacts/spec027/live-probe.json",
+        "passed": true,
+        "source": "1b37c96b49186ae23c40db1614f923a962ec72b5",
+        "scope": "synthetic private two-version comparison and current version grounded QA",
+        "http_attempts": 6,
+        "input_tokens": 9798,
+        "output_tokens": 483,
+        "seconds": 8.477,
+        "estimated_usd": 0.003519,
+        "diagnostics": [],
+        "error_code": null
+      },
+      {
+        "evidence": "artifacts/spec027/live-metadata-probe-first.json",
+        "passed": true,
+        "source": "5dedcef0b6b24d1ecc6a5ec7ef4a140ae7758dac",
+        "scope": "real supplier metadata-tool schema and exact candidate evidence, not a PDF/Word browser or human content evaluation",
+        "http_attempts": 2,
+        "input_tokens": 4841,
+        "output_tokens": 507,
+        "seconds": 3.573,
+        "estimated_usd": 0.0020607,
+        "diagnostics": [],
+        "error_code": null
+      },
+      {
+        "evidence": "artifacts/spec027/live-metadata-probe-window.json",
+        "passed": true,
+        "source": "5dedcef0b6b24d1ecc6a5ec7ef4a140ae7758dac",
+        "scope": "real supplier metadata-tool schema and exact candidate evidence, not a PDF/Word browser or human content evaluation",
+        "http_attempts": 1,
+        "input_tokens": 2328,
+        "output_tokens": 253,
+        "seconds": 1.45,
+        "estimated_usd": 0.001002,
+        "diagnostics": [],
+        "error_code": null
+      },
+      {
+        "evidence": "artifacts/spec027/live-metadata-probe.json",
+        "passed": false,
+        "source": "3307df676cc64a84c0ab6a591f66c2e9d2901582",
+        "scope": "real supplier metadata-tool schema and exact candidate evidence, not a PDF/Word browser or human content evaluation",
+        "http_attempts": 1,
+        "input_tokens": 2328,
+        "output_tokens": 289,
+        "seconds": 1.541,
+        "estimated_usd": 0.0010452,
+        "diagnostics": [
+          {
+            "attempt": 1,
+            "reason": "metadata_schema_invalid",
+            "field": "article_type"
+          }
+        ],
+        "error_code": "editorial_provider_deadline"
+      },
+      {
+        "evidence": "artifacts/spec027/live-metadata-final.json",
+        "passed": true,
+        "source": "3307df676cc64a84c0ab6a591f66c2e9d2901582",
+        "scope": "real supplier metadata-tool schema and exact candidate evidence, not a PDF/Word browser or human content evaluation",
+        "http_attempts": 1,
+        "input_tokens": 2328,
+        "output_tokens": 209,
+        "seconds": 1.811,
+        "estimated_usd": 0.0009492,
+        "diagnostics": [],
+        "error_code": null
+      }
+    ],
+    "http_attempts": 11,
+    "input_tokens": 21623,
+    "output_tokens": 1741,
+    "estimated_conservative_peak_usd": 0.0085761,
+    "actual_invoice_usd": null,
+    "original_budget_http_cap": 10,
+    "original_budget_closed": true,
+    "followup_http_cap": 2,
+    "followup_actual_http": 1,
+    "followup_max_usd": 0.02,
+    "business_confirmation_or_email_requests": 0,
+    "scientific_accuracy_measured": false,
+    "native_cross_provider_codex_subagent_verified": false,
+    "offered_tools_are_not_actual_call_trace": true
+  },
+  "native_packages": {
+    "final": {
+      "status": "completed",
+      "passed": true,
+      "source": "3307df676cc64a84c0ab6a591f66c2e9d2901582",
+      "platform": "linux/amd64",
+      "ci_run": 42110416671,
+      "all_jobs_and_steps_success": true,
+      "archive_bytes": 302151650,
+      "archive_sha256": "03c5177b357ee16bc14446a647af6c5d2c5a432025c22be775000cc087398588",
+      "source_tree_sha256": "cf52c4ad241228054979bd9d3634b9206f3ccad47782d492e824eb2d155de84d",
+      "worktree": false,
+      "inner_file_hashes_verified": true,
+      "image_ids_match_running_report": true,
+      "upgrade": {
+        "old_tables": 48,
+        "old_rows": 62,
+        "new_empty_tables": 7,
+        "old_cas_files": 4,
+        "new_cas_files": 0,
+        "schema_before": "15b39ecf7286",
+        "schema_after": "28a7c1e09462",
+        "all_old_tables_equal": true,
+        "all_old_cas_equal": true
+      },
+      "old_cookie_and_citations_preserved": true,
+      "restore": {
+        "old_tables": 55,
+        "old_rows": 72,
+        "new_empty_tables": 0,
+        "old_cas_files": 5,
+        "new_cas_files": 0,
+        "schema_before": "28a7c1e09462",
+        "schema_after": "28a7c1e09462",
+        "all_old_tables_equal": true,
+        "all_old_cas_equal": true
+      },
+      "upgrade_duration_ms": 111879,
+      "candidate_memory": {
+        "db": {
+          "limit_bytes": 335544320,
+          "oom_killed": false,
+          "running": true,
+          "restarts": 0,
+          "image_id": "sha256:ab20e934b27ba3ff927c1b4c9ff8cf6c32f315f743efe68dd3441182a87fb085",
+          "observed_peak_bytes": 28262400
+        },
+        "api": {
+          "limit_bytes": 805306368,
+          "oom_killed": false,
+          "running": true,
+          "restarts": 0,
+          "image_id": "sha256:b548971e2c9c1f5407a3aa750d2b48f523bd049144a89e426f3850aee98ef6ab",
+          "observed_peak_bytes": 117776384
+        },
+        "web": {
+          "limit_bytes": 402653184,
+          "oom_killed": false,
+          "running": true,
+          "restarts": 0,
+          "image_id": "sha256:ff4cd398ba9353044d4bf0c87bc2ec99c5b357a9e7dc1d744365e8b3b308bf88",
+          "observed_peak_bytes": 55803904
+        }
+      },
+      "restore_memory": {
+        "db": {
+          "limit_bytes": 335544320,
+          "oom_killed": false,
+          "running": true,
+          "restarts": 0,
+          "image_id": "sha256:ab20e934b27ba3ff927c1b4c9ff8cf6c32f315f743efe68dd3441182a87fb085",
+          "observed_peak_bytes": 83677184
+        },
+        "api": {
+          "limit_bytes": 805306368,
+          "oom_killed": false,
+          "running": true,
+          "restarts": 0,
+          "image_id": "sha256:b548971e2c9c1f5407a3aa750d2b48f523bd049144a89e426f3850aee98ef6ab",
+          "observed_peak_bytes": 117772288
+        },
+        "web": {
+          "limit_bytes": 402653184,
+          "oom_killed": false,
+          "running": true,
+          "restarts": 0,
+          "image_id": "sha256:ff4cd398ba9353044d4bf0c87bc2ec99c5b357a9e7dc1d744365e8b3b308bf88",
+          "observed_peak_bytes": 56430592
+        }
+      },
+      "install_and_restart_restore_passed": true,
+      "concurrency": {
+        "passed": true,
+        "parallel_requests": 4,
+        "memory": {
+          "web": {
+            "limit_bytes": 402653184,
+            "observed_peak_bytes": 60096512,
+            "oom_killed": false
+          },
+          "api": {
+            "limit_bytes": 805306368,
+            "observed_peak_bytes": 120397824,
+            "oom_killed": false
+          },
+          "db": {
+            "limit_bytes": 335544320,
+            "observed_peak_bytes": 89333760,
+            "oom_killed": false
+          }
+        },
+        "statuses": [
+          429,
+          429,
+          429,
+          200
+        ],
+        "same_uuid_recovery_and_replay": true,
+        "full_dossier_unchanged": true,
+        "confirmations": 0,
+        "mail_or_decision_requests": 0,
+        "duration_ms": 7591,
+        "scope": "isolated Mock preview; single process, not user VPS capacity"
+      },
+      "browser": {
+        "passed": true,
+        "page_errors": 0,
+        "confirmations": 0,
+        "mail_or_decisions": 0,
+        "cases": [
+          {
+            "format": "pdf",
+            "exact_citation_highlight": true,
+            "refresh_preserved": true
+          },
+          {
+            "format": "docx",
+            "exact_citation_highlight": true,
+            "refresh_preserved": true
+          }
+        ]
+      },
+      "mail_and_formal_decision_counts": {
+        "email_drafts": 0,
+        "email_approvals": 0,
+        "publishing_editorial_decisions": 0,
+        "publishing_human_confirmations": 0
+      },
+      "test_projects_stopped": true,
+      "data_volumes_retained": true,
+      "evidence_directory": "artifacts/spec027/amd64-final-ci"
+    },
+    "intermediate_arm64_source": "1b37c96b49186ae23c40db1614f923a962ec72b5",
+    "intermediate_amd64_sources": [
+      "1b37c96b49186ae23c40db1614f923a962ec72b5",
+      "5dedcef0b6b24d1ecc6a5ec7ef4a140ae7758dac"
+    ],
+    "intermediate_preview4_upgrade": {
+      "old_source": "d7c90b03f612f8761d167eed866a8b63165acbfa",
+      "old_tables": 48,
+      "old_rows": 62,
+      "old_cas": 4,
+      "new_empty_tables": 7,
+      "restore_tables": 55,
+      "restore_rows": 72,
+      "restore_cas": 5,
+      "equal": true
+    },
+    "user_vps_capacity_measured": false
+  },
+  "local_main": {
+    "updated": true,
+    "passed": true,
+    "source": "3307df676cc64a84c0ab6a591f66c2e9d2901582",
+    "preservation": {
+      "old_tables": 53,
+      "old_rows": 3560,
+      "new_empty_tables": 2,
+      "old_cas_files": 24,
+      "new_cas_files": 0,
+      "schema_before": "f59230d88725",
+      "schema_after": "28a7c1e09462",
+      "all_old_tables_equal": true,
+      "all_old_cas_equal": true
+    },
+    "backup_manifest": "artifacts/spec027/backup-manifest.json",
+    "api_health": 200,
+    "web_health": 200,
+    "mailpit_messages": 0,
+    "email_send_enabled": false,
+    "editorial_model": {
+      "provider": "deepseek",
+      "model": "deepseek-flash",
+      "available": true
+    },
+    "model_api_called": false,
+    "business_posts": 0,
+    "vps_updated": false,
+    "existing_data_reset": false
+  },
+  "visual": {
+    "intermediate_source": "1b37c96b49186ae23c40db1614f923a962ec72b5",
+    "actual_images_viewed": 3,
+    "mobile_overflow": false,
+    "page_errors": 0,
+    "physical_devices_tested": false,
+    "final_source": "3307df676cc64a84c0ab6a591f66c2e9d2901582",
+    "final_native_screenshots_viewed": [
+      "vps-mock-docx-citation.png",
+      "vps-mock-mobile.png"
+    ],
+    "final_scope": "Actual native amd64 Mock package interface; separate from intermediate real DeepSeek historical screenshots"
+  },
+  "safety": {
+    "email_send_enabled": false,
+    "model_has_human_confirmation_tool": false,
+    "model_has_email_send_tool": false,
+    "model_has_editorial_decision_tool": false,
+    "professional_engineer_review_performed": false,
+    "confidential_materials_used": false
+  },
+  "outstanding": [
+    "Two actual authorized editors and net-time/use-intent evaluation",
+    "Licensed complete original/revised/reviewer/author-response packet",
+    "Independent professional engineering review",
+    "Physical Safari/Edge/Android and IME/keyboard checks",
+    "Automatic compound requirement decomposition",
+    "Native reviewer/author response-file import",
+    "Structured external-system submission provenance and synchronization",
+    "Journal Membership remains one role per journal with no validity-period/revoked_at fields; role/removal and session revocation are checked, not date-based appointment management"
+  ],
+  "ci_entry_followup": {
+    "scope": "same application, tests and script bytes as frozen 3307; only static/native workflow callers now reuse bounded host installer and retain install logs",
+    "validation": "YAML parsed; installer eight offline contracts passed; the same installer already executed successfully in primary 3307 CI",
+    "remote_new_callers_status": "not yet run",
+    "full_application_retest_required_by_runtime_change": false,
+    "status_as_of_evidence_snapshot": "YAML and offline contracts checked; new remote callers not yet pushed/run"
+  },
+  "evidence_snapshot_at": "2026-11-05T21:44:24.929310+00:00"
+}

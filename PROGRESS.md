@@ -1,16 +1,24 @@
-# 当前执行：spec027 单刊资料与修回核对候选版
+# 当前交付：spec027 单刊辅助核对工程候选版
 
-已按用户提供的[执行建议](docs/consultation/Pivot-candidate-execution-brief-2026-11-05.txt)实际开发，草稿[PR #8](https://github.com/DayuGuo/Pivot/pull/8)叠加未合并#7/#6。基线f9a1dbc，分支codex/single-journal-candidate；保留既有改动与历史，不合并、不更新VPS、不发布Release。操作见[指南](docs/development/spec027/operating-guide.md)、[差距](docs/development/spec027/gap-audit.md)和[合同](specs/027-internal-revision-contract.md)。
+已按[用户执行建议](docs/consultation/Pivot-candidate-execution-brief-2026-11-05.txt)完成任务A/B工程候选，草稿[PR #8](https://github.com/DayuGuo/Pivot/pull/8)叠加未合并#7/#6。运行/测试/脚本冻结3307df676cc64a84c0ab6a591f66c2e9d2901582；之后仅CI安装入口和交付文档，不合并main、不更新VPS、不发布Release。[操作指南](docs/development/spec027/operating-guide.md) · [交付记录](docs/development/spec027/review.md) · [精确结果](docs/development/spec027/results.json) · [合同](specs/027-internal-revision-contract.md)。以下旧切片为当时历史，以本段为准。
 
-已实现缺项材料保存、首次上传前后人工字段保护、精确版本资料导出、私人双版本修回包及三层追加人判。追加可选类型/基金/声明原文，空扩展不改变旧序列化与指纹；声明不代签，候选须有完整有界原文。6篇独立许可论文/42项工程参考及空白编辑评价模板已准备，实际编辑评价仍0人，完整逐点回复信0份。
+最终本机scripts/verify.sh实际exit0、1246.54秒：**1530后端474.58秒（10条提醒）＋399浏览器12.2m**，Chromium/Firefox/WebKit各133项、0失败/跳过/重试。全仓语法、Ruff/format、研究完整性/模块边界、18条离线引文、PostgreSQL迁移无漂移、ESLint/TypeScript与准确镜像构建/启动通过。证据artifacts/spec027/verify-final.log、verify-final-exit.json、pytest-final.xml。迁移175、资料/导入/来源/兼容/安装器132、三引擎专项57与全量重叠，不累加。
 
-阶段验证：迁移专项175项；扩展资料/导入/来源/兼容/安装器专项132项24.53秒；三引擎导入/修回专项57项1.4m通过，集合重叠不累加。首次完整1487过/4历史迁移夹具失败已修，第二次1491后端510.54秒/10提醒及262浏览器通过，但WebKit131项均因缺共享库未启动，整体exit1/989.2秒，未当作通过。WebKit专用缓存补官方运行库后实际空白页启动通过；新增完整门禁前置浏览器启动检查。CI两次5ded完整回归卡Ubuntu26镜像下载并超时，均failure而非测试成功；修正特权内部timeout、固定Ubuntu24.04，待最终源码重跑。
+任务A：缺项PDF/DOCX可先保存材料并正文审阅，不建完整DossierCheck；首次上传前/后人工字段保留，显式切换候选；资料与缺项按精确版本导出。新增可选文章类型、基金、声明原文及来源，空扩展不改旧序列化/指纹；声明不代签。类型须明确标识、基金/声明完整有界，拒绝已覆盖的他文/限定语截断反例；模型候选和纠正提示均限实际14k窗口，完整摘要/联系人规则补充分开。具体归属和语义仍由编辑核对。
 
-真实DeepSeek已有合成两版核对/问答6 HTTP、5条精确引用通过；新metadata schema另两次实验共3 HTTP通过，三项原文与限定语保留，无签署/业务确认。实际用量和严格上限见忽略目录artifacts/spec027/live-*.json，后续报告注明准确源码。不得以此宣称真实论文专业准确率或实际编辑节时。
+任务B：私人真实原/新版本＋编辑预拆要求/原上下文＋来源明确的粘贴回复及四项完整度，生成冻结核对包；三层人判和理由追加、并发头/同UUID恢复、导出/历史不转当前批准。新增28a7c1e09462两表27字段，旧表/迁移/回执不改。已修多标签重读仍旧头、读取恢复误要求再签、人工草稿丢失及新元数据边界问题，Codex交叉审查不等于外部专业审核。
 
-原生amd64的1b37c96和5dedcef候选安装CI已通过；1b实际preview.4升级：48表62行4CAS原样保留，新增7表空，新增核对/人判后55表72行5CAS备份并在新项目恢复完全相同。它们是中间源码，最终扩展字段与CI修正版本仍需完整verify及最终原生包；本机ARM64的1b安装/引用/并发/重启/隔离恢复亦通过，不当作x86或用户VPS实测。
+6篇独立许可论文/42项工程问题（A27/B15）、9项后续保留题及空白人评/净耗时模板已准备，原件/快照/许可/逐字位置离线校验通过。语料此前用于调试，非未知盲测；完整逐点回复信0、实际编辑评价0人，不报告科学准确率、节时或继续使用结果。
 
-日常3100/8100与主库本轮尚未更新；当前DB测试仅55433隔离Mock库与独立私人包。后续先完成最终门禁，备份且逐表/逐原件核对后再更新本机。EMAIL_SEND_ENABLED=false，负责人确认权不变，用户VPS和公开静态站保持原状。
+真实DeepSeek合成私有两版核对＋问答6 HTTP/5条精确版本引用通过，最终3307元数据一次请求/三项完整原文和限定语通过。全部实验11 HTTP、输入21623/输出1741Token，按当日官方峰值未缓存口径估价0.0085761美元，账单未知。原10次预算末次非法根字段被拒且预算挡纠正；另立2次/0.02美元小额补测，实际1次成功，失败保留。无签署/业务确认/邮件/决定请求；key只在安全环境内存传递。合成供应商协议不替代许可论文专业评价，原生跨供应商Codex子Agent仍未验证。
+
+最终原生amd64 [CI42110416671](https://github.com/DayuGuo/Pivot/actions/runs/42110416671)全部步骤成功：3307包302151650字节，SHA及七内部文件/运行镜像ID一致；实际preview.4升级保留48表62行4CAS，累计新增7表空，新增核对/人判后55表72行5CAS在新项目恢复全等，旧cookie/引文可读。4并发200/429、同UUID恢复、原件/引用/刷新/重启通过，1472MiB容器总硬限下无OOM，非用户VPS容量认证。仅CI artifact，不Release。中间ARM64/amd64实验另列，不替代最终源。静态push同源两轮33项通过；重复PR安装卡下载已取消，不记成功。
+
+CI依赖失败保留：5ded两次完整门禁在Ubuntu26慢镜像超时，用户timeout无法杀root apt；固定Ubuntu24并把timeout置于提权内部，3307主CI安装35秒完成。后续静态/打包入口同样改用已验证helper，下载5m/依赖12m、保留日志，YAML解析和离线8项通过；新入口远端状态与已成功的应用验收分列。同应用源码完整[push CI42110416792](https://github.com/DayuGuo/Pivot/actions/runs/42110416792)与[PR CI42110424097](https://github.com/DayuGuo/Pivot/actions/runs/42110424097)均全部作业/步骤success：1530后端641.00/650.29秒＋399浏览器15.4m，0重试；新caller配置是其后的独立增量，精确状态以results快照和Actions为准，不借用旧步骤成功冒称新入口已远端执行。
+
+**本机已更新且旧数据完整保留**：0600 DB/CAS备份已验证pg_restore目录及tar全文件；原53表3560行的主键/全部字段SHA与24CAS路径/长度/字节SHA全部相同，新两表空，schema f592→28a7。API/Web健康200，DeepSeek/deepseek-flash配置保留。更新验收仅GET，业务POST/新模型调用0；EMAIL_SEND_ENABLED=false、Mailpit0。未覆盖恢复/删除/重置，不改Codex主模型/全局配置，不连接VPS或改变公开静态站。
+
+实际Linux三引擎，最终原生包桌面Word引用/375px图及中间真实DeepSeek修回/引文图已人工查看，页面无错误/横溢出，Impeccable源码检测[]。真实Edge/Safari/Android、IME/软键盘未测。下一阶段需要负责人安排两名获授权编辑及许可完整修回包，按净耗时/有效覆盖/严重错误评价；专业工程师复核文件、权限、版本确认、模型出域、备份恢复、部署维护。自动复合拆解/完整回复文件导入/结构化外部投稿来源仍未做，日历等长期目标按反馈推进。工程候选通过不等于报告全部试用条件或生产放行完成。
 
 # 当前增量：2026-11-05，spec026已完成代码逻辑与三浏览器复核
 

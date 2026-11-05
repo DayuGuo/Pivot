@@ -26,7 +26,12 @@ jobs:
           version: '0.9.7'
           python-version: '3.12'
       - run: uv sync --frozen && npm ci
-      - run: npx playwright install --with-deps chromium
+      - name: Download the package acceptance browser
+        timeout-minutes: 5
+        run: npx playwright install chromium
+      - name: Install browser host dependencies with bounded retry
+        timeout-minutes: 12
+        run: bash scripts/install-browser-deps.sh
       - name: Build offline bundle on native x86
         run: .venv/bin/python scripts/build-vps-app.py --platform linux/amd64
       - name: Install under memory caps, import, review, cite, restart and restore
@@ -70,4 +75,10 @@ jobs:
             artifacts/vps-upgrade-acceptance.json
             artifacts/vps-mock-browser.json
             artifacts/vps-mock-*.png
-      # No credentials.json, database/files, logs or state directories are uploaded.
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: private-app-browser-host-setup
+          if-no-files-found: ignore
+          path: artifacts/browser-deps/
+      # No credentials.json, database/files, application logs or state directories.
