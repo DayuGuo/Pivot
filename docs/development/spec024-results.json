@@ -1,7 +1,7 @@
 {
   "schema": "pivot-development-delivery.v1",
   "phase": "spec024",
-  "status": "local_passed_latest_remote_running",
+  "status": "passed",
   "tested_source_commit": "aadccc358f573333e8d687d40aedc3f174505e56",
   "backend_content_unchanged_from": "d45223c683958b0b5cad07282872c216c687c40f",
   "local": {
@@ -19,10 +19,21 @@
     "static_migrations_build_start": "passed"
   },
   "remote_latest": {
-    "conclusion": "",
+    "status": "completed",
+    "conclusion": "success",
     "headSha": "aadccc358f573333e8d687d40aedc3f174505e56",
-    "status": "in_progress",
-    "url": "https://github.com/DayuGuo/Pivot/actions/runs/42019900996"
+    "url": "https://github.com/DayuGuo/Pivot/actions/runs/42019900996",
+    "verify_run": 42019900996,
+    "all_jobs_and_steps_passed": true,
+    "pytest": {
+      "passed": 1344,
+      "warnings": 6,
+      "seconds": 400.63
+    },
+    "playwright": {
+      "passed": 93,
+      "duration": "2.0m"
+    }
   },
   "remote_static": {
     "conclusion": "success",
@@ -156,5 +167,16 @@
     "max_retrieval_terms": 128,
     "reviewer_cross_report_comparison_allowed": false,
     "binary_pdf_docx_formal_revision_bridge_implemented": false
+  },
+  "pull_request": {
+    "number": 5,
+    "url": "https://github.com/DayuGuo/Pivot/pull/5",
+    "base": "codex/evaluation-returns",
+    "depends_on": 4,
+    "merged": false
+  },
+  "added_tracked_text_secret_check": {
+    "scope": "added_tracked_text_only",
+    "secret_like_literal_count": 0
   }
 }

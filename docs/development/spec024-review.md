@@ -2,13 +2,15 @@
 
 最终界面源码：aadccc358f573333e8d687d40aedc3f174505e56。后端及模型协议与116ca1f相同；d45223c仅补齐严格恢复夹具，aadccc3仅增加版本/历史界面提示和浏览器断言。基于未合并PR #4的codex/evaluation-returns建立增量分支；没有合并PR #4、修改main或部署VPS。无新迁移，数据库head仍17d51aeb9408。
 
+可审查交付：[PR #5](https://github.com/DayuGuo/Pivot/pull/5)，基于PR #4的增量，两者均未自动合并。
+
 ## 最终验证
 
 本机scripts/verify.sh exit0：1344后端、6条既有第三方弃用提醒，596.84秒；93浏览器3.5m，静态、研究/依赖约束、离线引文18、迁移零漂移与准确镜像构建启动均通过。
 
 最后版本提示补强仅在后端测试阶段改两个React文件和同一浏览器用例；apps/api、packages、tests/api和verify脚本Git对象与d45223c完全相同，随后lint/typecheck/build和全部浏览器测试使用aadccc3。不是在测试中修改后端或验收脚本，也没有跳过或删除测试。历史对照桌面/375px实际已查看，版本v1→v2、流程变化后历史警告均可见。
 
-前一d45223c远端verify42018557800实际1344后端525.91秒＋93浏览器2.5m通过；最后aadccc3静态42019900851已成功，完整42019900996仍在运行，不声称已通过。精确状态见spec024-results.json。
+前一d45223c远端verify42018557800实际1344后端525.91秒＋93浏览器2.5m通过；最后aadccc3的[完整CI42019900996](https://github.com/DayuGuo/Pivot/actions/runs/42019900996)顶层与全部步骤成功，实际1344后端400.63秒＋93浏览器2.0m；[静态42019900851](https://github.com/DayuGuo/Pivot/actions/runs/42019900851)成功。精确状态见spec024-results.json。后续提交只更新交付文档，未改运行/测试/验收脚本。
 
 ## 产品行为
 

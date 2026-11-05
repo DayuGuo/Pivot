@@ -1,6 +1,6 @@
 # Pivot
 
-第七批已在本机验收：[上下文建议与正式修回对照](specs/024-contextual-guidance-and-revision-comparison.md)。资料区/正式出版对话上方给出按角色、阶段、缺项与已有证据选择的建议，只填草稿；正式修回逐项比较已分享要求、原/修订全文和回复，显示版本、原文行号及历史提示。AI判断仍须负责人核对，不自动发信、确认修回或作决定。本机1344后端＋93浏览器通过；真实DeepSeek合成两阶段协议通过，非真实论文准确率。最新远端CI状态见[报告](docs/development/spec024-review.md)。保留数据，无新迁移，不部署VPS。
+第七批已在本机验收：[上下文建议与正式修回对照](specs/024-contextual-guidance-and-revision-comparison.md)。资料区/正式出版对话上方给出按角色、阶段、缺项与已有证据选择的建议，只填草稿；正式修回逐项比较已分享要求、原/修订全文和回复，显示版本、原文行号及历史提示。AI判断仍须负责人核对，不自动发信、确认修回或作决定。本机1344后端＋93浏览器通过；真实DeepSeek合成两阶段协议通过，非真实论文准确率。同源码GitHub完整CI1344＋93通过，详[报告](docs/development/spec024-review.md)与[PR #5](https://github.com/DayuGuo/Pivot/pull/5)（依赖未合并PR #4）。保留数据，无新迁移，不部署VPS。
 
 第六批已验收：[独立评价人工核对、回传和分歧](specs/023-independent-evaluation-returns.md)。在已有回答下打开“独立评价回传”，指定代号登记v2包，进入独立核对页下载/上传JSON，逐条对照原文并勾选后确认。按代号最新确认汇总，待核对/未评价单列，不改原回答/资料核对/出版决定。旧v1包不具备回传映射；代号不是身份认证。本机与同源码CI **1319后端＋91浏览器**通过，详[验收报告](docs/development/spec023-review.md)。本轮不部署VPS，邮件继续禁发。
 
