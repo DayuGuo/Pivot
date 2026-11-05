@@ -5,7 +5,7 @@ import Link from "next/link";
 import NextSteps from "../assistant/next-steps";
 import RevisionComparisonPanel from "../assistant/revision-comparison";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { createContext, useCallback, useContext, useEffect, useRef, useState, useSyncExternalStore, type ReactNode, type MouseEvent } from "react";
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode, type MouseEvent } from "react";
 import Glyph from "../editorial/icons";
 import type { ChatMessage, Detail, PublishingSession, Workspace } from "./types";
 import { roleLabels } from "./types";
@@ -50,7 +50,10 @@ export default function PublishingWorkspace({ children }: { children: ReactNode 
   const [error, setError] = useState(""); const [authLost, setAuthLost] = useState(false);
   const [refreshing, setRefreshing] = useState(true); const [drawer, setDrawer] = useState(false);
   const theme = useSyncExternalStore(subscribeTheme, themeSnapshot, () => "system");
-  const dirty = useRef(false); const requests = useRef(new Map<string, string>()); const sequence = useRef(0);
+  const dirty = useRef(new Map<string, boolean>()); const requests = useRef(new Map<string, string>()); const sequence = useRef(0);
+  const uiScope = JSON.stringify([session?.journal.id, session?.user.id, session?.user.role, session?.csrf_token, pathname, search.toString()]);
+  const activeScope = useRef<string | null>(uiScope);
+  useLayoutEffect(() => { activeScope.current = uiScope; return () => { activeScope.current = null; }; }, [uiScope]);
   const previousIdentity = useRef<string | null>(null);
   const refreshController = useRef<AbortController | null>(null);
   const selectedId = (pathname.includes("/review/") || pathname.includes("/preview/") || pathname.includes("/document-imports/")) ? reviewContext : search.get("manuscript");
@@ -64,7 +67,7 @@ export default function PublishingWorkspace({ children }: { children: ReactNode 
       if (generation !== sequence.current) return;
       const identity = JSON.stringify([nextSession.journal.id, nextSession.user.id, nextSession.user.role, nextSession.csrf_token]);
       if (previousIdentity.current !== null && previousIdentity.current !== identity) {
-        setWorkspace(null); setDetail(null); requests.current.clear(); dirty.current = false;
+        setWorkspace(null); setDetail(null); requests.current.clear(); dirty.current.clear();
       }
       previousIdentity.current = identity;
       setSession(nextSession);
@@ -77,20 +80,23 @@ export default function PublishingWorkspace({ children }: { children: ReactNode 
     } catch (failure) { active = false; control.abort(); if (generation === sequence.current) {
       setError((failure as Error).message);
       const denied = failure instanceof APIError && [401, 403].includes(failure.status);
-      if (denied) { setWorkspace(null); setDetail(null); requests.current.clear(); dirty.current = false; }
+      if (denied) { setWorkspace(null); setDetail(null); requests.current.clear(); dirty.current.clear(); }
       else if (failure instanceof APIError && failure.status === 404) setDetail(null);
       setAuthLost(denied);
     } }
     finally { if (refreshController.current === control) refreshController.current = null; if (generation === sequence.current) setRefreshing(false); }
   }, [selectedId]);
+  const latestRefresh = useRef<null | (() => Promise<void>)>(refresh);
+  useLayoutEffect(() => { latestRefresh.current = refresh; return () => { latestRefresh.current = null; }; }, [refresh]);
+  const refreshCurrent = useCallback(() => latestRefresh.current?.() ?? Promise.resolve(), []);
   const invalidateRefresh = useCallback(() => { sequence.current++; refreshController.current?.abort(); }, []);
   // Network responses update this external server snapshot; no derived state is recomputed here.
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { void refresh(); return invalidateRefresh; }, [refresh, invalidateRefresh]);
-  const navigate = useCallback((url: string) => { if (dirty.current && !window.confirm("当前资料尚未保存。离开并放弃这些修改？")) return; dirty.current = false; setDrawer(false); router.push(url); }, [router]);
-  const setUnsaved = useCallback((value: boolean) => { dirty.current = value; }, []);
+  const navigate = useCallback((url: string) => { if (dirty.current.get(uiScope) && !window.confirm("当前资料尚未保存。离开并放弃这些修改？")) return; dirty.current.delete(uiScope); setDrawer(false); router.push(url); }, [router, uiScope]);
+  const setUnsaved = useCallback((value: boolean) => { if (value) dirty.current.set(uiScope, true); else dirty.current.delete(uiScope); }, [uiScope]);
   function guardLink(event: MouseEvent<HTMLDivElement>) {
-    if (!dirty.current || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (!dirty.current.get(uiScope) || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>("a[href]") : null;
     if (!link || link.hasAttribute("download") || (link.target && link.target !== "_self")) return;
     const target = new URL(link.href, window.location.href);
@@ -101,16 +107,19 @@ export default function PublishingWorkspace({ children }: { children: ReactNode 
   const select = useCallback((id: string | null) => navigate(id ? `/publishing?manuscript=${encodeURIComponent(id)}` : "/publishing"), [navigate]);
   const mutate = useCallback(async <T,>(path: string, data: object, method: "POST" | "PATCH" = "POST"): Promise<T> => {
     if (!session) throw new APIError(401, "请先登录。");
-    const fingerprint = `${method}:${path}:${JSON.stringify(data)}`;
+    if (activeScope.current !== uiScope) throw new APIError(409, "页面或身份已变化，未发送旧页面请求。");
+    const fingerprint = `${uiScope}:${method}:${path}:${JSON.stringify(data)}`;
     const requestID = requests.current.get(fingerprint) ?? newRequestId(); requests.current.set(fingerprint, requestID);
     try {
       const result = await fetchJSON<T>(path, { method, headers: { "Content-Type": "application/json", "X-CSRF-Token": session.csrf_token }, body: JSON.stringify({ ...data, request_id: requestID }) });
-      requests.current.delete(fingerprint); return result;
-    } catch (failure) { if (failure instanceof APIError && failure.status === 401) setAuthLost(true); throw failure; }
-  }, [session]);
+      requests.current.delete(fingerprint);
+      if (activeScope.current !== uiScope) throw new APIError(409, "已收到保存回执；页面已切换，请刷新工作列表查看结果。");
+      return result;
+    } catch (failure) { if (activeScope.current === uiScope && failure instanceof APIError && failure.status === 401) setAuthLost(true); throw failure; }
+  }, [session, uiScope]);
   async function createDraft() { setError(""); setRefreshing(true); try { const result = await mutate<{ manuscript_id: string }>("/drafts", {}); select(result.manuscript_id); await refresh(); } catch (failure) { setError((failure as Error).message); } finally { setRefreshing(false); } }
   if (!session || authLost) return <div className={styles.loading}><h1>Pivot</h1><p role="status">{error || "正在载入工作区…"}</p>{authLost ? <Link href="/">返回登录</Link> : <button onClick={() => void refresh()} disabled={refreshing}>重新载入</button>}</div>;
-  return <Context.Provider value={{ session, workspace, detail, selectedId, error, refreshing, refresh, select, setReviewContext, setUnsaved, mutate }}>
+  return <Context.Provider value={{ session, workspace, detail, selectedId, error, refreshing, refresh: refreshCurrent, select, setReviewContext, setUnsaved, mutate }}>
     <div className={styles.shell} data-theme={theme} onClickCapture={guardLink}>
       <a className={styles.skip} href="#publishing-chat">跳到对话</a>
       <aside className={`${styles.sidebar} ${drawer ? styles.drawerOpen : ""}`} aria-label="我的工作">
@@ -130,6 +139,8 @@ function Conversation({ navigate }: { navigate: (url: string) => void }) {
   const { session, selectedId, detail, refresh } = usePublishing();
   const pathname = usePathname(); const cacheKey = `publishing-chat-input:${session.journal.id}:${session.user.id}:${session.user.role}`;
   const contextKey = JSON.stringify([session.journal.id, session.user.id, session.user.role, selectedId ?? "journal"]);
+  const currentContext = useRef(contextKey);
+  useLayoutEffect(() => { currentContext.current = contextKey; }, [contextKey]);
   const [transcript, setTranscript] = useState<{ key: string; messages: ChatMessage[]; loaded: boolean; error: string; historyError: string; historyLoading: boolean }>({ key: contextKey, messages: [], loaded: false, error: "", historyError: "", historyLoading: true });
   const [input, setInput] = useState(() => typeof window === "undefined" ? "" : readStorage("sessionStorage", cacheKey) ?? "");
   const [busy, setBusy] = useState(false);
@@ -194,7 +205,8 @@ function Conversation({ navigate }: { navigate: (url: string) => void }) {
         if (!stillAuthorized || previous.key !== requestKey) return previous;
         return { ...previous, messages: mergeMessages(previous.messages, result.messages) };
       });
-      setInput(value => value.trim() === request.message ? "" : value); if (pending.current === request) pending.current = null; if (result.state_changed) await refresh();
+      if (currentContext.current === requestKey) setInput(value => value.trim() === request.message ? "" : value);
+      if (pending.current === request) pending.current = null; if (result.state_changed) await refresh();
     } catch (failure) {
       const denied = failure instanceof APIError && [401, 403, 404].includes(failure.status);
       if (denied) permissionEpoch.current.set(requestKey, (permissionEpoch.current.get(requestKey) ?? 0) + 1);

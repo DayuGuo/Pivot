@@ -120,6 +120,8 @@ test("UI fixture: 历史失败只重试 GET，不重放已完成的新回合", a
 
 test("UI fixture: 切稿后旧 GET/POST 不进入新稿对话且保留未发送输入", async ({ page }) => {
   await fixtures(page); const oldHistory = gate(); const oldPost = gate(); let posts = 0;
+  let historyCancelled = false;
+  page.on('requestfailed', request => { if (request.method() === 'GET' && request.url().includes(`/chat?manuscript_id=${MID}`)) historyCancelled = true; });
   await page.route("**/api/publishing/chat*", async route => {
     if (route.request().method() === "POST") { posts++; await oldPost.promise; return route.fulfill({ json: { messages: [message("late-post", "前稿延迟新回合")], state_changed: false } }); }
     const mid = new URL(route.request().url()).searchParams.get("manuscript_id");
@@ -135,9 +137,9 @@ test("UI fixture: 切稿后旧 GET/POST 不进入新稿对话且保留未发送�
   await expect(page).toHaveURL(new RegExp(OTHER));
   await expect(page.getByText("当前稿件历史", { exact: true })).toBeVisible();
   await composer.fill("切稿后尚未发送的输入");
-  const historyDone = page.waitForResponse(response => response.request().method() === "GET" && response.url().includes(`/chat?manuscript_id=${MID}`));
+  await expect.poll(() => historyCancelled).toBe(true);
   const postDone = page.waitForResponse(response => response.request().method() === "POST" && response.url().endsWith("/chat"));
-  oldHistory.release(); oldPost.release(); await Promise.all([historyDone, postDone]);
+  oldHistory.release(); oldPost.release(); await postDone;
   await expect(page.getByRole("button", { name: "发送消息", exact: true })).toBeEnabled();
   await expect(page.getByText("前稿延迟历史", { exact: true })).toHaveCount(0);
   await expect(page.getByText("前稿延迟新回合", { exact: true })).toHaveCount(0);
@@ -269,4 +271,55 @@ test('UI fixture: 工作列表慢响应不阻止当前稿件和对话载入', as
     await expect(page.getByRole('heading', { name: metadata.title, exact: true })).toBeVisible();
     await expect(page.getByLabel('向出版助手发送消息', { exact: true })).toBeEditable();
   } finally { list.release(); }
+});
+
+test('UI fixture: 前稿写回合迟到不清空后稿同文草稿，也不刷新回前稿', async ({ page }) => {
+  await fixtures(page); const post = gate(); let posted = false;
+  await page.route(`**/api/publishing/manuscripts/${OTHER}`, route => route.fulfill({ json: { ...detail, id: OTHER, title: '另一篇合成稿件' } }));
+  await page.route('**/api/publishing/chat*', async route => {
+    if (route.request().method() === 'GET') return route.fulfill({ json: { messages: [] } });
+    posted = true; await post.promise; return route.fulfill({ json: { messages: [message('late-written', '前稿已完成的写回合')], state_changed: true } });
+  });
+  await page.goto(`/publishing?manuscript=${MID}`);
+  const input = page.getByLabel('向出版助手发送消息', { exact: true });
+  await input.fill('两个稿件都会问的同一句话'); await page.getByRole('button', { name: '发送消息', exact: true }).click();
+  await expect.poll(() => posted).toBe(true);
+  await page.getByRole('button', { name: /^我的工作/ }).click(); await page.getByRole('link').filter({ hasText: '另一篇合成稿件' }).click();
+  await expect(page.getByRole('heading', { name: '另一篇合成稿件', exact: true })).toBeVisible();
+  await input.fill('两个稿件都会问的同一句话'); post.release();
+  await expect(page.getByRole('button', { name: '发送消息', exact: true })).toBeEnabled();
+  await expect(input).toHaveValue('两个稿件都会问的同一句话');
+  await expect(page.getByRole('heading', { name: '另一篇合成稿件', exact: true })).toBeVisible();
+  await expect(page.getByText('前稿已完成的写回合', { exact: true })).toHaveCount(0);
+});
+
+for (const phase of ['after-send', 'before-send'] as const) test(`UI fixture: 前稿异步文件处理不能清除后稿保护 ${phase}`, async ({ page }) => {
+  await fixtures(page); const post = gate(); let posted = false;
+  if (phase === 'before-send') await page.addInitScript(() => {
+    const read = File.prototype.arrayBuffer;
+    const probe = window as unknown as { proofReading: boolean; releaseProof: () => void };
+    File.prototype.arrayBuffer = function () {
+      if (this.name !== 'old-synthetic.txt') return read.call(this);
+      probe.proofReading = true;
+      return new Promise<ArrayBuffer>(resolve => { probe.releaseProof = () => { void read.call(this).then(resolve); }; });
+    };
+  });
+  await page.route(`**/api/publishing/manuscripts/${MID}/proof-files`, async route => { posted = true; await post.promise; return route.fulfill({ json: { revision: 2 } }); });
+  await page.goto(`/publishing?manuscript=${MID}`);
+  await page.getByLabel('正文校样文件', { exact: true }).setInputFiles({ name: 'old-synthetic.txt', mimeType: 'text/plain', buffer: Buffer.from('前稿合成正文') });
+  await page.getByRole('button', { name: '上传并保存正文校样', exact: true }).click();
+  if (phase === 'after-send') await expect.poll(() => posted).toBe(true);
+  else await expect.poll(() => page.evaluate(() => (window as unknown as { proofReading: boolean }).proofReading)).toBe(true);
+  let prompts = 0, leave = true; page.on('dialog', async dialog => { prompts++; if (leave) await dialog.accept(); else await dialog.dismiss(); });
+  await page.getByRole('button', { name: /^我的工作/ }).click(); await page.getByRole('link').filter({ hasText: '另一篇合成稿件' }).click();
+  const file = page.getByLabel('正文校样文件', { exact: true }); await file.setInputFiles({ name: 'new-unsaved.txt', mimeType: 'text/plain', buffer: Buffer.from('后稿未保存内容') });
+  const refreshed = page.waitForResponse(r => r.request().method() === 'GET' && [MID, OTHER].some(id => r.url().endsWith(`/manuscripts/${id}`)));
+  post.release();
+  if (phase === 'before-send') await page.evaluate(() => (window as unknown as { releaseProof: () => void }).releaseProof());
+  expect((await refreshed).url()).toContain(OTHER);
+  expect(posted).toBe(phase === 'after-send');
+  await page.getByLabel('向出版助手发送消息', { exact: true }).fill('继续保留后稿输入');
+  leave = false; const previous = prompts; await page.getByRole('link', { name: '账号与设置', exact: true }).click();
+  await expect(page).toHaveURL(new RegExp(OTHER)); expect(prompts).toBe(previous + 1);
+  expect(await file.evaluate(input => (input as HTMLInputElement).files?.[0]?.name)).toBe('new-unsaved.txt');
 });
