@@ -1,0 +1,187 @@
+{
+  "schema": "pivot-development-delivery.v1",
+  "phase": "spec023",
+  "status": "passed",
+  "tested_source_commit": "c81df74b6e0d07da185288772c28fbadca118cb4",
+  "merged_pr": {
+    "number": 3,
+    "head": "89208d363b42fb82f7b7b841e28c15fcc6b1d54d",
+    "merge_commit": "3e8729a0003a93514592fc0696bd33ef0c95cb4d",
+    "merged_at": "2026-11-05T09:18:52Z"
+  },
+  "new_migration": "17d51aeb9408",
+  "new_tables": {
+    "EvaluationPackage": 13,
+    "EvaluationReturn": 13
+  },
+  "local": {
+    "script": "scripts/verify.sh",
+    "exit_code": 0,
+    "pytest": {
+      "passed": 1319,
+      "seconds": 437.43,
+      "warnings": 6
+    },
+    "playwright": {
+      "passed": 91,
+      "duration": "2.5m"
+    },
+    "static_migrations_build_start": "passed"
+  },
+  "remote": {
+    "verify_run": 42005578631,
+    "conclusion": "success",
+    "static_demo": {
+      "run": 42005578299,
+      "conclusion": "success",
+      "playwright": [
+        {
+          "passed": 11,
+          "seconds": 10.8
+        },
+        {
+          "passed": 11,
+          "seconds": 7.7
+        }
+      ]
+    },
+    "verify": {
+      "head_sha": "c81df74b6e0d07da185288772c28fbadca118cb4",
+      "pytest": {
+        "passed": 1319,
+        "seconds": 519.74,
+        "warnings": 6
+      },
+      "playwright": {
+        "passed": 91,
+        "duration": "2.5m"
+      },
+      "url": "https://github.com/DayuGuo/Pivot/actions/runs/42005578631"
+    }
+  },
+  "focused": {
+    "new_api": {
+      "passed": 32,
+      "seconds": 11.19
+    },
+    "related_api": {
+      "passed": 81,
+      "seconds": 22.19
+    },
+    "schema_related": {
+      "passed": 81,
+      "seconds": 46.55
+    },
+    "related_browser": {
+      "passed": 35,
+      "seconds": 22.1
+    },
+    "new_browser": {
+      "passed": 3,
+      "seconds": 4.8
+    }
+  },
+  "data_preservation": {
+    "existing_rows_unchanged": true,
+    "existing_tables": 33,
+    "existing_rows": 940,
+    "new_package_or_return_rows": 8,
+    "new_receipts_excluded": 8,
+    "scope": "all previous publishing_* rows; exclude only new gateway receipts whose IDs and action types match new package/return rows"
+  },
+  "upgrade": {
+    "existing_tables_unchanged": true,
+    "existing_tables": 33,
+    "existing_rows": 940,
+    "new_tables": {
+      "publishing_evaluation_packages": 0,
+      "publishing_evaluation_returns": 0
+    }
+  },
+  "files_preservation": {
+    "all_regular_cas_files_unchanged": true,
+    "file_count": 24
+  },
+  "public_acceptance": {
+    "passed": true,
+    "responsible_editor_simulated_by_test_driver": true,
+    "expert_judgement_performed": false,
+    "model_calls": 0,
+    "mail_or_critical_requests": 0,
+    "page_errors": 0,
+    "cases": [
+      {
+        "file": "research-findings-word",
+        "claims": 2,
+        "confirmed_returns": [
+          {
+            "code": "acceptance-023-a",
+            "package_id": "0269a428-efe2-46f5-9fde-0374a208858f",
+            "return_id": "36beb95e-7ff3-4b94-b5f3-ba54d9f56dca",
+            "version_id": "f5425643-caed-44b9-9275-ab9efc26b414"
+          },
+          {
+            "code": "acceptance-023-b",
+            "package_id": "66520fd0-eee5-4bad-a5a1-81d23057446c",
+            "return_id": "85091b5b-d213-48cf-8547-50f02aa25287",
+            "version_id": "f5425643-caed-44b9-9275-ab9efc26b414"
+          }
+        ],
+        "disputed_claims": 2,
+        "source_unchanged": true
+      },
+      {
+        "file": "clinical-word",
+        "claims": 3,
+        "confirmed_returns": [
+          {
+            "code": "acceptance-023-a",
+            "package_id": "89c6fd14-d69c-4154-a806-eae682aaddef",
+            "return_id": "b236fb3f-742b-4f2b-9120-383fa0a9f523",
+            "version_id": "59a62bcf-4952-42f9-b9d5-04d66885413e"
+          },
+          {
+            "code": "acceptance-023-b",
+            "package_id": "25e445dc-5e86-4b94-b98f-67048d22f369",
+            "return_id": "3b004840-7e64-4f29-9074-266c7da860d3",
+            "version_id": "59a62bcf-4952-42f9-b9d5-04d66885413e"
+          }
+        ],
+        "disputed_claims": 3,
+        "source_unchanged": true
+      }
+    ]
+  },
+  "security": {
+    "email_send_enabled": false,
+    "vps_deployed": false,
+    "expert_evaluation_performed": false,
+    "external_evaluator_identity_verified": false,
+    "new_model_calls": 0,
+    "supplier_auth_rechecked": false
+  },
+  "limitations": [
+    "Owner-confirmed declared evaluator codes, not authenticated external reviewers",
+    "No public sharing or email transport",
+    "Legacy unregistered v1 export cannot safely import",
+    "Only latest confirmation per code counted; no majority decision",
+    "Public fixture test driver is not a scientific expert",
+    "Professional privacy/security review still required"
+  ],
+  "safety_status": {
+    "health": {
+      "status": "ok",
+      "database": "postgresql",
+      "email_send_enabled": false,
+      "model_provider": "mock",
+      "editorial_model": {
+        "provider": "deepseek",
+        "model": "deepseek-flash",
+        "available": true
+      }
+    },
+    "mailpit": {
+      "total": 0
+    }
+  }
+}
