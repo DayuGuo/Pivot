@@ -220,3 +220,7 @@
 
 .exportActions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-block: 8px; }
 .exportActions a, .exportActions button { display: inline-flex; align-items: center; min-height: 44px; }
+
+.materialActions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding: 12px 24px; border-bottom: 1px solid var(--line); }
+.candidateComparison pre { font: inherit; font-size: 13px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.materialOption { margin: 16px 24px 0; }

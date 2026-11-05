@@ -1,0 +1,1 @@
+participant_code,paper_id,task,condition,sequence,started_at,ended_at,total_seconds_including_retries,upload_seconds,source_check_seconds,correction_seconds,export_seconds,paused_seconds,completed,serious_error_count,willing_to_use_again,note

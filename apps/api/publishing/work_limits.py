@@ -59,7 +59,7 @@ class RequestAdmission:
 
 def heavy_path(path):
     return path in {"/api/publishing/chat", "/api/editorial-demo/chat"} or bool(
-        re.fullmatch(r"/api/dossiers/[^/]+/(chat|imports)", path)
+        re.fullmatch(r"/api/dossiers/[^/]+/(chat|imports|revision-checks)", path)
         or re.fullmatch(r"/api/publishing/manuscripts/[^/]+/document-imports", path)
     )
 

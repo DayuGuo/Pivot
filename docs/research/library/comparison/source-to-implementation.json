@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "updated_date": "2026-11-05",
-  "scope": "Foundation14 + C1 + D4 + E3 + F3 + internal dossier4 =29 classes/357 fields. Internal dossiers are private pre-submission preparation artifacts, with static source bindings only; runtime/service/browser verification is maintained by lead in PROGRESS.md. Existing C/D/E/F evidence is preserved. Spec021 adds 1 project-governance human claim feedback class /16 fields; source binding is not execution proof.",
+  "scope": "Foundation14 + C1 + D4 + E3 + F3 + internal dossier4 =29 classes/357 fields. Internal dossiers are private pre-submission preparation artifacts, with static source bindings only; runtime/service/browser verification is maintained by lead in PROGRESS.md. Existing C/D/E/F evidence is preserved. Spec021 adds 1 project-governance human claim feedback class /16 fields; source binding is not execution proof. Spec027 adds private multi-version checks12 and human judgements15 fields; static provenance is not executed editor evaluation.",
   "data_contract": "specs/007-data-contract.md",
   "source_manifests": {
     "ojs": "ojs/source-manifest.json",
@@ -11815,6 +11815,385 @@
           "scope": "Original evidence, scope, tenant, draft/version and confirmed/inherited provenance"
         }
       ]
+    },
+    {
+      "class": "DossierRevisionCheck",
+      "module": "apps/api/publishing/domain/dossier_revision_models.py",
+      "table": "publishing_dossier_revision_checks",
+      "contract_source": "specs/027-internal-revision-contract.md",
+      "slice": "internal_revision_check",
+      "implementation_status": "implemented",
+      "migration_id": "28a7c1e09462",
+      "migration_status": "static_source_binding_only_runtime_verification_recorded_by_lead_in_PROGRESS",
+      "field_groups": [
+        {
+          "our_fields": [
+            "id",
+            "dossier_id",
+            "journal_id",
+            "base_version_id",
+            "revised_version_id",
+            "revision",
+            "materials_json",
+            "report_json",
+            "digest",
+            "created_by",
+            "session_hash",
+            "created_at"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+              "entity_type": "source"
+            },
+            {
+              "system": "janeway",
+              "source_id": "submission-model-fields.txt",
+              "entity_type": "source"
+            }
+          ],
+          "origin": "project_governance",
+          "adaptation": "Independently implemented private multi-version evidence packet and append-only three-layer human judgement. OJS/Janeway inspire separate versions, author snapshots and shared feedback; no identical upstream table or formal publication authority claimed.",
+          "migration_id": "28a7c1e09462"
+        }
+      ],
+      "our_fields": [
+        "id",
+        "dossier_id",
+        "journal_id",
+        "base_version_id",
+        "revised_version_id",
+        "revision",
+        "materials_json",
+        "report_json",
+        "digest",
+        "created_by",
+        "session_hash",
+        "created_at"
+      ],
+      "constraints": [
+        {
+          "rule": "Exact owner/journal/version/point/digest and current human session; append-only evidence and sequential judgements.",
+          "intended_acceptance": "Isolated SQL/API/source/replay/revocation regression; executed results recorded separately."
+        }
+      ],
+      "intended_acceptance": [
+        "Internal review uses actual versions without inventing author submission or editorial decision."
+      ],
+      "current_baseline": {
+        "system": "current-system",
+        "source_id": "apps/api/publishing/models.py",
+        "entity_type": "class",
+        "entity": "Manuscript"
+      },
+      "source_binding": {
+        "path": "apps/api/publishing/domain/dossier_revision_models.py",
+        "class_line": 20,
+        "fields": [
+          {
+            "name": "id",
+            "line": 51,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
+          },
+          {
+            "name": "dossier_id",
+            "line": 52,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "journal_id",
+            "line": 53,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "base_version_id",
+            "line": 54,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "revised_version_id",
+            "line": 55,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "revision",
+            "line": 56,
+            "annotation": "Mapped[int]",
+            "declaration": "mapped_column(Integer)"
+          },
+          {
+            "name": "materials_json",
+            "line": 57,
+            "annotation": "Mapped[dict]",
+            "declaration": "mapped_column(JSONB)"
+          },
+          {
+            "name": "report_json",
+            "line": 58,
+            "annotation": "Mapped[dict]",
+            "declaration": "mapped_column(JSONB)"
+          },
+          {
+            "name": "digest",
+            "line": 59,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "created_by",
+            "line": 60,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
+          },
+          {
+            "name": "session_hash",
+            "line": 61,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "created_at",
+            "line": 62,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True), default=now)"
+          }
+        ],
+        "table_args": {
+          "line": 22,
+          "declaration": "(UniqueConstraint('id', 'dossier_id', 'journal_id', name='uq_dossier_revision_check_scope'), ForeignKeyConstraint(['base_version_id', 'dossier_id', 'journal_id'], ['publishing_dossier_versions.id', 'publishing_dossier_versions.dossier_id', 'publishing_dossier_versions.journal_id'], name='fk_dossier_revision_base'), ForeignKeyConstraint(['revised_version_id', 'dossier_id', 'journal_id'], ['publishing_dossier_versions.id', 'publishing_dossier_versions.dossier_id', 'publishing_dossier_versions.journal_id'], name='fk_dossier_revision_revised'), CheckConstraint(\"revision>=2 AND base_version_id<>revised_version_id AND digest ~ '^[0-9a-f]{64}$' AND session_hash ~ '^[0-9a-f]{64}$'\", name='ck_dossier_revision_check_shape'), CheckConstraint(\"jsonb_typeof(materials_json)='object' AND octet_length(materials_json::text)<=262144 AND jsonb_typeof(report_json)='object' AND octet_length(report_json::text)<=262144\", name='ck_dossier_revision_check_json'))"
+        }
+      },
+      "field_revision_bindings": {
+        "id": "28a7c1e09462",
+        "dossier_id": "28a7c1e09462",
+        "journal_id": "28a7c1e09462",
+        "base_version_id": "28a7c1e09462",
+        "revised_version_id": "28a7c1e09462",
+        "revision": "28a7c1e09462",
+        "materials_json": "28a7c1e09462",
+        "report_json": "28a7c1e09462",
+        "digest": "28a7c1e09462",
+        "created_by": "28a7c1e09462",
+        "session_hash": "28a7c1e09462",
+        "created_at": "28a7c1e09462"
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "28a7c1e09462",
+          "names": [
+            "ck_dossier_revision_check_json",
+            "ck_dossier_revision_check_shape",
+            "fk_dossier_revision_base",
+            "fk_dossier_revision_revised",
+            "uq_dossier_revision_check_scope"
+          ],
+          "scope": "Internal packet provenance, tenant, immutable versions and append-only human judgements"
+        }
+      ]
+    },
+    {
+      "class": "DossierRevisionReview",
+      "module": "apps/api/publishing/domain/dossier_revision_models.py",
+      "table": "publishing_dossier_revision_reviews",
+      "contract_source": "specs/027-internal-revision-contract.md",
+      "slice": "internal_revision_check",
+      "implementation_status": "implemented",
+      "migration_id": "28a7c1e09462",
+      "migration_status": "static_source_binding_only_runtime_verification_recorded_by_lead_in_PROGRESS",
+      "field_groups": [
+        {
+          "our_fields": [
+            "id",
+            "check_id",
+            "dossier_id",
+            "journal_id",
+            "point_id",
+            "check_digest",
+            "response_verdict",
+            "implementation_verdict",
+            "editor_verdict",
+            "reason",
+            "review_no",
+            "reviewed_by",
+            "session_hash",
+            "created_at"
+          ],
+          "source_refs": [
+            {
+              "system": "ojs",
+              "source_id": "pkp-lib:classes/migration/install/SubmissionsMigration.php",
+              "entity_type": "source"
+            },
+            {
+              "system": "janeway",
+              "source_id": "submission-model-fields.txt",
+              "entity_type": "source"
+            }
+          ],
+          "origin": "project_governance",
+          "adaptation": "Independently implemented private multi-version evidence packet and append-only three-layer human judgement. OJS/Janeway inspire separate versions, author snapshots and shared feedback; no identical upstream table or formal publication authority claimed.",
+          "migration_id": "28a7c1e09462"
+        }
+      ],
+      "our_fields": [
+        "id",
+        "check_id",
+        "dossier_id",
+        "journal_id",
+        "point_id",
+        "check_digest",
+        "response_verdict",
+        "implementation_verdict",
+        "editor_verdict",
+        "reason",
+        "review_no",
+        "reviewed_by",
+        "session_hash",
+        "created_at"
+      ],
+      "constraints": [
+        {
+          "rule": "Exact owner/journal/version/point/digest and current human session; append-only evidence and sequential judgements.",
+          "intended_acceptance": "Isolated SQL/API/source/replay/revocation regression; executed results recorded separately."
+        }
+      ],
+      "intended_acceptance": [
+        "Internal review uses actual versions without inventing author submission or editorial decision."
+      ],
+      "current_baseline": {
+        "system": "current-system",
+        "source_id": "apps/api/publishing/models.py",
+        "entity_type": "class",
+        "entity": "Manuscript"
+      },
+      "source_binding": {
+        "path": "apps/api/publishing/domain/dossier_revision_models.py",
+        "class_line": 65,
+        "fields": [
+          {
+            "name": "id",
+            "line": 87,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
+          },
+          {
+            "name": "check_id",
+            "line": 88,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "dossier_id",
+            "line": 89,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "journal_id",
+            "line": 90,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36))"
+          },
+          {
+            "name": "point_id",
+            "line": 91,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(8))"
+          },
+          {
+            "name": "check_digest",
+            "line": 92,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "response_verdict",
+            "line": 93,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(20))"
+          },
+          {
+            "name": "implementation_verdict",
+            "line": 94,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(20))"
+          },
+          {
+            "name": "editor_verdict",
+            "line": 95,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(20))"
+          },
+          {
+            "name": "reason",
+            "line": 96,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(2000))"
+          },
+          {
+            "name": "review_no",
+            "line": 97,
+            "annotation": "Mapped[int]",
+            "declaration": "mapped_column(Integer)"
+          },
+          {
+            "name": "reviewed_by",
+            "line": 98,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(36), ForeignKey('users.id'))"
+          },
+          {
+            "name": "session_hash",
+            "line": 99,
+            "annotation": "Mapped[str]",
+            "declaration": "mapped_column(String(64))"
+          },
+          {
+            "name": "created_at",
+            "line": 100,
+            "annotation": "Mapped[datetime]",
+            "declaration": "mapped_column(DateTime(timezone=True), default=now)"
+          }
+        ],
+        "table_args": {
+          "line": 67,
+          "declaration": "(ForeignKeyConstraint(['check_id', 'dossier_id', 'journal_id'], ['publishing_dossier_revision_checks.id', 'publishing_dossier_revision_checks.dossier_id', 'publishing_dossier_revision_checks.journal_id'], name='fk_dossier_revision_review_check'), UniqueConstraint('check_id', 'point_id', 'review_no', name='uq_dossier_revision_review_no'), CheckConstraint(\"point_id ~ '^P0[1-8]$' AND review_no>=1 AND check_digest ~ '^[0-9a-f]{64}$' AND session_hash ~ '^[0-9a-f]{64}$'\", name='ck_dossier_revision_review_shape'), CheckConstraint(\"response_verdict IN ('addressed','not_addressed','uncertain') AND implementation_verdict IN ('changed','partial','unchanged','not_located','uncertain') AND editor_verdict IN ('sufficient','follow_up','needs_judgment') AND length(btrim(reason)) BETWEEN 5 AND 2000\", name='ck_dossier_revision_review_verdicts'))"
+        }
+      },
+      "field_revision_bindings": {
+        "id": "28a7c1e09462",
+        "check_id": "28a7c1e09462",
+        "dossier_id": "28a7c1e09462",
+        "journal_id": "28a7c1e09462",
+        "point_id": "28a7c1e09462",
+        "check_digest": "28a7c1e09462",
+        "response_verdict": "28a7c1e09462",
+        "implementation_verdict": "28a7c1e09462",
+        "editor_verdict": "28a7c1e09462",
+        "reason": "28a7c1e09462",
+        "review_no": "28a7c1e09462",
+        "reviewed_by": "28a7c1e09462",
+        "session_hash": "28a7c1e09462",
+        "created_at": "28a7c1e09462"
+      },
+      "constraint_revision_bindings": [
+        {
+          "revision": "28a7c1e09462",
+          "names": [
+            "ck_dossier_revision_review_shape",
+            "ck_dossier_revision_review_verdicts",
+            "fk_dossier_revision_review_check",
+            "uq_dossier_revision_review_no"
+          ],
+          "scope": "Internal packet provenance, tenant, immutable versions and append-only human judgements"
+        }
+      ]
     }
   ],
   "additional_contracts": [
@@ -11936,6 +12315,16 @@
       "new_models": {
         "FormalDocumentImport": "publishing_formal_document_imports",
         "FormalDocumentBinding": "publishing_formal_document_bindings"
+      },
+      "extended_fields": {},
+      "extended_constraints": {}
+    },
+    {
+      "path": "specs/027-internal-revision-contract.md",
+      "migration_id": "28a7c1e09462",
+      "new_models": {
+        "DossierRevisionCheck": "publishing_dossier_revision_checks",
+        "DossierRevisionReview": "publishing_dossier_revision_reviews"
       },
       "extended_fields": {},
       "extended_constraints": {}
@@ -12356,6 +12745,61 @@
           "name": "publishing_formal_document_guard",
           "normalization": "strip_and_create_or_replace",
           "sha256": "a7e4e446cbdaaffe633bddc153134c4b47d6a650d11f165fdf1e4b4900ad0fb3"
+        }
+      ]
+    },
+    {
+      "revision": "28a7c1e09462",
+      "down_revision": "f59230d88725",
+      "path": "infrastructure/migrations/versions/28a7c1e09462_internal_revision_checks.py",
+      "sha256": "1c2743246ec5469fe70bd3b3a1134f28b84b99f7cdc3f51939b02ef7e2cc6d87",
+      "validation_scope": "Static source binding; execution separately in PROGRESS",
+      "sql_functions": [
+        "publishing_dossier_revision_guard"
+      ],
+      "deferred_triggers": [],
+      "row_triggers": [],
+      "truncate_triggers": [
+        {
+          "name": "dossier_revision_truncate",
+          "table": "publishing_dossier_revision_checks",
+          "function": "publishing_dossier_immutable"
+        },
+        {
+          "name": "dossier_revision_truncate",
+          "table": "publishing_dossier_revision_reviews",
+          "function": "publishing_dossier_immutable"
+        }
+      ],
+      "insert_triggers": [
+        {
+          "name": "dossier_revision_insert",
+          "table": "publishing_dossier_revision_checks",
+          "function": "publishing_dossier_revision_guard"
+        },
+        {
+          "name": "dossier_revision_insert",
+          "table": "publishing_dossier_revision_reviews",
+          "function": "publishing_dossier_revision_guard"
+        }
+      ],
+      "update_delete_triggers": [
+        {
+          "name": "dossier_revision_immutable",
+          "table": "publishing_dossier_revision_checks",
+          "function": "publishing_dossier_immutable"
+        },
+        {
+          "name": "dossier_revision_immutable",
+          "table": "publishing_dossier_revision_reviews",
+          "function": "publishing_dossier_immutable"
+        }
+      ],
+      "sql_function_fingerprints": [
+        {
+          "name": "publishing_dossier_revision_guard",
+          "normalization": "strip_and_create_or_replace",
+          "sha256": "b65fd48a903e333073fae292f098ccd37a7c0a4464dca5e3ee406815a320825f"
         }
       ]
     }

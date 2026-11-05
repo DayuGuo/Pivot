@@ -1,0 +1,15 @@
+{
+  "parser": "pinned-upstream-manifest-field-v1",
+  "text": "This pre-registered cross-sectional online survey study ( https://doi.org/10.17605/OSF.IO/QA9GN) aims to assess biomedical researchers' attitudes towards preprinting as well as the factors, incentives and motivations that affect their opinions or decisions about preprints. Factors such as scientific journal policies, co-author consensus, lead author consensus, funding agency policies, and employers or host research institute perspectives were considered. The scientific questions posed by the authors are important in understanding the behavior of biomedical scientists in authoring, searching, accessing, reading, reviewing, citing, accepting or rejecting the evidence presented in preprints. The survey includes demographics, scientific publishing, preprint and peer review related questions. The collected survey data suggested a significant degree of familiarity with the preprint concept in biomedical scientific communication, viewing or downloading a preprint. However, the participants exhibited limited previous preprint contributions and lack of willingness to contribute or cite one in the future. Also, only a handful of the responders have participated in peer reviewing of preprints.",
+  "segments": [
+    {
+      "kind": "manifest_field",
+      "number": 1,
+      "start": 0,
+      "end": 1201
+    }
+  ],
+  "warnings": [
+    "Selected licensed review paragraph only; not a complete report or author reply."
+  ]
+}

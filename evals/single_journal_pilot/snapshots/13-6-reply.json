@@ -1,0 +1,16 @@
+{
+  "parser": "defusedxml-0.7.1-ooxml-v2",
+  "text": "The title of the manuscript remained unchanged. However, the abstract has been updated to provide a more neutral framing of the study, ensuring that the discussion of preprints and peer review is balanced and supported by the study data, rather than presenting a preconceived notion in favor of preprinting. Regarding the author list, no changes were required. In the methods section, we revised the sampling framework to address concerns about journal selection. We clarified the use of filters from the NLM catalog to ensure that only journal entries were included, and provided a list of the 400 journals used as supplementary data. Additional clarifications were made regarding the expected response rate, citing literature to support our initial prediction and addressing the reviewer’s request for more context on ResearchGate's inclusion as a preprint platform. We also added a reference for the MedRxiv preprint and revised citations to conform with F1000Research’s citation guidelines for web links. In the results section, Table 3 has been updated to include percentages, improving the consistency of data presentation across all tables. Moreover, we re-emphasized the unfamiliarity of journal policies regarding preprints, rather than attributing the lack of preprinting behavior solely to unsupportive journal policies, as initially suggested. Lastly, in the discussion, we addressed concerns about the framing of peer review and preprints. Changes were made to the introduction and background to better contextualize the survey results, highlighting concerns around peer review and preprinting in a balanced manner. The strengths and limitations section was also updated to reflect limitations regarding the dominance of clinical researchers in the sample.",
+  "segments": [
+    {
+      "kind": "docx_paragraph",
+      "number": 1,
+      "start": 0,
+      "end": 1769
+    }
+  ],
+  "warnings": [
+    "docx_paragraph_numbers_are_extraction_order_not_page_numbers",
+    "tables_notes_headers_footers_are_linearized"
+  ]
+}

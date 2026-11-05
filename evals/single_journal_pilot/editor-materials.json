@@ -1,0 +1,680 @@
+{
+  "schema": "pilot-editor-materials.v1",
+  "reference_judgments_included": false,
+  "prior_exposure": "All six papers were already available for engineering debugging. The retained subset is reserved from this freeze onward, not a new blind test.",
+  "papers": [
+    {
+      "id": "zenodo:19059298",
+      "corpus": "documents",
+      "upstream_id": "clinical",
+      "title": "Clinical Practice Guidelines recommendations versus Cochrane systematic reviews on the management of decompensated liver cirrhosis in USA and Europe",
+      "source_url": "https://zenodo.org/records/19059298",
+      "license": {
+        "id": "CC-BY-4.0",
+        "evidence_url": "https://zenodo.org/api/records/19059298",
+        "statement": {
+          "id": "cc-by-4.0"
+        }
+      },
+      "credit": [
+        "Kurinchi Gurusamy",
+        "Danielle Roberts",
+        "Jeffrey Leung",
+        "Alastair O’Brien",
+        "Christian Gluud",
+        "Dimitrinka Nikolova",
+        "Chavdar Pavlov",
+        "Brian Davidson"
+      ]
+    },
+    {
+      "id": "doi:10.1371/journal.pcbi.1003285",
+      "corpus": "documents",
+      "upstream_id": "reproducible",
+      "title": "Ten Simple Rules for Reproducible Computational Research",
+      "source_url": "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003285",
+      "license": {
+        "id": "CC-BY",
+        "version": "not specified in article statement",
+        "evidence_url": "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003285",
+        "statement": "This is an open-access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are credited."
+      },
+      "credit": [
+        "Geir Kjetil Sandve",
+        "Anton Nekrutenko",
+        "James Taylor",
+        "Eivind Hovig"
+      ]
+    },
+    {
+      "id": "doi:10.1371/journal.pmed.0020124",
+      "corpus": "documents",
+      "upstream_id": "research-findings",
+      "title": "Why Most Published Research Findings Are False",
+      "source_url": "https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.0020124",
+      "license": {
+        "id": "CC-BY",
+        "version": "not specified in article statement",
+        "evidence_url": "https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.0020124",
+        "statement": "This is an open-access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited."
+      },
+      "credit": [
+        "John P. A. Ioannidis"
+      ]
+    },
+    {
+      "id": "doi:10.12688/f1000research.5686",
+      "corpus": "revisions",
+      "upstream_id": "oath",
+      "title": "An Open Science Peer Review Oath",
+      "source_url": "https://f1000research.com/articles/3-271",
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "evidence_url": "https://f1000research.com/articles/3-271/v2/xml"
+      },
+      "credit": [
+        "Aleksic Jelena",
+        "Alexa Adrian",
+        "Attwood Teresa K",
+        "Chue Hong Neil",
+        "Dahlö Martin",
+        "Davey Robert",
+        "Dinkel Holger",
+        "Förstner Konrad U",
+        "Grigorov Ivo",
+        "Hériché Jean-Karim",
+        "Lahti Leo",
+        "MacLean Dan",
+        "Markie Michael L",
+        "Molloy Jenny",
+        "Schneider Maria Victoria",
+        "Scott Camille",
+        "Smith-Unna Richard",
+        "Vieira Bruno Miguel"
+      ]
+    },
+    {
+      "id": "doi:10.12688/f1000research.154614",
+      "corpus": "revisions",
+      "upstream_id": "13-921",
+      "title": "Key Guidelines for Responding to Reviewers",
+      "source_url": "https://f1000research.com/articles/13-921",
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "evidence_url": "https://f1000research.com/articles/13-921/v2/xml"
+      },
+      "credit": [
+        "Hidouri Saida",
+        "Kamoun Hela",
+        "Salah Sana",
+        "Jellad Anis",
+        "Ben Saad Helmi"
+      ]
+    },
+    {
+      "id": "doi:10.12688/f1000research.143013",
+      "corpus": "revisions",
+      "upstream_id": "13-6",
+      "title": "An international, cross-sectional survey of preprint attitudes among biomedical researchers",
+      "source_url": "https://f1000research.com/articles/13-6",
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "evidence_url": "https://f1000research.com/articles/13-6/v2/xml"
+      },
+      "credit": [
+        "Ng Jeremy Y.",
+        "Chow Valerie",
+        "Santoro Lucas J.",
+        "Armond Anna Catharina Vieira",
+        "Pirshahid Sanam Ebrahimzadeh",
+        "Cobey Kelly D.",
+        "Moher David"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "clinical",
+      "paper_id": "zenodo:19059298",
+      "version": "source-record",
+      "role": "manuscript",
+      "scope": "parsed_text_only_not_figures_or_layout",
+      "path": "artifacts/public-papers/19059298/Manuscript.docx",
+      "sha256": "44dfce02157372d4f62e47d8f3c3474fda8427b4042fbe08f2a1e2f7bde44203",
+      "snapshot": "snapshots/clinical.json",
+      "snapshot_sha256": "9557a6a6e1a26a2301aa6a44806ba94cebc9806ab988008457b91251e5e16049",
+      "text_sha256": "e274faed9f9b7b553650e2a76466f4df8153f7463aafef37fd8f9fb3d8f4a08a",
+      "parser": "defusedxml-0.7.1-ooxml-v2",
+      "binding": {
+        "kind": "manuscript",
+        "case": "clinical-word"
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "evidence_url": "https://zenodo.org/api/records/19059298",
+        "statement": {
+          "id": "cc-by-4.0"
+        }
+      }
+    },
+    {
+      "id": "reproducible",
+      "paper_id": "doi:10.1371/journal.pcbi.1003285",
+      "version": "source-record",
+      "role": "manuscript",
+      "scope": "parsed_text_only_not_figures_or_layout",
+      "path": "artifacts/public-papers/reproducible/article.pdf",
+      "sha256": "35648a3880bdd8bf30e8212a3847b7bd35f504ee5ccbd1ad3856d206acd181db",
+      "snapshot": "snapshots/reproducible.json",
+      "snapshot_sha256": "c29153abcb8b6ae7c880f083ab2673e9776a17f274715a300b99bde06ca0e899",
+      "text_sha256": "49389e72a3cec0f5c240936c4aefe1997887d7f591c39b5ef529454f920b4e51",
+      "parser": "pypdf-6.21.4-text-v3",
+      "binding": {
+        "kind": "manuscript",
+        "case": "reproducible-pdf"
+      },
+      "license": {
+        "id": "CC-BY",
+        "version": "not specified in article statement",
+        "evidence_url": "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003285",
+        "statement": "This is an open-access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are credited."
+      }
+    },
+    {
+      "id": "research-findings",
+      "paper_id": "doi:10.1371/journal.pmed.0020124",
+      "version": "source-record",
+      "role": "manuscript",
+      "scope": "parsed_text_only_not_figures_or_layout",
+      "path": "artifacts/public-papers/research-findings/article.pdf",
+      "sha256": "ffc1005680cb620eec4c913437dfabbf311b535cfe16cbaeb2faec1f92afc362",
+      "snapshot": "snapshots/research-findings.json",
+      "snapshot_sha256": "6228227d40d8e8727a6175d97a2622eb7dad0349cdad40e133acfa3847beb0f2",
+      "text_sha256": "6ed9c0b7b58d620a7a7b6eb995c24a265c0fa2e67c63beb6719fa40da276681b",
+      "parser": "pypdf-6.21.4-text-v3",
+      "binding": {
+        "kind": "manuscript",
+        "case": "research-findings-pdf"
+      },
+      "license": {
+        "id": "CC-BY",
+        "version": "not specified in article statement",
+        "evidence_url": "https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.0020124",
+        "statement": "This is an open-access article distributed under the terms of the Creative Commons Attribution License, which permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited."
+      }
+    },
+    {
+      "id": "oath-v1",
+      "paper_id": "doi:10.12688/f1000research.5686",
+      "version": "1",
+      "role": "manuscript",
+      "scope": "parsed_text_only_not_figures_or_layout",
+      "path": "evals/public_revisions/oath/v1.docx",
+      "sha256": "f6b0f8e8770110f241596454e58f1a86eb746ade970b5b2481790803264be9db",
+      "snapshot": "snapshots/oath-v1.json",
+      "snapshot_sha256": "746854da99115266b8bb9d81afc089ffd0da4f3812c9488ee222bc97e0184e92",
+      "text_sha256": "bd01643417ad0ac2c283564f7b6b692e6af04ba6969571f589f904039cd643b3",
+      "parser": "defusedxml-0.7.1-ooxml-v2",
+      "binding": {
+        "kind": "manuscript",
+        "format": "docx"
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "evidence_url": "https://f1000research.com/articles/3-271/v2/xml"
+      }
+    },
+    {
+      "id": "oath-v2",
+      "paper_id": "doi:10.12688/f1000research.5686",
+      "version": "2",
+      "role": "manuscript",
+      "scope": "parsed_text_only_not_figures_or_layout",
+      "path": "evals/public_revisions/oath/v2.docx",
+      "sha256": "02ac9e5ab954c169f149e3bd37a2546cbb4d2219c49ff459e24c0792f9434deb",
+      "snapshot": "snapshots/oath-v2.json",
+      "snapshot_sha256": "ac613c7a212e93ea44c5305ada477e315acee1e6560b1b5f79e09296990f3ffb",
+      "text_sha256": "bd7acf3bc8376191afbf432ca85178d8f8ac2383fe60ea6750aa074cc6b26bd7",
+      "parser": "defusedxml-0.7.1-ooxml-v2",
+      "binding": {
+        "kind": "manuscript",
+        "format": "docx"
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "evidence_url": "https://f1000research.com/articles/3-271/v2/xml"
+      }
+    },
+    {
+      "id": "oath-reply",
+      "paper_id": "doi:10.12688/f1000research.5686",
+      "version": "2",
+      "role": "response_excerpt",
+      "scope": "published_revision_note_excerpt_not_complete_reply",
+      "path": "evals/public_revisions/oath/author-revision-note.docx",
+      "sha256": "9bf8c946407b3059ff350e17579495580fc7d26b129b7f1a5916657a8454bc13",
+      "snapshot": "snapshots/oath-reply.json",
+      "snapshot_sha256": "cd3459d026193e8bb431b78eefac9e55fda71831320c556a213075b17987a1dd",
+      "text_sha256": "937dd73e558b3b0b3c5c9a272ea3704ed1e74955bf5af7fabfaee8e76580d62f",
+      "parser": "defusedxml-0.7.1-ooxml-v2",
+      "binding": {
+        "kind": "response_excerpt"
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "evidence_url": "https://f1000research.com/articles/3-271/v2/xml"
+      }
+    },
+    {
+      "id": "oath-review-0",
+      "paper_id": "doi:10.12688/f1000research.5686",
+      "version": "review-of-v1",
+      "role": "review_requirement",
+      "scope": "selected_licensed_report_paragraph",
+      "path": "evals/public_revisions/manifest.json",
+      "sha256": "3e606d6578f35dde99c1c42bbe9b99fa8823718d20c8419751b923840a968e57",
+      "snapshot": "snapshots/oath-review-0.json",
+      "snapshot_sha256": "3b4e7ea43410b3570a49246a1ee3205d02179e5946296d7c26754ecfe77d5968",
+      "text_sha256": "04a9f1b7eaacd1e6597dfe465ec56ba78275c8bdd5d05d4b431b8bbe07457246",
+      "parser": "pinned-upstream-manifest-field-v1",
+      "binding": {
+        "kind": "review_requirement",
+        "index": 0
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "evidence_url": "https://doi.org/10.5256/f1000research.6078.r6797",
+        "credit": "Chambers Christopher D"
+      },
+      "field_path": [
+        "cases",
+        0,
+        "review_requirements",
+        0,
+        "text"
+      ]
+    },
+    {
+      "id": "oath-review-1",
+      "paper_id": "doi:10.12688/f1000research.5686",
+      "version": "review-of-v1",
+      "role": "review_requirement",
+      "scope": "selected_licensed_report_paragraph",
+      "path": "evals/public_revisions/manifest.json",
+      "sha256": "3e606d6578f35dde99c1c42bbe9b99fa8823718d20c8419751b923840a968e57",
+      "snapshot": "snapshots/oath-review-1.json",
+      "snapshot_sha256": "e00a2c827e7bbfe8d3b4d0bb380551b60c33ec6be8f54fd3a7316bc3d84c78ff",
+      "text_sha256": "64cd180e734b80e4d9e2d3d1368cb41959b96ea38009fcdd72a01b800e77db49",
+      "parser": "pinned-upstream-manifest-field-v1",
+      "binding": {
+        "kind": "review_requirement",
+        "index": 1
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "evidence_url": "https://doi.org/10.5256/f1000research.6078.r6802",
+        "credit": "Joly Etienne"
+      },
+      "field_path": [
+        "cases",
+        0,
+        "review_requirements",
+        1,
+        "text"
+      ]
+    },
+    {
+      "id": "oath-review-2",
+      "paper_id": "doi:10.12688/f1000research.5686",
+      "version": "review-of-v1",
+      "role": "review_requirement",
+      "scope": "selected_licensed_report_paragraph",
+      "path": "evals/public_revisions/manifest.json",
+      "sha256": "3e606d6578f35dde99c1c42bbe9b99fa8823718d20c8419751b923840a968e57",
+      "snapshot": "snapshots/oath-review-2.json",
+      "snapshot_sha256": "65c5b2c7fc868d651785df93e531dcfec9ed60f553105372a7a29fb741191bea",
+      "text_sha256": "a3be5bc37bf2693f3a887f8b72daf788cc399d876bed93edf19e30e87bd6e177",
+      "parser": "pinned-upstream-manifest-field-v1",
+      "binding": {
+        "kind": "review_requirement",
+        "index": 2
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "evidence_url": "https://doi.org/10.5256/f1000research.6078.r6800",
+        "credit": "Kane Lawrence Patrick"
+      },
+      "field_path": [
+        "cases",
+        0,
+        "review_requirements",
+        2,
+        "text"
+      ]
+    },
+    {
+      "id": "13-921-v1",
+      "paper_id": "doi:10.12688/f1000research.154614",
+      "version": "1",
+      "role": "manuscript",
+      "scope": "parsed_text_only_not_figures_or_layout",
+      "path": "evals/public_revisions/13-921/v1.docx",
+      "sha256": "3ad86d94ff00d69e9f8c34902982b0d15f96f96477f7b737f7440d9fc1911ce3",
+      "snapshot": "snapshots/13-921-v1.json",
+      "snapshot_sha256": "7cd3e0441ce62e93fe65f3816c2a86d085d5d99a1393d3bd7cdc73e3746c21ad",
+      "text_sha256": "6388ef26b2c360b3eb8169e8f3230379c5614dd525653cdf4756849eef44345e",
+      "parser": "defusedxml-0.7.1-ooxml-v2",
+      "binding": {
+        "kind": "manuscript",
+        "format": "docx"
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "evidence_url": "https://f1000research.com/articles/13-921/v2/xml"
+      }
+    },
+    {
+      "id": "13-921-v2",
+      "paper_id": "doi:10.12688/f1000research.154614",
+      "version": "2",
+      "role": "manuscript",
+      "scope": "parsed_text_only_not_figures_or_layout",
+      "path": "evals/public_revisions/13-921/v2.docx",
+      "sha256": "6a65b97bbe837a939280a48699dd7327b24a419a5c2c53aa5e7d62b501a9bd7c",
+      "snapshot": "snapshots/13-921-v2.json",
+      "snapshot_sha256": "b771c62e1171792ca316b8cfae18bda1828a974359414af4243a0c138c175ac4",
+      "text_sha256": "ef9da4f6209d195f1cb5c1b9e7e56912420d8e7952dac872e4a9b3e5ed6c3cb5",
+      "parser": "defusedxml-0.7.1-ooxml-v2",
+      "binding": {
+        "kind": "manuscript",
+        "format": "docx"
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "evidence_url": "https://f1000research.com/articles/13-921/v2/xml"
+      }
+    },
+    {
+      "id": "13-921-reply",
+      "paper_id": "doi:10.12688/f1000research.154614",
+      "version": "2",
+      "role": "response_excerpt",
+      "scope": "published_revision_note_excerpt_not_complete_reply",
+      "path": "evals/public_revisions/13-921/author-revision-note.docx",
+      "sha256": "2064ec798811318e62f4f74e18da5a15cb7f0930cf0980b97ba8d529c1b0692d",
+      "snapshot": "snapshots/13-921-reply.json",
+      "snapshot_sha256": "b9d3f47b0d255d2b3dc962b69270a169716e5c766633d119c79132f004eab2ce",
+      "text_sha256": "3916eb8e0a2035c47652ca45e3fc859d8a5bb707bad6330c3deeffc493c945c1",
+      "parser": "defusedxml-0.7.1-ooxml-v2",
+      "binding": {
+        "kind": "response_excerpt"
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "evidence_url": "https://f1000research.com/articles/13-921/v2/xml"
+      }
+    },
+    {
+      "id": "13-921-review-0",
+      "paper_id": "doi:10.12688/f1000research.154614",
+      "version": "review-of-v1",
+      "role": "review_requirement",
+      "scope": "selected_licensed_report_paragraph",
+      "path": "evals/public_revisions/manifest.json",
+      "sha256": "3e606d6578f35dde99c1c42bbe9b99fa8823718d20c8419751b923840a968e57",
+      "snapshot": "snapshots/13-921-review-0.json",
+      "snapshot_sha256": "072620cb91c2cab8bdf68d0df0e19b5c8590a7e79458e5a2f4c674a8e83d2c77",
+      "text_sha256": "c914544765f228b90c02399e39e41b4053c376dd6c797955090fe631e26897d0",
+      "parser": "pinned-upstream-manifest-field-v1",
+      "binding": {
+        "kind": "review_requirement",
+        "index": 0
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "evidence_url": "https://doi.org/10.5256/f1000research.169662.r316498",
+        "credit": "Maddi Abdelghani"
+      },
+      "field_path": [
+        "cases",
+        1,
+        "review_requirements",
+        0,
+        "text"
+      ]
+    },
+    {
+      "id": "13-921-review-1",
+      "paper_id": "doi:10.12688/f1000research.154614",
+      "version": "review-of-v1",
+      "role": "review_requirement",
+      "scope": "selected_licensed_report_paragraph",
+      "path": "evals/public_revisions/manifest.json",
+      "sha256": "3e606d6578f35dde99c1c42bbe9b99fa8823718d20c8419751b923840a968e57",
+      "snapshot": "snapshots/13-921-review-1.json",
+      "snapshot_sha256": "1a1928946c6ea8cce7b830665ad222c11322753f4c59e63e91fca62deb368da8",
+      "text_sha256": "da833f4c72ba463be10b28324c28aaf2a0c76323a212e29f50e8596d2b21eb86",
+      "parser": "pinned-upstream-manifest-field-v1",
+      "binding": {
+        "kind": "review_requirement",
+        "index": 1
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "evidence_url": "https://doi.org/10.5256/f1000research.169662.r316507",
+        "credit": "Khaled Meghit Boumediene"
+      },
+      "field_path": [
+        "cases",
+        1,
+        "review_requirements",
+        1,
+        "text"
+      ]
+    },
+    {
+      "id": "13-921-review-2",
+      "paper_id": "doi:10.12688/f1000research.154614",
+      "version": "review-of-v1",
+      "role": "review_requirement",
+      "scope": "selected_licensed_report_paragraph",
+      "path": "evals/public_revisions/manifest.json",
+      "sha256": "3e606d6578f35dde99c1c42bbe9b99fa8823718d20c8419751b923840a968e57",
+      "snapshot": "snapshots/13-921-review-2.json",
+      "snapshot_sha256": "c4066ea64442c32affab4248f6a38afb990598658757f183f50e3eef8ff154a0",
+      "text_sha256": "aaf1c959492820c31be584b00bb6901a2bd75bbe8c83cdf2295b8cf4b7b197f9",
+      "parser": "pinned-upstream-manifest-field-v1",
+      "binding": {
+        "kind": "review_requirement",
+        "index": 2
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "evidence_url": "https://doi.org/10.5256/f1000research.169662.r316507",
+        "credit": "Khaled Meghit Boumediene"
+      },
+      "field_path": [
+        "cases",
+        1,
+        "review_requirements",
+        2,
+        "text"
+      ]
+    },
+    {
+      "id": "13-6-v1",
+      "paper_id": "doi:10.12688/f1000research.143013",
+      "version": "1",
+      "role": "manuscript",
+      "scope": "parsed_text_only_not_figures_or_layout",
+      "path": "evals/public_revisions/13-6/v1.docx",
+      "sha256": "4433d0966d43636151bb6f4621fc526d3b824f69b866a5713fabec664577e9fd",
+      "snapshot": "snapshots/13-6-v1.json",
+      "snapshot_sha256": "666a044efe35ffd80c1d165ed5887bf06de7bfac9d679cab8c0086172963bd5e",
+      "text_sha256": "b44b615eeb21fb52f2cd380c9b9e1a58f076406ab173168e27f2810f24443edd",
+      "parser": "defusedxml-0.7.1-ooxml-v2",
+      "binding": {
+        "kind": "manuscript",
+        "format": "docx"
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "evidence_url": "https://f1000research.com/articles/13-6/v2/xml"
+      }
+    },
+    {
+      "id": "13-6-v2",
+      "paper_id": "doi:10.12688/f1000research.143013",
+      "version": "2",
+      "role": "manuscript",
+      "scope": "parsed_text_only_not_figures_or_layout",
+      "path": "evals/public_revisions/13-6/v2.docx",
+      "sha256": "2471e7f30c9e6c47f0fafe8104c801050294f01c039937738cbcffcff142f8cf",
+      "snapshot": "snapshots/13-6-v2.json",
+      "snapshot_sha256": "6591bdebbf1a0b2ac915e284e80e3c312c86b7085ca24fdca628a967efc926a0",
+      "text_sha256": "2872a61f3a5ddeb64719efd819ccceee7751fee99b13da2e53330fc9aae5b2d1",
+      "parser": "defusedxml-0.7.1-ooxml-v2",
+      "binding": {
+        "kind": "manuscript",
+        "format": "docx"
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "evidence_url": "https://f1000research.com/articles/13-6/v2/xml"
+      }
+    },
+    {
+      "id": "13-6-reply",
+      "paper_id": "doi:10.12688/f1000research.143013",
+      "version": "2",
+      "role": "response_excerpt",
+      "scope": "published_revision_note_excerpt_not_complete_reply",
+      "path": "evals/public_revisions/13-6/author-revision-note.docx",
+      "sha256": "8c233eefac58112306962020a7b3c1ee31091d20a08ce1e732c339aef2cfccdd",
+      "snapshot": "snapshots/13-6-reply.json",
+      "snapshot_sha256": "0da87225abfac27c1bd9aa8c7e03e67e02a956bac0d37de87999a1bf5c9f6e83",
+      "text_sha256": "3e102e76b181a15b7738995cb2d200594027beb61bd8d0e61c6c0f33aa24c7e3",
+      "parser": "defusedxml-0.7.1-ooxml-v2",
+      "binding": {
+        "kind": "response_excerpt"
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "evidence_url": "https://f1000research.com/articles/13-6/v2/xml"
+      }
+    },
+    {
+      "id": "13-6-review-0",
+      "paper_id": "doi:10.12688/f1000research.143013",
+      "version": "review-of-v1",
+      "role": "review_requirement",
+      "scope": "selected_licensed_report_paragraph",
+      "path": "evals/public_revisions/manifest.json",
+      "sha256": "3e606d6578f35dde99c1c42bbe9b99fa8823718d20c8419751b923840a968e57",
+      "snapshot": "snapshots/13-6-review-0.json",
+      "snapshot_sha256": "b94b8c5db1dd0d5a5f35c99177ee17d13cce932d0f427622e0c5fa6cedbc327f",
+      "text_sha256": "13f35214b4774f97cb50ca3fa8729b962a79c86f76f0cfae68e0e85fd5fd0dc3",
+      "parser": "pinned-upstream-manifest-field-v1",
+      "binding": {
+        "kind": "review_requirement",
+        "index": 0
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "evidence_url": "https://doi.org/10.5256/f1000research.156628.r280674",
+        "credit": "Chaleplioglou Artemis"
+      },
+      "field_path": [
+        "cases",
+        2,
+        "review_requirements",
+        0,
+        "text"
+      ]
+    },
+    {
+      "id": "13-6-review-1",
+      "paper_id": "doi:10.12688/f1000research.143013",
+      "version": "review-of-v1",
+      "role": "review_requirement",
+      "scope": "selected_licensed_report_paragraph",
+      "path": "evals/public_revisions/manifest.json",
+      "sha256": "3e606d6578f35dde99c1c42bbe9b99fa8823718d20c8419751b923840a968e57",
+      "snapshot": "snapshots/13-6-review-1.json",
+      "snapshot_sha256": "d02e556ae3d0df16852e6bbaf9d0d95ed1b027ff33f03eb31766312ee6768118",
+      "text_sha256": "11ba8c3208a0b6f094205f5b35ae064d7fcbcebea3be06c4fe35485a95901a8a",
+      "parser": "pinned-upstream-manifest-field-v1",
+      "binding": {
+        "kind": "review_requirement",
+        "index": 1
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "evidence_url": "https://doi.org/10.5256/f1000research.156628.r291988",
+        "credit": "Powell Kimberly"
+      },
+      "field_path": [
+        "cases",
+        2,
+        "review_requirements",
+        1,
+        "text"
+      ]
+    },
+    {
+      "id": "13-6-review-2",
+      "paper_id": "doi:10.12688/f1000research.143013",
+      "version": "review-of-v1",
+      "role": "review_requirement",
+      "scope": "selected_licensed_report_paragraph",
+      "path": "evals/public_revisions/manifest.json",
+      "sha256": "3e606d6578f35dde99c1c42bbe9b99fa8823718d20c8419751b923840a968e57",
+      "snapshot": "snapshots/13-6-review-2.json",
+      "snapshot_sha256": "b089c81176587226df47c73ac2d0f92c3c4584df5d61cf1fc2823c4184065313",
+      "text_sha256": "edc2d4a0d5239f00fd15a5c60ba13d3f250ad8b54a2615d41690316ea18801e6",
+      "parser": "pinned-upstream-manifest-field-v1",
+      "binding": {
+        "kind": "review_requirement",
+        "index": 2
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "evidence_url": "https://doi.org/10.5256/f1000research.156628.r280674",
+        "credit": "Chaleplioglou Artemis"
+      },
+      "field_path": [
+        "cases",
+        2,
+        "review_requirements",
+        2,
+        "text"
+      ]
+    }
+  ],
+  "limitations": [
+    "Reference judgments require independent editor review; no external reviewers are assigned.",
+    "All revision replies are published note excerpts, not complete rebuttal letters.",
+    "Raw source files remain at their recorded paths; source licences and transformations follow the upstream manifests."
+  ]
+}

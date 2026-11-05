@@ -190,6 +190,7 @@ def test_saturated_http_has_no_receipt_and_does_not_block_human_reads(
         for path in (
             f"/api/dossiers/{item['id']}/chat",
             f"/api/dossiers/{item['id']}/imports",
+            f"/api/dossiers/{item['id']}/revision-checks",
             "/api/publishing/chat",
             "/api/editorial-demo/chat",
             f"/api/publishing/manuscripts/{item['id']}/document-imports",

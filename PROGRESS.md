@@ -1,3 +1,13 @@
+# 当前执行：spec027 单刊资料与修回核对候选版
+
+已按用户提供的[执行建议](docs/consultation/Pivot-candidate-execution-brief-2026-11-05.txt)开始实际开发。基线f9a1dbc，隔离分支codex/single-journal-candidate，保留之前未提交的计划与咨询稿；PR #6/#7没有合并，不更新VPS、不发布Release。
+
+执行前[差距清单](docs/development/spec027/gap-audit.md)、[数据/权限/接口合同](specs/027-internal-revision-contract.md)已经整理，复用已有领域、原件、证据、网关与比较器。当前在修缺项导入、人工字段保护、资料导出、私人多版本修回及三层人判，并核对低内存入口/候选源码身份/CI安装边界。完整verify、安装升级恢复、真实模型、真机与实际编辑评价分别记录，尚不能据专项通过宣称整个候选阶段已验收。
+
+已实际执行的阶段证据：资料导入与精确版本导出68项通过；私人修回与工作准入29项通过；隔离库已增量到28a7c1e09462且alembic check无漂移。上述集合与之后完整回归重叠，不累加宣传。此前沙盒DB连接拒绝、两条新测试误把合法新增版本也要求零增量、开发中refs lint问题分别保留为环境/夹具/静态修正记录，不冒充通过或内容准确率。
+
+日常3100/8100和主库尚未更新；所有当前DB测试仅55433隔离Mock库。EMAIL_SEND_ENABLED=false，负责人确认不变。真实DeepSeek、外部编辑评价和VPS实测本轮尚未执行。
+
 # 当前增量：2026-11-05，spec026已完成代码逻辑与三浏览器复核
 
 交付[PR #7](https://github.com/DayuGuo/Pivot/pull/7)，依赖尚未合并的PR #6，均不自动合并、不部署VPS。[范围](specs/026-browser-and-logic-audit/spec.md) · [完整审计报告](docs/development/spec026-review.md) · [结构化结果](docs/development/spec026-results.json) · [兼容性边界](docs/development/browser-compatibility.md) · [模块维护地图](docs/development/module-map.md)。运行/测试/脚本固定提交168f7d6e72257e03f1aefda180e6c0c52898e7d2，其后仅文档调整。
