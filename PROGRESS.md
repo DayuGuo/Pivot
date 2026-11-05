@@ -2,6 +2,8 @@
 
 ## 当前增量：2026-11-05，spec023已完成本机与远端验收
 
+可审查交付：[PR #4](https://github.com/DayuGuo/Pivot/pull/4)，未自动合并。冻结运行源码c81df74以后仅交付文档变化。
+
 PR #3获用户明确授权，已于2026-11-05T09:18:52Z合并main **3e8729a0003a93514592fc0696bd33ef0c95cb4d**；main verify42001351711/static42001351668/既有原生amd64包42001351533均success（不含本批新功能，不是VPS部署）。本批分支codex/evaluation-returns，不自动合并新PR、不连接VPS。
 
 已实现登记v2包、无写入预览、独立页逐项原文定位/人工核对、追加回传、幂等/并发/分页历史和最新意见分歧。EvaluationPackage/EvaluationReturn共26字段、17d51aeb9408迁移，原33表/旧迁移/指纹不改；角色/归属/期刊/历史版本与digest由后端和SQL守卫控制。私有随机ID映射不外露，旧v1包不可直接回传，代号未认证身份；不共享给外部reviewer账号，不多数决定，不创建DossierCheck/正式决定/邮件。

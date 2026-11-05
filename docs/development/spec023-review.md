@@ -1,5 +1,7 @@
 # spec023：独立评价人工回传与分歧
 
+交付[PR #4](https://github.com/DayuGuo/Pivot/pull/4)已推送，未自动合并；冻结源码c81df74后仅更新交付文档。
+
 ## 授权和交付边界
 
 用户授权PR #3合并，2026-11-05T09:18:52Z已按精确head89208d3合并main **3e8729a0003a93514592fc0696bd33ef0c95cb4d**。合并后main的verify42001351711、static42001351668和既有amd64隔离包CI42001351533均success；这些验证不含本批新回传功能，也不是用户VPS部署。本批codex/evaluation-returns未自动合并、没有新Release、没有连接或更新VPS。

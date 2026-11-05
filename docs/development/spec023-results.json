@@ -183,5 +183,11 @@
     "mailpit": {
       "total": 0
     }
+  },
+  "delivery_pr": {
+    "number": 4,
+    "url": "https://github.com/DayuGuo/Pivot/pull/4",
+    "merged": false,
+    "post_validation_changes": "delivery documentation only"
   }
 }
