@@ -65,6 +65,39 @@ test("设置：资料、正式出版与演示工作台共用入口，不切稿�
   }
 });
 
+test("UI fixture：长资料列表独立滚动，身份和设置入口始终可点击", async ({ page }) => {
+  await login(page);
+  // Synthetic list projection isolates layout from the number of existing DB rows.
+  await page.route(/\/api\/dossiers(?:\?|$)/, route => route.fulfill({ json: {
+    items: Array.from({ length: 30 }, (_, index) => ({
+      id: randomUUID(), version_id: randomUUID(), revision: 1, version_no: 1,
+      title: `合成的长题名资料 ${index + 1}：多机构研究方法与审阅证据 ${randomUUID()}`,
+      verified: false, updated_at: "2026-11-06T00:00:00Z",
+    })), next_cursor: null,
+  } }));
+  await page.goto("/library");
+  const sidebar = page.getByRole("complementary", { name: "我的资料", exact: true });
+  const list = sidebar.getByRole("navigation");
+  await expect(list.getByRole("link")).toHaveCount(30);
+  await expect(list.getByRole("link").first()).toContainText("合成的长题名资料 1：");
+  const settings = sidebar.getByRole("button", { name: "设置", exact: true });
+  const initial = await settings.boundingBox();
+  expect(initial).not.toBeNull();
+  expect(initial!.y).toBeGreaterThanOrEqual(0);
+  expect(initial!.y + initial!.height).toBeLessThanOrEqual(page.viewportSize()!.height);
+  await list.getByRole("link").last().scrollIntoViewIfNeeded();
+  expect(await list.evaluate(element => element.scrollTop)).toBeGreaterThan(0);
+  const panel = await open(page);
+  await panel.getByRole("button", { name: "关闭设置", exact: true }).click();
+  await expect(sidebar.locator('summary[aria-label="切换身份"]')).toBeVisible();
+  await sidebar.locator('summary[aria-label="切换身份"]').click();
+  await expect(sidebar.getByRole("list", { name: "当前账号的可用身份" })).toBeVisible();
+  await page.screenshot({ path: `artifacts/identity/${test.info().project.name}-long-sidebar.png`, fullPage: true });
+  await page.keyboard.press("Escape");
+  const final = await settings.boundingBox();
+  expect(Math.abs(final!.y - initial!.y)).toBeLessThanOrEqual(1);
+});
+
 test("设置：邮箱草稿跨分类保留，配置读取失败不丢草稿，关闭须确认", async ({ page }) => {
   await login(page); await page.goto("/"); const panel = await open(page);
   await panel.getByRole("tab", { name: "邮箱", exact: true }).click();

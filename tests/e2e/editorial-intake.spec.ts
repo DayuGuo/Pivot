@@ -169,6 +169,7 @@ test("真实对话新建、切换、搜索、刷新及用户隔离", async ({ pa
   await page.locator(`[data-conversation-id="${second}"]`).click();
   await expect(page.getByLabel("对话记录")).not.toContainText(marker);
   await page.getByRole("button", { name: "退出登录" }).click();
+  await expect(page.getByRole("button", { name: "进入工作台", exact: true })).toBeVisible();
   await login(page, "author");
   await expect(page.locator(`[data-conversation-id="${first}"]`)).toHaveCount(0);
   expect((await page.request.get(`/api/workspace?conversation_id=${first}`)).status()).toBe(404);

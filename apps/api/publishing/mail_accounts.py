@@ -123,6 +123,7 @@ def mail_editor(actor: Actor = Depends(get_actor), db: Session = Depends(get_db)
             action="mail.action_denied",
             details={"role": actor.role},
         )
+        ensure_actor(db, actor, for_commit=True)
         db.commit()
         raise HTTPException(403, "只有编辑或主编可以管理期刊邮箱")
     return actor
@@ -234,6 +235,7 @@ def bind_account(
         entity_id=account.id,
         details={"provider": account.provider, "address": account.address},
     )
+    ensure_actor(db, actor, for_commit=True)
     db.commit()
     return account_json(account)
 
@@ -285,6 +287,7 @@ def verify_account(
         entity_id=account.id,
         details={"provider": account.provider, "status": status, "error_code": code},
     )
+    ensure_actor(db, actor, for_commit=True)
     db.commit()
     return account_json(account)
 
@@ -305,5 +308,6 @@ def disconnect_account(
             entity_id=account.id,
             details={"provider": account.provider},
         )
+        ensure_actor(db, actor, for_commit=True)
         db.commit()
     return account_json(account)

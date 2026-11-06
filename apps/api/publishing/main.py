@@ -32,11 +32,20 @@ from .domain.formal_documents import router as formal_document_router
 from .domain.guidance import router as guidance_router
 from .editorial_chat import router as editorial_chat_router
 from .editorial_demo import router as editorial_demo_router
+from .identities import router as identity_router
 from .mail_accounts import router as mail_router
 from .models import AuditEvent, Conversation, Journal, Manuscript, Message, User, now
 from .policy import EDITOR_ROLES, can_view_manuscript
 from .runtime import execute_command
-from .security import Actor, check_password, get_actor, hash_password, new_session
+from .security import (
+    Actor,
+    check_password,
+    ensure_current_actor,
+    get_actor,
+    hash_password,
+    journal_memberships,
+    new_session,
+)
 from .serialization import manuscript_json, message_json, user_json
 from .work_limits import HeavyWorkAdmission, RequestAdmission
 
@@ -57,6 +66,7 @@ app.include_router(guidance_router)
 app.include_router(formal_document_router)
 app.include_router(document_import_router)
 app.include_router(mail_router)
+app.include_router(identity_router)
 app.include_router(editorial_demo_router)
 app.include_router(editorial_chat_router)
 DUMMY_HASH = hash_password("invalid-password-timing-padding")
@@ -146,18 +156,13 @@ def login(body: LoginInput, response: Response, db: Session = Depends(get_db)):
         )
         db.commit()
         raise HTTPException(401, "邮箱或密码不正确")
-    token, session = new_session(user)
-    db.add(session)
-    db.flush()
-    # Resolve role with the same policy used for restored sessions.
-    from .models import Membership
-
-    memberships = db.scalars(select(Membership).where(Membership.user_id == user.id).limit(2)).all()
-    if len(memberships) > 1:
-        raise HTTPException(409, "账号关联多个工作期刊，请先配置明确的工作期刊")
+    memberships = journal_memberships(db, user.id)
     membership = memberships[0] if memberships else None
     if not membership:
         raise HTTPException(403, "没有期刊访问权限")
+    token, session = new_session(user, membership)
+    db.add(session)
+    db.flush()
     actor = Actor(user, membership, session)
     record(
         db, actor_id=user.id, journal_id=actor.journal_id, action="auth.login", entity_id=user.id
@@ -303,5 +308,6 @@ def new_conversation(
     if not title or any(ord(c) < 32 for c in title):
         raise HTTPException(422, "请填写合法对话标题")
     item = create_conversation(db, actor, title)
+    ensure_current_actor(db, actor, for_commit=True)
     db.commit()
     return conversation_json(db, item)

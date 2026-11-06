@@ -186,27 +186,69 @@ def fresh_deployment(module, manifest, suffix, phase, port, *, identity=None):
 
 
 DB_SNAPSHOT = r"""
-import hashlib,json
+import hashlib,json,sys
 from sqlalchemy import inspect,text
-from apps.api.publishing.db import engine
-result={"tables":{}}
-with engine.connect() as c:
- c.execute(text("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY"))
+
+def canonical(value):
+ return json.dumps(value,sort_keys=True,ensure_ascii=False,separators=(',',':')).encode()
+
+def add_digest(digest,value):
+ raw=canonical(value)
+ digest.update(len(raw).to_bytes(8,'big')); digest.update(raw)
+
+def scan_database(c,schema="public",baseline=None):
+ baseline=baseline or {}
  inspection=inspect(c)
- result["schema_head"]=c.scalar(text("SELECT version_num FROM alembic_version"))
- for name in sorted(inspection.get_table_names(schema="public")):
+ quote=lambda v:'"'+v.replace('"','""')+'"'
+ qualified=lambda name:quote(schema)+'.'+quote(name)
+ result={"tables":{},"schema":schema}
+ result["schema_head"]=c.scalar(text("SELECT version_num FROM "+qualified("alembic_version")))
+ for name in sorted(inspection.get_table_names(schema=schema)):
   if name=="alembic_version": continue
-  pk=inspection.get_pk_constraint(name,schema="public")["constrained_columns"]
-  if not pk: raise RuntimeError("Primary key required for preservation scan")
-  quote=lambda v:'"'+v.replace('"','""')+'"'
-  sql="SELECT row_to_json(t)::text FROM public."+quote(name)+" t ORDER BY "+','.join('t.'+quote(k) for k in pk)
-  digest=hashlib.sha256(); count=0
-  for row in c.execution_options(stream_results=True).execute(text(sql)):
-   raw=json.dumps(json.loads(row[0]),sort_keys=True,ensure_ascii=False,separators=(',',':')).encode()
-   digest.update(len(raw).to_bytes(8,'big')); digest.update(raw); count+=1
-  columns=[(f["name"],str(f["type"]),f["nullable"]) for f in inspection.get_columns(name,schema="public")]
-  result["tables"][name]={"rows":count,"sha256":digest.hexdigest(),"columns_sha256":hashlib.sha256(json.dumps(columns).encode()).hexdigest()}
-print(json.dumps(result,sort_keys=True))
+  pk=inspection.get_pk_constraint(name,schema=schema)
+  primary={"name":pk["name"],"columns":list(pk["constrained_columns"])}
+  if not primary["columns"]: raise RuntimeError("Primary key required for preservation scan")
+  columns=[{"name":f["name"],"type":str(f["type"]),"nullable":f["nullable"]} for f in inspection.get_columns(name,schema=schema)]
+  by_name={f["name"]:f for f in columns}
+  old=baseline.get(name)
+  if old and any(f["name"] not in by_name for f in old["columns"]):
+   raise RuntimeError("Baseline column missing from preservation scan")
+  ordered=old["primary_key"]["columns"] if old else primary["columns"]
+  if any(key not in by_name for key in ordered):
+   raise RuntimeError("Baseline primary key missing from preservation scan")
+  sql="SELECT row_to_json(t)::text FROM "+qualified(name)+" t ORDER BY "+','.join('t.'+quote(k) for k in ordered)
+  digest=hashlib.sha256(); preserved=hashlib.sha256(); count=0
+  with c.execute(text(sql).execution_options(stream_results=True)) as rows:
+   for row in rows:
+    value=json.loads(row[0]); add_digest(digest,value); count+=1
+    if old: add_digest(preserved,{f["name"]:value[f["name"]] for f in old["columns"]})
+  uniques=[{"name":f["name"],"columns":list(f["column_names"])} for f in inspection.get_unique_constraints(name,schema=schema)]
+  foreign=[{"name":f["name"],"columns":list(f["constrained_columns"]),"schema":f["referred_schema"] or schema,"table":f["referred_table"],"referred_columns":list(f["referred_columns"]),"options":f.get("options",{})} for f in inspection.get_foreign_keys(name,schema=schema)]
+  item={"rows":count,"sha256":digest.hexdigest(),"columns":columns,"columns_sha256":hashlib.sha256(canonical(columns)).hexdigest(),"primary_key":primary,"unique_constraints":sorted(uniques,key=canonical),"foreign_keys":sorted(foreign,key=canonical)}
+  if old:
+   projected_columns=[by_name[f["name"]] for f in old["columns"]]
+   item["preserved"]={"rows":count,"sha256":preserved.hexdigest(),"columns_sha256":hashlib.sha256(canonical(projected_columns)).hexdigest(),"primary_key":primary}
+  result["tables"][name]=item
+ if {"login_sessions","memberships"} <= result["tables"].keys():
+  sessions=qualified("login_sessions"); members=qualified("memberships")
+  expected="SELECT s.token_hash AS session_key,(SELECT CASE WHEN count(*)=1 THEN min(m.id) ELSE NULL END FROM "+members+" m WHERE m.user_id=s.user_id) AS membership_id FROM "+sessions+" s ORDER BY s.token_hash"
+  def binding_digest(sql):
+   digest=hashlib.sha256(); count=0
+   with c.execute(text(sql).execution_options(stream_results=True)) as rows:
+    for row in rows: add_digest(digest,{"session_key":row[0],"membership_id":row[1]}); count+=1
+   return {"rows":count,"sha256":digest.hexdigest()}
+  result["session_bindings"]={"expected":binding_digest(expected)}
+  if "active_membership_id" in {f["name"] for f in result["tables"]["login_sessions"]["columns"]}:
+   result["session_bindings"]["actual"]=binding_digest("SELECT token_hash,active_membership_id FROM "+sessions+" ORDER BY token_hash")
+ return result
+
+if __name__=="__main__":
+ from apps.api.publishing.db import engine
+ baseline=json.loads(sys.argv[1]) if len(sys.argv)>1 else {}
+ with engine.connect() as c:
+  c.execute(text("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY"))
+  result=scan_database(c,baseline=baseline)
+ print(json.dumps(result,sort_keys=True))
 """
 
 CAS_SNAPSHOT = r"""
@@ -225,19 +267,125 @@ print(json.dumps({"files":files},sort_keys=True))
 """
 
 
-def capture(deployment):
+def capture(deployment, *, baseline=None):
     require_test_config(deployment.state, deployment.config)
     result = {}
     for key, program in (("database", DB_SNAPSHOT), ("cas", CAS_SNAPSHOT)):
-        value = deployment.dc("exec", "-T", "api", "python", "-c", program, text=True).stdout
+        arguments = []
+        if key == "database" and baseline is not None:
+            # Only schema identifiers/types travel in argv. Row values, session
+            # identifiers, CSRF and credential fields remain inside private hashes.
+            schema = {
+                name: {field: item[field] for field in ("columns", "primary_key")}
+                for name, item in baseline["database"]["tables"].items()
+            }
+            arguments.append(json.dumps(schema, sort_keys=True))
+        value = deployment.dc(
+            "exec", "-T", "api", "python", "-c", program, *arguments, text=True
+        ).stdout
         result[key] = json.loads(value)
     return result
 
 
-def compare_snapshots(before, after, *, allow_new_tables=False):
+IDENTITY_COLUMN = {"name": "active_membership_id", "type": "VARCHAR(36)", "nullable": True}
+OLD_MEMBERSHIP_UNIQUE = {
+    "name": "memberships_user_id_journal_id_key",
+    "columns": ["user_id", "journal_id"],
+}
+NEW_MEMBERSHIP_UNIQUES = [
+    {"name": "uq_membership_user_journal_role", "columns": ["user_id", "journal_id", "role"]},
+    {"name": "uq_membership_id_user", "columns": ["id", "user_id"]},
+]
+
+
+def normalized_constraints(values):
+    return sorted(values, key=lambda value: json.dumps(value, sort_keys=True))
+
+
+def full_table(value):
+    return {key: item for key, item in value.items() if key != "preserved"}
+
+
+def verify_identity_migration(before, after):
+    left, right = before["database"]["tables"], after["database"]["tables"]
+    require({"login_sessions", "memberships"} <= left.keys(), "identity_baseline_missing")
+    require(
+        before["database"]["schema"] == after["database"]["schema"],
+        "identity_schema_namespace_changed",
+    )
+    for name, item in left.items():
+        expected = {key: item[key] for key in ("rows", "sha256", "columns_sha256", "primary_key")}
+        require(right[name].get("preserved") == expected, "old_column_or_primary_key_changed")
+    old, new = left["login_sessions"], right["login_sessions"]
+    require(new["rows"] == old["rows"], "session_row_count_changed")
+    require(
+        all(column["name"] != IDENTITY_COLUMN["name"] for column in old["columns"]),
+        "identity_column_already_present",
+    )
+    require(new["columns"] == old["columns"] + [IDENTITY_COLUMN], "identity_column_invalid")
+    require(new["unique_constraints"] == old["unique_constraints"], "session_unique_changed")
+    expected_fk = {
+        "name": "fk_session_active_membership_user",
+        "columns": ["active_membership_id", "user_id"],
+        "schema": after["database"]["schema"],
+        "table": "memberships",
+        "referred_columns": ["id", "user_id"],
+        "options": {},
+    }
+    require(
+        normalized_constraints(new["foreign_keys"])
+        == normalized_constraints(old["foreign_keys"] + [expected_fk]),
+        "session_membership_foreign_key_invalid",
+    )
+    old_members, new_members = left["memberships"], right["memberships"]
+    old_uniques = old_members["unique_constraints"]
+    require(OLD_MEMBERSHIP_UNIQUE in old_uniques, "membership_baseline_unique_missing")
+    require(
+        normalized_constraints(new_members["unique_constraints"])
+        == normalized_constraints(
+            [item for item in old_uniques if item != OLD_MEMBERSHIP_UNIQUE] + NEW_MEMBERSHIP_UNIQUES
+        ),
+        "membership_unique_migration_invalid",
+    )
+    require(
+        {
+            key: value
+            for key, value in full_table(new_members).items()
+            if key != "unique_constraints"
+        }
+        == {
+            key: value
+            for key, value in full_table(old_members).items()
+            if key != "unique_constraints"
+        },
+        "membership_content_or_schema_changed",
+    )
+    binding = before["database"].get("session_bindings", {}).get("expected")
+    require(
+        binding is not None
+        and binding["rows"] == old["rows"]
+        and after["database"].get("session_bindings", {}).get("actual") == binding
+        and after["database"].get("session_bindings", {}).get("expected") == binding,
+        "session_membership_backfill_invalid",
+    )
+
+
+def compare_snapshots(before, after, *, allow_new_tables=False, allow_identity_migration=False):
     left, right = before["database"]["tables"], after["database"]["tables"]
     require(set(left) <= set(right), "old_tables_missing")
-    require(all(right[name] == item for name, item in left.items()), "old_table_content_changed")
+    exempt = set()
+    if allow_identity_migration:
+        require(allow_new_tables, "identity_migration_upgrade_only")
+        verify_identity_migration(before, after)
+        exempt = {"login_sessions", "memberships"}
+    require(
+        all(
+            full_table(right[name]) == full_table(item)
+            for name, item in left.items()
+            if name not in exempt
+        ),
+        "old_table_content_changed",
+    )
     extra = set(right) - set(left)
     require(allow_new_tables or not extra, "unexpected_new_tables")
     require(all(right[name]["rows"] == 0 for name in extra), "new_tables_not_empty")
@@ -247,6 +395,15 @@ def compare_snapshots(before, after, *, allow_new_tables=False):
         all(new_files[name] == item for name, item in old_files.items()), "old_cas_content_changed"
     )
     require(allow_new_tables or old_files == new_files, "restore_cas_set_changed")
+    if not allow_new_tables:
+        require(
+            before["database"]["schema_head"] == after["database"]["schema_head"],
+            "restore_schema_head_changed",
+        )
+        require(
+            before["database"].get("session_bindings") == after["database"].get("session_bindings"),
+            "restore_session_binding_changed",
+        )
     return {
         "old_tables": len(left),
         "old_rows": sum(v["rows"] for v in left.values()),
@@ -255,7 +412,12 @@ def compare_snapshots(before, after, *, allow_new_tables=False):
         "new_cas_files": len(set(new_files) - set(old_files)),
         "schema_before": before["database"]["schema_head"],
         "schema_after": after["database"]["schema_head"],
-        "all_old_tables_equal": True,
+        "all_old_tables_equal": all(
+            full_table(right[name]) == full_table(item) for name, item in left.items()
+        ),
+        "all_old_columns_equal": True,
+        "all_old_primary_keys_equal": True,
+        "identity_membership_migration_verified": allow_identity_migration,
         "all_old_cas_equal": True,
     }
 
@@ -621,8 +783,10 @@ def run(old_path, candidate_path, *, port, report_path):
             # Same dedicated state and volumes; mandatory backup used the old source bundle.
             report["stage"] = "candidate_upgrade"
             deployment.up(updating=True)
-            upgraded = capture(deployment)
-            report["upgrade"] = compare_snapshots(before, upgraded, allow_new_tables=True)
+            upgraded = capture(deployment, baseline=before)
+            report["upgrade"] = compare_snapshots(
+                before, upgraded, allow_new_tables=True, allow_identity_migration=True
+            )
             verify_documents(client, saved)  # Existing cookie/session, no replacement login.
             report["old_cookie_and_citations_preserved"] = True
             report["stage"] = "candidate_feature"

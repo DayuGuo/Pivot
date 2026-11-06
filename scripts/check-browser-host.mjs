@@ -1,11 +1,12 @@
 // Fail before database work when an installed engine lacks host libraries.
 // Launching a blank page does not contact the application or a model provider.
 import { chromium, firefox, webkit } from "playwright";
+import { webkitLaunchOptions } from "./browser-rendering.mjs";
 
 for (const [name, engine] of Object.entries({ chromium, firefox, webkit })) {
   let browser;
   try {
-    browser = await engine.launch({ timeout: 30_000 });
+    browser = await engine.launch({ timeout: 30_000, ...(name === "webkit" ? webkitLaunchOptions() : {}) });
     const page = await browser.newPage();
     await page.setContent("<p>browser-host-ready</p>");
     if (await page.locator("p").textContent() !== "browser-host-ready") throw new Error("blank page failed");

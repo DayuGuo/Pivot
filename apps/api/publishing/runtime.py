@@ -11,7 +11,7 @@ from .audit import record
 from .conversations import command_conversation, owned_conversation
 from .models import CommandReceipt, Message, now
 from .policy import require_editor
-from .security import Actor
+from .security import Actor, ensure_current_actor
 from .serialization import manuscript_json, message_json
 
 
@@ -105,5 +105,6 @@ def execute_command(
             "conversation_id": conversation.id,
         },
     )
+    ensure_current_actor(db, actor, for_commit=True)
     db.commit()
     return response

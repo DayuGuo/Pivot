@@ -21,10 +21,14 @@ DEMO_USERS = [
 ]
 
 
+LOCAL_MULTI_USER = ("multi@publishing.test", "顾多职务", "editor", "MultiDemo2026!")
+PUBLIC_USERS = [*DEMO_USERS, LOCAL_MULTI_USER]
+
+
 def configured_users():
     profile = os.getenv("PIVOT_BOOTSTRAP_PROFILE", "local")
     if profile == "local":
-        return DEMO_USERS
+        return PUBLIC_USERS
     if profile != "private-preview":
         raise RuntimeError("Unknown bootstrap profile")
     email = os.getenv("PIVOT_OPERATOR_EMAIL", "").strip().lower()
@@ -32,9 +36,9 @@ def configured_users():
     if (
         not re.fullmatch(r"[^\s@]+@[^\s@]+\.[^\s@]+", email)
         or len(email) > 254
-        or email in {item[0] for item in DEMO_USERS}
+        or email in {item[0] for item in PUBLIC_USERS}
         or not 16 <= len(password) <= 256
-        or password in {item[3] for item in DEMO_USERS}
+        or password in {item[3] for item in PUBLIC_USERS}
     ):
         raise RuntimeError("Private preview requires a unique operator email and strong password")
     # Synthetic role identities are needed by the sample workflow, but their random
@@ -50,7 +54,7 @@ def seed() -> None:
     with SessionLocal.begin() as db:
         db.execute(text("SELECT pg_advisory_xact_lock(718420001)"))
         if private:
-            for email, _, _, public_password in DEMO_USERS:
+            for email, _, _, public_password in PUBLIC_USERS:
                 existing = db.scalar(select(User).where(User.email == email))
                 if existing and check_password(public_password, existing.password_hash):
                     raise RuntimeError(
@@ -75,14 +79,18 @@ def seed() -> None:
                 user = User(email=email, name=name, password_hash=hash_password(password))
                 db.add(user)
                 db.flush()
-                db.add(Membership(user_id=user.id, journal_id=journal.id, role=role))
+                granted_roles = [role]
+                if not private and email == LOCAL_MULTI_USER[0]:
+                    granted_roles.extend(("chief_editor", "reviewer", "author"))
+                for granted_role in granted_roles:
+                    db.add(Membership(user_id=user.id, journal_id=journal.id, role=granted_role))
                 record(
                     db,
                     actor_id=None,
                     journal_id=journal.id,
                     action="user.created",
                     entity_id=user.id,
-                    details={"role": role, "synthetic": True},
+                    details={"role": role, "granted_roles": granted_roles, "synthetic": True},
                 )
 
 

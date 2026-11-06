@@ -2,6 +2,7 @@
 import { warnBeforeUnload } from "../browser";
 
 import Link from "next/link";
+import { roleViews } from "../identity/role-views";
 import { useEffect, useRef, useState } from "react";
 import type { Author, Detail, IntakeData, Version, VersionFile } from "./types";
 import { dateText, fileURL, purposeLabels } from "./types";
@@ -15,10 +16,11 @@ import styles from "./publishing.module.css";
 const newAuthor = (): Author => ({ name: "", email: "", orcid: null, affiliations: [], corresponding: false, contributions: [] });
 
 export function PublishingHome() {
-  const { workspace, detail, selectedId, refreshing, refresh, select } = usePublishing();
+  const { session, workspace, detail, selectedId, refreshing, refresh, select } = usePublishing();
+  const view = roleViews[session.user.role];
   if (selectedId && detail?.id !== selectedId) return <section className={styles.panel}><h1>稿件材料</h1><p role="status">{refreshing ? "正在载入…" : "暂时无法打开这篇稿件。请重新载入或返回工作列表。"}</p><button onClick={() => void refresh()} disabled={refreshing}>重新载入</button><button onClick={() => select(null)}>返回工作列表</button></section>;
   if (detail && selectedId) return <Manuscript key={detail.id} detail={detail} />;
-  return <section className={styles.panel}><header className={styles.panelHeader}><h1>我的稿件</h1><button onClick={() => void refresh()} disabled={refreshing}>刷新</button></header>{workspace?.submissions.length ? <div className={styles.submissionList}>{workspace.submissions.map(item => <Link key={item.id} href={`/publishing?manuscript=${item.id}`} onClick={event => { event.preventDefault(); select(item.id); }}><div><span>{item.number}</span><span className={styles.status}>{item.stage_label}</span></div><strong>{item.title || "未命名投稿"}</strong>{item.is_legacy && <small>旧版原型记录 · 只读</small>}</Link>)}</div> : <p className={styles.empty}>还没有可查看的稿件。你可以在对话中整理信息，作者也可以从左侧新建投稿。</p>}</section>;
+  return <section className={styles.panel}><header className={styles.panelHeader}><h1>{view?.title ?? "我的稿件"}</h1><button onClick={() => void refresh()} disabled={refreshing}>刷新</button></header>{workspace?.submissions.length ? <div className={styles.submissionList}>{workspace.submissions.map(item => <Link key={item.id} href={`/publishing?manuscript=${item.id}`} onClick={event => { event.preventDefault(); select(item.id); }}><div><span>{item.number}</span><span className={styles.status}>{item.stage_label}</span></div><strong>{item.title || "未命名投稿"}</strong>{item.is_legacy && <small>旧版原型记录 · 只读</small>}</Link>)}</div> : <p className={styles.empty}>{view?.empty ?? "还没有可查看的稿件。"}</p>}</section>;
 }
 
 function Manuscript({ detail }: { detail: Detail }) {
@@ -38,8 +40,9 @@ function IntakeForm({ detail }: { detail: Detail }) {
   const [conflict, setConflict] = useState(false); const [pending, setPending] = useState<{ kind: "save" | "upload"; data: object } | null>(null);
   const errorRef = useRef<HTMLDivElement>(null); const uploadInput = useRef<HTMLInputElement>(null);
   const serverChanged = detail.revision !== baseRevision;
-  useEffect(() => { setUnsaved(dirty); return () => setUnsaved(false); }, [dirty, setUnsaved]);
-  useEffect(() => { if (!dirty) return; const warn = warnBeforeUnload; window.addEventListener("beforeunload", warn); return () => window.removeEventListener("beforeunload", warn); }, [dirty]);
+  const unsaved = dirty || !!file || busy || !!pending;
+  useEffect(() => { setUnsaved(unsaved); return () => setUnsaved(false); }, [unsaved, setUnsaved]);
+  useEffect(() => { if (!unsaved) return; const warn = warnBeforeUnload; window.addEventListener("beforeunload", warn); return () => window.removeEventListener("beforeunload", warn); }, [unsaved]);
   if (!dirty && !busy && detail.revision !== baseRevision && detail.version) { setData(structuredClone(detail.version.data)); setBaseRevision(detail.revision); }
   function update<K extends keyof IntakeData>(key: K, value: IntakeData[K]) { setData(previous => ({ ...previous, [key]: value })); setDirty(true); setPending(null); setNotice(""); }
   function author(index: number, patch: Partial<Author>) { update("authors", data.authors.map((item, position) => position === index ? { ...item, ...patch } : item)); }
@@ -48,7 +51,7 @@ function IntakeForm({ detail }: { detail: Detail }) {
   async function save(retryData?: object) {
     const payload = retryData ?? { expected_revision: baseRevision, data };
     setBusy(true); setError(""); setNotice(""); setPending({ kind: "save", data: payload });
-    try { const result = await mutate<{ revision: number }>(`/manuscripts/${detail.id}/intake`, payload, "PATCH"); setBaseRevision(result.revision); setDirty(false); setUnsaved(false); setPending(null); setConflict(false); setNotice("资料已保存。"); await refresh(); }
+    try { const result = await mutate<{ revision: number }>(`/manuscripts/${detail.id}/intake`, payload, "PATCH"); setBaseRevision(result.revision); setDirty(false); setPending(null); setConflict(false); setNotice("资料已保存。"); await refresh(); }
     catch (failure) { fail(failure); } finally { setBusy(false); }
   }
   async function upload(retryData?: object) {
@@ -68,7 +71,7 @@ function IntakeForm({ detail }: { detail: Detail }) {
       setBaseRevision(result.revision); setPending(null); setFile(null); if (uploadInput.current) uploadInput.current.value = ""; setNotice("文件已上传并校验保存。"); await refresh();
     } catch (failure) { fail(failure); } finally { setBusy(false); }
   }
-  async function reloadLatest() { if (dirty && !window.confirm("放弃当前未保存修改，并载入服务器上的最新资料？")) return; setDirty(false); setUnsaved(false); setConflict(false); setPending(null); setError(""); if (detail.version) setData(structuredClone(detail.version.data)); setBaseRevision(detail.revision); await refresh(); }
+  async function reloadLatest() { if (dirty && !window.confirm("放弃当前未保存修改，并载入服务器上的最新资料？")) return; setDirty(false); setConflict(false); setPending(null); setError(""); if (detail.version) setData(structuredClone(detail.version.data)); setBaseRevision(detail.revision); await refresh(); }
   const disabled = busy || conflict || serverChanged;
   return <section className={styles.panel}>
     {(conflict || serverChanged) && <div role="alert" className={styles.notice}>稿件已发生变化。当前修改仍保留；请复制需要保留的内容，再重新载入。<button onClick={() => void reloadLatest()} disabled={busy}>载入最新资料</button></div>}

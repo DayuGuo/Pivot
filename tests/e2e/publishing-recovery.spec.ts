@@ -108,7 +108,7 @@ test("UI fixture: 审核重载单飞且拒绝后清除旧材料与勾选", async
 
 test('UI fixture: 审核成功提示等待稳定快照，返回稿件不会被后续重载吞掉', async ({ page }) => {
   await fixtures(page); const read = gate(); let saved = false, refreshing = false;
-  await page.route('**/api/publishing/workspace', async route => {
+  await page.route('**/api/publishing/workspace?role_view=true', async route => {
     if (saved) { refreshing = true; await read.promise; }
     return route.fulfill({ json: { submissions: [detail], tasks: [], counts: { actionable: 0, waiting: 0 }, synthetic_only: true } });
   });
@@ -159,7 +159,7 @@ test("UI fixture: 切稿后旧 GET/POST 不进入新稿对话且保留未发送�
   const composer = page.getByRole("textbox", { name: "向出版助手发送消息" });
   await composer.fill("前稿待完成输入"); await page.getByRole("button", { name: "发送消息", exact: true }).click();
   await expect.poll(() => posts).toBe(1);
-  await page.getByRole("button", { name: /^我的工作/ }).click();
+  await page.getByRole("button", { name: /^(我的工作|编辑待办|主编待办|作者待办|审稿待办|制作待办)/ }).click();
   await page.getByRole("link").filter({ hasText: "另一篇合成稿件" }).click();
   await expect(page).toHaveURL(new RegExp(OTHER));
   await expect(page.getByText("当前稿件历史", { exact: true })).toBeVisible();
@@ -292,7 +292,7 @@ test('UI fixture: HTTP 200 空响应保留输入，同UUID主动重试才恢复'
 
 test('UI fixture: 工作列表慢响应不阻止当前稿件和对话载入', async ({ page }) => {
   await fixtures(page); const list = gate();
-  await page.route('**/api/publishing/workspace', async route => { await list.promise; return route.fulfill({ json: { submissions: [], tasks: [], counts: { actionable: 0, waiting: 0 }, synthetic_only: true } }); });
+  await page.route('**/api/publishing/workspace?role_view=true', async route => { await list.promise; return route.fulfill({ json: { submissions: [], tasks: [], counts: { actionable: 0, waiting: 0 }, synthetic_only: true } }); });
   try {
     await page.goto(`/publishing?manuscript=${MID}`);
     await expect(page.getByRole('heading', { name: metadata.title, exact: true })).toBeVisible();
@@ -311,7 +311,7 @@ test('UI fixture: 前稿写回合迟到不清空后稿同文草稿，也不刷�
   const input = page.getByLabel('向出版助手发送消息', { exact: true });
   await input.fill('两个稿件都会问的同一句话'); await page.getByRole('button', { name: '发送消息', exact: true }).click();
   await expect.poll(() => posted).toBe(true);
-  await page.getByRole('button', { name: /^我的工作/ }).click(); await page.getByRole('link').filter({ hasText: '另一篇合成稿件' }).click();
+  await page.getByRole('button', { name: /^(我的工作|编辑待办|主编待办|作者待办|审稿待办|制作待办)/ }).click(); await page.getByRole('link').filter({ hasText: '另一篇合成稿件' }).click();
   await expect(page.getByRole('heading', { name: '另一篇合成稿件', exact: true })).toBeVisible();
   await input.fill('两个稿件都会问的同一句话'); post.release();
   await expect(page.getByRole('button', { name: '发送消息', exact: true })).toBeEnabled();
@@ -338,7 +338,7 @@ for (const phase of ['after-send', 'before-send'] as const) test(`UI fixture: �
   if (phase === 'after-send') await expect.poll(() => posted).toBe(true);
   else await expect.poll(() => page.evaluate(() => (window as unknown as { proofReading: boolean }).proofReading)).toBe(true);
   let prompts = 0, leave = true; page.on('dialog', async dialog => { prompts++; if (leave) await dialog.accept(); else await dialog.dismiss(); });
-  await page.getByRole('button', { name: /^我的工作/ }).click(); await page.getByRole('link').filter({ hasText: '另一篇合成稿件' }).click();
+  await page.getByRole('button', { name: /^(我的工作|编辑待办|主编待办|作者待办|审稿待办|制作待办)/ }).click(); await page.getByRole('link').filter({ hasText: '另一篇合成稿件' }).click();
   const file = page.getByLabel('正文校样文件', { exact: true }); await file.setInputFiles({ name: 'new-unsaved.txt', mimeType: 'text/plain', buffer: Buffer.from('后稿未保存内容') });
   const refreshed = page.waitForResponse(r => r.request().method() === 'GET' && [MID, OTHER].some(id => r.url().endsWith(`/manuscripts/${id}`)));
   post.release();

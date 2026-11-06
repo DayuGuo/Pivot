@@ -1,14 +1,31 @@
-"""Pure upgrade harness boundaries; no Docker, user state, credentials or network."""
+"""Upgrade boundaries plus a rollback-only PostgreSQL shadow-schema scanner test.
+
+The snapshot_sql case needs an explicitly selected test database. Other cases
+are offline and do not use Docker, user state, credentials or network.
+"""
 
 import hashlib
 import importlib.util
 import json
 import os
 from copy import deepcopy
+from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
+from uuid import uuid4
 
 import pytest
+from sqlalchemy import (
+    Column,
+    DateTime,
+    MetaData,
+    String,
+    Table,
+    UniqueConstraint,
+    text,
+)
+
+from apps.api.publishing.db import engine
 
 ROOT = Path(__file__).resolve().parents[2]
 spec = importlib.util.spec_from_file_location(
@@ -238,3 +255,333 @@ def test_docker_child_environment_never_inherits_model_or_application_credential
     assert "PIVOT_OPERATOR_PASSWORD" not in upgrade.docker_environment()
     assert "DATABASE_URL" not in upgrade.docker_environment()
     assert upgrade.docker_environment().get("PATH") == os.environ.get("PATH")
+
+
+def column_hash(columns):
+    return hashlib.sha256(
+        json.dumps(columns, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode()
+    ).hexdigest()
+
+
+def identity_snapshots():
+    before = snapshot()
+    before["database"]["schema"] = "public"
+    for name, names in {
+        "memberships": ["id", "user_id", "journal_id", "role"],
+        "login_sessions": ["token_hash", "user_id", "csrf_token", "expires_at"],
+    }.items():
+        columns = [{"name": field, "type": "VARCHAR(36)", "nullable": False} for field in names]
+        before["database"]["tables"][name] = {
+            "rows": 2,
+            "sha256": "c" * 64,
+            "columns": columns,
+            "columns_sha256": column_hash(columns),
+            "primary_key": {"name": name + "_pkey", "columns": [names[0]]},
+            "unique_constraints": [],
+            "foreign_keys": [],
+        }
+    synthetic = before["database"]["tables"]["synthetic"]
+    synthetic["primary_key"] = {"name": "synthetic_pkey", "columns": ["id"]}
+    synthetic["columns"] = [{"name": "id", "type": "VARCHAR(36)", "nullable": False}]
+    before["database"]["tables"]["memberships"]["unique_constraints"] = [
+        deepcopy(upgrade.OLD_MEMBERSHIP_UNIQUE)
+    ]
+    before["database"]["session_bindings"] = {"expected": {"rows": 2, "sha256": "e" * 64}}
+    after = deepcopy(before)
+    after["database"]["schema_head"] = "29b6d4a01c75"
+    for item in after["database"]["tables"].values():
+        item["preserved"] = {
+            key: deepcopy(item[key]) for key in ("rows", "sha256", "columns_sha256", "primary_key")
+        }
+    sessions = after["database"]["tables"]["login_sessions"]
+    sessions["columns"].append(deepcopy(upgrade.IDENTITY_COLUMN))
+    sessions["columns_sha256"] = column_hash(sessions["columns"])
+    sessions["sha256"] = "f" * 64
+    sessions["foreign_keys"] = [
+        {
+            "name": "fk_session_active_membership_user",
+            "columns": ["active_membership_id", "user_id"],
+            "schema": "public",
+            "table": "memberships",
+            "referred_columns": ["id", "user_id"],
+            "options": {},
+        }
+    ]
+    after["database"]["tables"]["memberships"]["unique_constraints"] = deepcopy(
+        upgrade.NEW_MEMBERSHIP_UNIQUES
+    )
+    after["database"]["session_bindings"]["actual"] = deepcopy(
+        before["database"]["session_bindings"]["expected"]
+    )
+    return before, after
+
+
+def compare_identity(before, after):
+    return upgrade.compare_snapshots(
+        before, after, allow_new_tables=True, allow_identity_migration=True
+    )
+
+
+def test_identity_upgrade_preserves_all_old_columns_and_explicitly_reports_schema_change():
+    before, after = identity_snapshots()
+    result = compare_identity(before, after)
+    assert result["all_old_columns_equal"] and result["all_old_primary_keys_equal"]
+    assert result["identity_membership_migration_verified"]
+    assert not result["all_old_tables_equal"]
+    with pytest.raises(upgrade.UpgradeError, match="old_table_content_changed"):
+        upgrade.compare_snapshots(before, after, allow_new_tables=True)
+    with pytest.raises(upgrade.UpgradeError, match="identity_migration_upgrade_only"):
+        upgrade.compare_snapshots(before, after, allow_identity_migration=True)
+
+
+@pytest.mark.parametrize(
+    "damage",
+    [
+        "old_value",
+        "old_primary_key",
+        "session_count",
+        "missing_old_column",
+        "old_column_type",
+        "extra_column",
+        "active_type",
+        "active_nullability",
+        "missing_fk",
+        "foreign_user_fk",
+        "fk_cascade",
+        "missing_role_unique",
+        "extra_unique",
+        "old_unique_retained",
+        "membership_value",
+        "unrelated_table",
+        "missing_projection",
+    ],
+)
+def test_identity_upgrade_never_loosens_unrelated_data_or_schema(damage):
+    before, after = identity_snapshots()
+    tables = after["database"]["tables"]
+    sessions, members = tables["login_sessions"], tables["memberships"]
+    if damage == "old_value":
+        sessions["preserved"]["sha256"] = "changed"
+    elif damage == "old_primary_key":
+        sessions["primary_key"]["columns"] = ["user_id"]
+        sessions["preserved"]["primary_key"]["columns"] = ["user_id"]
+    elif damage == "session_count":
+        sessions["rows"] += 1
+        sessions["preserved"]["rows"] += 1
+    elif damage == "missing_old_column":
+        sessions["columns"].pop(1)
+    elif damage == "old_column_type":
+        sessions["columns"][1]["type"] = "TEXT"
+    elif damage == "extra_column":
+        sessions["columns"].append({"name": "other", "type": "TEXT", "nullable": True})
+    elif damage == "active_type":
+        sessions["columns"][-1]["type"] = "TEXT"
+    elif damage == "active_nullability":
+        sessions["columns"][-1]["nullable"] = False
+    elif damage == "missing_fk":
+        sessions["foreign_keys"] = []
+    elif damage == "foreign_user_fk":
+        sessions["foreign_keys"][0]["columns"] = ["active_membership_id"]
+        sessions["foreign_keys"][0]["referred_columns"] = ["id"]
+    elif damage == "fk_cascade":
+        sessions["foreign_keys"][0]["options"] = {"ondelete": "CASCADE"}
+    elif damage == "missing_role_unique":
+        members["unique_constraints"].pop(0)
+    elif damage == "extra_unique":
+        members["unique_constraints"].append({"name": "other", "columns": ["role"]})
+    elif damage == "old_unique_retained":
+        members["unique_constraints"].append(deepcopy(upgrade.OLD_MEMBERSHIP_UNIQUE))
+    elif damage == "membership_value":
+        members["sha256"] = "changed"
+    elif damage == "unrelated_table":
+        tables["synthetic"]["sha256"] = "changed"
+    else:
+        sessions.pop("preserved")
+    with pytest.raises(upgrade.UpgradeError):
+        compare_identity(before, after)
+
+
+@pytest.mark.parametrize(
+    "binding", [None, {"rows": 2, "sha256": "wrong"}, {"rows": 1, "sha256": "e" * 64}]
+)
+def test_identity_backfill_rejects_missing_wrong_or_incomplete_memberships(binding):
+    before, after = identity_snapshots()
+    after["database"]["session_bindings"]["actual"] = binding
+    with pytest.raises(upgrade.UpgradeError, match="session_membership_backfill_invalid"):
+        compare_identity(before, after)
+
+
+def test_candidate_restore_compares_full_session_column_and_schema_snapshots():
+    _, candidate = identity_snapshots()
+    for item in candidate["database"]["tables"].values():
+        item.pop("preserved")
+    result = upgrade.compare_snapshots(candidate, deepcopy(candidate))
+    assert result["all_old_tables_equal"]
+    assert not result["identity_membership_migration_verified"]
+    for field in ("sha256", "columns_sha256", "primary_key", "unique_constraints", "foreign_keys"):
+        altered = deepcopy(candidate)
+        altered["database"]["tables"]["login_sessions"][field] = "changed"
+        with pytest.raises(upgrade.UpgradeError, match="old_table_content_changed"):
+            upgrade.compare_snapshots(candidate, altered)
+    altered = deepcopy(candidate)
+    altered["database"]["schema_head"] = "unexpected"
+    with pytest.raises(upgrade.UpgradeError, match="restore_schema_head_changed"):
+        upgrade.compare_snapshots(candidate, altered)
+
+
+def test_capture_passes_only_baseline_schema_to_the_database_program(artifacts, monkeypatch):
+    before, _ = identity_snapshots()
+    state, config = state_config(artifacts)
+    calls = []
+
+    def command(*args, **kwargs):
+        calls.append(args)
+        return SimpleNamespace(stdout="{}")
+
+    deployment = SimpleNamespace(state=state, config=config, dc=command)
+    monkeypatch.setattr(upgrade, "require_test_config", lambda *args: None)
+    upgrade.capture(deployment, baseline=before)
+    schema = json.loads(calls[0][-1])
+    assert set(schema) == set(before["database"]["tables"])
+    assert all(set(item) == {"columns", "primary_key"} for item in schema.values())
+    assert all("rows" not in item and "sha256" not in item for item in schema.values())
+    assert len(calls[1]) == 6  # CAS gets no database schema or private row input.
+
+
+def test_snapshot_sql_preserves_real_rows_backfill_and_constraints_in_rolled_back_schema():
+    namespace = {"__name__": "snapshot_sql_contract"}
+    exec(upgrade.DB_SNAPSHOT, namespace)
+    scan = namespace["scan_database"]
+    schema = "upgrade_scan_" + uuid4().hex
+
+    def qualified(name):
+        return '"' + schema + '"."' + name + '"'
+
+    with engine.connect() as connection:
+        transaction = connection.begin()
+        try:
+            connection.execute(text('CREATE SCHEMA "' + schema + '"'))
+            metadata = MetaData(schema=schema)
+            version = Table(
+                "alembic_version", metadata, Column("version_num", String(32), primary_key=True)
+            )
+            members = Table(
+                "memberships",
+                metadata,
+                Column("id", String(36), primary_key=True),
+                Column("user_id", String(36), nullable=False),
+                Column("journal_id", String(36), nullable=False),
+                Column("role", String(30), nullable=False),
+                UniqueConstraint(
+                    "user_id", "journal_id", name="memberships_user_id_journal_id_key"
+                ),
+            )
+            sessions = Table(
+                "login_sessions",
+                metadata,
+                Column("token_hash", String(64), primary_key=True),
+                Column("user_id", String(36), nullable=False),
+                Column("csrf_token", String(64), nullable=False),
+                Column("expires_at", DateTime(timezone=True), nullable=False),
+            )
+            metadata.create_all(connection)
+            connection.execute(version.insert(), {"version_num": "old"})
+            connection.execute(
+                members.insert(),
+                [
+                    {"id": "m1", "user_id": "u1", "journal_id": "j1", "role": "editor"},
+                    {"id": "m2", "user_id": "u2", "journal_id": "j1", "role": "reviewer"},
+                    {"id": "m3", "user_id": "u2", "journal_id": "j2", "role": "author"},
+                ],
+            )
+            connection.execute(
+                sessions.insert(),
+                [
+                    {
+                        "token_hash": "s" + str(i),
+                        "user_id": "u" + str(i),
+                        "csrf_token": "synthetic-csrf-" + str(i),
+                        "expires_at": datetime(2030, 1, 1, tzinfo=UTC),
+                    }
+                    for i in (1, 2, 3)
+                ],
+            )
+            before = {"database": scan(connection, schema), "cas": {"files": {}}}
+            baseline = {
+                name: {key: item[key] for key in ("columns", "primary_key")}
+                for name, item in before["database"]["tables"].items()
+            }
+            for sql in [
+                "ALTER TABLE "
+                + qualified("memberships")
+                + " DROP CONSTRAINT memberships_user_id_journal_id_key",
+                "ALTER TABLE "
+                + qualified("memberships")
+                + " ADD CONSTRAINT uq_membership_user_journal_role UNIQUE(user_id,journal_id,role)",
+                "ALTER TABLE "
+                + qualified("memberships")
+                + " ADD CONSTRAINT uq_membership_id_user UNIQUE(id,user_id)",
+                "ALTER TABLE "
+                + qualified("login_sessions")
+                + " ADD COLUMN active_membership_id VARCHAR(36)",
+                "ALTER TABLE "
+                + qualified("login_sessions")
+                + " ADD CONSTRAINT fk_session_active_membership_user FOREIGN KEY(active_membership_id,user_id) REFERENCES "
+                + qualified("memberships")
+                + "(id,user_id)",
+                "UPDATE "
+                + qualified("login_sessions")
+                + " s SET active_membership_id=m.id FROM "
+                + qualified("memberships")
+                + " m WHERE m.user_id=s.user_id AND (SELECT count(*) FROM "
+                + qualified("memberships")
+                + " x WHERE x.user_id=s.user_id)=1",
+                "UPDATE " + qualified("alembic_version") + " SET version_num='29b6d4a01c75'",
+            ]:
+                connection.execute(text(sql))
+            after = {"database": scan(connection, schema, baseline), "cas": {"files": {}}}
+            assert compare_identity(before, after)["identity_membership_migration_verified"]
+            assert (
+                before["database"]["session_bindings"]["expected"]
+                == after["database"]["session_bindings"]["actual"]
+            )
+            assert (
+                before["database"]["tables"]["login_sessions"]["sha256"]
+                != after["database"]["tables"]["login_sessions"]["sha256"]
+            )
+            assert "synthetic-csrf" not in json.dumps(after)
+            candidate = {"database": scan(connection, schema), "cas": {"files": {}}}
+            for damage in [
+                "UPDATE "
+                + qualified("login_sessions")
+                + " SET csrf_token='changed' WHERE token_hash='s1'",
+                "UPDATE "
+                + qualified("login_sessions")
+                + " SET active_membership_id=NULL WHERE token_hash='s1'",
+                "UPDATE "
+                + qualified("login_sessions")
+                + " SET active_membership_id='m2' WHERE token_hash='s2'",
+                "ALTER TABLE " + qualified("login_sessions") + " ADD COLUMN unexpected TEXT",
+                "ALTER TABLE "
+                + qualified("memberships")
+                + " DROP CONSTRAINT uq_membership_user_journal_role",
+                "ALTER TABLE "
+                + qualified("login_sessions")
+                + " DROP CONSTRAINT login_sessions_pkey, ADD CONSTRAINT login_sessions_pkey PRIMARY KEY(token_hash,user_id)",
+            ]:
+                savepoint = connection.begin_nested()
+                try:
+                    connection.execute(text(damage))
+                    changed = {"database": scan(connection, schema, baseline), "cas": {"files": {}}}
+                    with pytest.raises(upgrade.UpgradeError):
+                        compare_identity(before, changed)
+                    strict = {"database": scan(connection, schema), "cas": {"files": {}}}
+                    with pytest.raises(upgrade.UpgradeError):
+                        upgrade.compare_snapshots(candidate, strict)
+                finally:
+                    savepoint.rollback()
+            assert upgrade.compare_snapshots(
+                candidate, {"database": scan(connection, schema), "cas": {"files": {}}}
+            )["all_old_tables_equal"]
+        finally:
+            transaction.rollback()

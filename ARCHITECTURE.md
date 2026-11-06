@@ -1,5 +1,10 @@
 # 架构
 
+## 会话身份与职责视图（spec029）
+
+Membership 按用户／期刊／角色唯一，LoginSession.active_membership_id 以复合外键绑定本人。security 集中原身份复核，identities 认证变更网关复用请求锁与安全回执，短事务轮换会话／CSRF并审计，模型无此工具；最终提交会话锁与切换串行，不跨网络等待。work_queue 可选 role_view 聚焦职责，原对象策略和所有权独立。共享 IdentityControl、独立确认与根 IdentityBoundary 防止旧私人界面跨身份恢复；正式对话原有角色作用域保持。迁移29b6只增字段／调整约束，原业务守卫和历史记录保持。
+
+
 ## 统一设置（spec028）
 
 `components/settings`管理全局原生 dialog、统一入口和邮箱表单；RootLayout 的 Provider 保留页面子树，设置不使用工作区路由切换。每次打开读取既有鉴权 session，按用户/角色/期刊/CSRF隔离邮箱状态，取消旧读取；邮箱未知写结果必须主动重读，不自动重发。原app/mail-settings默认导出保留兼容。复用既有会话/模型状态和邮箱API，无新后端工具、数据表或迁移，部署环境继续拥有模型凭据。
