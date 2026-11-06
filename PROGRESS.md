@@ -1,3 +1,13 @@
+# 已完成本机验收：spec028 统一设置
+
+真实工作区侧栏下方的设置入口集中模型API状态/安全接入说明、期刊邮箱和当前账号；原生dialog保留稿件、未上传文件、对话和邮箱草稿。模型区只读取部署配置，密钥仍在服务器安全环境，未新增浏览器凭据保存或远端测试。[范围](specs/028-unified-settings.md) · [交付](docs/development/settings.md) · [结果](docs/development/settings-results.json)。代码位于独立分支codex/unified-settings，基于未合并的PR #8，不自动合并或部署VPS。
+
+实现冻结1e6a8b33fc5c7c685e172c4229406143de45b5f2。scripts/verify.sh实际exit0、1681.20秒：**1559后端564.32秒（10条提醒）＋429浏览器18.0分钟**，三引擎各143，0失败/跳过/重试。语法、Ruff/format、研究/模块边界、18条离线引文、迁移无漂移、ESLint/TypeScript及准确镜像构建/启动通过；修复后117项专项193.73秒与全量重叠，不累加。
+
+初轮111项已通过后，独立审查发现Ctrl/Cmd+K穿透设置改变底层阅读视图；旧镜像实际复现，补键盘边界和回归，限定复核ship。深色模型/邮箱、桌面及移动共五张实际截图已查看，状态色对比度测试通过；检测器初轮[]不替代实际复核。最初定位器冲突与真实缺陷失败分别保留，未删测试。邮箱按身份/期刊/角色/CSRF隔离，未知POST结果禁止自动重发，必须主动重读核对；撤权清旧信息。无新表、迁移、后端策略或模型工具。
+
+**本机前端已更新为通过完整测试的同一镜像**，API及DB容器ID不变，主库/原件/模型环境未修改；API/Web健康200，DeepSeek/deepseek-flash配置保留、EMAIL_SEND_ENABLED=false/Mailpit0。本轮主服务业务POST和真实模型请求0，旧镜像保留回滚标签。未合并main、未连接VPS或更改公开静态站、未发布Release。远端CI与候选包需看相应PR/Actions，不借用本机结果宣称远端已完成；真实设备、实际云邮箱和专业工程复核未新增。
+
 # 已完成：PR #8 最后一轮CI复核
 
 用户要求检查4bf09e7的CI，失败修复并更新PR/文档，不合并或部署VPS。应用源码仍为3307df6，CI工具/专项测试/工作流修复为6f76d7d；本轮不更新本机主服务、数据库、原件或模型配置。[完整复核](docs/development/spec027/ci-followup.md)与[结构化证据](docs/development/spec027/ci-followup.json)优先于下方历史快照。

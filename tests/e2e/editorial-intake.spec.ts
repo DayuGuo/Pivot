@@ -176,7 +176,8 @@ test("真实对话新建、切换、搜索、刷新及用户隔离", async ({ pa
 
 test("邮箱绑定真实 Mailpit 验证、持久化、断开及 Gmail 缺少凭据", async ({ page }) => {
   await login(page);
-  await page.getByRole("navigation").getByRole("button", { name: "邮件", exact: true }).click();
+  await page.getByRole("button", { name: "设置", exact: true }).click();
+  await page.getByRole("tab", { name: "邮箱", exact: true }).click();
   await expect(page.getByText("真实邮件发送已禁用", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "保存邮箱", exact: true }).click();
   await expect(page.getByText("请输入有效邮箱地址", { exact: true })).toBeVisible();
@@ -199,7 +200,8 @@ test("邮箱绑定真实 Mailpit 验证、持久化、断开及 Gmail 缺少凭�
   expect(verifiedAccount.status).toBe("verified");
   await expect(row).toContainText("已验证");
   await page.reload();
-  await page.getByRole("navigation").getByRole("button", { name: "邮件", exact: true }).click();
+  await page.getByRole("button", { name: "设置", exact: true }).click();
+  await page.getByRole("tab", { name: "邮箱", exact: true }).click();
   await expect(row).toContainText("已验证");
   await row.getByRole("button", { name: "断开连接", exact: true }).click();
   await expect(row).toContainText("已断开");

@@ -1,5 +1,9 @@
 # 架构
 
+## 统一设置（spec028）
+
+`components/settings`管理全局原生 dialog、统一入口和邮箱表单；RootLayout 的 Provider 保留页面子树，设置不使用工作区路由切换。每次打开读取既有鉴权 session，按用户/角色/期刊/CSRF隔离邮箱状态，取消旧读取；邮箱未知写结果必须主动重读，不自动重发。原app/mail-settings默认导出保留兼容。复用既有会话/模型状态和邮箱API，无新后端工具、数据表或迁移，部署环境继续拥有模型凭据。
+
 ## 内部多版本核对（spec027）
 
 继续使用模块化单体。`document_imports.approve_import`复用同一原件/表单/版本/幂等校验，完整确认保留原协议；独立save-material动作不建DossierCheck。`dossier_export`只读精确版本及可证明字段来源，不外露聊天或存储路径。
