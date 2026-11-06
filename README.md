@@ -179,6 +179,8 @@ docker compose -p publishing-os-verification -f compose.yaml -f infrastructure/c
 COMPOSE_PROJECT_NAME=publishing-os-verification COMPOSE_FILE=compose.yaml:infrastructure/compose.verify.yaml DATABASE_URL=postgresql+psycopg://publishing:publishing_local@localhost:55433/publishing E2E_BASE_URL=http://127.0.0.1:13100 ./scripts/verify.sh
 ```
 
+Linux共享GPU主机若因WebKit图形上下文内存不足启动失败，可在下列隔离验证环境之外另加 `PIVOT_WEBKIT_SOFTWARE_RENDERING=1`。该选项只让测试WebKit和预检使用系统Mesa软件渲染，缺少Mesa明确失败；不更改系统驱动、应用或VPS。
+
 隔离Web13100、API18100、DB55433、Mailpit18025，无供应商凭据。verify拒绝对真实模型服务运行；不要让Pytest与Playwright共用同一验证库并发。普通Pytest以外部事务回滚，专门并发/E2E保留唯一命名的合成数据，不删除已有演示资料。
 
 门禁先实际启动三个空白浏览器，缺库时在数据库工作前失败；随后包含全仓离线语法、Ruff、研究完整性、模块依赖、引文回归、PostgreSQL迁移/漂移、Pytest、ESLint、TypeScript和Compose生产构建。构建后启动相同镜像，再用Chromium、Firefox、WebKit单worker验收。不会安装测试浏览器到VPS。物理设备/真实发行版边界与按引擎执行方式见[兼容性说明](docs/development/browser-compatibility.md)。

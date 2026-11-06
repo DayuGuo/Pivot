@@ -56,7 +56,13 @@ test("邮箱恢复：真实 Mailpit 配置已提交但回执丢失，主动读�
   await expect(panel.getByText("邮箱配置已保存，请验证连接。", { exact: true })).toHaveCount(0);
   await expect(panel.getByRole("button", { name: "保存邮箱", exact: true })).toBeDisabled();
   await expect(panel.getByLabel("邮箱地址", { exact: true })).toBeDisabled();
-  for (const button of await panel.getByRole("button", { name: /^(验证连接|断开连接)$/ }).all()) await expect(button).toBeDisabled();
+  const accountActions = panel.getByRole("button", { name: /^(验证连接|断开连接)$/ });
+  const accountActionCount = await accountActions.count();
+  expect(accountActionCount).toBeGreaterThan(0);
+  await expect.poll(() => accountActions.evaluateAll(buttons => ({
+    count: buttons.length,
+    disabled: buttons.filter(button => button.matches(":disabled")).length,
+  }))).toEqual({ count: accountActionCount, disabled: accountActionCount });
   await panel.getByRole("tab", { name: "模型 API", exact: true }).click();
   await panel.getByRole("tab", { name: "邮箱", exact: true }).click();
   await expect(unknown).toBeVisible();

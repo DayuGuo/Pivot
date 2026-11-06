@@ -96,5 +96,27 @@
     "browser_failed": 1,
     "failure": "webkit_shared_sidebar_scroll_click_geometry",
     "evidence": "artifacts/identity/second-full-failure"
+  },
+  "third_full": {
+    "source": "d20ad5cf11f0a1e00dae4673c52e5511d4f862e5",
+    "exit_code": 1,
+    "backend_passed": 1613,
+    "browser_passed": 463,
+    "browser_failed": 2,
+    "failures": [
+      "sequential_assertions_over_372_account_actions",
+      "webkit_page_fixture_native_gpu_context_failure"
+    ],
+    "evidence": "artifacts/identity/third-full-failure"
+  },
+  "browser_host": {
+    "optional_webkit_software_rendering": true,
+    "ab_process_maps": "mesa_without_nvidia_in_software_mode",
+    "default_repeat": {
+      "passed": 20,
+      "seconds": 49.1,
+      "retries": 0
+    },
+    "physical_device_certification": false
   }
 }
