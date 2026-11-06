@@ -1,0 +1,138 @@
+{
+  "schema": "spec028-settings-delivery.v1",
+  "status": "completed_local_validation",
+  "source": "1e6a8b33fc5c7c685e172c4229406143de45b5f2",
+  "base_source": "7a27d249b173cba3b9c1149e50115ba91809abb7",
+  "scope": [
+    "shared transient settings dialog in authenticated workspace sidebars",
+    "real model configuration readiness and server-environment guide",
+    "existing journal mailbox binding, verify and disconnect",
+    "actual current account and role"
+  ],
+  "model_credentials_browser_storage": false,
+  "model_configuration_mutations": false,
+  "new_backend_routes": 0,
+  "new_tables": 0,
+  "new_migrations": 0,
+  "targeted": {
+    "source": "0d6ca5062b8a998f3b8c933674fb6015df62bece",
+    "exit_code": 0,
+    "passed": 117,
+    "seconds": 193.73,
+    "per_engine": 39,
+    "browser_retries": 0,
+    "evidence": "artifacts/settings/targeted.log"
+  },
+  "initial_targeted": {
+    "passed": 111,
+    "seconds": 181.81,
+    "scope": "before independent keyboard boundary finding; not final acceptance"
+  },
+  "full_verify": {
+    "command": "scripts/verify.sh",
+    "project": "publishing-os-verification",
+    "database_port": 55433,
+    "web_port": 13100,
+    "provider": "mock",
+    "source": "1e6a8b33fc5c7c685e172c4229406143de45b5f2",
+    "exit_code": 0,
+    "seconds": 1681.2,
+    "backend": {
+      "passed": 1559,
+      "warnings": 10,
+      "seconds": 564.32
+    },
+    "browser": {
+      "passed": 429,
+      "per_engine": {
+        "chromium": 143,
+        "firefox": 143,
+        "webkit": 143
+      },
+      "minutes": 18.0,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0,
+      "retries": 0
+    },
+    "static_migration_build_start": "passed",
+    "evidence": "artifacts/settings/full.log",
+    "exit_receipt": "artifacts/settings/full-exit.json"
+  },
+  "review": {
+    "fresh_agent": "settings_finish_review_028",
+    "initial_disposition": "fix",
+    "finding": "Ctrl/Cmd+K propagated to the background workbench",
+    "reproduced_before_fix": true,
+    "failure_evidence": "artifacts/settings/shortcut-before-fix-repro.log",
+    "verdict": "ship",
+    "verdict_scope": "keyboard boundary fix resolved; five valid light/mobile/dark captures inspected, no regressions identified in that fix batch; independent functional gate remains lead-owned",
+    "detector": {
+      "once": true,
+      "findings": 0,
+      "evidence": "artifacts/settings/impeccable-detect.json",
+      "scope": "before review correction; not a final quality certificate"
+    }
+  },
+  "screenshots": [
+    "artifacts/settings-chromium-desktop.png",
+    "artifacts/settings-chromium-mobile-model.png",
+    "artifacts/settings-chromium-mobile-mail.png",
+    "artifacts/settings-chromium-dark-model.png",
+    "artifacts/settings-chromium-dark-mail.png"
+  ],
+  "delegation": [
+    {
+      "agent": "candidate_delivery_audit",
+      "tasks": [
+        "entry and scope research",
+        "isolated mailbox lifecycle hardening",
+        "source review and two recovery regressions"
+      ],
+      "tokens": null,
+      "api_cost_usd": null,
+      "duration_seconds": null,
+      "completed": true
+    },
+    {
+      "agent": "settings_finish_review_028",
+      "tasks": [
+        "fresh visual and source review",
+        "material fix verdict"
+      ],
+      "tokens": null,
+      "api_cost_usd": null,
+      "duration_seconds": null,
+      "completed": true
+    }
+  ],
+  "local_main_updated": true,
+  "vps_updated": false,
+  "merged": false,
+  "release_published": false,
+  "real_model_calls": 0,
+  "email_send_enabled": false,
+  "key_decisions": "responsible human confirmation unchanged",
+  "main": {
+    "api_and_db_ids_unchanged": true,
+    "web_runs_exact_verified_image": true,
+    "api_health": 200,
+    "web_health": 200,
+    "model_configuration": {
+      "provider": "deepseek",
+      "model": "deepseek-flash",
+      "available": true
+    },
+    "email_send_enabled": false,
+    "mailpit_messages": 0,
+    "database_migrations": 0,
+    "business_posts": 0,
+    "model_api_calls": 0,
+    "vps_updated": false,
+    "verified_image": "sha256:fe9fad02ba3e3762ffd4af08682d089e61784aa9fa53990035590f65a4d66ddc",
+    "rollback_image_tag": "publishing-os-web:before-settings-20261106005610"
+  },
+  "runtime_changed_after_full": false,
+  "branch": "codex/unified-settings",
+  "remote_ci": "separate PR checks, not claimed as completed by this local acceptance"
+}
