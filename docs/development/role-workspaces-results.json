@@ -1,0 +1,91 @@
+{
+  "schema": "pivot-role-workspaces.v1",
+  "status": "full_validation_pending",
+  "spec": "029-role-workspaces",
+  "email_send_enabled": false,
+  "key_decisions": "responsible_human_confirmation",
+  "vps_deployed": false,
+  "main_data_touched": false,
+  "live_model_calls": 0,
+  "main_model_configuration_changed": false,
+  "pr": "https://github.com/DayuGuo/Pivot/pull/10",
+  "base_pr": 9,
+  "migration": {
+    "revision": "29b6d4a01c75",
+    "preservation": "all_old_fields_equal",
+    "tables": 55,
+    "rows": 51475,
+    "sessions_backfilled": 3429,
+    "scope": "isolated_mock",
+    "evidence": "artifacts/identity/migration-preservation.json"
+  },
+  "targeted": {
+    "backend": {
+      "passed": 48,
+      "seconds": 9.88,
+      "evidence": "artifacts/identity/targeted-api-final.log"
+    },
+    "browser": {
+      "passed": 147,
+      "per_engine": 49,
+      "reported_duration": "3.2m",
+      "retries": 0,
+      "evidence": "artifacts/identity/targeted-final.log"
+    },
+    "migration_chain": {
+      "passed": 1,
+      "seconds": 1.72
+    },
+    "upgrade_snapshot_sql": {
+      "passed": 46,
+      "seconds": 0.93,
+      "real_sql_corruptions_rejected": 6
+    },
+    "packaging_offline": {
+      "passed": 56,
+      "seconds": 0.28,
+      "postgres_case_excluded_from_preflight_only": 1
+    }
+  },
+  "initial_full": {
+    "source": "206bffdb03086bd435bf3d40ff7b609aa2772517",
+    "exit_code": 2,
+    "passed": 1222,
+    "failed": 1,
+    "interrupted_after_known_failure": true,
+    "duration_seconds": 501.78,
+    "failure": "old_migration_head_assertion",
+    "browser_executed": false,
+    "evidence": "artifacts/identity/first-full-failure"
+  },
+  "review": {
+    "scope": "incumbent_identity_ui_extension",
+    "disposition": "ship",
+    "captures": 9,
+    "guard_fix": "resolved_scoped_ship",
+    "detector_runs": 1,
+    "detector_findings": 0,
+    "physical_device_certification": false
+  },
+  "deferred": [
+    "role_administration_ui",
+    "multi_journal_selection",
+    "native_bundle_upgrade_execution",
+    "professional_external_review"
+  ],
+  "delegation": {
+    "tasks": [
+      "official_role_research",
+      "isolated_identity_ui",
+      "permission_and_concurrency_tests",
+      "browser_regressions",
+      "fresh_ui_finish_review",
+      "upgrade_snapshot_compatibility"
+    ],
+    "business_model_calls": 0,
+    "tokens": null,
+    "api_cost": null,
+    "total_wall_seconds": null,
+    "unknown_metrics_not_estimated": true
+  }
+}

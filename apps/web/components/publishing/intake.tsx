@@ -40,8 +40,9 @@ function IntakeForm({ detail }: { detail: Detail }) {
   const [conflict, setConflict] = useState(false); const [pending, setPending] = useState<{ kind: "save" | "upload"; data: object } | null>(null);
   const errorRef = useRef<HTMLDivElement>(null); const uploadInput = useRef<HTMLInputElement>(null);
   const serverChanged = detail.revision !== baseRevision;
-  useEffect(() => { setUnsaved(dirty); return () => setUnsaved(false); }, [dirty, setUnsaved]);
-  useEffect(() => { if (!dirty) return; const warn = warnBeforeUnload; window.addEventListener("beforeunload", warn); return () => window.removeEventListener("beforeunload", warn); }, [dirty]);
+  const unsaved = dirty || !!file || busy || !!pending;
+  useEffect(() => { setUnsaved(unsaved); return () => setUnsaved(false); }, [unsaved, setUnsaved]);
+  useEffect(() => { if (!unsaved) return; const warn = warnBeforeUnload; window.addEventListener("beforeunload", warn); return () => window.removeEventListener("beforeunload", warn); }, [unsaved]);
   if (!dirty && !busy && detail.revision !== baseRevision && detail.version) { setData(structuredClone(detail.version.data)); setBaseRevision(detail.revision); }
   function update<K extends keyof IntakeData>(key: K, value: IntakeData[K]) { setData(previous => ({ ...previous, [key]: value })); setDirty(true); setPending(null); setNotice(""); }
   function author(index: number, patch: Partial<Author>) { update("authors", data.authors.map((item, position) => position === index ? { ...item, ...patch } : item)); }
@@ -50,7 +51,7 @@ function IntakeForm({ detail }: { detail: Detail }) {
   async function save(retryData?: object) {
     const payload = retryData ?? { expected_revision: baseRevision, data };
     setBusy(true); setError(""); setNotice(""); setPending({ kind: "save", data: payload });
-    try { const result = await mutate<{ revision: number }>(`/manuscripts/${detail.id}/intake`, payload, "PATCH"); setBaseRevision(result.revision); setDirty(false); setUnsaved(false); setPending(null); setConflict(false); setNotice("资料已保存。"); await refresh(); }
+    try { const result = await mutate<{ revision: number }>(`/manuscripts/${detail.id}/intake`, payload, "PATCH"); setBaseRevision(result.revision); setDirty(false); setPending(null); setConflict(false); setNotice("资料已保存。"); await refresh(); }
     catch (failure) { fail(failure); } finally { setBusy(false); }
   }
   async function upload(retryData?: object) {
@@ -70,7 +71,7 @@ function IntakeForm({ detail }: { detail: Detail }) {
       setBaseRevision(result.revision); setPending(null); setFile(null); if (uploadInput.current) uploadInput.current.value = ""; setNotice("文件已上传并校验保存。"); await refresh();
     } catch (failure) { fail(failure); } finally { setBusy(false); }
   }
-  async function reloadLatest() { if (dirty && !window.confirm("放弃当前未保存修改，并载入服务器上的最新资料？")) return; setDirty(false); setUnsaved(false); setConflict(false); setPending(null); setError(""); if (detail.version) setData(structuredClone(detail.version.data)); setBaseRevision(detail.revision); await refresh(); }
+  async function reloadLatest() { if (dirty && !window.confirm("放弃当前未保存修改，并载入服务器上的最新资料？")) return; setDirty(false); setConflict(false); setPending(null); setError(""); if (detail.version) setData(structuredClone(detail.version.data)); setBaseRevision(detail.revision); await refresh(); }
   const disabled = busy || conflict || serverChanged;
   return <section className={styles.panel}>
     {(conflict || serverChanged) && <div role="alert" className={styles.notice}>稿件已发生变化。当前修改仍保留；请复制需要保留的内容，再重新载入。<button onClick={() => void reloadLatest()} disabled={busy}>载入最新资料</button></div>}

@@ -79,19 +79,18 @@ def seed() -> None:
                 user = User(email=email, name=name, password_hash=hash_password(password))
                 db.add(user)
                 db.flush()
-                db.add(Membership(user_id=user.id, journal_id=journal.id, role=role))
+                granted_roles = [role]
                 if not private and email == LOCAL_MULTI_USER[0]:
-                    for additional_role in ("chief_editor", "reviewer", "author"):
-                        db.add(
-                            Membership(user_id=user.id, journal_id=journal.id, role=additional_role)
-                        )
+                    granted_roles.extend(("chief_editor", "reviewer", "author"))
+                for granted_role in granted_roles:
+                    db.add(Membership(user_id=user.id, journal_id=journal.id, role=granted_role))
                 record(
                     db,
                     actor_id=None,
                     journal_id=journal.id,
                     action="user.created",
                     entity_id=user.id,
-                    details={"role": role, "synthetic": True},
+                    details={"role": role, "granted_roles": granted_roles, "synthetic": True},
                 )
 
 

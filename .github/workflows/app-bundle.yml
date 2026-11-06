@@ -4,6 +4,9 @@ on:
     branches: [main, 'codex/vps-*', codex/single-journal-candidate]
     paths:
       - 'infrastructure/vps/**'
+      - 'infrastructure/migrations/**'
+      - 'tests/api/test_vps_upgrade.py'
+      - 'tests/api/test_vps_candidate.py'
       - 'scripts/*vps*'
       - 'scripts/install-browser-deps.sh'
       - 'scripts/ci-ubuntu-apt-fallback.py'
@@ -28,6 +31,8 @@ jobs:
           version: '0.9.7'
           python-version: '3.12'
       - run: uv sync --frozen && npm ci
+      - name: Check bundle and upgrade contracts
+        run: .venv/bin/pytest -q tests/api/test_vps_upgrade.py tests/api/test_vps_candidate.py -k "not snapshot_sql"
       - name: Download the package acceptance browser
         timeout-minutes: 5
         run: npx playwright install chromium

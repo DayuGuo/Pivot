@@ -137,6 +137,50 @@ test("作者取消离开未保存资料时保留草稿和身份，切换 POST �
   expect(posts).toEqual([]);
 });
 
+test("作者仅选择未上传文件时取消切换保留文件，再确认离开才打开独立身份页", async ({ page }) => {
+  await login(page); await page.goto("/publishing");
+  const auth = await switchTo(page, "author");
+  const title = "完全合成的未上传文件离开保护";
+  const created = await page.request.post("/api/publishing/drafts", {
+    headers: { "X-CSRF-Token": auth.csrf_token },
+    data: { request_id: randomUUID(), title },
+  });
+  expect(created.status()).toBe(200);
+  const mid = (await created.json()).manuscript_id;
+  await page.goto(`/publishing?manuscript=${mid}`);
+  await expect(page.getByLabel("标题", { exact: true })).toHaveValue(title);
+  const upload = page.getByLabel("选择文件", { exact: true });
+  await upload.setInputFiles({ name: "identity-not-uploaded.txt", mimeType: "text/plain", buffer: Buffer.from("完全合成的本地文件，仅选择，不上传。", "utf8") });
+  const beforeURL = page.url();
+  const posts = countIdentityPosts(page);
+  let list = await openIdentities(page);
+  const leaving = page.waitForEvent("dialog");
+  const navigation = list.getByRole("link", { name: "编辑", exact: true }).click({ noWaitAfter: true });
+  const dialog = await leaving;
+  expect(["confirm", "beforeunload"]).toContain(dialog.type());
+  await dialog.dismiss(); await navigation;
+  await expect(page).toHaveURL(beforeURL);
+  await expect(page.getByLabel("标题", { exact: true })).toHaveValue(title);
+  expect(await upload.evaluate(input => Array.from((input as HTMLInputElement).files ?? []).map(file => file.name))).toEqual(["identity-not-uploaded.txt"]);
+  const current = await identity(page);
+  expect(current.active_role).toBe("author");
+  expect(current.csrf_token === auth.csrf_token).toBe(true);
+  const saved = await page.request.get(`/api/publishing/manuscripts/${mid}`);
+  expect(saved.status()).toBe(200);
+  expect((await saved.json()).version.files).toHaveLength(0);
+  expect(posts).toEqual([]);
+
+  if (!await list.isVisible()) list = await openIdentities(page);
+  let acceptedPrompts = 0;
+  page.once("dialog", async prompt => { acceptedPrompts += 1; await prompt.accept(); });
+  await list.getByRole("link", { name: "编辑", exact: true }).click();
+  await expect(page).toHaveURL(/\/identity\?role=editor$/);
+  await expect(page.getByRole("button", { name: "切换为编辑", exact: true })).toBeEnabled();
+  expect(acceptedPrompts).toBe(1);
+  expect((await identity(page)).active_role).toBe("author");
+  expect(posts).toEqual([]);
+});
+
 test("另一标签页切换身份后关闭旧私人资料和未保存草稿，只读进入新身份", async ({ page, context }) => {
   test.setTimeout(60000);
   const auth = await login(page);

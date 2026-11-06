@@ -575,7 +575,7 @@ def test_database_cannot_rewrite_or_erase_version_and_check_evidence(client, log
 
 def test_complete_migration_chain_matches_all_metadata_and_empty_dossier_downgrade_is_safe():
     chain = list(reversed(list(migrations().walk_revisions(base="base", head="heads"))))
-    assert chain[-1].revision == "28a7c1e09462"
+    assert chain[-1].revision == "29b6d4a01c75"
     boundary = next(i for i, revision in enumerate(chain) if revision.revision == "13f17cad5064")
     dossier_tables = {
         Dossier.__tablename__,
