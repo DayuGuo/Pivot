@@ -2,6 +2,7 @@
 import { warnBeforeUnload } from "../browser";
 
 import Link from "next/link";
+import { roleViews } from "../identity/role-views";
 import { useEffect, useRef, useState } from "react";
 import type { Author, Detail, IntakeData, Version, VersionFile } from "./types";
 import { dateText, fileURL, purposeLabels } from "./types";
@@ -15,10 +16,11 @@ import styles from "./publishing.module.css";
 const newAuthor = (): Author => ({ name: "", email: "", orcid: null, affiliations: [], corresponding: false, contributions: [] });
 
 export function PublishingHome() {
-  const { workspace, detail, selectedId, refreshing, refresh, select } = usePublishing();
+  const { session, workspace, detail, selectedId, refreshing, refresh, select } = usePublishing();
+  const view = roleViews[session.user.role];
   if (selectedId && detail?.id !== selectedId) return <section className={styles.panel}><h1>稿件材料</h1><p role="status">{refreshing ? "正在载入…" : "暂时无法打开这篇稿件。请重新载入或返回工作列表。"}</p><button onClick={() => void refresh()} disabled={refreshing}>重新载入</button><button onClick={() => select(null)}>返回工作列表</button></section>;
   if (detail && selectedId) return <Manuscript key={detail.id} detail={detail} />;
-  return <section className={styles.panel}><header className={styles.panelHeader}><h1>我的稿件</h1><button onClick={() => void refresh()} disabled={refreshing}>刷新</button></header>{workspace?.submissions.length ? <div className={styles.submissionList}>{workspace.submissions.map(item => <Link key={item.id} href={`/publishing?manuscript=${item.id}`} onClick={event => { event.preventDefault(); select(item.id); }}><div><span>{item.number}</span><span className={styles.status}>{item.stage_label}</span></div><strong>{item.title || "未命名投稿"}</strong>{item.is_legacy && <small>旧版原型记录 · 只读</small>}</Link>)}</div> : <p className={styles.empty}>还没有可查看的稿件。你可以在对话中整理信息，作者也可以从左侧新建投稿。</p>}</section>;
+  return <section className={styles.panel}><header className={styles.panelHeader}><h1>{view?.title ?? "我的稿件"}</h1><button onClick={() => void refresh()} disabled={refreshing}>刷新</button></header>{workspace?.submissions.length ? <div className={styles.submissionList}>{workspace.submissions.map(item => <Link key={item.id} href={`/publishing?manuscript=${item.id}`} onClick={event => { event.preventDefault(); select(item.id); }}><div><span>{item.number}</span><span className={styles.status}>{item.stage_label}</span></div><strong>{item.title || "未命名投稿"}</strong>{item.is_legacy && <small>旧版原型记录 · 只读</small>}</Link>)}</div> : <p className={styles.empty}>{view?.empty ?? "还没有可查看的稿件。"}</p>}</section>;
 }
 
 function Manuscript({ detail }: { detail: Detail }) {

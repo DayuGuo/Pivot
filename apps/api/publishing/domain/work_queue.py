@@ -14,7 +14,7 @@ from .review_access import visible_condition
 from .review_models import ReviewInvitation, ReviewRound
 
 
-def workspace(db, actor, include_id=None):
+def workspace(db, actor, include_id=None, *, role_view=False):
     core.ensure_actor(db, actor)
     if include_id:
         core.load_submission(db, actor, include_id)
@@ -24,6 +24,8 @@ def workspace(db, actor, include_id=None):
         "chief_editor": {"author", "chief"},
         "production_editor": {"author", "production"},
     }.get(actor.role, set())
+    if role_view and actor.role != "author":
+        role_caps.discard("author")
     assigned = exists(
         select(Assignment.id).where(
             Assignment.manuscript_id == Manuscript.id,
@@ -41,6 +43,17 @@ def workspace(db, actor, include_id=None):
             or_(actor.role == "chief_editor", assigned, visible_condition(actor)),
         ),
     )
+    if role_view:
+        if actor.role == "author":
+            visible = Manuscript.author_id == actor.user.id
+        elif actor.role == "reviewer":
+            visible = and_(Manuscript.author_id != actor.user.id, visible_condition(actor))
+        else:
+            visible = and_(
+                Manuscript.author_id != actor.user.id,
+                SubmissionWorkflow.stage != "author_draft",
+                or_(actor.role == "chief_editor", assigned),
+            )
     base = (
         select(Manuscript.id)
         .join(SubmissionWorkflow, SubmissionWorkflow.manuscript_id == Manuscript.id)
@@ -137,6 +150,11 @@ def workspace(db, actor, include_id=None):
             )
         ):
             manuscript, flow, title = allowed[task.manuscript_id]
+            if role_view:
+                required = core.CAPABILITIES.get(task.kind)
+                review_task = task.kind in {"respond_review_invitation", "submit_review"}
+                if not (review_task and actor.role == "reviewer") and required not in role_caps:
+                    continue
             if not flow.is_legacy:
                 tasks.append(core.task_projection(task, flow, manuscript) | {"title": title})
     core.ensure_actor(db, actor)

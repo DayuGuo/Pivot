@@ -15,6 +15,7 @@ from apps.api.publishing.models import (
     CommandReceipt,
     EditorialTask,
     Journal,
+    LoginSession,
     Manuscript,
     Membership,
     Message,
@@ -347,15 +348,18 @@ def test_concurrent_duplicate_commands_use_real_connections():
                 Membership(user_id=synthetic_author.id, journal_id=journal.id, role="author"),
             ]
         )
+        setup.flush()
+        _, session = new_session(user, membership)
+        setup.add(session)
         setup.commit()
-        user_id, journal_id = user.id, journal.id
+        user_id, journal_id, session_hash = user.id, journal.id, session.token_hash
     request_id = str(uuid4())
 
     def run(_):
         with Session(engine, expire_on_commit=False) as db:
             user = db.get(User, user_id)
             membership = db.scalar(select(Membership).where(Membership.user_id == user_id))
-            actor = Actor(user, membership, new_session(user)[1])
+            actor = Actor(user, membership, db.get(LoginSession, session_hash))
             return execute_command(db, actor, PROMPT, request_id, MockModelProvider())
 
     try:

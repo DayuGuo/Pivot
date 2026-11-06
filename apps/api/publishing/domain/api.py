@@ -110,8 +110,10 @@ def session(actor: Actor = Depends(get_actor), db: Session = Depends(get_db)):
 
 
 @router.get("/workspace")
-def workspace(actor: Actor = Depends(get_actor), db: Session = Depends(get_db)):
-    return core.workspace(db, actor)
+def workspace(
+    role_view: bool = False, actor: Actor = Depends(get_actor), db: Session = Depends(get_db)
+):
+    return core.workspace(db, actor, role_view=role_view)
 
 
 @router.post("/drafts")

@@ -1,3 +1,11 @@
+# 当前增量：spec029 身份工作区正在完整验收
+
+按用户要求参考 OJS／Janeway，建立四类职责及头像附近已授权身份切换。[规格](specs/029-role-workspaces.md) · [研究](docs/research/roles-2026-11-06.md) · [交付](docs/development/role-workspaces.md)。身份选择与角色授予分开，默认任务／稿件按职责聚焦；对象、匿名材料、作者回避、私人资料归属和关键确认继续由后端确定。
+
+独立验证数据库迁移保留55表51,475旧行所有旧字段摘要，回填3,429确定会话，Alembic无漂移；三浏览器身份专项30项通过42.3秒。初轮4个定位器冲突和1个未持久化会话夹具失败均保留，已修复，不删测试或放宽权限。最终专项、独立界面终审及 scripts/verify.sh 尚待实际完成，未将本增量标为完整通过。
+
+新工作基于未合并PR #9。没有合并、VPS部署、Release或公开站改动；原主应用开始时已停止，本轮只启动隔离Mock验证项目。现有主库、原件和模型环境未改，真实模型请求0、真实邮件0，EMAIL_SEND_ENABLED=false，重大操作仍由负责人确认。
+
 # 已完成本机验收：spec028 统一设置
 
 真实工作区侧栏下方的设置入口集中模型API状态/安全接入说明、期刊邮箱和当前账号；原生dialog保留稿件、未上传文件、对话和邮箱草稿。模型区只读取部署配置，密钥仍在服务器安全环境，未新增浏览器凭据保存或远端测试。[范围](specs/028-unified-settings.md) · [交付](docs/development/settings.md) · [结果](docs/development/settings-results.json)。代码位于独立分支codex/unified-settings，基于未合并的PR #8，不自动合并或部署VPS。

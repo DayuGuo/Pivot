@@ -37,7 +37,7 @@ from .editorial_demo import (
     validated_state,
 )
 from .models import Base, now, uid
-from .security import Actor
+from .security import Actor, ensure_current_actor
 
 router = APIRouter(prefix="/api/editorial-demo/chat", tags=["private contextual editorial chat"])
 View = Literal["work", "read", "reviewers", "revision"]
@@ -630,6 +630,7 @@ def chat(body: ChatInput, actor: Actor = Depends(editor), db: Session = Depends(
                 "telemetry": getattr(provider, "editorial_telemetry", []) if provider else [],
             },
         )
+        ensure_current_actor(db, actor, for_commit=True)
         db.commit()
         configuration = code in {
             "fresh_deepseek_key_required",
@@ -694,5 +695,6 @@ def chat(body: ChatInput, actor: Actor = Depends(editor), db: Session = Depends(
             "telemetry": telemetry,
         },
     )
+    ensure_current_actor(db, actor, for_commit=True)
     db.commit()
     return result

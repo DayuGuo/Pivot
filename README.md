@@ -1,5 +1,12 @@
 # Pivot
 
+## 身份工作区
+
+点击工作区左下角头像／姓名，选择账号已获授的编辑、审稿人、主编或作者身份，在独立页确认后进入对应任务与稿件视图。切换保留原业务数据；不会授予新权限，取消离开可保留未保存内容。现有单职务账号不自动扩权。
+
+本机 local 多身份体验账号：`multi@publishing.test` / `MultiDemo2026!`。私人 VPS bootstrap 不启用该公开密码。职责、官方 OJS／Janeway 依据与验收见 [spec029](specs/029-role-workspaces.md) 和[交付记录](docs/development/role-workspaces.md)；没有自动更新 VPS 或公开静态站。
+
+
 真实工作区侧栏下方新增“设置”：模型API状态/安全接入步骤、邮箱绑定和当前账号集中管理，打开面板保留当前稿件与对话草稿。本机已更新，完整1559后端＋429浏览器通过；模型密钥仍由服务器安全环境管理，不在网页录入或存储。[操作与验收](docs/development/settings.md)。
 
 [PR #8 最后一轮CI复核](docs/development/spec027/ci-followup.md)已完成：修复原生包慢镜像超时，6f76d7d完整push/PR各1559后端＋399浏览器通过，静态双轮和原生amd64包验收通过；真实超时回退路径也已验证。未合并、未部署VPS，失败及本机会话中断记录保留。

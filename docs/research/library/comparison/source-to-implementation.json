@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_date": "2026-11-05",
+  "updated_date": "2026-11-06",
   "scope": "Foundation14 + C1 + D4 + E3 + F3 + internal dossier4 =29 classes/357 fields. Internal dossiers are private pre-submission preparation artifacts, with static source bindings only; runtime/service/browser verification is maintained by lead in PROGRESS.md. Existing C/D/E/F evidence is preserved. Spec021 adds 1 project-governance human claim feedback class /16 fields; source binding is not execution proof. Spec027 adds private multi-version checks12 and human judgements15 fields; static provenance is not executed editor evaluation.",
   "data_contract": "specs/007-data-contract.md",
   "source_manifests": {
@@ -139,59 +139,59 @@
       ],
       "source_binding": {
         "path": "apps/api/publishing/models.py",
-        "class_line": 51,
+        "class_line": 71,
         "fields": [
           {
             "name": "id",
-            "line": 59,
+            "line": 79,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
           },
           {
             "name": "journal_id",
-            "line": 60,
+            "line": 80,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(ForeignKey('journals.id'))"
           },
           {
             "name": "author_id",
-            "line": 61,
+            "line": 81,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(ForeignKey('users.id'))"
           },
           {
             "name": "editor_id",
-            "line": 62,
+            "line": 82,
             "annotation": "Mapped[str | None]",
             "declaration": "mapped_column(ForeignKey('users.id'))"
           },
           {
             "name": "workflow_kind",
-            "line": 63,
+            "line": 83,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(20), default='legacy', server_default='legacy')"
           },
           {
             "name": "title",
-            "line": 66,
+            "line": 86,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(500))"
           },
           {
             "name": "status",
-            "line": 67,
+            "line": 87,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(30), default='draft')"
           },
           {
             "name": "created_at",
-            "line": 68,
+            "line": 88,
             "annotation": "Mapped[datetime]",
             "declaration": "mapped_column(DateTime(timezone=True), default=now)"
           }
         ],
         "table_args": {
-          "line": 53,
+          "line": 73,
           "declaration": "(UniqueConstraint('id', 'journal_id', name='uq_manuscript_id_journal'), CheckConstraint(\"workflow_kind IN ('legacy','publishing')\", name='ck_manuscript_workflow_kind'))"
         }
       }
