@@ -67,17 +67,23 @@ for (const order of ["history-last", "post-last"] as const) {
   });
 }
 
-test("UI fixture: 账号入口保护未保存文件且只询问一次", async ({ page }) => {
+test("UI fixture: 主工作台链接保护未保存文件且只询问一次", async ({ page }) => {
   await fixtures(page); await page.goto(`/publishing?manuscript=${MID}`);
   const file = page.getByLabel("正文校样文件", { exact: true });
   await file.setInputFiles({ name: "unsaved-ui-fixture.txt", mimeType: "text/plain", buffer: Buffer.from("本地选择，不上传。") });
   let prompts = 0; let accept = false;
   page.on("dialog", async dialog => { prompts++; if (accept) await dialog.accept(); else await dialog.dismiss(); });
-  await page.getByRole("link", { name: "账号与设置", exact: true }).click();
+  await page.getByRole("button", { name: "设置", exact: true }).click();
+  const settings = page.getByRole("dialog", { name: "设置", exact: true });
+  await expect(settings.getByRole("heading", { name: "模型 API", exact: true })).toBeVisible();
+  expect(prompts).toBe(0);
+  await settings.getByRole("button", { name: "关闭设置", exact: true }).click();
+  expect(await file.evaluate(input => (input as HTMLInputElement).files?.length)).toBe(1);
+  await page.getByRole("link", { name: "返回主工作台", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(MID));
   expect(prompts).toBe(1);
   expect(await file.evaluate(input => (input as HTMLInputElement).files?.length)).toBe(1);
-  accept = true; await page.getByRole("link", { name: "账号与设置", exact: true }).click();
+  accept = true; await page.getByRole("link", { name: "返回主工作台", exact: true }).click();
   await expect(page).toHaveURL(/\/$/); expect(prompts).toBe(2);
 });
 
@@ -187,7 +193,7 @@ test("UI fixture: 未保存保护保留新标签页与下载的默认行为", as
   await page.getByLabel("正文校样文件", { exact: true }).setInputFiles({ name: "still-unsaved.txt", mimeType: "text/plain", buffer: Buffer.from("仅本地选择。") });
   let prompts = 0; page.on("dialog", async dialog => { prompts++; await dialog.dismiss(); });
   const popup = page.context().waitForEvent("page");
-  await page.getByRole("link", { name: "账号与设置", exact: true }).click({ modifiers: ["Control"] });
+  await page.getByRole("link", { name: "返回主工作台", exact: true }).click({ modifiers: ["Control"] });
   const opened = await popup; await expect(opened).toHaveURL(/\/$/); await opened.close();
   await expect(page).toHaveURL(new RegExp(MID)); expect(prompts).toBe(0);
   await page.evaluate(() => { const link = document.createElement("a"); link.href = "data:text/plain,synthetic"; link.download = "fixture.txt"; link.textContent = "合成下载夹具"; document.querySelector('main[aria-label="稿件材料"]')!.appendChild(link); });
@@ -340,7 +346,7 @@ for (const phase of ['after-send', 'before-send'] as const) test(`UI fixture: �
   expect((await refreshed).url()).toContain(OTHER);
   expect(posted).toBe(phase === 'after-send');
   await page.getByLabel('向出版助手发送消息', { exact: true }).fill('继续保留后稿输入');
-  leave = false; const previous = prompts; await page.getByRole('link', { name: '账号与设置', exact: true }).click();
+  leave = false; const previous = prompts; await page.getByRole('link', { name: '返回主工作台', exact: true }).click();
   await expect(page).toHaveURL(new RegExp(OTHER)); expect(prompts).toBe(previous + 1);
   expect(await file.evaluate(input => (input as HTMLInputElement).files?.[0]?.name)).toBe('new-unsaved.txt');
 });

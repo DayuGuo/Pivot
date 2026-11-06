@@ -7,6 +7,7 @@ import NextSteps from "../assistant/next-steps";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type FormEvent, type MouseEvent } from "react";
 import Glyph from "../editorial/icons";
+import { SettingsButton } from "../settings/panel";
 import { dossierListURL, LibraryError, readJSON } from "./api";
 import DossierEditor from "./editor";
 import MetadataExport from "./metadata-export";
@@ -324,7 +325,7 @@ export default function LibraryWorkspace({ reviewVersionId, importId, evaluation
         {listCursor && <button type="button" disabled={!!paging} onClick={() => void pageList(false)}>{paging === "list" ? "正在加载…" : "加载更多资料"}</button>}
 
       </nav>
-      <div className={styles.identity}><span>{session.user.name}</span><small>{session.journal.name}</small><Link href="/">返回登录 / 切换身份</Link></div>
+      <div className={styles.identity}><span>{session.user.name}</span><small>{session.journal.name}</small><SettingsButton onOpen={() => setDrawer(false)} /><Link href="/">返回登录 / 切换身份</Link></div>
     </aside>
     <div className={styles.main}>
       <header className={styles.toolbar}><button className={styles.mobileOnly} aria-label="打开资料列表" onClick={() => setDrawer(true)}><Glyph name="inbox" /></button><h1>内部资料</h1><span>不构成正式投稿</span><Link href="/publishing">出版工作区</Link></header>

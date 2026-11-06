@@ -287,3 +287,6 @@ nav svg { color: var(--ui-muted); }
   .login-panel { padding-bottom: 70px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+
+.settings-entry { padding: 4px 0 6px; }
+.settings-entry > button { width: 100%; }
