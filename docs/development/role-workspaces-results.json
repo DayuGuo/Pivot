@@ -87,5 +87,14 @@
     "api_cost": null,
     "total_wall_seconds": null,
     "unknown_metrics_not_estimated": true
+  },
+  "second_full": {
+    "source": "6c61a26a174ea810c1832de1e4c4f7bae86dbef6",
+    "exit_code": 1,
+    "backend_passed": 1613,
+    "browser_passed": 461,
+    "browser_failed": 1,
+    "failure": "webkit_shared_sidebar_scroll_click_geometry",
+    "evidence": "artifacts/identity/second-full-failure"
   }
 }
