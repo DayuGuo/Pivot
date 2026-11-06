@@ -1,5 +1,5 @@
 .launcher.launcher { display: inline-flex; align-items: center; justify-content: flex-start; gap: 8px; min-height: 40px; padding: 8px 10px; border: 0; border-radius: 5px; color: inherit; background: transparent; font-size: 13px; text-align: left; }
-.launcher:hover { background: var(--ui-hover); }
+.launcher:hover { background: var(--wb-soft, var(--ui-hover)); }
 .dialog { --settings-canvas: #fff; --settings-sidebar: #f5f7fa; --settings-ink: #30343b; --settings-muted: #555f6d; --settings-line: #e3e8f0; --settings-accent: #2463ff; --settings-selected: #e8eefb; --settings-danger: #a83144; width: min(880px, calc(100vw - 48px)); max-height: calc(100vh - 48px); max-height: calc(100dvh - 48px); margin: auto; padding: 0; border: 1px solid var(--settings-line); border-radius: 8px; overflow: hidden; color: var(--settings-ink); background: var(--settings-canvas); color-scheme: light; }
 .dialog::backdrop { background: rgb(22 28 39 / 25%); }
 .dialog[open] { display: flex; flex-direction: column; }
