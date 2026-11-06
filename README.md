@@ -4,16 +4,18 @@
 
 点击工作区左下角头像／姓名，选择账号已获授的编辑、审稿人、主编或作者身份，在独立页确认后进入对应任务与稿件视图。切换保留原业务数据；不会授予新权限，取消离开可保留未保存内容。现有单职务账号不自动扩权。
 
+本轮完整本机验收：1,613后端＋465浏览器通过（三引擎各155，0重试；本机WebKit采用显式软件渲染），实现源 `267fd46`，同提交PR／push完整与静态CI均通过。独立Mock预览：[身份工作区](http://localhost:13100/publishing)。现有主服务没有在本轮更新。
+
 本机 local 多身份体验账号：`multi@publishing.test` / `MultiDemo2026!`。私人 VPS bootstrap 不启用该公开密码。职责、官方 OJS／Janeway 依据与验收见 [spec029](specs/029-role-workspaces.md) 和[交付记录](docs/development/role-workspaces.md)；没有自动更新 VPS 或公开静态站。
 
 
-真实工作区侧栏下方新增“设置”：模型API状态/安全接入步骤、邮箱绑定和当前账号集中管理，打开面板保留当前稿件与对话草稿。本机已更新，完整1559后端＋429浏览器通过；模型密钥仍由服务器安全环境管理，不在网页录入或存储。[操作与验收](docs/development/settings.md)。
+真实工作区侧栏下方新增“设置”：模型API状态/安全接入步骤、邮箱绑定和当前账号集中管理，打开面板保留当前稿件与对话草稿。spec028当时本机已更新，完整1559后端＋429浏览器通过；当前运行状态见本页顶部。模型密钥仍由服务器安全环境管理，不在网页录入或存储。[操作与验收](docs/development/settings.md)。
 
 [PR #8 最后一轮CI复核](docs/development/spec027/ci-followup.md)已完成：修复原生包慢镜像超时，6f76d7d完整push/PR各1559后端＋399浏览器通过，静态双轮和原生amd64包验收通过；真实超时回退路径也已验证。未合并、未部署VPS，失败及本机会话中断记录保留。
 
-当前分支提供单刊辅助核对候选版：PDF/Word资料核对、带原文的问答、私人多版本修回核对和三层人工判断。使用说明见[操作指南](docs/development/spec027/operating-guide.md)，准确源码、测试、真实模型、升级恢复及限制见[交付记录](docs/development/spec027/review.md)和[PROGRESS](PROGRESS.md)。应用代码仍为3307df6，CI修复源码为6f76d7d；历史本机完整门禁1530＋399通过，本次本机会话143中断不计完整成功。此前本机更新保留原53表3560行/24原件，本轮不再改主服务或数据；工程通过不等于专家内容验收。
+当前分支提供单刊辅助核对候选版：PDF/Word资料核对、带原文的问答、私人多版本修回核对和三层人工判断。使用说明见[操作指南](docs/development/spec027/operating-guide.md)，准确源码、测试、真实模型、升级恢复及限制见[交付记录](docs/development/spec027/review.md)和[PROGRESS](PROGRESS.md)。此段保留spec027历史快照：当时应用代码3307df6、CI修复源码6f76d7d；当前增量以本页顶部与PROGRESS为准。历史本机完整门禁1530＋399通过，本次本机会话143中断不计完整成功。此前本机更新保留原53表3560行/24原件，本轮不再改主服务或数据；工程通过不等于专家内容验收。
 
-草稿[PR #8](https://github.com/DayuGuo/Pivot/pull/8)叠加未合并#7/#6，本轮不自动合并或更新VPS。公开静态站、已安装preview.4与本分支候选包分开；日历、多身份和完整出版仍按[路线图](ROADMAP.md)后续推进。真实编辑评价尚未执行，不能据工程测试宣称节时或科学准确率。
+草稿[PR #8](https://github.com/DayuGuo/Pivot/pull/8)叠加未合并#7/#6，本轮不自动合并或更新VPS。公开静态站、已安装preview.4与本分支候选包分开；同刊已授权多职务切换见spec029；日历、多期刊选择和正式公开出版仍按[路线图](ROADMAP.md)后续推进。真实编辑评价尚未执行，不能据工程测试宣称节时或科学准确率。
 
 已发布的[完整应用私人体验包 v0.2.0-preview.4](https://github.com/DayuGuo/Pivot/releases/tag/v0.2.0-preview.4)可与静态站并存：预编译amd64镜像、私人账号、DeepSeek/PDF/Word、受限内存与备份恢复。它不包含本分支全部增量；候选仅提供CI artifact，不自动发布Release。[安装说明](infrastructure/vps/README.md) · [保留数据升级](docs/deployment/private-preview-upgrade.md)。已安装用户不重新init、不删除卷；用户已报告VPS装有旧版，本轮没有连接或更新服务器。
 
@@ -76,7 +78,7 @@ bash install.sh
 
 前提为Linux amd64与Docker；默认监听环回8080，可通过HTTPS代理访问。明确需要公网IP直接演示时用`PIVOT_BIND=0.0.0.0 PIVOT_PORT=8080 bash install.sh`并自行放行端口。本机构建：`./scripts/build-demo.sh --image && ./scripts/package-vps-demo.sh`，VPS无需编译、数据库或模型密钥。[五分钟演示与完整安装说明](docs/deployment/demo-racknerd.md) · [本阶段范围](specs/012-showcase-demo.md) · [实际验证记录](docs/development/demo-delivery.md)。源码与4个附件已公开发布，本地与远端完整CI均835 Pytest +48 Playwright通过，x86实际解包安装/11 E2E通过；发行报告见[公开发行验收](docs/development/pivot-release.md)。用户已自行部署[公网Demo](https://pivot.anotherdayu.com/)，线上11项浏览器验收通过；本轮仅检查公开网页，未通过SSH审查服务器配置。
 
-核心产品设计：[PRODUCT_DESIGN.md](PRODUCT_DESIGN.md)。日历/双层对话当前只在独立Demo展示；真实数据库中的聚合、多身份、多刊邀请与邮箱/ORCID注册仍待实施，不能从截图推断上线。
+核心产品设计：[PRODUCT_DESIGN.md](PRODUCT_DESIGN.md)。日历/双层对话当前只在独立Demo展示；真实数据库中的跨刊聚合、多期刊选择、多刊邀请与邮箱/ORCID注册仍待实施；同刊已授权多职务切换见spec029，不能从展示截图推断部署。
 
 Demo反馈后：[单人＋Codex单刊审阅第一阶段](specs/011-single-journal-review-pilot.md)。包含8周计划、约3万元现金准备及真实试点前的专业复核关口；资料包、文本层PDF/DOCX与只读版本证据问答已按切片本地实现；公开样本评测已按spec016完成一轮；更广泛格式覆盖、ORCID认证与专业复核尚待完成。展示Demo沿用现有电脑/Codex/已购VPS，不需要这笔真实试点预算或新增模型消费。
 
@@ -92,7 +94,7 @@ Demo反馈后：[单人＋Codex单刊审阅第一阶段](specs/011-single-journa
 
 以对话与 AI Agent 为入口的科研期刊出版操作系统原型。首条业务链真实运行于 PostgreSQL：登录 → 对话创建合成测试稿件 → 提交并分派编辑初筛 → 状态、待办、对话、审计持久化 → 刷新恢复。
 
-**默认无凭据为明确标记的Mock；当前本机 `/publishing` 使用真实DeepSeek，已通过当前稿件/角色/实际文件/候选/待确认提案与危险请求拒绝验收。瞬时故障有限重试，持续失败明确回滚，不静默回退Mock。真实邮件始终禁用，不包含生产部署。**
+**默认无凭据为明确标记的Mock；此前本机 `/publishing` 的真实DeepSeek已通过当前稿件/角色/实际文件/候选/待确认提案与危险请求拒绝验收，当前运行与部署状态以PROGRESS为准。瞬时故障有限重试，持续失败明确回滚，不静默回退Mock。真实邮件始终禁用，不包含生产部署。**
 
 当前外观依据用户提供的最新 Hermes 工作台截图：浅灰侧栏、白色对话区、细蓝色选中线与底部输入框。参考证据和适配取舍见 [DESIGN.md](DESIGN.md)。原样遵循 AGENTS.md 中的精简标签规则；四个设计技能的来源、分工和安装记录见 [设计技能](docs/development/design-skills.md)，本轮审查与限制见 [设计验收](docs/development/design-acceptance.md)。
 
