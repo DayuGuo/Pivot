@@ -29,7 +29,8 @@
     "artifacts/calendar/stall-red.log",
     "artifacts/calendar/revision-red.log",
     "artifacts/calendar/first-full-failure",
-    "artifacts/calendar/hint-red.log"
+    "artifacts/calendar/hint-red.log",
+    "artifacts/calendar/year-red.log"
   ],
   "full": null,
   "ui_review": {
@@ -40,13 +41,20 @@
         "priority": 2,
         "issue": "Home expanded calendar clipped later weeks and filters at1280x720",
         "status": "resolved"
+      },
+      {
+        "issue": "Overdue items across years omitted year",
+        "status": "resolved",
+        "captures": 3,
+        "scope": "Generic reviewer independently read three captures and formatter; no backend or physical-device certification."
       }
     ],
     "captures": 10,
     "detector": [],
     "token_cost_metrics": null,
     "disposition": "ship",
-    "scope": "Read-only fresh generic reviewer; ten recaptures; verdict limited to previous P2 viewport finding. No backend, physical-device or screen-reader certification."
+    "scope": "Read-only fresh generic reviewer; ten recaptures; verdict limited to previous P2 viewport finding. No backend, physical-device or screen-reader certification.",
+    "review_rounds": 3
   },
   "targeted_browser": {
     "passed": 36,
@@ -77,5 +85,48 @@
     "retries": 0,
     "evidence": "artifacts/calendar/hint-green.log",
     "scope": "Existing isolated verification data; real full workflow and context-guidance, plus deterministic old-image red/new-image green pointer race."
+  },
+  "second_local_full_interrupted": {
+    "source": "cc02b685e145e3985bd6b47cc02861af9c1ea547",
+    "finished_head": "cc02b685e145e3985bd6b47cc02861af9c1ea547",
+    "exit_code": -15,
+    "duration_seconds": 1859.85,
+    "started_at": "2026-11-06T23:11:44.140796+00:00",
+    "finished_at": "2026-11-06T23:42:43.987715+00:00",
+    "scope": "isolated_mock",
+    "webkit_renderer": "explicit_mesa_software",
+    "real_model_calls": 0,
+    "vps_touched": false,
+    "main_database_touched": false,
+    "api_passed": 1666,
+    "api_seconds": 670.07,
+    "warnings": 10,
+    "browser_passes_at_stop": {
+      "chromium": 180,
+      "firefox": 180,
+      "webkit": 39
+    },
+    "reason": "Controlled old-image red test confirmed overdue dates omitted year. Intentionally stopped this batch to validate corrected source; not a complete pass.",
+    "evidence": "artifacts/calendar/second-full-interrupted"
+  },
+  "overdue_year_targeted_browser": {
+    "passed": 36,
+    "per_engine": 12,
+    "duration": "2.0m",
+    "failed": 0,
+    "retries": 0,
+    "evidence": "artifacts/calendar/year-green.log",
+    "captures": 3,
+    "ui_review": "resolved_ship_limited_year_display"
+  },
+  "overdue_year_visibility_browser": {
+    "passed": 3,
+    "per_engine": 1,
+    "seconds": 11.5,
+    "failed": 0,
+    "retries": 0,
+    "overlaps_calendar_suite": true,
+    "evidence": "artifacts/calendar/year-visibility-green.log",
+    "method": "Native Tab to both task links, full viewport intersections, no horizontal overflow, page clip preserves scroll."
   }
 }

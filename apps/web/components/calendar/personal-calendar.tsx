@@ -137,7 +137,7 @@ function Calendar({ revision }: { revision: string | null }) {
   const last = first ? new Date(first) : null; if (last) { last.setUTCMonth(last.getUTCMonth() + 1); last.setUTCDate(0); }
   const cells = Array.from({ length: Math.ceil((offset + (last?.getUTCDate() ?? 0)) / 7) * 7 }, (_, i) => i >= offset && i < offset + (last?.getUTCDate() ?? 0) ? `${route.month}-${String(i - offset + 1).padStart(2, "0")}` : null);
   const days = new Map(data?.days.map(x => [x.date, x.count]));
-  const dateText = (date: string) => new Intl.DateTimeFormat("zh-CN", { month: "long", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: route.tz }).format(new Date(date));
+  const dateText = (date: string) => new Intl.DateTimeFormat("zh-CN", { year: route.view === "overdue" ? "numeric" : undefined, month: "long", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: route.tz }).format(new Date(date));
   const selectedFocus = focusDay.startsWith(route.month) ? focusDay : `${route.month}-01`;
   return <section className={styles.root} data-calendar-open={open ? "true" : undefined} aria-label="个人日历">
     <button className={styles.toggle} aria-expanded={open} aria-controls={id} onClick={toggle}><Glyph name="calendar" size={16} /><span>日历</span><Glyph name={open ? "close" : "arrow"} size={13} /></button>

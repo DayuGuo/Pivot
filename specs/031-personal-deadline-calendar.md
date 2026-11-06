@@ -12,7 +12,7 @@ PR #11 已按用户授权调整目标为 main 并以 `bb340da407a8fbc654e5f0e3f8
 
 ## 接口与维护
 
-GET `/api/calendar?month=YYYY-MM&tz=IANA&view=month|overdue&day=YYYY-MM-DD&cursor=…&limit=12`，默认 UTC、每页12、最多50。day只适用于本月。用当地月/日的半开时间区间处理午夜和夏令时，返回月内每天数量、当前身份的全月/全部逾期/未定期计数与有界任务页。游标绑定用户、期刊、角色、月份、时区和筛选，不授予权限；每次 SQL 重新授权，读取结束复核会话。
+GET `/api/calendar?month=YYYY-MM&tz=IANA&view=month|overdue&day=YYYY-MM-DD&cursor=…&limit=12`，默认 UTC、每页12、最多50。day只适用于本月。用当地月/日的半开时间区间处理午夜和夏令时，返回月内每天数量、当前身份的全月/全部逾期/未定期计数与有界任务页。逾期列表可能跨年，条目必须显示年份，不能从当前月份标题误推断。游标绑定用户、期刊、角色、月份、时区和筛选，不授予权限；每次 SQL 重新授权，读取结束复核会话。
 
 metadata_access 共享安全题名 SQL，搜索保留原协议；calendar_queries 只读任务 SQL，calendar 路由处理日期、游标、分页和DTO，前端 components/calendar 管理展示及请求状态。不得依赖最近200篇浏览窗口、逐稿完整文件投影、模型、出站网络或新增业务写入。
 

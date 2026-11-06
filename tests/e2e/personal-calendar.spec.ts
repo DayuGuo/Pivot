@@ -133,10 +133,28 @@ test("UI fixture：日期键盘、空日期、分页和390px原生日期选择",
   await login(page);
   await page.route(endpoint, async route => {
     const url = route.request().url(), q = new URL(url).searchParams, month = q.get("month")!;
+    if (q.get("view") === "overdue") {
+      const rows = [new Date().getUTCFullYear() - 2, new Date().getUTCFullYear() - 1].map(year => ({ ...item(`合成逾期${year}`, `${year}-06`), overdue: true }));
+      const result = payload(url, rows, null, 0); result.counts.overdue = rows.length;
+      return route.fulfill({ json: result });
+    }
     const items = q.get("day") && !q.get("day")!.endsWith("-15") ? [] : [item(q.has("cursor") ? "第二页任务" : "第一页任务", month)];
     await route.fulfill({ json: payload(url, items, q.has("cursor") || q.has("day") ? null : "next-page", items.length ? 2 : 0) });
   });
   await page.goto("/publishing"); await open(page);
+  await expect(calendar(page).getByText("第一页任务", { exact: true })).toBeVisible();
+  await calendar(page).getByRole("button", { name: /^逾期/ }).click();
+  for (const year of [new Date().getUTCFullYear() - 2, new Date().getUTCFullYear() - 1]) await expect(calendar(page).getByRole("link").filter({ hasText: `合成逾期${year}` }).locator("time")).toContainText(`${year}年`);
+  // Native Tab navigation scrolls real task links into view on WebKit too.
+  await calendar(page).getByRole("button", { name: /^逾期/ }).focus();
+  for (let i = 0; i < 3; i++) await page.keyboard.press("Tab");
+  await expect(calendar(page).getByRole("link").filter({ hasText: `合成逾期${new Date().getUTCFullYear() - 1}` })).toBeFocused();
+  for (const stamp of await calendar(page).locator("time").all()) await expect(stamp).toBeInViewport({ ratio: 1 });
+  expect(await calendar(page).evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
+  await page.evaluate(() => document.fonts.ready);
+  const crop = await calendar(page).boundingBox(); expect(crop).not.toBeNull();
+  await page.screenshot({ animations: "disabled", clip: crop!, path: `artifacts/calendar/${browserName}-overdue-years.png` });
+  await calendar(page).getByRole("button", { name: /^本月/ }).click();
   await expect(calendar(page).getByText("第一页任务", { exact: true })).toBeVisible();
   const button = calendar(page).getByRole("button", { name: /^\d{4}-\d{2}-15，/ });
   await button.focus(); await page.keyboard.press("ArrowRight");
