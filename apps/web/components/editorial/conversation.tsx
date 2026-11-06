@@ -1,4 +1,5 @@
 "use client";
+import { requestId as newRequestId, withRequestTimeout } from "../browser";
 
 import {useCallback, useEffect, useRef, useState, type FormEvent, type MouseEvent, type ReactNode} from "react";
 import type {Case} from "./types";
@@ -26,12 +27,14 @@ const scopeLabels: Record<ChatScope, string> = {case: "当前稿件", queue: "�
 const viewLabels = {work: "查看工作列表", read: "打开稿件", reviewers: "查看审稿人与邀请草稿", revision: "查看修回与决定草稿"};
 
 async function request<T>(options?: RequestInit, endpoint = "/api/editorial-demo/chat"): Promise<T> {
-  const response = await fetch(endpoint, {credentials: "same-origin", cache: "no-store", ...options});
-  if (!response.ok) {
-    // Do not reflect server/proxy error bodies into a private conversation.
-    throw new Error(response.status === 401 ? "登录已失效，请重新登录后重试。" : response.status === 403 ? "当前账号无法访问编辑对话，请检查登录状态后重试。" : response.status === 503 ? "真实模型尚未就绪或暂时不可用，请检查本地模型配置后重试。" : response.status === 422 ? "模型输出或工具校验未通过，未执行本次业务变更，请重试。" : "对话请求未完成，请重试。");
-  }
-  return response.json() as Promise<T>;
+  return withRequestTimeout(80_000, options?.signal, async signal => {
+    const response = await fetch(endpoint, {credentials: "same-origin", cache: "no-store", ...options, signal});
+    if (!response.ok) {
+      // Do not reflect server/proxy error bodies into a private conversation.
+      throw new Error(response.status === 401 ? "登录已失效，请重新登录后重试。" : response.status === 403 ? "当前账号无法访问编辑对话，请检查登录状态后重试。" : response.status === 503 ? "真实模型尚未就绪或暂时不可用，请检查本地模型配置后重试。" : response.status === 422 ? "模型输出或工具校验未通过，未执行本次业务变更，请重试。" : "对话请求未完成，请重试。");
+    }
+    return response.json() as Promise<T>;
+  });
 }
 
 function actionHref(action: ChatAction): string {
@@ -160,7 +163,7 @@ function UserConversation({context, manuscript, manuscripts = [], storageScope, 
     if (sendingLock.current || loading || historyError || !model?.available || modelError || (!retry && pending)) return;
     const message = text.trim();
     if (!message) { composer.current?.focus(); return; }
-    const turn = retry || {request_id: crypto.randomUUID(), message, context: {...context}};
+    const turn = retry || {request_id: newRequestId(), message, context: {...context}};
     const activeGeneration = generation.current;
     sendingLock.current = true;
     setSending(true);
@@ -171,7 +174,7 @@ function UserConversation({context, manuscript, manuscripts = [], storageScope, 
     let committed = false;
     try {
       if (beforeSend) await beforeSend(turn.message, turn.context);
-      const result = await request<ChatTurn>({method: "POST", signal: AbortSignal.timeout(80000), headers: {"Content-Type": "application/json", "X-CSRF-Token": csrf}, body: JSON.stringify(turn)});
+      const result = await request<ChatTurn>({method: "POST", headers: {"Content-Type": "application/json", "X-CSRF-Token": csrf}, body: JSON.stringify(turn)});
       if (activeGeneration !== generation.current) return;
       committed = true;
       setMessages(current => mergeMessages(current, result.messages));

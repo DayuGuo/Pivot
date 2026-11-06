@@ -19,6 +19,9 @@ print("Model gateway dependency boundaries passed")
 # Private dossiers are a layered modular monolith, not mutually importing routers.
 # This is a direct-import constraint, not a replacement for runtime authorization.
 ranks = {
+    "work_queue": 1,
+    "formal_document_models": 0,
+    "formal_document_sources": 2,
     "claim_review_models": 0,
     "evaluation_models": 0,
     "evaluation_sources": 4,
@@ -32,6 +35,9 @@ ranks = {
     "dossier_evidence": 1,
     "claim_support": 2,
     "dossier_models": 0,
+    "dossier_revision_models": 0,
+    "dossier_revision_schemas": 1,
+    "dossier_revision_sources": 3,
     "dossier_schemas": 0,
     "dossier_access": 1,
     "pagination": 1,
@@ -44,9 +50,12 @@ ranks = {
     "revision_sources": 3,
 }
 route_modules = {
+    "formal_documents",
     "dossiers",
     "document_imports",
     "dossier_chat",
+    "dossier_export",
+    "dossier_revisions",
     "document_candidates",
     "claim_reviews",
     "claim_evaluation",

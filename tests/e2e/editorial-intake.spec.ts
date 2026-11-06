@@ -152,12 +152,13 @@ test("真实对话新建、切换、搜索、刷新及用户隔离", async ({ pa
   await page.locator(`[data-conversation-id="${second}"]`).click();
   await expect(page.getByLabel("对话指令", { exact: true })).toHaveValue("尚未发送的第二个会话草稿");
   await page.locator(`[data-conversation-id="${first}"]`).click();
-  await page.getByLabel("搜索对话").fill("不存在的会话标题");
-  await expect(page.getByText("没有匹配的对话", { exact: true })).toBeVisible();
-  await page.getByLabel("搜索对话").fill("测试稿件初筛");
-  await expect(page.locator(`[data-conversation-id="${first}"]`)).toBeVisible();
-  await expect(page.locator(`[data-conversation-id="${second}"]`)).toHaveCount(0);
-  await page.getByLabel("搜索对话").clear();
+  await page.getByLabel("全局搜索").fill("不存在的会话标题");
+  const searchResults = page.getByRole("region", { name: "搜索结果", exact: true });
+  await expect(searchResults.getByText("没有找到相关结果。", { exact: true })).toBeVisible();
+  await page.getByLabel("全局搜索").fill("测试稿件初筛");
+  await expect(searchResults.locator(`a[href="/?conversation=${first}"]`)).toBeVisible();
+  await expect(searchResults.locator(`a[href="/?conversation=${second}"]`)).toHaveCount(0);
+  await page.getByLabel("全局搜索").clear();
   await page.reload();
   await expect(page.getByLabel("对话记录")).toContainText(marker);
   const restored = await (await page.request.get(`/api/workspace?conversation_id=${first}`)).json();
@@ -169,6 +170,7 @@ test("真实对话新建、切换、搜索、刷新及用户隔离", async ({ pa
   await page.locator(`[data-conversation-id="${second}"]`).click();
   await expect(page.getByLabel("对话记录")).not.toContainText(marker);
   await page.getByRole("button", { name: "退出登录" }).click();
+  await expect(page.getByRole("button", { name: "进入工作台", exact: true })).toBeVisible();
   await login(page, "author");
   await expect(page.locator(`[data-conversation-id="${first}"]`)).toHaveCount(0);
   expect((await page.request.get(`/api/workspace?conversation_id=${first}`)).status()).toBe(404);
@@ -176,7 +178,8 @@ test("真实对话新建、切换、搜索、刷新及用户隔离", async ({ pa
 
 test("邮箱绑定真实 Mailpit 验证、持久化、断开及 Gmail 缺少凭据", async ({ page }) => {
   await login(page);
-  await page.getByRole("navigation").getByRole("button", { name: "邮件", exact: true }).click();
+  await page.getByRole("button", { name: "设置", exact: true }).click();
+  await page.getByRole("tab", { name: "邮箱", exact: true }).click();
   await expect(page.getByText("真实邮件发送已禁用", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "保存邮箱", exact: true }).click();
   await expect(page.getByText("请输入有效邮箱地址", { exact: true })).toBeVisible();
@@ -199,7 +202,8 @@ test("邮箱绑定真实 Mailpit 验证、持久化、断开及 Gmail 缺少凭�
   expect(verifiedAccount.status).toBe("verified");
   await expect(row).toContainText("已验证");
   await page.reload();
-  await page.getByRole("navigation").getByRole("button", { name: "邮件", exact: true }).click();
+  await page.getByRole("button", { name: "设置", exact: true }).click();
+  await page.getByRole("tab", { name: "邮箱", exact: true }).click();
   await expect(row).toContainText("已验证");
   await row.getByRole("button", { name: "断开连接", exact: true }).click();
   await expect(row).toContainText("已断开");

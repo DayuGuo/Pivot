@@ -561,3 +561,53 @@ def test_local_pdf_initial_page_destination_is_ignored_without_running_actions(m
     assert result["page_count"] == 2
     assert "END-OF-SYNTHETIC-DOCUMENT-TRACE-2026" in result["text"]
     assert "pdf_initial_page_destination_ignored" in result["warnings"]
+
+
+@pytest.mark.parametrize("code", [127, 129, 141, 143, 144, 157])
+def test_pdf_winansi_unused_slots_are_bullets_not_dropped_text(code):
+    from pypdf.generic import DecodedStreamObject
+
+    writer = PdfWriter()
+    page = writer.add_blank_page(width=300, height=300)
+    font = DictionaryObject(
+        {
+            NameObject("/Type"): NameObject("/Font"),
+            NameObject("/Subtype"): NameObject("/Type1"),
+            NameObject("/BaseFont"): NameObject("/Helvetica"),
+            NameObject("/Encoding"): NameObject("/WinAnsiEncoding"),
+        }
+    )
+    page[NameObject("/Resources")] = DictionaryObject(
+        {NameObject("/Font"): DictionaryObject({NameObject("/F1"): writer._add_object(font)})}
+    )
+    stream = DecodedStreamObject()
+    stream.set_data(
+        b"BT /F1 12 Tf 10 250 Td (" + bytes([code]) + b" Complete synthetic requirement) Tj ET"
+    )
+    page[NameObject("/Contents")] = writer._add_object(stream)
+    result = extract_document("winansi.pdf", write_pdf(writer))
+    assert "\u2022 Complete synthetic requirement" in result["text"]
+    assert result["parser"].endswith("-v3")
+
+
+def test_unknown_control_character_in_non_winansi_font_is_still_rejected():
+    from pypdf.generic import DecodedStreamObject
+
+    writer = PdfWriter()
+    page = writer.add_blank_page(width=300, height=300)
+    font = DictionaryObject(
+        {
+            NameObject("/Type"): NameObject("/Font"),
+            NameObject("/Subtype"): NameObject("/Type1"),
+            NameObject("/BaseFont"): NameObject("/Helvetica"),
+            NameObject("/Encoding"): NameObject("/StandardEncoding"),
+        }
+    )
+    page[NameObject("/Resources")] = DictionaryObject(
+        {NameObject("/Font"): DictionaryObject({NameObject("/F1"): writer._add_object(font)})}
+    )
+    stream = DecodedStreamObject()
+    stream.set_data(b"BT /F1 12 Tf 10 250 Td (Untrusted \x01 control) Tj ET")
+    page[NameObject("/Contents")] = writer._add_object(stream)
+    with pytest.raises(DocumentError, match="document_text_incomplete"):
+        extract_document("not-winansi.pdf", write_pdf(writer))

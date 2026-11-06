@@ -1,0 +1,239 @@
+{
+  "schema": "pivot-role-workspaces.v1",
+  "status": "completed_local_validation",
+  "spec": "029-role-workspaces",
+  "email_send_enabled": false,
+  "key_decisions": "responsible_human_confirmation",
+  "vps_deployed": false,
+  "main_data_touched": false,
+  "live_model_calls": 0,
+  "main_model_configuration_changed": false,
+  "pr": "https://github.com/DayuGuo/Pivot/pull/10",
+  "base_pr": 9,
+  "migration": {
+    "revision": "29b6d4a01c75",
+    "preservation": "all_old_fields_equal",
+    "tables": 55,
+    "rows": 51475,
+    "sessions_backfilled": 3429,
+    "scope": "isolated_mock",
+    "evidence": "artifacts/identity/migration-preservation.json"
+  },
+  "targeted": {
+    "backend": {
+      "passed": 48,
+      "seconds": 9.88,
+      "evidence": "artifacts/identity/targeted-api-final.log"
+    },
+    "browser": {
+      "passed": 147,
+      "per_engine": 49,
+      "reported_duration": "3.2m",
+      "retries": 0,
+      "evidence": "artifacts/identity/targeted-final.log"
+    },
+    "migration_chain": {
+      "passed": 1,
+      "seconds": 1.72
+    },
+    "upgrade_snapshot_sql": {
+      "passed": 46,
+      "seconds": 0.93,
+      "real_sql_corruptions_rejected": 6
+    },
+    "packaging_offline": {
+      "passed": 56,
+      "seconds": 0.28,
+      "postgres_case_excluded_from_preflight_only": 1
+    },
+    "sidebar_repeat": {
+      "passed": 18,
+      "reported_duration": "30.6s",
+      "engines": 3,
+      "repeats_each": 3,
+      "retries": 0,
+      "evidence": "artifacts/identity/sidebar-deterministic.log"
+    },
+    "harness": {
+      "passed": 27,
+      "reported_duration": "38.4s",
+      "retries": 0,
+      "evidence": "artifacts/identity/final-harness-targeted.log"
+    }
+  },
+  "initial_full": {
+    "source": "206bffdb03086bd435bf3d40ff7b609aa2772517",
+    "exit_code": 2,
+    "passed": 1222,
+    "failed": 1,
+    "interrupted_after_known_failure": true,
+    "duration_seconds": 501.78,
+    "failure": "old_migration_head_assertion",
+    "browser_executed": false,
+    "evidence": "artifacts/identity/first-full-failure"
+  },
+  "review": {
+    "scope": "incumbent_identity_ui_extension",
+    "disposition": "ship",
+    "captures": 12,
+    "guard_fix": "resolved_scoped_ship",
+    "detector_runs": 1,
+    "detector_findings": 0,
+    "physical_device_certification": false,
+    "harness_fix": "scoped_ship",
+    "sidebar_fix": "resolved_scoped_ship"
+  },
+  "deferred": [
+    "role_administration_ui",
+    "multi_journal_selection",
+    "native_bundle_upgrade_execution",
+    "professional_external_review"
+  ],
+  "delegation": {
+    "tasks": [
+      "official_role_research",
+      "isolated_identity_ui",
+      "permission_and_concurrency_tests",
+      "browser_regressions",
+      "fresh_ui_finish_review",
+      "upgrade_snapshot_compatibility"
+    ],
+    "business_model_calls": 0,
+    "tokens": null,
+    "api_cost": null,
+    "total_wall_seconds": null,
+    "unknown_metrics_not_estimated": true
+  },
+  "second_full": {
+    "source": "6c61a26a174ea810c1832de1e4c4f7bae86dbef6",
+    "exit_code": 1,
+    "backend_passed": 1613,
+    "browser_passed": 461,
+    "browser_failed": 1,
+    "failure": "webkit_shared_sidebar_scroll_click_geometry",
+    "evidence": "artifacts/identity/second-full-failure"
+  },
+  "third_full": {
+    "source": "d20ad5cf11f0a1e00dae4673c52e5511d4f862e5",
+    "exit_code": 1,
+    "backend_passed": 1613,
+    "browser_passed": 463,
+    "browser_failed": 2,
+    "failures": [
+      "sequential_assertions_over_372_account_actions",
+      "webkit_page_fixture_closed_with_correlated_gpu_allocation_failure"
+    ],
+    "evidence": "artifacts/identity/third-full-failure"
+  },
+  "browser_host": {
+    "optional_webkit_software_rendering": true,
+    "ab_process_maps": "mesa_without_nvidia_in_software_mode",
+    "default_repeat": {
+      "passed": 20,
+      "seconds": 49.1,
+      "retries": 0
+    },
+    "physical_device_certification": false
+  },
+  "implementation_source": "267fd46e38fbad4e65cfe6d64bfd56d718b4cd30",
+  "full": {
+    "source": "267fd46e38fbad4e65cfe6d64bfd56d718b4cd30",
+    "exit_code": 0,
+    "duration_seconds": 1547.21,
+    "backend": {
+      "passed": 1613,
+      "warnings": 10,
+      "seconds": 542.11
+    },
+    "browser": {
+      "passed": 465,
+      "reported_duration": "16.3m",
+      "engines": {
+        "chromium": 155,
+        "firefox": 155,
+        "webkit": 155
+      },
+      "failed": 0,
+      "skipped": 0,
+      "retries": 0
+    },
+    "static_checks": "passed",
+    "migration_drift": "none",
+    "exact_images_built_and_started": true,
+    "webkit_renderer": "explicit_mesa_software",
+    "hardware_gpu_certification": false
+  },
+  "preview": {
+    "url": "http://127.0.0.1:13100/publishing",
+    "scope": "isolated_mock",
+    "main_app_updated": false,
+    "health": {
+      "api": 200,
+      "web": 200,
+      "provider": "mock",
+      "email_send_enabled": false,
+      "mailpit_messages": 0
+    }
+  },
+  "remote_ci": {
+    "source": "267fd46e38fbad4e65cfe6d64bfd56d718b4cd30",
+    "observed_at": "2026-11-06T16:11:53.174849+00:00",
+    "status": "success",
+    "runs": [
+      {
+        "conclusion": "success",
+        "databaseId": 42243949400,
+        "headSha": "267fd46e38fbad4e65cfe6d64bfd56d718b4cd30",
+        "status": "completed",
+        "workflowName": "static-demo"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 42243949224,
+        "headSha": "267fd46e38fbad4e65cfe6d64bfd56d718b4cd30",
+        "status": "completed",
+        "workflowName": "verify",
+        "evidence": "artifacts/identity/ci-42243949224.log",
+        "backend": {
+          "passed": 1613,
+          "warnings": 10,
+          "seconds": 662.56
+        },
+        "browser": {
+          "passed": 465,
+          "reported_duration": "17.5m"
+        },
+        "retry_markers": 0,
+        "flaky_or_skip_markers": []
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 42243940366,
+        "headSha": "267fd46e38fbad4e65cfe6d64bfd56d718b4cd30",
+        "status": "completed",
+        "workflowName": "static-demo"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 42243940313,
+        "headSha": "267fd46e38fbad4e65cfe6d64bfd56d718b4cd30",
+        "status": "completed",
+        "workflowName": "verify",
+        "evidence": "artifacts/identity/ci-42243940313.log",
+        "backend": {
+          "passed": 1613,
+          "warnings": 10,
+          "seconds": 666.77
+        },
+        "browser": {
+          "passed": 465,
+          "reported_duration": "17.6m"
+        },
+        "retry_markers": 0,
+        "flaky_or_skip_markers": []
+      }
+    ],
+    "all_jobs_success": true,
+    "docs_commit_checks": "separate_followup_run_not_inferred"
+  }
+}

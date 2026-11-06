@@ -337,13 +337,14 @@ def download_import(
     )
 
 
-@router.post("/{dossier_id}/imports/{import_id}/confirm")
 def approve_import(
     dossier_id: UUID,
     import_id: UUID,
     body: ApproveInput,
-    actor: Actor = Depends(get_actor),
-    db: Session = Depends(get_db),
+    actor: Actor,
+    db: Session,
+    *,
+    complete_metadata: bool = True,
 ):
     target = str(dossier_id)
     iid = str(import_id)
@@ -358,7 +359,7 @@ def approve_import(
             raise HTTPException(409, "该导入已确认，请查看已保存版本")
         verify_import(item)
         incomplete = missing(body.data, True)
-        if incomplete:
+        if complete_metadata and incomplete:
             raise HTTPException(409, {"message": "请补齐必填资料后再确认", "missing": incomplete})
         raw = item.extraction_json["text"].encode()
         sha = hashlib.sha256(raw).hexdigest()
@@ -426,18 +427,25 @@ def approve_import(
             )
         )
         db.flush()
-        db.add(
-            DossierCheck(
-                dossier_id=row.id,
-                journal_id=row.journal_id,
-                version_id=version.id,
-                content_digest=version.content_digest,
-                checked_by=actor.user.id,
-                session_hash=actor.session.token_hash,
+        if complete_metadata:
+            db.add(
+                DossierCheck(
+                    dossier_id=row.id,
+                    journal_id=row.journal_id,
+                    version_id=version.id,
+                    content_digest=version.content_digest,
+                    checked_by=actor.user.id,
+                    session_hash=actor.session.token_hash,
+                )
             )
-        )
         db.flush()
-        actions.event(db, actor, row, "document_import_approved", version.id)
+        actions.event(
+            db,
+            actor,
+            row,
+            "document_import_approved" if complete_metadata else "document_material_saved",
+            version.id,
+        )
         return {"dossier_id": row.id, "version_id": version.id}
 
     def revalidate_confirmation():
@@ -462,8 +470,32 @@ def approve_import(
         db,
         actor,
         body,
-        "document_approve",
+        "document_approve" if complete_metadata else "document_material_approve",
         target,
         execute,
         revalidate_resource=revalidate_confirmation,
     )
+
+
+@router.post("/{dossier_id}/imports/{import_id}/confirm")
+def confirm_import(
+    dossier_id: UUID,
+    import_id: UUID,
+    body: ApproveInput,
+    actor: Actor = Depends(get_actor),
+    db: Session = Depends(get_db),
+):
+    return approve_import(dossier_id, import_id, body, actor, db)
+
+
+@router.post("/{dossier_id}/imports/{import_id}/save-material")
+def save_review_material(
+    dossier_id: UUID,
+    import_id: UUID,
+    body: ApproveInput,
+    actor: Actor = Depends(get_actor),
+    db: Session = Depends(get_db),
+):
+    # Same immutable original and reviewed form, without claiming complete metadata.
+    # This separate action leaves legacy confirmation fingerprints unchanged.
+    return approve_import(dossier_id, import_id, body, actor, db, complete_metadata=False)

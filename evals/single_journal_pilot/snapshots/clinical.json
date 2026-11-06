@@ -1,0 +1,782 @@
+{
+  "parser": "defusedxml-0.7.1-ooxml-v2",
+  "text": "Clinical Practice Guidelines recommendations versus Cochrane systematic reviews on the management of decompensated liver cirrhosis in USA and Europe\n\nKurinchi Gurusamy1, Danielle Roberts1,2, Jeffrey Leung1, Alastair O’Brien3, Christian Gluud4,5, Dimitrinka Nikolova4, Chavdar Pavlov6, Brian Davidson1\n\n1 Division of Surgery and Interventional Science, Hampstead Campus, University College London, 9th Floor, Royal Free Hospital, Rowland Hill Street, London NW3 2PF, UK\n\n2 North End Medical Centre, Hammersmith & Fulham Partnership, 160 North End Road, West Kensington, London, W14 9PR\n\n3 Division of Medicine, University College London, Gower Street, London, WC1E 6BT\n\n4 Cochrane Hepato-Biliary Group and Copenhagen Trial Unit, Centre for Clinical Intervention Research, The Capital Region, Copenhagen University Hospital ─ Rigshospitalet, Blegdamsvej 9, DK 2100, Copenhagen, Denmark\n\n5 Department of Regional Health Research, The Faculty of Health Sciences, University of Southern Denmark, DK 5000 Odense, Denmark\n\n6 Department of Therapy, I.M. Sechenov First Moscow State Medical University, Moscow, Russian Federation\n\nCorresponding author: Kurinchi Gurusamy (email: k.gurusamy@ucl.ac.uk)\n\nFunding: This project was funded by the National Institute for Health and Care Research (NIHR) Systematic Reviews Programme (project number 16/114/17)\n\nAuthor contribution\n\nKG conceived the idea. KG and DR identified the guidelines and extracted the data. KG analysed the data. KG, DR, and JL prepared the data in a format suitable for analysis. JL checked for randomised clinical trials used in the guidelines and published since the last date of search of the Cochrane review. DR and KG interpreted the data and drafted the review. JL, AB, CG, DN, CP, and BD interpreted the data and revised it critically for important intellectual content.\n\nAuthor contact details\n\nKurinchi Gurusamy: Division of Surgery and Interventional Science, Hampstead Campus, University College London, 9th Floor, Royal Free Hospital, Rowland Hill Street, London NW3 2PF, UK;\n\nemail: k.gurusamy@ucl.ac.uk\n\nDanielle Roberts: North End Medical Centre, Hammersmith & Fulham Partnership, 160 North End Road, West Kensington, London, W14 9PR, UK;\n\nemail: danielle.roberts5@nhs.net\n\nJeffrey Leung: Division of Surgery and Interventional Science, Hampstead Campus, University College London, 9th Floor, Royal Free Hospital, Rowland Hill Street, London NW3 2PF, UK;\n\nemail: j.leung.16@ucl.ac.uk\n\nAlastair O’Brien: Division of Medicine, University College London, Gower Street, London, WC1E 6BT;\n\nemail: a.o'brien@ucl.ac.uk\n\nChristian Gluud: Cochrane Hepato-Biliary Group and Copenhagen Trial Unit, Centre for Clinical Intervention Research, The Capital Region, Copenhagen University Hospital ─ Rigshospitalet, Blegdamsvej 9, DK 2100, Copenhagen, Denmark;\n\nemail: christian.gluud@ctu.dk\n\nDimitrinka Nikolova: Cochrane Hepato-Biliary Group and Copenhagen Trial Unit, Centre for Clinical Intervention Research, The Capital Region, Copenhagen University Hospital ─ Rigshospitalet, Blegdamsvej 9, DK 2100, Copenhagen, Denmark;\n\nemail: dimitrinka.nikolova@ctu.dk\n\nChavdar Pavlov: Department of Therapy, I.M. Sechenov First Moscow State Medical University, Moscow, Russian Federation;\n\nemail: chpavlov@mail.ru\n\nBrian Davidson: Division of Surgery and Interventional Science, Hampstead Campus, University College London, 9th Floor, Royal Free Hospital, Rowland Hill Street, London NW3 2PF, UK;\n\nemail: b.davidson@ucl.ac.uk\n\nAbstract\n\nBackground: Clinical practice guidelines (CPGs) contain recommendations intended to aid clinicians in providing optimal care for patients and should be derived from the best quality evidence available. This exploratory study aimed to determine the proportion of guideline statements from major liver organisations in USA and Europe that concurred with the conclusions of Cochrane systematic reviews.\n\nMethods: We selected four topics related to decompensated cirrhosis on which our group has recently published 7 Cochrane systematic reviews (variceal bleeding; spontaneous bacterial peritonitis; ascites; hepatorenal syndrome). We performed a purposive sample of CPGs from leading organisations covering these topics until January 2022. For each guideline recommendation statement, two researchers independently assessed whether there was agreement in the statement and the strength of recommendation given by guideline authors when compared to those derived from the Cochrane reviews. We meta-analysed the proportion of agreement using R utilising the ‘Generalised Linear Mixed Model’ method for meta-analysis of proportions.\n\nResults: We identified 9 CPGs covering the 4 topics which contained 62 guideline statements that were also covered in 7 Cochrane reviews. Agreement between the guideline authors and independent assessment was 0.145 (95% CI: 0.077 to 0.256). Most disagreements related to the strength of recommendation given: the guideline authors overstated the strength of recommendation. These disagreements could not be explained by the difference in the search dates between the guidelines and Cochrane reviews.\n\nConclusion: Our findings suggest a systematic issue with guideline developers overstating the strength of recommendations, which has the potential for direct impact on patient care.\n\nKeywords: Practice guideline; Bias; Liver cirrhosis; Shared-decision making.\n\nHighlights\n\nClinical practice guidelines (CPGs) guide health policy.\n\nBy definition, CPGs should be evidence-based.\n\nWe evaluated CPG recommendations on advanced liver cirrhosis from major liver associations.\n\nOnly 15% of the CPG recommendations were supported by evidence.\n\nHealth policy on liver diseases cannot be based solely on CPGs.\n\nResearch in context\n\nWhat is already known about the topic?\n\nClinical practice guidelines (CPG) provide a synthesis of the healthcare information for practising clinicians.\n\nCPGs provide recommendations to guide healthcare professionals in their day-to-day clinical practice.\n\nCochrane systematic reviews are reviews are high quality systematic reviews.\n\nWhat does this study add to the literature?\n\nOnly 15% of clinical practice guideline recommendations published by major liver associations are supported by evidence.\n\nAuthors developing clinical practice guidelines published by major liver associations consistently overstate the strength of recommendations in clinical practice guidelines on advanced liver cirrhosis.\n\nWhat are the policy implications?\n\nHealth policy, research funding policy, and medical negligence lawsuits cannot be based solely on guidelines published by major liver associations.\n\nBackground\n\nIt is widely accepted, that systematic reviews of randomised clinical trials sit at the top of the hierarchy of evidence pyramid; providing the best possible evidence on a given topic (1, 2). Within the field of critical appraisal and evidence synthesis, Cochrane reviews have been long considered the highest quality systematic reviews which are robust against bias, due to the standardised, rigorous methodology; careful, precise application of the quality standards; and regular updates to reflect the findings of new evidence when it becomes available (3). However, busy practicing clinicians may not have the time to regularly read and consider whether the source evidence contained within such systematic reviews pertains to the patient in front of them (4). Therefore, clinical practice guidelines (CPGs) were introduced to provide a synthesis of the healthcare information for practising clinicians. CPGs are commonplace and incredibly useful: research groups scrutinise all the evidence available on a particular subject and then provide recommendations to guide healthcare professionals in their day-to-day clinical practice (5). The updated definition by the Institute of Medicine (IOM) from 2011 specifies CPGs as ‘statements that include recommendations intended to optimize patient care that are informed by a systematic review of evidence and an assessment of the benefits and harms of alternative care options’ (6). IOM also states that systematic reviews should underpin clinical practice guidelines (7).\n\nWe have performed several Cochrane systematic reviews and meta-analyses regarding liver cirrhosis and related topics of ascites, variceal bleeding, spontaneous bacterial peritonitis (SBP), and hepatorenal syndrome (8-14). The list of Cochrane reviews, the search dates, and the conclusions from these reviews are presented in Supplementary Table 1. While preparing these systematic reviews, we noted that there were discrepancies between the evidence reviewed and the guideline statements from major associations that formulate CPGs on decompensated cirrhosis. This observation is in accordance with several studies pointing at discordances between strength of recommendations and the supporting evidence (15, 16). The aim of the present exploratory study was to determine the proportion of guideline statements from major liver organisations in the USA and Europe that concurred with the conclusions from systematic reviews of treatment performed using the high standard of Cochrane methodology.\n\nMethods\n\nGuideline selection\n\nIn this pilot scoping study, we selected all our recent Cochrane systematic reviews related to advanced liver cirrhosis and its sequelae, published during 2019 to 2021 (8-14). We then performed a purposive sample of widely used liver clinical practice guidelines published by: The American Association for the Study of Liver Diseases (AASLD; https://www.aasld.org/), The British Society of Gastroenterology (BSG; https://www.bsg.org.uk/), The European Association for the Study of the Liver (EASL; https://easl.eu/), and The National Institute for Health and Care Excellence (NICE; https://www.nice.org.uk/guidance/). For each of these organisations, we searched from inception of the organisation to 18 January 2022 using search terms ‘cirrhosis’ and ‘varices’ (as independent terms) to identify CPGs related to decompensated cirrhosis. We then selected the most recent CPGs covering the treatment of ascites, variceal bleeding, spontaneous bacterial peritonitis, and hepatorenal syndrome as these were the issues covered by the recent Cochrane reviews.\n\nData collection and processing\n\nTwo researchers independently and systematically reviewed each guideline statement in the qualifying CPGs, to extract information on specific recommendations made and the strength of recommendation. When the strength of recommendation was not available directly from the guidelines, we assigned a strength of recommendation based on the strength of wording used in the guidance statements and guidance from the GRADE Working Group on appropriate wording for strong and weak recommendations (17).\n\nTwo authors used the GRADE methodology (18) to convert the treatment effects and the certainty of evidence in the Cochrane reviews to strength of recommendation independently.\n\nFor further details on how the data was collected and processed, please see Supplementary Appendix 1.\n\nAnalysis\n\nFor each selected CPG statement, we assessed the agreement to the statement and the strength of recommendation according to the CPG authors with those that we developed from the findings of the Cochrane reviews. We meta-analysed the proportion of agreement using ‘meta’ package for R (19) utilising the ‘Generalised Linear Mixed Model’ method for meta-analysis of proportions. The model used hierarchical logistic regression model guideline as the random-effects without any covariates. The codes for analysis are available from Supplementary Appendix 2.\n\nAssociation between the disagreements and search dates\n\nWe also explored whether the disagreements could be explained by a more up-to-date search by the CPG authors (later than the Cochrane systematic reviews with search dates between November 2018 and December 2019) by comparing the search dates manually.\n\nResults\n\nWe identified nine CPG in total which included 62 guideline statements that were also covered in the seven Cochrane reviews. These included two CPGs from AASLD (20, 21), three from BSG (22-24), one from EASL (25), and three from NICE (26-28). The CPG, the last search date for evidence, and the number of guideline statements for each CPG are listed in Supplementary Table 2. The Cochrane topics covered by each CPG are listed in Table 1.\n\nSupplementary Table 3 outlines the recommendation systems used in the CPGs. Cochrane reviews present the evidence according to the Grading of Recommendations Assessment, Development and Evaluation (GRADE) system (17). In the EASL CPGs, the authors had assigned the strength of recommendation for each given statement, according to similar factors: quality of evidence, patient values/preferences, and costs. Several of the BSG CPGs also had the strength of recommendation for each statement assigned by the guideline authors, although the criteria for this assessment was not specified. The AASLD and NICE guidelines did not contain the strength of recommendations; for these, the strengths of recommendation were independently assigned as outlined in methods section.\n\nSupplementary Table 4 presents the comparisons in strength of recommendation between the Cochrane review and the related CPGs. The overall extent of agreements in the strength of recommendation in the Cochrane reviews compared to the matching CPGs are shown in Figure 1, with results for an individual CPG ranging from 0% to 100.0% agreement. Overall, the proportion of guideline statements where there was agreement between the CPG authors and the published Cochrane systematic reviews was 0.145 (95% confidence intervals (CI) 0.077 to 0.256). In other words, there was disagreement for 85.5% of the guideline statements. There were four statements that there were disagreements with the recommendation for or against an intervention. This was because the statements were considered unsupported by the evidence. These are listed in Supplementary Table 5. All other disagreements related to the strength of the recommendations: in each case of disagreement in strength, the strength of recommendation in the CPG was overstated compared to evidence from the Cochrane review.\n\nFigure 1 Meta-analysis of proportions of agreement\n\nThe figure shows the proportion of agreement of each guideline with Cochrane reviews. Events indicate the number of guideline statements where there was agreement between the guideline authors and the authors of this study. Total indicates the total number of guideline statements in the guideline which were relevant to the Cochrane reviews on advanced cirrhosis. Overall, there was agreement for only 14.5% (95% confidence intervals 7.7% to 25.6%) of the guideline statements.\n\nSupplementary Table 6 presents the search dates of the CPG versus Cochrane search dates. We did not observe an association between search dates and agreement with Cochrane review findings, i.e., the search dates did not explain the discrepancy. A narrative synthesis of the association between search dates of CPG versus Cochrane search dates is provided in Supplementary Appendix 3.\n\nDiscussion\n\nOur exploratory study found systematic discord in the majority of statements (85.5%), in the recommendation or the strength of recommendation in the CPG compared to those derived from the Cochrane reviews. When discrepancy between the CPG recommendation and the Cochrane review occurred, this was mostly related to the strength of recommendation, which was consistently overstated by the CPG authors. Slight discrepancies in recommendations across different CPGs are commonplace across many clinical specialities and topics (29-31), due to differences in interpretation of evidence. However, given the underpinning evidence used for CPG production was the same as for Cochrane reviews, then it is necessary to consider why recommendations differ considerably.\n\nIn this study, we focused only on guideline statements related to our recent Cochrane reviews because of our familiarity with the available evidence for these topics. These peer-reviewed reviews are at low risk of bias according to the ROBIS tool to assess the risk of bias in systematic reviews (32). We limited the comparisons to the guidelines developed by the major liver organisations as we expected these were most utilised by clinicians.\n\nWe observed that even when the same system was used for development of recommendation by the same organisation, the discordance between guideline authors and Cochrane reviews were different. For example, BSG 2019 and BSG 2020 used the same system for grading recommendations. However, the discordance proportions differed. This might reflect differences in the number of statements that were eligible for inclusion from each CPG or different guideline panel members.\n\nAdditionally, there were several instances where data extractors noted a mismatch between the language used by the CPG developers and the assigned strength of recommendation. For example, for secondary spontaneous bacterial peritonitis (SBP) antibiotic prophylaxis, the CPG authors used language relevant to a strong recommendation (according to GRADE guidance) (“Patients who have recovered from an episode of SBP should be considered for treatment with norfloxacin …”), although they rated the recommendation itself as weak. More appropriate words for a weak recommendation might be, “Patients who have recovered from an episode of SBP might be considered for treatment with norfloxacin…”.\n\nThere are several potential reasons for the discordance observed between the CPGs and Cochrane reviews. We considered the difference in search dates, as it is essential for systematic reviews and CPG recommendations to be regularly updated to incorporate new evidence. Only two CPGs had potential search dates later than the Cochrane review: AASLD 2021 and BSG 2020 (21, 24) and no discordances in these two CPGs were due to additional RCTs published since the search date of the Cochrane reviews.\n\nWe also considered the type and quality of evidence used in the review process for the CPGs. For example, the Cochrane reviews in our sample included only RCTs that reported the results as evidence underlying the conclusions. However, most of the clinical guidelines included non-randomised studies including retrospective cohort studies, case series, other observational studies or consensus opinions from expert panels (which would have included personal clinical experience). This may reflect the difficulties in performing adequately powered RCTs in decompensated cirrhosis patients who are very unwell and frequently have alcohol dependence. Nevertheless, RCTs are the primary research study type at the top of the hierarchy of evidence (1, 2). However, the rigour of the design of the RCTs is just as important as the study type. A poorly conducted RCT cannot be considered to be better than a well-conducted cohort study. Cochrane reviews contained assessment of the risk of bias of each included study and considered these assessments while making recommendations. No CPG guidelines reported a systematic assessment of the studies supporting the guideline statement. Agrawal and colleagues (33) investigated the robustness of RCTs included in the previous AASLD 2012 clinical guideline in terms of random errors, and found a significant proportion of the RCTs (62%) were fragile (i.e., only a few ‘non-events’ would be needed to be changed to ‘events’ to lead to change in recommendation). The Cochrane reviews that we used for this study utilised the GRADE system which includes consideration of random errors in determining uncertainty. Therefore, it is possible that the strength of the recommendations in the CPG could have been influenced by the non-randomised studies or small RCTs with relatively small treatment effects, which would have resulted in greater uncertainty in evidence if GRADE guidance were followed.\n\nThere are situations where strong recommendations can be justified even with low certainty evidence. This is outlined in Table 6.3 of the GRADE Handbook (17), for example when low quality evidence suggests benefit in a life-threatening situation, when high quality evidence suggests modest benefits or low quality evidence suggests the possibility of catastrophic harm. Through independent assessment and arbitration, we did not determine that these exception criteria applied in the statements included in our study; neither was any mentioned in the CPGs.\n\nAnother possible reason for the discordance could be personal conflicts of interest (COI). Bindslev and colleagues (34) evaluated 45 clinical guidelines written by 254 authors and found that 53% of authors had financial COI. As may be expected, Nejstgaard and colleagues (35) have reported that financial COI are associated with favourable recommendations in clinical guidelines, advisory committee reports, opinion pieces, and narrative reviews. Although more difficult to characterise and evaluate, non-financial conflicts of interest are also likely to introduce bias in CPG recommendations, e.g. for a specific drug rather than a generic group without evidence to justify.\n\nThe systematic overrating of strength of recommendations, highlighted from our exploratory study, has potential major implications in healthcare, as CPGs are often the basis upon which clinicians recommend treatments to patients. Although treatment decisions are not bound or dictated by clinical guidelines, healthcare professionals may fear potential medical negligence lawsuits if they practice outside of recommendations contained within clinical guidelines (36). Furthermore, one might expect use of resources to increase in line with those pertaining to strong recommendation statements in CPGs, as healthcare professionals proceed to implement these more frequently in practice. Conversely, research is less likely to be commissioned or funded in areas with strong recommendations because of a false perception of the evidence underlying these recommendations being robust (37). Therefore, in the endeavour of evidence-based medicine with best patient care as the fundamental cornerstone, it is imperative that CPGs are not flawed by systematic overrating of the strength of recommendation or poor rigour of guideline development (38). Indeed, our findings corroborate with several previous studies that identified discordances between strength of recommendations and evidence supporting the recommendation for a high proportion of guideline statements (15, 16, 39).\n\nThe major weakness in this study is that there was no published protocol and therefore, results should be considered only exploratory. We did not assess whether the disagreements could be explained by the methodological quality of the CPGs, for example, AGREE II (41).\n\nIn conclusion, our findings suggest a systematic issue with authors consistently overstating the strength of recommendations in clinical practice guidelines on advanced liver cirrhosis. This could not be explained by the search dates or clinical scenarios that warranted strong recommendations despite low certainty evidence. Therefore, we propose that future work should be conducted to understand why evidence is interpreted differently despite having an accepted methodology for developing CPGs. Perhaps the clinical organisations might consider specific training for CPG authors, an appropriate skill-mix for the committee, and appropriate resourcing for evidence synthesis. Further research is also needed to understand the clinician and patient perspective in terms of what is an acceptable level of evidence to make a recommendation in the context of shared decision making. Such a study should have a registered protocol prior to inception and investigate whether AGREE II domains can explain the discordance between evidence and CPG recommendation. Research is also necessary to study whether automated checks to ensure that the wording chosen matches the strength of recommendation can decrease the mismatch between the words used in the guideline statement and the strength of recommendation.\n\nReferences\n\n1.\tHoffmann T, Bennett S, Del Mar CB. Evidence-Based Practice Across the Health Profession. 3rd ed. Chatswood, NSW: Elsevier; 2017.\n\n2.\tGarattini S, Jakobsen JC, Wetterslev J, Bertelé V, Banzi R, Rath A, et al. Evidence-based clinical practice: Overview of threats to the validity of evidence and how to minimise them. Eur J Intern Med. 2016;32:13-21.\n\n3.\tJørgensen AW, Hilden J, Gøtzsche PC. Cochrane reviews compared with industry supported meta-analyses and other meta-analyses of the same drugs: systematic review. BMJ (Clinical research ed). 2006;333(7572):782.\n\n4.\tScott I, Heyworth R, Fairweather P. The use of evidence-based medicine in the practice of consultant physicians. Results of a questionnaire survey. Australian and New Zealand journal of medicine. 2000;30(3):319-26.\n\n5.\tKredo T, Bernhardsson S, Machingaidze S, Young T, Louw Q, Ochodo E, et al. Guide to clinical practice guidelines: the current state of play. International journal for quality in health care : journal of the International Society for Quality in Health Care. 2016;28(1):122-8.\n\n6.\tInstitute of Medicine Committee on Standards for Developing Trustworthy Clinical Practice Guidelines. Introduction. In: Graham R, Mancher M, Wolman DM, Greenfield S, Steinberg E, editors. Clinical Practice Guidelines We Can Trust. Washington (DC): National Academies Press (US); 2011. p. 15–29.\n\n7.\tInstitute of Medicine Committee on Standards for Developing Trustworthy Clinical Practice Guidelines. Clinical Practice Guideline - Systematic Review intersection. In: Graham R, Mancher M, Wolman DM, Greenfield S, Steinberg E, editors. Clinical Practice Guidelines We Can Trust. Washington (DC): National Academies Press (US); 2011.\n\n8.\tRoccarina D, Best LM, Freeman SC, Roberts D, Cooper NJ, Sutton AJ, et al. Primary prevention of variceal bleeding in people with oesophageal varices due to liver cirrhosis: a network meta-analysis. The Cochrane database of systematic reviews. 2021;4(4):CD013121.\n\n9.\tPlaz Torres MC, Best LM, Freeman SC, Roberts D, Cooper NJ, Sutton AJ, et al. Secondary prevention of variceal bleeding in adults with previous oesophageal variceal bleeding due to decompensated liver cirrhosis: a network meta-analysis. The Cochrane database of systematic reviews. 2021;3(3):CD013122.\n\n10.\tRoberts D, Best LM, Freeman SC, Sutton AJ, Cooper NJ, Arunan S, et al. Treatment for bleeding oesophageal varices in people with decompensated liver cirrhosis: a network meta-analysis. The Cochrane database of systematic reviews. 2021;4(4):CD013155.\n\n11.\tIogna Prat L, Wilson P, Freeman SC, Sutton AJ, Cooper NJ, Roccarina D, et al. Antibiotic treatment for spontaneous bacterial peritonitis in people with decompensated liver cirrhosis: a network meta-analysis. The Cochrane database of systematic reviews. 2019;9(9):CD013120.\n\n12.\tKomolafe O, Roberts D, Freeman SC, Wilson P, Sutton AJ, Cooper NJ, et al. Antibiotic prophylaxis to prevent spontaneous bacterial peritonitis in people with liver cirrhosis: a network meta-analysis. The Cochrane database of systematic reviews. 2020;1(1):CD013125.\n\n13.\tBest LM, Freeman SC, Sutton AJ, Cooper NJ, Tng EL, Csenar M, et al. Treatment for hepatorenal syndrome in people with decompensated liver cirrhosis: a network meta-analysis. The Cochrane database of systematic reviews. 2019;9(9):CD013103.\n\n14.\tBenmassaoud A, Freeman SC, Roccarina D, Plaz Torres MC, Sutton AJ, Cooper NJ, et al. Treatment for ascites in adults with decompensated liver cirrhosis: a network meta-analysis. The Cochrane database of systematic reviews. 2020;1(1):CD013123.\n\n15.\tAlexander PE, Bero L, Montori VM, Brito JP, Stoltzfus R, Djulbegovic B, et al. World Health Organization recommendations are often strong based on low confidence in effect estimates. J Clin Epidemiol. 2014;67(6):629-34.\n\n16.\tTang X, Shi X, Zhao H, Lu L, Chen Z, Feng Y, et al. Characteristics and quality of clinical practice guidelines addressing acupuncture interventions: a systematic survey of 133 guidelines and 433 acupuncture recommendations. BMJ Open. 2022;12(2):e058834.\n\n17.\tThe GRADE Working Group. GRADE handbook for grading quality of evidence and strength of recommendations. Brożek J, Guyatt G, Oxman A, editors2013 October 2013.\n\n18.\tGuyatt GH, Oxman AD, Kunz R, Falck-Ytter Y, Vist GE, Liberati A, et al. Going from evidence to recommendations. BMJ (Clinical research ed). 2008;336(7652):1049-51.\n\n19.\tSchwarzer G. General Package for Meta-Analysis. https://cranr-projectorg/web/packages/meta/metapdf (accessed on 1 August 2022). 2022.\n\n20.\tGarcia-Tsao G, Abraldes JG, Berzigotti A, Bosch J. Portal hypertensive bleeding in cirrhosis: Risk stratification, diagnosis, and management: 2016 practice guidance by the American Association for the study of liver diseases. Hepatology (Baltimore, Md). 2017;65(1):310-35.\n\n21.\tBiggins SW, Angeli P, Garcia-Tsao G, Ginès P, Ling SC, Nadim MK, et al. Diagnosis, Evaluation, and Management of Ascites, Spontaneous Bacterial Peritonitis and Hepatorenal Syndrome: 2021 Practice Guidance by the American Association for the Study of Liver Diseases. Hepatology (Baltimore, Md). 2021;74(2):1014-48.\n\n22.\tTripathi D, Stanley AJ, Hayes PC, Patch D, Millson C, Mehrzad H, et al. U.K. guidelines on the management of variceal haemorrhage in cirrhotic patients. Gut. 2015;64(11):1680-704.\n\n23.\tTripathi D, Stanley AJ, Hayes PC, Travis S, Armstrong MJ, Tsochatzis EA, et al. Transjugular intrahepatic portosystemic stent-shunt in the management of portal hypertension. Gut. 2020;69(7):1173-92.\n\n24.\tAithal GP, Palaniyappan N, China L, Härmälä S, Macken L, Ryan JM, et al. Guidelines on the management of ascites in cirrhosis. Gut. 2021;70(1):9-29.\n\n25.\tEuropean Association for the Study of the Liver. EASL Clinical Practice Guidelines for the management of patients with decompensated cirrhosis. Journal of hepatology. 2018;69(2):406-60.\n\n26.\tNational Institute for Health and Care Excellence. Acute upper gastrointestinal bleeding in over 16s: management (Clinical guideline CG141) 2016 [Available from: https://www.nice.org.uk/guidance/cg141.\n\n27.\tNational Institute for Health and Care Excellence. Subcutaneous automated low-flow pump implantation for refractory ascites caused by cirrhosis (Interventional procedures guidance IPG631) 2018 [Available from: https://www.nice.org.uk/guidance/ipg631.\n\n28.\tNational Institute for Health and Care Excellence. Cirrhosis in over 16s: assessment and management (NICE guideline NG50) 2016 [Available from: https://www.nice.org.uk/guidance/ng50.\n\n29.\tKow CS, Hasan SS, Wong PS, Verma RK. Concordance of recommendations across clinical practice guidelines for the management of hypertension in Southeast Asia with internationally reputable sources. BMC cardiovascular disorders. 2021;21(1):354.\n\n30.\tArnau JM, Vallano A, Lopez A, Pellisé F, Delgado MJ, Prat N. A critical review of guidelines for low back pain treatment. European spine journal : official publication of the European Spine Society, the European Spinal Deformity Society, and the European Section of the Cervical Spine Research Society. 2006;15(5):543-53.\n\n31.\tGraham ID, Beardall S, Carter AO, Glennie J, Hébert PC, Tetroe JM, et al. What is the quality of drug therapy clinical practice guidelines in Canada? CMAJ : Canadian Medical Association journal = journal de l'Association medicale canadienne. 2001;165(2):157-63.\n\n32.\tWhiting P, Savović J, Higgins JP, Caldwell DM, Reeves BC, Shea B, et al. ROBIS: A new tool to assess risk of bias in systematic reviews was developed. J Clin Epidemiol. 2016;69:225-34.\n\n33.\tAgrawal R, Majeed M, Attar BM, Omar YA, Chimezi M, Patel P, et al. Reexamining the data used in the 2012 guidelines of the American Association for the Study of Liver Diseases for the management of adult patients with ascites due to cirrhosis. Annals of gastroenterology. 2019;32(6):642-9.\n\n34.\tBindslev JBB, Schroll J, Gøtzsche PC, Lundh A. Underreporting of conflicts of interest in clinical practice guidelines: cross sectional study. BMC Medical Ethics. 2013;14:19.\n\n35.\tNejstgaard CH, Bero L, Hróbjartsson A, Jørgensen AW, Jørgensen KJ, Le M, et al. Conflicts of interest in clinical guidelines, advisory committee reports, opinion pieces, and narrative reviews: associations with recommendations. The Cochrane Database of Systematic Reviews. 2020;12(12):MR000040.\n\n36.\tSamanta A, Samanta J, Gunn M. Legal considerations of clinical guidelines: will NICE make a difference? Journal of the Royal Society of Medicine. 2003;96(3):133-8.\n\n37.\tHey SP, London AJ, Weijer C, Rid A, Miller F. Is the concept of clinical equipoise still relevant to research? BMJ (Clinical research ed). 2017;359:j5787.\n\n38.\tGuyatt GH, Oxman AD, Kunz R, Vist GE, Falck-Ytter Y, Schünemann HJ, et al. What is \"quality of evidence\" and why is it important to clinicians? BMJ (Clinical research ed). 2008;336(7651):995-8.\n\n39.\tLeung J, Leong J, Au Yeung K, Hao BZ, McCluskey A, Kayani Y, et al. Can you trust clinical practice guidelines for laparoscopic surgery? A systematic review of clinical practice guidelines for laparoscopic surgery. Updates in surgery. 2022;74(2):391-401.\n\n40.\tYavchitz A, Ravaud P, Altman DG, Moher D, Hrobjartsson A, Lasserson T, et al. A new classification of spin in systematic reviews and meta-analyses was developed and ranked according to the severity. Journal of clinical epidemiology. 2016;75:56-65.\n\n41.\tBrouwers MC, Kho ME, Browman GP, Burgers JS, Cluzeau F, Feder G, et al. AGREE II: advancing guideline development, reporting and evaluation in health care. Cmaj. 2010;182(18):E839-42.\n\n42.\tNational Institute for Health and Care Excellence. 2018 surveillance of acute upper gastrointestinal bleeding in over 16s: management (NICE guideline CG141) 2018 [Available from: https://www.nice.org.uk/guidance/cg141/resources/2018-surveillance-of-acute-upper-gastrointestinal-bleeding-in-over-16s-management-nice-guideline-cg141-6601125421/chapter/Surveillance-decision?tab=evidence.\n\n43.\tNational Institute for Health and Care Excellence. Interventional procedures recommendations 2022 [Available from: https://www.nice.org.uk/about/what-we-do/our-programmes/nice-guidance/interventional-procedures-guidance/recommendations.",
+  "segments": [
+    {
+      "kind": "docx_paragraph",
+      "number": 1,
+      "start": 0,
+      "end": 148
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 2,
+      "start": 150,
+      "end": 300
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 3,
+      "start": 302,
+      "end": 468
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 4,
+      "start": 470,
+      "end": 584
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 5,
+      "start": 586,
+      "end": 667
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 6,
+      "start": 669,
+      "end": 883
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 7,
+      "start": 885,
+      "end": 1014
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 8,
+      "start": 1016,
+      "end": 1120
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 9,
+      "start": 1122,
+      "end": 1191
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 10,
+      "start": 1193,
+      "end": 1343
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 11,
+      "start": 1345,
+      "end": 1364
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 12,
+      "start": 1366,
+      "end": 1836
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 13,
+      "start": 1838,
+      "end": 1860
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 14,
+      "start": 1862,
+      "end": 2046
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 15,
+      "start": 2048,
+      "end": 2075
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 16,
+      "start": 2077,
+      "end": 2212
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 17,
+      "start": 2214,
+      "end": 2246
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 18,
+      "start": 2248,
+      "end": 2428
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 19,
+      "start": 2430,
+      "end": 2457
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 20,
+      "start": 2459,
+      "end": 2557
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 21,
+      "start": 2559,
+      "end": 2585
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 22,
+      "start": 2587,
+      "end": 2817
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 23,
+      "start": 2819,
+      "end": 2848
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 24,
+      "start": 2850,
+      "end": 3084
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 25,
+      "start": 3086,
+      "end": 3119
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 26,
+      "start": 3121,
+      "end": 3240
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 27,
+      "start": 3242,
+      "end": 3265
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 28,
+      "start": 3267,
+      "end": 3448
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 29,
+      "start": 3450,
+      "end": 3477
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 30,
+      "start": 3479,
+      "end": 3487
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 31,
+      "start": 3489,
+      "end": 3888
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 32,
+      "start": 3890,
+      "end": 4615
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 33,
+      "start": 4617,
+      "end": 5116
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 34,
+      "start": 5118,
+      "end": 5299
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 35,
+      "start": 5301,
+      "end": 5377
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 36,
+      "start": 5379,
+      "end": 5389
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 37,
+      "start": 5391,
+      "end": 5447
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 38,
+      "start": 5449,
+      "end": 5494
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 39,
+      "start": 5496,
+      "end": 5587
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 40,
+      "start": 5589,
+      "end": 5652
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 41,
+      "start": 5654,
+      "end": 5717
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 42,
+      "start": 5719,
+      "end": 5738
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 43,
+      "start": 5740,
+      "end": 5778
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 44,
+      "start": 5780,
+      "end": 5891
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 45,
+      "start": 5893,
+      "end": 5994
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 46,
+      "start": 5996,
+      "end": 6072
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 47,
+      "start": 6074,
+      "end": 6117
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 48,
+      "start": 6119,
+      "end": 6239
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 49,
+      "start": 6241,
+      "end": 6442
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 50,
+      "start": 6444,
+      "end": 6477
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 51,
+      "start": 6479,
+      "end": 6626
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 52,
+      "start": 6628,
+      "end": 6638
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 53,
+      "start": 6640,
+      "end": 8161
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 54,
+      "start": 8163,
+      "end": 9159
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 55,
+      "start": 9161,
+      "end": 9168
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 56,
+      "start": 9170,
+      "end": 9189
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 57,
+      "start": 9191,
+      "end": 10245
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 58,
+      "start": 10247,
+      "end": 10277
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 59,
+      "start": 10279,
+      "end": 10774
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 60,
+      "start": 10776,
+      "end": 10951
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 61,
+      "start": 10953,
+      "end": 11054
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 62,
+      "start": 11056,
+      "end": 11064
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 63,
+      "start": 11066,
+      "end": 11620
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 64,
+      "start": 11622,
+      "end": 11676
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 65,
+      "start": 11678,
+      "end": 11929
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 66,
+      "start": 11931,
+      "end": 11938
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 67,
+      "start": 11940,
+      "end": 12378
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 68,
+      "start": 12380,
+      "end": 13148
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 69,
+      "start": 13150,
+      "end": 14223
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 70,
+      "start": 14225,
+      "end": 14275
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 71,
+      "start": 14277,
+      "end": 14755
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 72,
+      "start": 14757,
+      "end": 15140
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 73,
+      "start": 15142,
+      "end": 15152
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 74,
+      "start": 15154,
+      "end": 15913
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 75,
+      "start": 15915,
+      "end": 16359
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 76,
+      "start": 16361,
+      "end": 16827
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 77,
+      "start": 16829,
+      "end": 17520
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 78,
+      "start": 17522,
+      "end": 18019
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 79,
+      "start": 18021,
+      "end": 19951
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 80,
+      "start": 19953,
+      "end": 20509
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 81,
+      "start": 20511,
+      "end": 21187
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 82,
+      "start": 21189,
+      "end": 22562
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 83,
+      "start": 22564,
+      "end": 22832
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 84,
+      "start": 22834,
+      "end": 24137
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 85,
+      "start": 24139,
+      "end": 24149
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 86,
+      "start": 24151,
+      "end": 24282
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 87,
+      "start": 24284,
+      "end": 24502
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 88,
+      "start": 24504,
+      "end": 24717
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 89,
+      "start": 24719,
+      "end": 24936
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 90,
+      "start": 24938,
+      "end": 25215
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 91,
+      "start": 25217,
+      "end": 25514
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 92,
+      "start": 25516,
+      "end": 25851
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 93,
+      "start": 25853,
+      "end": 26118
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 94,
+      "start": 26120,
+      "end": 26423
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 95,
+      "start": 26425,
+      "end": 26678
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 96,
+      "start": 26680,
+      "end": 26956
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 97,
+      "start": 26958,
+      "end": 27225
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 98,
+      "start": 27227,
+      "end": 27469
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 99,
+      "start": 27471,
+      "end": 27717
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 100,
+      "start": 27719,
+      "end": 27942
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 101,
+      "start": 27944,
+      "end": 28202
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 102,
+      "start": 28204,
+      "end": 28367
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 103,
+      "start": 28369,
+      "end": 28536
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 104,
+      "start": 28538,
+      "end": 28675
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 105,
+      "start": 28677,
+      "end": 28953
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 106,
+      "start": 28955,
+      "end": 29272
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 107,
+      "start": 29274,
+      "end": 29457
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 108,
+      "start": 29459,
+      "end": 29661
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 109,
+      "start": 29663,
+      "end": 29815
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 110,
+      "start": 29817,
+      "end": 30006
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 111,
+      "start": 30008,
+      "end": 30213
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 112,
+      "start": 30215,
+      "end": 30469
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 113,
+      "start": 30471,
+      "end": 30657
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 114,
+      "start": 30659,
+      "end": 30905
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 115,
+      "start": 30907,
+      "end": 31232
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 116,
+      "start": 31234,
+      "end": 31499
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 117,
+      "start": 31501,
+      "end": 31689
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 118,
+      "start": 31691,
+      "end": 31984
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 119,
+      "start": 31986,
+      "end": 32164
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 120,
+      "start": 32166,
+      "end": 32464
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 121,
+      "start": 32466,
+      "end": 32633
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 122,
+      "start": 32635,
+      "end": 32793
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 123,
+      "start": 32795,
+      "end": 32992
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 124,
+      "start": 32994,
+      "end": 33252
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 125,
+      "start": 33254,
+      "end": 33505
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 126,
+      "start": 33507,
+      "end": 33694
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 127,
+      "start": 33696,
+      "end": 34085
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 128,
+      "start": 34087,
+      "end": 34327
+    }
+  ],
+  "warnings": [
+    "docx_cached_fields_not_updated",
+    "docx_images_and_figures_not_interpreted",
+    "docx_list_markers_not_rendered",
+    "docx_paragraph_numbers_are_extraction_order_not_page_numbers",
+    "external_hyperlink_targets_ignored",
+    "tables_notes_headers_footers_are_linearized"
+  ]
+}

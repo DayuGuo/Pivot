@@ -23,7 +23,7 @@ from .audit import record
 from .db import get_db
 from .models import Base, now, uid
 from .policy import EDITOR_ROLES
-from .security import Actor, get_actor
+from .security import Actor, ensure_current_actor, get_actor
 
 router = APIRouter(prefix="/api/editorial-demo", tags=["synthetic editorial workspace"])
 
@@ -297,6 +297,7 @@ def save_state(
             "fields": sorted(body.patch.model_fields_set),
         },
     )
+    ensure_current_actor(db, actor, for_commit=True)
     db.commit()
     return content
 
@@ -321,6 +322,7 @@ def save_views(body: ViewsInput, actor: Actor = Depends(editor), db: Session = D
         action="editorial_demo.views_saved",
         details={"demo": True, "count": len(views)},
     )
+    ensure_current_actor(db, actor, for_commit=True)
     db.commit()
     return {"saved_views": views}
 

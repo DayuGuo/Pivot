@@ -6,12 +6,12 @@ from collections.abc import Callable
 from datetime import timedelta
 
 from fastapi import HTTPException
-from sqlalchemy import and_, delete, exists, func, or_, select, text
+from sqlalchemy import and_, delete, func, or_, select, text
 from sqlalchemy.orm import Session
 
 from ..audit import record
-from ..models import LoginSession, Manuscript, Membership, User, now, uid
-from ..security import Actor
+from ..models import Manuscript, Membership, User, now, uid
+from ..security import Actor, ensure_current_actor
 from .decision_schemas import EDITORIAL_ACTIONS
 from .files import FileValidationError, read_bytes
 from .models import (
@@ -91,38 +91,8 @@ def lock_request(db: Session, actor: Actor, request_id: str):
     db.execute(text("SELECT pg_advisory_xact_lock(:key)"), {"key": key})
 
 
-def ensure_actor(db: Session, actor: Actor):
-    # ORM entities may be refreshed after provider/lock waits; retain the request's
-    # original authority rather than silently adopting a changed membership.
-    identity = actor.__dict__.get("_publishing_identity")
-    if identity is None:
-        identity = (
-            actor.user.id,
-            actor.journal_id,
-            actor.role,
-            actor.membership.id,
-            actor.session.token_hash,
-        )
-        actor.__dict__["_publishing_identity"] = identity
-    user_id, journal_id, role, membership_id, session_hash = identity
-    membership = db.execute(
-        select(Membership.user_id, Membership.journal_id, Membership.role).where(
-            Membership.id == membership_id
-        )
-    ).one_or_none()
-    session = db.execute(
-        select(LoginSession.user_id, LoginSession.expires_at).where(
-            LoginSession.token_hash == session_hash
-        )
-    ).one_or_none()
-    if (
-        not membership
-        or tuple(membership) != (user_id, journal_id, role)
-        or not session
-        or session.user_id != user_id
-        or session.expires_at <= now()
-    ):
-        raise HTTPException(403, "身份、期刊或会话已变化，请重新登录")
+def ensure_actor(db: Session, actor: Actor, *, for_commit: bool = False):
+    ensure_current_actor(db, actor, for_commit=for_commit)
 
 
 def run_action(
@@ -161,7 +131,7 @@ def run_action(
         return old.response
     try:
         result = execute()
-        ensure_actor(db, actor)
+        ensure_actor(db, actor, for_commit=True)
         db.add(
             ActionReceipt(
                 user_id=actor.user.id,
@@ -426,6 +396,10 @@ def verify_version_files(db: Session, version: ManuscriptVersion):
             raise HTTPException(409, "附件丢失或校验失败，请重新上传后审核") from None
         if len(content) != blob.byte_size or hashlib.sha256(content).hexdigest() != blob.sha256:
             raise HTTPException(409, "附件内容已变化，请重新上传后审核")
+    from .formal_document_sources import origin_for
+
+    for link, _ in pairs:
+        origin_for(db, link)
 
 
 def form_draft(db: Session, manuscript: Manuscript, version: ManuscriptVersion):
@@ -462,19 +436,21 @@ def event(db: Session, actor: Actor, manuscript_id: str, name: str, details: dic
 
 
 def assign(db: Session, actor: Actor, manuscript: Manuscript, user_id: str, capability: str):
-    member = db.scalar(
-        select(Membership).where(
-            Membership.user_id == user_id, Membership.journal_id == manuscript.journal_id
-        )
-    )
-    if not member:
-        raise HTTPException(422, "负责人必须是本刊现有成员")
     expected = {
         "precheck": "editor",
         "handling_editor": "editor",
         "chief": "chief_editor",
         "production": "production_editor",
     }.get(capability)
+    member = db.scalar(
+        select(Membership).where(
+            Membership.user_id == user_id,
+            Membership.journal_id == manuscript.journal_id,
+            Membership.role == expected if expected else True,
+        )
+    )
+    if not member:
+        raise HTTPException(422, "负责人必须具有本刊相应职务")
     if expected and (
         member.role != expected or is_conflicted(db, manuscript, db.get(User, user_id))
     ):
@@ -1357,67 +1333,7 @@ def submission_projection(db: Session, actor: Actor, manuscript_id: str, *, deta
     return result
 
 
-def workspace(db: Session, actor: Actor):
-    from .review_access import visible_condition
+def workspace(db: Session, actor: Actor, include_id: str | None = None, *, role_view=False):
+    from .work_queue import workspace as project_workspace
 
-    role_caps = {
-        "editor": {"precheck", "handling_editor"},
-        "chief_editor": {"chief"},
-        "production_editor": {"production"},
-        "reviewer": {"reviewer"},
-    }.get(actor.role, set())
-    explicit_access = exists(
-        select(Assignment.id).where(
-            Assignment.manuscript_id == Manuscript.id,
-            Assignment.journal_id == actor.journal_id,
-            Assignment.user_id == actor.user.id,
-            Assignment.capability.in_(role_caps | {"author"}),
-            Assignment.starts_at <= now(),
-            or_(Assignment.ends_at.is_(None), Assignment.ends_at > now()),
-        )
-    )
-    visible_clause = or_(
-        Manuscript.author_id == actor.user.id,
-        and_(
-            SubmissionWorkflow.stage != "author_draft",
-            or_(actor.role == "chief_editor", explicit_access, visible_condition(actor)),
-        ),
-    )
-    rows = db.execute(
-        select(Manuscript, SubmissionWorkflow)
-        .join(SubmissionWorkflow, SubmissionWorkflow.manuscript_id == Manuscript.id)
-        .where(Manuscript.journal_id == actor.journal_id, visible_clause)
-        .order_by(SubmissionWorkflow.updated_at.desc(), Manuscript.id)
-        .limit(200)
-    ).all()
-    visible = [(m, w) for m, w in rows if can_view(db, actor, m, w)]
-    submissions = [submission_projection(db, actor, m.id, detail=False) for m, _ in visible]
-    projection_titles = {s["id"]: s["title"] for s in submissions}
-    allowed = {m.id: (m, w) for m, w in visible}
-    tasks = []
-    for task in db.scalars(
-        select(WorkItem)
-        .where(
-            WorkItem.journal_id == actor.journal_id,
-            WorkItem.assignee_id == actor.user.id,
-            WorkItem.status.in_(["pending", "waiting"]),
-        )
-        .order_by(
-            WorkItem.priority.desc(),
-            WorkItem.due_at.asc().nullslast(),
-            WorkItem.created_at,
-            WorkItem.id,
-        )
-    ):
-        if task.manuscript_id in allowed and not allowed[task.manuscript_id][1].is_legacy:
-            m, flow = allowed[task.manuscript_id]
-            tasks.append({**task_projection(task, flow, m), "title": projection_titles[m.id]})
-    return {
-        "submissions": submissions,
-        "tasks": tasks,
-        "counts": {
-            "actionable": sum(t["status"] == "pending" for t in tasks),
-            "waiting": sum(t["status"] == "waiting" for t in tasks),
-        },
-        "synthetic_only": True,
-    }
+    return project_workspace(db, actor, include_id, role_view=role_view)

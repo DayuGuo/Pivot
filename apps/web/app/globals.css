@@ -66,9 +66,8 @@ h1, h2 { text-wrap: balance; scroll-margin-top: 60px; }
 .login-form-wrap .error { margin-top: 18px; }
 .app-shell { display: flex; height: 100dvh; overflow: hidden; background: var(--ui-white); }
 .sidebar { width: 258px; flex-shrink: 0; display: flex; flex-direction: column; padding: 10px 12px 0; background: var(--ui-sidebar); border-right: 1px solid var(--ui-line); }
-.sidebar-top { display: flex; align-items: center; justify-content: space-between; min-height: 32px; padding-left: 8px; }
+.sidebar-top { margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; min-height: 32px; padding-left: 8px; }
 .brand-small { font-size: 14px; }
-.journal-name { color: var(--ui-muted); padding: 11px 8px 18px; font-size: 12px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 nav { display: flex; flex-direction: column; gap: 2px; }
 nav button { display: flex; align-items: center; gap: 11px; padding: 9px 10px; text-align: left; font-size: 13px; border: 0; border-radius: 4px; background: transparent; color: var(--ui-secondary); }
 nav button:hover { background: var(--ui-hover); }
@@ -79,9 +78,6 @@ nav svg { color: var(--ui-muted); }
 .new-conversation { display: flex; align-items: center; gap: 10px; border: 0; border-radius: 4px; background: transparent; width: 100%; text-align: left; padding: 8px 10px; font-size: 13px; }
 .new-conversation:hover { background: var(--ui-hover); }
 .new-conversation svg { color: var(--ui-muted); }
-.session-search { display: flex; align-items: center; gap: 8px; padding: 6px 10px; color: var(--ui-muted); margin-bottom: 14px; }
-.session-search input { min-width: 0; width: 100%; border: 0; background: transparent; font-size: 12px; padding: 4px 0; }
-.session-search input::placeholder { color: var(--ui-muted); }
 .conversation-list { flex: 1; overflow-y: auto; min-height: 0; }
 .conversation-list button { width: 100%; display: block; text-align: left; padding: 10px 11px; background: transparent; border: 0; border-radius: 3px; margin-bottom: 3px; }
 .conversation-list button:hover, .conversation-list button.selected { background: var(--ui-hover); }
@@ -272,7 +268,6 @@ nav svg { color: var(--ui-muted); }
   .welcome h2 { font-size: 18px; }
   nav button, .new-conversation, .demo-account button { min-height: 44px; }
   .conversation-list button { min-height: 60px; }
-  .session-search input { min-height: 32px; font-size: 16px; }
   .list-heading { padding: 25px 20px 20px; }
   .manuscript-list { padding: 0 13px; }
   .manuscript-row .status { display: none; }
@@ -287,3 +282,8 @@ nav svg { color: var(--ui-muted); }
   .login-panel { padding-bottom: 70px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+
+.settings-entry { padding: 4px 0 6px; }
+.settings-entry > button { width: 100%; }
+
+.sidebar > [role="search"] { margin-bottom: 14px; }

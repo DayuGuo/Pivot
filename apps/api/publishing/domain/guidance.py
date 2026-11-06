@@ -101,12 +101,14 @@ def manuscript_guidance(
                 r for r in report["rows"] if r["status"] not in {"resolved", "not_applicable"}
             ]
             if pending:
+                offset = report.get("point_offset", 0)
+                offset = offset if type(offset) is int and 0 <= offset < 1000000 else 0
                 hints = [
                     suggestion(
                         "revision-followup",
-                        "核对未落实项",
-                        "请逐条比对本次修回，优先核对上次对照仍待核实的意见；引用作者回复与修改后原文，不能把声称已修改当成落实。",
-                        f"本版修回对照仍有{len(pending)}项需要核对",
+                        "核对待核实项",
+                        f"请从第{offset + 1}项开始，逐条比对本次修回，优先核对最近一批仍待核实的意见；引用作者回复与修改后原文，不能把声称已修改当成落实。",
+                        f"最近一批有{len(pending)}项待核对，其他批次请分别检查",
                     )
                 ] + hints[:2]
     return {

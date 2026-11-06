@@ -1,0 +1,401 @@
+{
+  "schema": "spec027-ci-followup.v1",
+  "status": "completed",
+  "requested_source": "4bf09e74c0c4b178094e01c02795fd17f94ac1d7",
+  "application_source": "3307df676cc64a84c0ab6a591f66c2e9d2901582",
+  "observed_at": "2026-11-05T22:44:32.866203+00:00",
+  "original_runs": {
+    "static_push": {
+      "id": 42115429771,
+      "conclusion": "success",
+      "static_tests": 33,
+      "offline_image_tests": 33,
+      "per_engine_per_stage": 11,
+      "browser_retries": 0,
+      "installer_attempts": 1,
+      "install_seconds": 26
+    },
+    "static_pr": {
+      "id": 42115440795,
+      "conclusion": "success",
+      "static_tests": 33,
+      "offline_image_tests": 33,
+      "per_engine_per_stage": 11,
+      "browser_retries": 0,
+      "installer_attempts": 1,
+      "install_seconds": 50
+    },
+    "native_bundle": {
+      "id": 42115429481,
+      "conclusion": "failure",
+      "failed_step": "Install browser host dependencies with bounded retry",
+      "seconds": 602,
+      "attempts": 2,
+      "attempt_exit_codes": [
+        124,
+        124
+      ],
+      "candidate_built": false,
+      "downstream_acceptance": "skipped",
+      "cause": "Very slow Azure Ubuntu deb transfer; no demonstrated HTTP/DNS/TLS error or lock wait",
+      "evidence": "artifacts/spec027/amd64-followup-ci/failure-audit.json"
+    },
+    "verify_push": {
+      "id": 42115429493,
+      "status": "completed",
+      "conclusion": "success",
+      "backend_passed": 1530,
+      "backend_seconds": 397.74,
+      "backend_warnings": 10,
+      "browser_passed": 399,
+      "browser_minutes": 11.4,
+      "browser_retries": 0,
+      "evidence": "artifacts/spec027/ci-followup/original-verify-push.log"
+    },
+    "verify_pr": {
+      "id": 42115441284,
+      "status": "completed",
+      "conclusion": "cancelled",
+      "reason": "superseded by 6f76d7d push under the existing concurrency rule; not a test failure or success"
+    }
+  },
+  "fix": {
+    "native_dependencies": [
+      "chromium"
+    ],
+    "full_and_static_dependencies": [
+      "chromium",
+      "firefox",
+      "webkit"
+    ],
+    "fallback_scope": "ephemeral GitHub-hosted Ubuntu24 amd64 only; root guard, fixed paths and private backup",
+    "mirror_urls": [
+      "https://archive.ubuntu.com/ubuntu/",
+      "https://security.ubuntu.com/ubuntu/"
+    ],
+    "apt_signature_or_tls_checks_disabled": false,
+    "installer_max_attempts": 2,
+    "attempt_timeout_seconds": 300,
+    "configured_apt_transport_timeout_seconds": 30,
+    "configured_apt_retries": 1,
+    "fallback": "native explicit preflight; full/static after first failed install"
+  },
+  "targeted": {
+    "passed": 37,
+    "warnings": 1,
+    "seconds": 0.33,
+    "evidence": "artifacts/spec027/ci-followup/installer-fix.xml",
+    "local_platform_guard_refusal": true,
+    "actual_local_etc_changes": false,
+    "bash_ruff_syntax_research_boundaries_yaml": "passed"
+  },
+  "final_validation": {
+    "status": "passed",
+    "source": "6f76d7d117622e4756b021ae3834188ed76d4925",
+    "basis": "Both remote complete scripts/verify.sh gates exited successfully; static and native package gates also passed",
+    "local_followup_complete": false,
+    "local_interruption_not_claimed_as_success": true,
+    "runtime_source_equality_evidence": "artifacts/spec027/ci-followup/runtime-source-equality.json"
+  },
+  "safety": {
+    "main_application_or_database_changed": false,
+    "vps_updated": false,
+    "merged": false,
+    "release_published": false,
+    "email_send_enabled": false,
+    "key_decisions": "responsible human confirmation unchanged",
+    "deepseek_api_calls_this_followup": 0
+  },
+  "repaired_source": "6f76d7d117622e4756b021ae3834188ed76d4925",
+  "independent_review": {
+    "status": "no_new_blocking_finding",
+    "scope": [
+      "failure and tee exit propagation",
+      "sudo context scope",
+      "strict engine arguments",
+      "fixed host/path and no-follow guards",
+      "backup and ordinary-error rollback",
+      "timeouts and CI steps"
+    ],
+    "limits": [
+      "Offline timeout cases simulate exit124; no certification that every privileged descendant always exits",
+      "Rollback tested for second write failure; disk failure or rollback failure cannot be certified",
+      "Only mirror fallback has hosted-runner guards; installer still permits explicit local dependency installation"
+    ],
+    "local_real_apt_execution": false
+  },
+  "delegation": [
+    {
+      "agent": "candidate_delivery_audit",
+      "task": "static CI status and public logs",
+      "status": "completed",
+      "tokens": null,
+      "api_cost_usd": null,
+      "duration_seconds": null
+    },
+    {
+      "agent": "candidate_task_audit",
+      "task": "native archive/source/upgrade audit and installer code review",
+      "status": "completed",
+      "tokens": null,
+      "api_cost_usd": null,
+      "duration_seconds": null
+    },
+    {
+      "agent": "candidate_data_audit",
+      "task": "complete CI status and logs",
+      "status": "agent_quota_interrupted",
+      "tokens": null,
+      "api_cost_usd": null,
+      "duration_seconds": null,
+      "lead_completed": true
+    }
+  ],
+  "repaired_static": {
+    "source": "6f76d7d117622e4756b021ae3834188ed76d4925",
+    "evidence": "artifacts/spec027/ci-followup/repaired-static-summary.json",
+    "runs": [
+      {
+        "event": "push",
+        "id": 42119052972,
+        "conclusion": "success",
+        "all_17_steps_success": true,
+        "static_passed": 33,
+        "offline_image_passed": 33,
+        "per_engine_per_stage": 11,
+        "browser_retries": 0,
+        "browser_failed": 0,
+        "browser_skipped": 0,
+        "installer_seconds": 27,
+        "installer_attempts": 1,
+        "first_attempt_exit": 0,
+        "official_https_fallback_applied": false
+      },
+      {
+        "event": "pr",
+        "id": 42119062915,
+        "conclusion": "success",
+        "all_17_steps_success": true,
+        "static_passed": 33,
+        "offline_image_passed": 33,
+        "per_engine_per_stage": 11,
+        "browser_retries": 0,
+        "browser_failed": 0,
+        "browser_skipped": 0,
+        "installer_seconds": 357,
+        "installer_attempts": 2,
+        "first_attempt_exit": 124,
+        "official_https_fallback_applied": true
+      }
+    ]
+  },
+  "repaired_native": {
+    "source": "6f76d7d117622e4756b021ae3834188ed76d4925",
+    "id": 42119052983,
+    "conclusion": "success",
+    "all_20_steps_success": true,
+    "official_https_preflight": true,
+    "chromium_host_install_seconds": 14,
+    "archive_bytes": 302150234,
+    "archive_sha256": "959164d7a77fcff11e6ccaf7cf6ffaeb8db55591c5d485a37883c5f5f692dcf0",
+    "outer_and_all_7_inner_hashes_verified": true,
+    "source_platform_and_running_image_ids_match": true,
+    "upgrade": {
+      "old_tables": 48,
+      "old_rows": 62,
+      "new_empty_tables": 7,
+      "old_cas_files": 4,
+      "new_cas_files": 0,
+      "schema_before": "15b39ecf7286",
+      "schema_after": "28a7c1e09462",
+      "all_old_tables_equal": true,
+      "all_old_cas_equal": true
+    },
+    "restore": {
+      "old_tables": 55,
+      "old_rows": 72,
+      "new_empty_tables": 0,
+      "old_cas_files": 5,
+      "new_cas_files": 0,
+      "schema_before": "28a7c1e09462",
+      "schema_after": "28a7c1e09462",
+      "all_old_tables_equal": true,
+      "all_old_cas_equal": true
+    },
+    "upgrade_duration_ms": 116229,
+    "old_cookie_and_citations_preserved": true,
+    "pdf_docx_import_qa_citation_refresh_restart_restore": "passed",
+    "concurrency_statuses": [
+      200,
+      429,
+      429,
+      429
+    ],
+    "same_uuid_recovery_and_replay": true,
+    "all_mail_and_formal_decision_counts_zero": true,
+    "existing_service_ids_unchanged": true,
+    "test_projects_stopped": true,
+    "data_volumes_retained": true,
+    "evidence": "artifacts/spec027/amd64-repaired-ci/artifact-audit.json",
+    "not_user_vps_or_live_model_acceptance": true
+  },
+  "repaired_verify": {
+    "schema": "spec027-repaired-verify-ci.v1",
+    "source": "6f76d7d117622e4756b021ae3834188ed76d4925",
+    "observed_at_utc": "2026-11-05T22:44:25.220745+00:00",
+    "scope": "read-only terminal CI/log check; not production or expert review",
+    "runs": [
+      {
+        "event": "push",
+        "run_id": 42119052986,
+        "url": "https://github.com/DayuGuo/Pivot/actions/runs/42119052986",
+        "head": "6f76d7d117622e4756b021ae3834188ed76d4925",
+        "head_matches_target": true,
+        "status": "completed",
+        "conclusion": "success",
+        "all_jobs_success": true,
+        "all_steps_success": true,
+        "all_executed_steps_success": true,
+        "non_success_steps": [],
+        "reported_job_count": 1,
+        "reported_step_count": 14,
+        "backend": {
+          "passed": 1559,
+          "failed": 0,
+          "skipped": 0,
+          "warnings": 10,
+          "errors": 0,
+          "seconds": 579.79,
+          "summary_line_found": true
+        },
+        "browser": {
+          "passed": 399,
+          "per_engine": {
+            "chromium": 133,
+            "firefox": 133,
+            "webkit": 133
+          },
+          "minutes": 13.8,
+          "failed": 0,
+          "skipped": 0,
+          "flaky": 0,
+          "retries": 0,
+          "configured_ci_retry_limit": 1,
+          "summary_line_found": true
+        },
+        "installer": {
+          "seconds": 28.0,
+          "conclusion": "success",
+          "attempts": [
+            1
+          ],
+          "failed_attempts": [],
+          "official_https_fallback_invoked": false,
+          "official_https_fallback_success": false,
+          "second_attempt_selected_official_mirrors": false,
+          "eventual_install_success": true
+        },
+        "log": {
+          "path": "artifacts/spec027/ci-followup/repaired-verify-push.log",
+          "bytes": 430771,
+          "sha256": "65b6c5674db039aea9545b9509e5b62d07a714ffcc6a19320f0409f0581212bb",
+          "sanitization": {
+            "ansi_removed": true,
+            "credential_pattern_matches_redacted": 0,
+            "public_ci_logs_only": true
+          }
+        }
+      },
+      {
+        "event": "pull_request",
+        "run_id": 42119062980,
+        "url": "https://github.com/DayuGuo/Pivot/actions/runs/42119062980",
+        "head": "6f76d7d117622e4756b021ae3834188ed76d4925",
+        "head_matches_target": true,
+        "status": "completed",
+        "conclusion": "success",
+        "all_jobs_success": true,
+        "all_steps_success": true,
+        "all_executed_steps_success": true,
+        "non_success_steps": [],
+        "reported_job_count": 1,
+        "reported_step_count": 14,
+        "backend": {
+          "passed": 1559,
+          "failed": 0,
+          "skipped": 0,
+          "warnings": 10,
+          "errors": 0,
+          "seconds": 667.98,
+          "summary_line_found": true
+        },
+        "browser": {
+          "passed": 399,
+          "per_engine": {
+            "chromium": 133,
+            "firefox": 133,
+            "webkit": 133
+          },
+          "minutes": 16.1,
+          "failed": 0,
+          "skipped": 0,
+          "flaky": 0,
+          "retries": 0,
+          "configured_ci_retry_limit": 1,
+          "summary_line_found": true
+        },
+        "installer": {
+          "seconds": 80.0,
+          "conclusion": "success",
+          "attempts": [
+            1
+          ],
+          "failed_attempts": [],
+          "official_https_fallback_invoked": false,
+          "official_https_fallback_success": false,
+          "second_attempt_selected_official_mirrors": false,
+          "eventual_install_success": true
+        },
+        "log": {
+          "path": "artifacts/spec027/ci-followup/repaired-verify-pr.log",
+          "bytes": 432679,
+          "sha256": "d0c02377db7582da8bb53f8ca449512d9eef9f227d8777e52143af5cc5ff42b4",
+          "sanitization": {
+            "ansi_removed": true,
+            "credential_pattern_matches_redacted": 0,
+            "public_ci_logs_only": true
+          }
+        }
+      }
+    ],
+    "passed": true
+  },
+  "local_followup_verify": {
+    "source": "6f76d7d117622e4756b021ae3834188ed76d4925",
+    "command": "scripts/verify.sh",
+    "status": "interrupted",
+    "observed_exec_exit_code": 143,
+    "wrapper_completion_receipt_present": false,
+    "backend": {
+      "passed": 1559,
+      "warnings": 10,
+      "seconds": 487.96
+    },
+    "browser_completed_in_log": {
+      "chromium": 133,
+      "firefox": 133,
+      "webkit": 124
+    },
+    "browser_final_summary_present": false,
+    "not_a_completed_full_gate": true,
+    "log": "artifacts/spec027/ci-followup/verify.log"
+  },
+  "delegation_summary": {
+    "tracked_ci_audit_workstreams": 3,
+    "agent_completed": 2,
+    "agent_interrupted": 1,
+    "workstreams_completed_by_agents_rate": 0.6666666666666666,
+    "lead_finished_remaining_ci_audit": true,
+    "tokens_and_cost_unknown": true
+  }
+}

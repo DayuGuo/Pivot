@@ -1,0 +1,22 @@
+.body { padding: 20px; overflow: auto; min-height: 0; overflow-wrap: anywhere; }
+.body form, .body section { display: grid; gap: 14px; }
+.body section + section { border-top: 1px solid var(--line); margin-top: 24px; padding-top: 20px; }
+.body label { display: grid; gap: 5px; }
+.body textarea { min-height: 90px; }
+.body fieldset { display: grid; gap: 14px; }
+.body button, .body summary { min-height: 40px; }
+.body .check { display: flex; align-items: flex-start; gap: 8px; min-height: 40px; cursor: pointer; }
+.body .check input { width: auto; margin-top: 5px; flex-shrink: 0; }
+.requirement { display: grid; gap: 10px; padding-block: 14px; border-bottom: 1px solid var(--line); }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.point { border-top: 1px solid var(--line); padding-top: 20px; margin-top: 20px; }
+.point blockquote { margin: 0; padding: 10px 0; white-space: pre-wrap; }
+.point form { margin-top: 16px; }
+.point select { background: var(--canvas); color: var(--ink); }
+.body pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; line-height: 1.8; max-height: 360px; overflow: auto; }
+.body mark { background: #fff1ae; color: var(--ink); }
+.muted { color: var(--muted); font-size: 12px; }
+.history { margin: 0; padding-left: 20px; }
+.history li { margin-bottom: 12px; }
+.sources { display: grid; gap: 8px; }
+@media (pointer: coarse) { .body button, .body summary, .body .check { min-height: 44px; } }

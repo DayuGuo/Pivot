@@ -1,0 +1,15 @@
+{
+  "parser": "pinned-upstream-manifest-field-v1",
+  "text": "Moreover, it provides valuable, practical advice for authors dealing with the peer review process. It balances the need to respect both reviewers' suggestions and the authors' original vision, while also emphasizing the importance of organization and clarity in presenting revisions. Some improvements could be made by simplifying certain recommendations, providing clearer guidance on seeking editorial approval, and streamlining references.",
+  "segments": [
+    {
+      "kind": "manifest_field",
+      "number": 1,
+      "start": 0,
+      "end": 442
+    }
+  ],
+  "warnings": [
+    "Selected licensed review paragraph only; not a complete report or author reply."
+  ]
+}

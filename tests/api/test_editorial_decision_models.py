@@ -561,32 +561,13 @@ def assess(w, rr, *, outcome="ready_for_chief"):
 
 def test_full_migration_metadata_and_safe_empty_downgrade(editorial_world):
     w = editorial_world
-    # This fixture stops at the E migration; F separately compares the complete
-    # latest schema, including these three later tables, against all metadata.
-    later_tables = {
-        "publishing_claim_reviews",
-        "publishing_evaluation_packages",
-        "publishing_evaluation_returns",
-        "publishing_document_imports",
-        "publishing_document_approvals",
-        "publishing_document_sources",
-        "publishing_dossier_answers",
-        "publishing_proof_packages",
-        "publishing_proof_responses",
-        "publishing_publication_previews",
-        "publishing_dossiers",
-        "publishing_dossier_versions",
-        "publishing_dossier_checks",
-        "publishing_dossier_turns",
-    }
-    context = MigrationContext.configure(
-        w.conn,
-        opts={
-            "include_object": lambda obj, name, kind, reflected, compare_to: not (
-                kind == "table" and name in later_tables
-            ),
-        },
-    )
+    # Constraint fixtures remain at E; this complete-schema test reaches the
+    # current head without excluding later registered models.
+    later = peer.later_migrations(MIGRATION.revision)
+    with Operations.context(MigrationContext.configure(w.conn)):
+        for module in later:
+            module.upgrade()
+    context = MigrationContext.configure(w.conn)
     assert compare_metadata(context, Base.metadata) == []
     fks = {x["name"] for x in inspect(w.conn).get_foreign_keys("publishing_editorial_decisions")}
     assert {
@@ -595,6 +576,8 @@ def test_full_migration_metadata_and_safe_empty_downgrade(editorial_world):
         "fk_pub_decision_confirmation",
     } <= fks
     with Operations.context(MigrationContext.configure(w.conn)):
+        for module in reversed(later):
+            module.downgrade()
         MIGRATION.downgrade()
     assert not inspect(w.conn).has_table("publishing_editorial_decisions")
 

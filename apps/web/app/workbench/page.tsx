@@ -1,4 +1,6 @@
 "use client";
+import IdentityControl from "../../components/identity/control";
+import GlobalSearch from "../../components/search/global-search";
 import {useCallback,useEffect,useRef,useState,type CSSProperties} from "react";
 import Link from "next/link";
 import Conversation from "../../components/editorial/conversation";
@@ -6,6 +8,7 @@ import type {ChatAction,ChatContext,ChatReference,ChatScope} from "../../compone
 import Reader from "../../components/editorial/reader";
 import {ReviewerSelection,RevisionDesk} from "../../components/editorial/review";
 import Glyph from "../../components/editorial/icons";
+import { SettingsButton } from "../../components/settings/panel";
 import type {Anchor,Case,CaseState,Dataset,View,ViewState} from "../../components/editorial/types";
 import s from "./workbench.module.css";
 
@@ -93,10 +96,10 @@ export default function Workbench(){
  return <div className={s.shell} data-theme={dark?"dark":"light"} style={{"--wb-preview":`${previewWidth}px`} as CSSProperties}>
   <a className={s.skip} href="#workbench-main">跳转到工作内容</a>
   {navOpen&&<button className={s.backdrop} aria-label="关闭工作导航" onClick={()=>setNavOpen(false)}/>}
-  <aside ref={navRef} role={navOpen?"dialog":undefined} aria-modal={navOpen||undefined} className={`${s.sidebar} ${navOpen?s.navOpen:""}`} aria-label="工作导航"><Link className={s.brand} href="/workbench"><span className={s.brandMark}><Glyph name="layers" size={19}/></span>Pivot</Link><div className={s.journal}>开放科学 · 测试期刊</div>
+  <aside ref={navRef} role={navOpen?"dialog":undefined} aria-modal={navOpen||undefined} className={`${s.sidebar} ${navOpen?s.navOpen:""}`} aria-label="工作导航"><Link className={s.brand} href="/workbench"><span className={s.brandMark}><Glyph name="layers" size={19}/></span>Pivot</Link><GlobalSearch scope={`${session.user.id}:${session.user.role}:${session.csrf_token}`} />
    <button className={s.sidebarClose} onClick={()=>setNavOpen(false)}>关闭导航<Glyph name="close" size={15}/></button><nav aria-label="工作视图"><button className={view==="work"&&stage==="all"?s.active:""} onClick={()=>{setStage("all");setTodayOnly(false);navigate("work");}}><Glyph name="inbox"/>我的工作<span>{data.cases.length}</span></button><div className={s.navGroup}>工作队列</div>{stages.slice(1).map(item=><button key={item.key} className={view==="work"&&stage===item.key?s.active:""} onClick={()=>{setStage(item.key);setTodayOnly(false);navigate("work");}}><Glyph name={item.icon} size={16}/>{item.label}<span>{data.cases.filter(c=>c.stage_key===item.key).length}</span></button>)}
    {data.saved_views.length>0&&<><div className={s.navGroup}>常用视图</div>{data.saved_views.map((item,index)=><button key={index} onClick={()=>{setQuery(item.query);setStage(item.stage);setSort(item.sort);setTodayOnly(item.today_only===true);navigate("work");}}><Glyph name="layers" size={16}/>{item.name}</button>)}</>}
-   </nav><div className={s.sidebarBottom}><span className={s.demo}>合成数据演示</span><Link href="/">投稿与邮箱工作台<Glyph name="arrow" size={14}/></Link><label className={s.theme}><Glyph name="theme" size={16}/><select aria-label="界面主题" value={theme} onChange={e=>setTheme(e.target.value)}><option value="light">浅色</option><option value="dark">深色</option><option value="system">跟随系统</option></select></label><div className={s.profile}><span>{session.user.name.slice(0,1)}</span><div>{session.user.name}<small>{session.user.role==="chief_editor"?"主编":"责任编辑"}</small></div></div></div>
+   </nav><div className={s.sidebarBottom}><SettingsButton onOpen={() => setNavOpen(false)} /><span className={s.demo}>合成数据演示</span><Link href="/">投稿与邮箱工作台<Glyph name="arrow" size={14}/></Link><label className={s.theme}><Glyph name="theme" size={16}/><select aria-label="界面主题" value={theme} onChange={e=>setTheme(e.target.value)}><option value="light">浅色</option><option value="dark">深色</option><option value="system">跟随系统</option></select></label><IdentityControl user={session.user} /></div>
   </aside>
   <div className={s.content} inert={navOpen}><header className={s.topbar}><div className={s.breadcrumb}><button ref={navToggle} className={s.mobileMenu} aria-label="展开工作导航" aria-expanded={navOpen} onClick={()=>setNavOpen(!navOpen)}><Glyph name="inbox"/></button><span>编辑工作台</span><span>/</span><strong>{viewLabels[view]}</strong></div><div className={s.topActions}><span className={s.saveStatus} role="status">{saving?"正在保存…":"草稿自动保存"}</span><button onClick={()=>document.getElementById("editorial-conversation-message")?.focus()}><Glyph name="spark" size={16}/>聚焦对话</button></div></header>
    {error&&<div className={s.error} role="alert" tabIndex={-1} ref={errorRef}>{error}<button onClick={()=>setError("")} aria-label="关闭错误提示"><Glyph name="close" size={16}/></button><button onClick={()=>void load()}>重新载入</button></div>}

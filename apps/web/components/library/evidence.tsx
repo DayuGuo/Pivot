@@ -12,7 +12,7 @@ import { documentLocation } from "./document-details";
 const format = new Intl.NumberFormat("zh-CN");
 
 function fieldText(data: Dossier["data"], path: string | null): string | null {
-  if (!path || !/^(?:title|abstract|language|source_kind|source_note|keywords\.\d+|authors\.\d+\.(?:name|email|orcid|corresponding|source_note|affiliations\.\d+|contributions\.\d+))$/.test(path)) return null;
+  if (!path || !/^(?:title|abstract|language|source_kind|source_note|keywords\.\d+|document_metadata\.(?:article_type|funding_statement|declarations_text)|authors\.\d+\.(?:name|email|orcid|corresponding|source_note|affiliations\.\d+|contributions\.\d+))$/.test(path)) return null;
   let value: unknown = data;
   for (const part of path.split(".")) {
     if (!value || typeof value !== "object" || !Object.hasOwn(value, part)) return null;
@@ -95,7 +95,7 @@ export function EvidencePanel({ snapshot, citation, currentVersionId, onClose }:
       <p className={styles.hint}>{snapshot.version_id !== currentVersionId || !snapshot.is_current ? "历史版本的证据；当前资料与未保存编辑保持不变。" : "当前已保存版本的证据。"}</p>
       <h3>{citation.label}</h3>
       {citation.document ? <div className={styles.documentOrigin}><p className={styles.hint}>{citation.document.filename} · {citation.document.locations.map(location => documentLocation(location.kind, location.number)).join("、")}</p>{originalURL && text !== null && <a href={originalURL} download>下载原稿</a>}{citation.kind === "metadata" && text !== null && <blockquote>{citation.document.source_quote}</blockquote>}</div> : citation.kind === "text" && <p className={styles.hint}>{snapshot.file?.filename}{citation.line_start != null ? ` · 第 ${citation.line_start}${citation.line_end !== citation.line_start && citation.line_end != null ? `–${citation.line_end}` : ""} 行` : ""}</p>}
-      {citation.kind === "metadata" && <p className={styles.hint}>录入资料，不代表作者或 ORCID 身份已认证</p>}
+      {citation.kind === "metadata" && <p className={styles.hint}>{citation.field_path?.startsWith("document_metadata.") ? "稿件资料记录，不代表负责人签署声明。" : "录入资料，不代表作者或 ORCID 身份已认证"}</p>}
       {text === null ? <p role="alert">引用与版本内容不匹配，请重新载入资料后再定位。</p> : <pre className={styles.locatedText}>{characters.slice(0, citation.start).join("")}<mark ref={highlight} tabIndex={-1} aria-label="已定位引用原文">{characters.slice(citation.start, citation.end).join("")}</mark>{characters.slice(citation.end).join("")}</pre>}
       <details><summary>证据版本 SHA-256</summary><code>{citation.content_digest}</code>{citation.file_sha256 && <><p className={styles.hint}>原文文件 SHA-256</p><code>{citation.file_sha256}</code></>}</details>
     </div>

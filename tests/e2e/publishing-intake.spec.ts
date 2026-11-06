@@ -17,7 +17,9 @@ test("常驻对话贯通投稿、评审、正式修回、校样与鉴权本地�
   await expect(page.getByLabel("标题", { exact: true })).toBeVisible();
   const mid = new URL(page.url()).searchParams.get("manuscript")!;
   await composer.fill("请整理资料\n标题：合成开放科学浏览器验收\n摘要：本研究采用完全合成的测试材料验证投稿流程，覆盖资料整理、版本文件、负责人确认与编辑待办，并验证刷新后的持久化一致性。\n关键词：合成数据，出版流程");
+  const candidateResponse = page.waitForResponse(response => response.url().endsWith("/api/publishing/chat") && response.request().method() === "POST");
   await page.getByRole("button", { name: "发送消息", exact: true }).click();
+  expect((await candidateResponse).status()).toBe(200);
   await expect(page.getByText("模拟结果：已将识别到的信息整理为候选", { exact: false })).toBeVisible();
   await expect(page.getByLabel("标题", { exact: true })).toHaveValue("合成开放科学浏览器验收");
   await page.reload();
@@ -229,7 +231,7 @@ test("常驻对话贯通投稿、评审、正式修回、校样与鉴权本地�
   await expect(editorPage.getByLabel("修回复核结果", { exact: true })).toHaveValue("");
   await editorPage.reload();
   await expect(editorPage.getByRole("region", { name: "修回逐项对照", exact: true })).toBeVisible();
-  await expect(editorPage.getByRole("button", { name: "核对未落实项", exact: true })).toBeVisible();
+  await expect(editorPage.getByRole("button", { name: "核对待核实项", exact: true })).toBeVisible();
   await editorPage.getByRole("region", { name: "修回逐项对照", exact: true }).scrollIntoViewIfNeeded();
   await editorPage.screenshot({ path: test.info().outputPath("revision-comparison-desktop.png") });
   await expect(editorPage.getByRole("checkbox", { name: "我已人工检查当前修回版本", exact: true })).not.toBeChecked();

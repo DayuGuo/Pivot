@@ -16,7 +16,8 @@ async function proxy(request: NextRequest, context: Context) {
     const value = request.headers.get(name);
     if (value) headers.set(name, value);
   }
-  const heavy = ["editorial-demo/chat", "publishing/chat"].includes(path.join("/")) || /^dossiers\/[^/]+\/(chat|imports)$/.test(path.join("/"));
+  const formalImport = /^publishing\/manuscripts\/[^/]+\/document-imports$/.test(path.join("/"));
+  const heavy = formalImport || ["editorial-demo/chat", "publishing/chat"].includes(path.join("/")) || /^dossiers\/[^/]+\/(chat|imports|revision-checks)$/.test(path.join("/"));
   const admitted = heavy && request.method === "POST";
   if (admitted && heavyRequests >= 1) return Response.json({ detail: "正在处理另一份资料，请稍后重试；本次请求尚未执行。" }, { status: 429, headers: { "Retry-After": "2", "Cache-Control": "no-store" } });
   if (admitted) heavyRequests++;
@@ -27,7 +28,12 @@ async function proxy(request: NextRequest, context: Context) {
       body: request.method === "GET" ? undefined : await request.text(),
       cache: "no-store",
       redirect: "manual",
-      signal: AbortSignal.timeout((["editorial-demo/chat", "publishing/chat"].includes(path.join("/")) || /^dossiers\/[^/]+\/(chat|imports)$/.test(path.join("/"))) ? 75_000 : 30_000),
+      signal: AbortSignal.any([
+        AbortSignal.timeout(heavy ? 75_000 : 30_000),
+        // Cancel obsolete reads across the proxy; an abandoned POST still has
+        // an unknown outcome and must only be recovered with its original UUID.
+        ...(request.method === "GET" ? [request.signal] : []),
+      ]),
     });
     const resultHeaders = new Headers({ "Cache-Control": "no-store" });
     const retryAfter = upstream.headers.get("retry-after");

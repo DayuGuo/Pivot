@@ -1,4 +1,5 @@
 "use client";
+import { warnBeforeUnload } from "../browser";
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -38,7 +39,7 @@ export function EditorialActions({ detail, editorial }: { detail: Detail; editor
   const [reviewURL, setReviewURL] = useState<string | null>(null); const [baseRevision, setBaseRevision] = useState(detail.revision);
   const errorRef = useRef<HTMLDivElement>(null);
   useEffect(() => { setUnsaved(dirty); return () => setUnsaved(false); }, [dirty, setUnsaved]);
-  useEffect(() => { if (!dirty) return; const warn = (event: BeforeUnloadEvent) => event.preventDefault(); window.addEventListener("beforeunload", warn); return () => window.removeEventListener("beforeunload", warn); }, [dirty]);
+  useEffect(() => { if (!dirty) return; const warn = warnBeforeUnload; window.addEventListener("beforeunload", warn); return () => window.removeEventListener("beforeunload", warn); }, [dirty]);
   if (detail.revision !== baseRevision) { setBaseRevision(detail.revision); setShareReviewed(false); setCurrentReviewed(false); setResponseReviewed(false); setAnonymousReviewed(false); setReviewURL(null); }
   const recommendationAction = actionFor(detail, "recommend_decision"); const decisionAction = actionFor(detail, "record_decision"); const assessmentAction = actionFor(detail, "assess_revision");
   const decisionForm = recommendationAction ?? decisionAction;

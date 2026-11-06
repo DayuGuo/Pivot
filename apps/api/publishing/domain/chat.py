@@ -36,7 +36,7 @@ from .review_schemas import (
 from .reviews import save_report_candidates
 from .revision_compare import compare as compare_revision
 from .revision_compare import reply as revision_reply
-from .revision_sources import comparison_requested, load_revision
+from .revision_sources import comparison_offset, comparison_requested, load_revision
 from .schemas import IntakeCandidates, IntakeData, StrictInput
 from .stages import CheckNotes, download_report, save_check_notes
 
@@ -154,9 +154,23 @@ def scope_allows(current, previous):
     return current == previous
 
 
-def verify_visibility(db, actor, scopes):
+def verify_visibility(db, actor, scopes, *, read_cache=None):
     for mid, expected in scopes.items():
-        projection = core.submission_projection(db, actor, mid, detail=False)
+        # Only history GET supplies a response-local lookup cache. Model/tool
+        # validation across network/lock waits always takes the fresh path.
+        if read_cache is not None and mid in read_cache:
+            projection = read_cache[mid]
+            if isinstance(projection, HTTPException):
+                raise projection
+        else:
+            try:
+                projection = core.submission_projection(db, actor, mid, detail=False)
+            except HTTPException as failure:
+                if read_cache is not None:
+                    read_cache[mid] = failure
+                raise
+            if read_cache is not None:
+                read_cache[mid] = projection
         current = (
             projection.get("visibility_scope")
             if isinstance(expected, dict)
@@ -167,6 +181,7 @@ def verify_visibility(db, actor, scopes):
 
 
 def history(db: Session, actor: Actor, context: ChatContext) -> dict:
+    core.ensure_actor(db, actor)
     authorized_context(db, actor, context)
     query = select(PublishingChatTurn).where(
         PublishingChatTurn.user_id == actor.user.id,
@@ -175,6 +190,7 @@ def history(db: Session, actor: Actor, context: ChatContext) -> dict:
     )
     rows = db.scalars(query.order_by(PublishingChatTurn.created_at.desc()).limit(50)).all()
     messages = []
+    read_cache, visible, denied = {}, set(), set()
     for row in reversed(rows):
         if row.context_snapshot.get("role") != actor.role:
             continue
@@ -196,11 +212,22 @@ def history(db: Session, actor: Actor, context: ChatContext) -> dict:
         )
         try:
             for mid in mids:
-                core.load_submission(db, actor, mid)
-            verify_visibility(db, actor, row.context_snapshot.get("visibility_scopes", {}))
+                if mid in denied:
+                    raise HTTPException(403, "历史稿件访问权限已变化")
+                if mid not in visible:
+                    try:
+                        core.load_submission(db, actor, mid)
+                    except HTTPException:
+                        denied.add(mid)
+                        raise
+                    visible.add(mid)
+            verify_visibility(
+                db, actor, row.context_snapshot.get("visibility_scopes", {}), read_cache=read_cache
+            )
         except HTTPException:
             continue
         messages.extend(row.response["messages"])
+    core.ensure_actor(db, actor)
     return {"messages": messages, "provider": editorial_model_status()}
 
 
@@ -240,7 +267,7 @@ class Runtime:
         self.evidence = {}
         self.action = None
         self.read_revisions = {}
-        work = core.workspace(db, actor)
+        work = core.workspace(db, actor, include_id=self.current_id)
         self.allowed_ids = {s["id"] for s in work["submissions"]}
         self.visibility_scopes = {
             s["id"]: (s.get("visibility_scope") or s["visibility_fingerprint"])
@@ -883,11 +910,23 @@ def conversation(db: Session, actor: Actor, request_id: str, body: ChatInput) ->
         runtime.message_id = uid()
         comparison = None
         if comparison_requested(body.message) and runtime.current_id:
-            source = load_revision(db, actor, runtime.current_id, body.context.version_id)
+            source = load_revision(
+                db,
+                actor,
+                runtime.current_id,
+                body.context.version_id,
+                offset=comparison_offset(body.message),
+            )
 
             def validate_comparison():
                 runtime.validate_scopes()
-                current = load_revision(db, actor, runtime.current_id, source["revised_version_id"])
+                current = load_revision(
+                    db,
+                    actor,
+                    runtime.current_id,
+                    source["revised_version_id"],
+                    offset=source["point_offset"],
+                )
                 if current["source_fingerprint"] != source["source_fingerprint"]:
                     raise HTTPException(409, "修回依据已变化，请重新载入后对照")
 

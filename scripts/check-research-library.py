@@ -571,7 +571,11 @@ class Gate:
             for key, event, level in (
                 ("row_triggers", "INSERT OR UPDATE OR DELETE", "ROW"),
                 ("truncate_triggers", "TRUNCATE", "STATEMENT"),
+                ("insert_triggers", "INSERT", "ROW"),
+                ("update_delete_triggers", "UPDATE OR DELETE", "ROW"),
             ):
+                if key in {"insert_triggers", "update_delete_triggers"} and key not in evidence:
+                    continue  # Older pinned contracts predate split-operation declarations.
                 actual = set(
                     re.findall(
                         rf"CREATE TRIGGER (\w+)\s+BEFORE {event}\s+ON (\w+)\s+"

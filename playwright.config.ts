@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import { webkitLaunchOptions } from "./scripts/browser-rendering.mjs";
 
 // Independent static-package acceptance may run alongside the business suite.
 // Playwright clears outputDir before a run, so they must never share traces.
@@ -16,5 +17,9 @@ export default defineConfig({
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+    { name: "webkit", use: { ...devices["Desktop Safari"], launchOptions: webkitLaunchOptions() } },
+  ],
 });

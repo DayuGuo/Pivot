@@ -1,5 +1,28 @@
 # 架构
 
+## 统一元数据搜索（spec030）
+
+独立search只读路由在SQL中先核对当前成员／期刊／归属／分派及可见题名，再按类限额；不读取原件或调用模型。共享GlobalSearch管理防抖、迟到隔离、只读恢复与非模态结果，本地链接继续执行各工作区原有离开保护。主工作台补早期稿件受权深链，资料页保留独立的列表请求代次，避免旧载入覆盖新搜索。无新表／迁移。
+
+## 会话身份与职责视图（spec029）
+
+Membership 按用户／期刊／角色唯一，LoginSession.active_membership_id 以复合外键绑定本人。security 集中原身份复核，identities 认证变更网关复用请求锁与安全回执，短事务轮换会话／CSRF并审计，模型无此工具；最终提交会话锁与切换串行，不跨网络等待。work_queue 可选 role_view 聚焦职责，原对象策略和所有权独立。共享 IdentityControl、独立确认与根 IdentityBoundary 防止旧私人界面跨身份恢复；正式对话原有角色作用域保持。迁移29b6只增字段／调整约束，原业务守卫和历史记录保持。
+
+
+## 统一设置（spec028）
+
+`components/settings`管理全局原生 dialog、统一入口和邮箱表单；RootLayout 的 Provider 保留页面子树，设置不使用工作区路由切换。每次打开读取既有鉴权 session，按用户/角色/期刊/CSRF隔离邮箱状态，取消旧读取；邮箱未知写结果必须主动重读，不自动重发。原app/mail-settings默认导出保留兼容。复用既有会话/模型状态和邮箱API，无新后端工具、数据表或迁移，部署环境继续拥有模型凭据。
+
+## 内部多版本核对（spec027）
+
+继续使用模块化单体。`document_imports.approve_import`复用同一原件/表单/版本/幂等校验，完整确认保留原协议；独立save-material动作不建DossierCheck。`dossier_export`只读精确版本及可证明字段来源，不外露聊天或存储路径。
+
+`dossier_revision_models/schemas`定义两张追加式表及输入；`dossier_revision_sources`重建实际两版、原件、来源指纹和回复跨度；`dossier_revisions`组合HTTP、既有纯revision_compare、Action Gateway和审计。生成包绑定当前修订版和更早原稿，历史包可以追加三层人判，不自动迁到新版本。12＋15字段及复合外键/插入/不可变守卫见[合同](specs/027-internal-revision-contract.md)，迁移28a7c1e09462只加两表，旧数据/迁移/确认指纹不改。
+
+前端revision-check维护作用域、已知/未知写结果与前置人判头；重新读取保留草稿，已知保存后恢复仅读取。API和代理将生成核对纳入单重任务准入。私人包保持单worker、应用8进行中/16等待/2秒及重任务1名额，传输32连接/2秒keepalive/64backlog另作硬上限；应用429和传输503分别报告，不将配置推导为容量保证。
+
+候选构建默认要求干净源码；显式本地worktree构建按实际路径/内容/执行位摘要标识并前后重验。原生amd64安装、发布旧preview.4升级及新项目DB＋CAS恢复由独立harness执行，不操作用户VPS。研究取舍、字段绑定与边界脚本随增量维护，未引入事件总线、微服务或新工作流框架。
+
 ## 登记评价与回传（spec023）
 
 EvaluationPackage/EvaluationReturn独立不可变13＋13字段，复合版本FK/来源/序号与禁止历史改删。evaluation_sources重建原文，evaluation_access做登记映射与访问复核，evaluation_protocol纯校验与统计，evaluations组合HTTP和Action Gateway。包保存私有随机ID映射，下载不泄漏AI桶；预览无写入，最终确认绑定完整digest、逐项ID和前置回传。旧v1路由组合共享服务且保持兼容。
@@ -182,3 +205,25 @@ ProofPackage引用FileObject而不追加冻结VersionFile；ProofResponse固定�
 ### 当前上下文建议与修回比较（spec024）
 
 `guidance`鉴权路由组合`dossier_views/core`实际投影与纯`guidance_rules`；不推理、不写入，不授予操作权限。共用前端`assistant/next-steps`仅准备草稿。`revision_sources`读取实际正式修回/匿名已发布要求/原新稿/回复及CAS摘要；`revision_compare`只持有传入数据和受限模型协议。`chat`沿用统一期限、并发、权限复查、事务与幂等回执，在已有PublishingChatTurn.response中保存revision-comparison.v1。对比与规则模块禁止数据库/业务核心依赖，路由禁止互相导入；scripts/check-boundaries.py执行约束。没有新增数据库迁移或自动状态转换。
+
+## 正式文档原件与修回来源（spec025）
+
+FormalDocumentImport保存与可编辑稿件版本绑定的原件/提取快照；FormalDocumentBinding保存显式负责人批准或原批准的继承。formal_documents路由只组合Action Gateway、解析器和formal_document_sources服务；模型不可访问确认路由。独立packages/document_ingest/locations把实际文本字符区间映射到PDF页/Word提取段，不带数据库权限。revision_sources只读取本轮作者可见要求及实际原/新/回复文件，revision_compare为无数据库写权的有界服务。路由、纯比较、来源服务、持久模型的依赖由scripts/check-boundaries.py约束。
+
+新增迁移f59230d88725只建两表32字段及守卫/索引，不改旧表/旧摘要。可变草稿删除文件链接时保留档案批准；读取活跃来源必须匹配完整文件元组。新修回继承原件依据，不虚构新负责人批准。对照批次和完整/节选覆盖单独投影，不把AI已完成或文件存在提升为业务通过。数据字段及上游经验绑定在研究索引和spec025，实际验证另见PROGRESS。
+
+修回真实模型通过evidence_catalog编号选择原文；后端构建≤480字符、非空白文本无损的已读材料目录并绑定B/N/A类型，服务端还原逐字内容后再校验唯一性、实际改动和原件页/段。编号不是语义认证，第二阶段支持检查和负责人判断仍独立。既有字面引文路径保留兼容，并拒绝重叠重复；所有可见引用最终均为批准文件原文。
+
+## 浏览器能力与撤权显示（spec026）
+
+components/browser.ts只提供安全UUID、可选存储、受控取消/超时、SHA与脏表单离开提示，不获取权限或执行业务。出版工作区先读取实际身份，变化时隔离历史/草稿/请求，401/403/404移除旧材料；HTTP200空/非对象回执不算成功，沿原UUID主动恢复。邮箱元数据在锁/外部只读验证等待后复用core.ensure_actor固定原始身份，不改变发送/确认权限。完整验证默认三浏览器单worker，新增源码语法门禁；无新数据库迁移。
+
+`domain/work_queue`只返回经过实际授权的待办/题名DTO，不为列表逐稿构造完整材料与权限指纹。最近200篇浏览窗口并入全部本人可见未完成任务和显式有权上下文；审稿人题名采用本人邀请快照。实际材料读取继续由core投影和完整visibility scope控制，旧指纹不改写。历史GET只在一次响应内复用重复权限投影；下次请求、网络推理后和写入前仍重新读取权限。
+
+`work_limits.RequestAdmission`在API依赖/数据库前执行每进程8个进行中、16个等待、最多等待2秒的准入，排队不占数据库连接、线程或读取正文；拒绝返回429/Retry-After，异常和取消释放名额。既有重任务单名额、无等待准入保持。此限制按进程生效，不能据此宣称多进程分布式限流或生产容量。
+
+出版页面以期刊/用户/角色/会话和URI隔离异步写入、幂等标识与未保存保护。离开后的文件读取不能发起旧页面POST；已发出的POST不假定撤销，迟到回执不进入新页面、不清除新草稿或保护。后续刷新使用当前上下文。过期GET可以通过Next代理取消，POST结果未知仍由负责人主动按原UUID恢复。
+
+正式导入路由已含manuscriptId，工作区直接读取该参数，避免等待子组件effect期间短暂切入期刊主对话或重建文件表单。提案/预览ID仍从授权DTO取得稿件归属。路径变化继续刷新身份/权限，读取结果应用前同时检查请求序列与当前路径；路由ID只是请求目标，不是授权凭据。
+
+负责人确认页等待实际已确认快照重新载入后显示成功，不先显示可交互成功状态再清空重载。确认写入成功后读取失败只提供重新读取，避免重发已知成功动作及快速点击返回时链接被替换。

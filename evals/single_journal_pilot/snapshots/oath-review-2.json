@@ -1,0 +1,15 @@
+{
+  "parser": "pinned-upstream-manifest-field-v1",
+  "text": "The principles outlined here are important, and this piece is certainly timely. I have two suggestions to improve the manuscript. First, as currently constituted, the manuscript is a bit repetitive, with a large text box recapitulating what is also laid out in much the same format in the body of the manuscript. Perhaps each of the major points could be expounded upon in the text.",
+  "segments": [
+    {
+      "kind": "manifest_field",
+      "number": 1,
+      "start": 0,
+      "end": 382
+    }
+  ],
+  "warnings": [
+    "Selected licensed review paragraph only; not a complete report or author reply."
+  ]
+}

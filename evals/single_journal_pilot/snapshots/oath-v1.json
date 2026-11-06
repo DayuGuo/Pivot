@@ -1,0 +1,394 @@
+{
+  "parser": "defusedxml-0.7.1-ooxml-v2",
+  "text": "The Open Science Peer Review Oath\n\nAleksic Jelena; Alexa Adrian; Attwood Teresa K; Chue Hong Neil; Dahlö Martin; Davey Robert; Dinkel Holger; Förstner Konrad U; Grigorov Ivo; Hériché Jean-Karim; Lahti Leo; MacLean Dan; Markie Michael L; Molloy Jenny; Schneider Maria Victoria; Scott Camille; Smith-Unna Richard; Vieira Bruno Miguel\n\nOne of the foundations of the scientific method is to be able to reproduce experiments and corroborate the results of research that has been done before. However, with the increasing complexities of new technologies and techniques, coupled with the specialisation of experiments, reproducing research findings has become a growing challenge. Clearly, scientific methods must be conveyed succinctly, and with clarity and rigour, in order for research to be reproducible. Here, we propose steps to help increase the transparency of the scientific method and the reproducibility of research results: specifically, we introduce a peer-review oath and accompanying manifesto. These have been designed to offer guidelines to enable reviewers (with the minimum friction or bias) to follow and apply open-science principles, and support the ideas of transparency, reproducibility and ultimately greater societal impact. Introducing the oath and manifesto at the stage of peer review will help to check that the research being published includes everything that other researchers would need to successfully repeat the work. Peer review is the lynchpin of the publishing system: encouraging the community to consciously (and conscientiously) uphold these principles should help to improve published papers, increase confidence in the reproducibility of the work and, ultimately, provide strategic benefits to authors and their institutions. Future incarnations of the various national Research Excellence Frameworks (REFs) will evolve away from simple citations towards measurable societal value and impact. The proposed manifesto aspires to facilitate this goal by making transparency, reproducibility and citizen-scientist engagement (with the knowledge-creation and dissemination processes) the default parameters for performing sound research.\n\nIntroduction\n\nAn essential part of the scientific method is that researchers can repeat the experiments of others and test the outcomes themselves. To achieve this requires accurate reporting not just of the results of those experiments but also of the methods that underpin them. However, as science becomes more technology-driven, the equipment used is more specialised, the data generated is harder to represent in traditional media, and reporting how experiments were performed so that independent researchers can repeat them gets progressively harder. Reproducibility in science is a hot topic and a concerning one; indeed, several commentators have concluded that fallibilities in the way that research investigations are currently conducted, and how their results are disseminated via article publication have become detrimental to the scientific process 1– 4 . The difficulties in ensuring reproducibility are multi-faceted: the problems are systemic. Policy makers, funding agencies, academic institutions, scientific publishers, scientists themselves and the vehicles through which they publish each contribute to a complicated web of issues that conspire against the publication of reproducible results 5 . Various measures have been proposed to try to combat these problems, ranging from top-down strategies through government initiatives 6 , to bottom-up strategies such as providing checks and balances for research integrity during the publishing process 7 . Measures like this tend to come with their own problems and, in some cases, can provide further barriers to reproducibility 8 .\n\nOne way in which reproducibility issues can be tackled is through the implementation of open science and open data practices 9, 10 . As attendees of the AllBio: Open Science & Reproducibility Best Practice Workshop, we discussed how principles of open science could be instilled into the current research workflow; as part of this debate, we tried to identify ways in which reproducibility might be improved.\n\nOne route into this workflow is through the peer review process. Peer review is an important gatekeeper and a key part of scientific discourse. Before any research findings can be formally accepted, they must be evaluated and commented upon by peers (experts in their fields), who then provide advice about the quality or validity of the work to Editors, or in the case of open peer review and post-publication invited peer review systems, to the readers themselves. Importantly, peer review happens at a personal rather than institutional level and is carried out by individuals; it is therefore an ideal mechanism for getting a message across to the majority of researchers given everyone peer reviews or is peer reviewed. Of course, the peer-review process is not infallible 11, 12 . The issues are many and varied, including the time available to perform thorough reviews, reviewers’ expertise, journals’ perception of relevance/interest/impact, and so on. Arguably, one of the most significant problems – certainly the one that generates most friction – is that reviewers can safely dispense self-serving and biased critiques, fully protected by the mask of anonymity.\n\nScientists have become sufficiently frustrated by these issues to devise ad hoc solutions to help safeguard the quality of reviews and allow reviewers to affirm that they will review in an ethical and professional way, and encourage clearer review processes. This has led to the articulation of various forms of reviewer’s oath ( e.g. 13– 15). It is these that inspired us. Building on this work, we have formulated an oath that codifies the role of reviewers in helping to ensure that the science they review is sufficiently open and reproducible; it includes guidelines not just on how to review professionally, but also on how to support transparent, reproducible and responsible research, while optimising its societal impact and maximising its visibility. We suggest a mode of constructive dialogue between respectful individuals.\n\nThe new oath is accompanied by a manifesto that develops the principles set out in the guidelines, and provides further direction for upholding responsible and interactive reviews, as well as the necessary information for other researchers to reproduce the results. A key tenet is that the oath is not meant to be burdensome or to cause friction between reviewers and authors; in fact, their cooperation could improve the accuracy of reviews 16 . The goal is to provide a supportive framework for guiding reviewers toward professional and ethical behaviours, and to provide the necessary checks on whether they would be able to reproduce the work. If the issue of reproducibility can be satisfied at the point of peer review, then published results should be more reliable, and the scientific community can have greater faith that what they read is solid enough to build on.\n\nThe Open Science Reviewer’s Oath\n\nThe oath is a simple checklist to use when reviewing or considering a review request. We recommend that reviewers add a link to this oath ( Box 1) at the top of each review as they begin, in order to provide an aide memoire to open review practice, and to inform the authors and potential publishers of the work of their intentions. We hope that by being explicit about the intent, the review will seem less like a cloak-and-dagger process, it will make constructive criticism easier for the author to receive and for the reviewer to provide, and it will also help to spread the practice of open reviewing.\n\nBox 1. While reviewing this manuscript: i) I will sign my review in order to be able to have an open dialogue with you ii) I will be honest at all times iii) I will state my limits iv) I will turn down reviews I am not qualified to provide v) I will not unduly delay the review process vi) I will not scoop research that I had not planned to do before reading the manuscript vii) I will be constructive in my criticism viii) I will treat reviews as scientific discourses ix) I will encourage discussion, and respond to your and/or editors’ questions x) I will try to assist in every way I ethically can to provide criticism and praise that is valid, relevant and cognisant of community norms xi) I will encourage the application of any other open science best practices relevant to my field that would support transparency, reproducibility, re-use and integrity of your research xii) If your results contradict earlier findings, I will allow them to stand, provided the methodology is sound and you have discussed them in context xiii) I will check that the data, software code and digital object identifiers are correct, and the models presented are archived, referenced, and accessible xiv) I will comment on how well you have achieved transparency, in terms of materials and methodology, data and code access, versioning, algorithms, software parameters and standards, such that your experiments can be repeated independently xv) I will encourage deposition with long-term unrestricted access to the data that underpin the published concept, towards transparency and re-use xvi) I will encourage central long-term unrestricted access to any software code and support documentation that underpin the published concept, both for reproducibility of results and software availability xvii) I will remind myself to adhere to this oath by providing a clear statement and link to it in each review I write, hence helping to perpetuate good practice to the authors whose work I review.\n\nThe manifesto\n\nEach point of the reviewer’s oath relates to open principles that we consider important; the collection of these principles is the manifesto. The manifesto relates to the oath as follows:\n\nPrinciple 1: I will sign my name to my review – I will write under my own name\n\nI will sign my review in order to be able to have an open dialogue with you\n\nI recognise that reviewing is a role that gives me advantage over you and that anonymity allows abuse of your trust. I will not do this.\n\nPrinciple 2: I will review with integrity\n\nI will be open and honest at all times\n\nI will state my limits\n\nI will turn down reviews I am not qualified to provide\n\nI will not unduly delay the review process\n\nI will not scoop research that I had not planned to do before reading the manuscript\n\nI recognise that integrity is a social act that requires the majority to hold shared convictions; I will use the majority of ‘doves’ to balance the ‘hawks’ in my review by sharing the content.\n\nI will always state the boundaries of my scientific knowledge and practice; I openly acknowledge that I am not an expert in, and cannot satisfactorily assess every aspect of, my field. I will inform you and the journal when this situation arises.\n\nI will not always be an appropriate reviewer. I will provide journal editors with a fair assessment of my ability and, when necessary, decline to review, and will always expand on the reasons.\n\nI will not write a negative review with the intention of blocking publication or delaying publication. In the case where I have already come to the same (or different) conclusions from the author I will state this fact and suggest the possibility of cooperative publication (either back-to-back) or merge a paper.\n\nI understand that there are conflicts in my field. Sometimes, there may be good reasons for remaining anonymous, which may relate to the integrity of others. Wherever possible, I will highlight abuses of integrity and turn down invitations if I feel I have such a direct conflict that would inappropriately affect my review.\n\nPrinciple 3: I will treat the review as a discourse with you; in particular, I will provide constructive criticism\n\nI will be constructive in my criticism\n\nI will treat reviews as scientific discourses\n\nI will encourage discussion, and respond to your and/or editors’ questions\n\nI will happily engage in conversation with you about your work, providing constructive criticism where appropriate.\n\nPrinciple 4: I will be an ambassador for good science practice\n\nI will try to assist in every way I ethically can to get your manuscript published, by providing criticism and praise that is valid, relevant and cognisant of community norms\n\nI will encourage the application of any other open science best practices relevant to my field that would support transparency, reproducibility, re-use and integrity of your research\n\nIf your results contradict earlier findings, I will allow them to stand, provided the methodology is sound and that you have discussed them in context\n\nI will check that the data, software code and digital object identifiers are correct, and the models presented are archived, referenced, and accessible\n\nI will comment on how well you have achieved transparency, in terms of materials and methodology, data and code access, versioning, algorithms, software parameters and standards, so that your experiments can be repeated independently\n\nI will encourage deposition with long-term unrestricted access to the data that underpin the published concept, towards transparency and re-use;\n\nI will encourage central long-term unrestricted access to any software code and support documentation that underpin the published concept, both for reproducibility of results and software availability\n\nI will uphold and advocate open science practice by pointing out where I believe that the authors can do better with respect to deposition of data, citation of accessions and code etc. Often this will mean circumventing current norms.\n\nPrinciple 5: Support other reviewers\n\nI will remind myself to adhere to this oath by providing a clear statement and link to it in each review I write, helping to perpetuate good practice to the authors whose work I review.\n\nAs part of my role as a scientist and an open reviewer, I will help other reviewers when they need guidance or support. I understand that new reviewers may not feel entirely secure in managing the conflicts that often arise from the normal academic process. In these cases I will judge a review on its merit and not the individual who has written it.\n\nAcknowledgements\n\nWe would like to thank The Genome Analysis Centre (TGAC, Norwich, UK) for organising and hosting the workshop.\n\nWe would also like to thank Peter Murray Rust for comments on the preprint ( https://zenodo.org/record/12273) and contributing an additional principle to the oath.\n\nIoannidis JP : Why most published research findings are false. PLoS Med. 2005;2(8):e124. 16060722 10.1371/journal.pmed.0020124 1182327\n\nIoannidis JP Allison DB Ball CA : Repeatability of published microarray gene expression analyses. Nat Genet. 2009;41(2):149–55. 19174838 10.1038/ng.295\n\nPrinz F Schlange T Asadullah K : Believe it or not: how much can we rely on published data on potential drug targets? Nat Rev Drug Discov. 2011;10(9):712. 21892149 10.1038/nrd3439-c1\n\nHines WC Su Y Kuhn I : Sorting out the FACS: a devil in the details. Cell Rep. 2014;6(5):779–81. 24630040 10.1016/j.celrep.2014.02.021\n\nCollins FS Tabak LA : Policy: NIH plans to enhance reproducibility. Nature. 2014;505(7485):612–3. 24482835 10.1038/505612a 4058759\n\nEuropean Commission Responsible Research & Innovation Policy.2012. Reference Source\n\nIorns E Chong C : New forms of checks and balances are needed to improve research integrity [v1; ref status: indexed, http://f1000r.es/32k]. F1000Res. 2014;3:119. 25324963 10.12688/f1000research.3714.1 25324963\n\nStodden V : Changes in the Research Process Must Come From the Scientific Community, not Federal Regulation.2013. Reference Source\n\nMolloy JC : The Open Knowledge Foundation: open data means better science. PLoS Biol. 2011;9(12):e1001195. 22162946 10.1371/journal.pbio.1001195 3232214\n\nPereira S Gibbs RA McGuire AL : Open access data sharing in genomic research. Genes (Basel). 2014;5(3):739–747. 25178093 10.3390/genes5030739 4198928\n\nPatel J : Why training and specialization is needed for peer review: a case study of peer review for randomized controlled trials. BMC Med. 2014;12(1):128. 25285376 10.1186/s12916-014-0128-z\n\nGlen AS : A New “Golden Rule” for Peer Review? Bull Ecol Soc Am. 2014;95(4):431–434. 10.1890/0012-9623-95.4.431\n\nWatson M : The reviewers oath.2013. Reference Source\n\nAlexander S : The Peer Reviewer’s Oath.2014. Reference Source\n\nVerger A : My Reviewer Oath.2014. Reference Source\n\nLeek JT Taub MA Pineda FJ : Cooperation between referees and authors increases peer review accuracy. PLoS One. 2011;6(11):e26895. 22096506 10.1371/journal.pone.0026895 3212530",
+  "segments": [
+    {
+      "kind": "docx_paragraph",
+      "number": 1,
+      "start": 0,
+      "end": 33
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 2,
+      "start": 35,
+      "end": 331
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 3,
+      "start": 333,
+      "end": 2170
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 4,
+      "start": 2172,
+      "end": 2184
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 5,
+      "start": 2186,
+      "end": 3773
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 6,
+      "start": 3775,
+      "end": 4183
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 7,
+      "start": 4185,
+      "end": 5358
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 8,
+      "start": 5360,
+      "end": 6195
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 9,
+      "start": 6197,
+      "end": 7071
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 10,
+      "start": 7073,
+      "end": 7105
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 11,
+      "start": 7107,
+      "end": 7713
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 12,
+      "start": 7715,
+      "end": 9695
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 13,
+      "start": 9697,
+      "end": 9710
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 14,
+      "start": 9712,
+      "end": 9899
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 15,
+      "start": 9901,
+      "end": 9979
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 16,
+      "start": 9981,
+      "end": 10056
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 17,
+      "start": 10058,
+      "end": 10194
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 18,
+      "start": 10196,
+      "end": 10237
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 19,
+      "start": 10239,
+      "end": 10277
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 20,
+      "start": 10279,
+      "end": 10301
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 21,
+      "start": 10303,
+      "end": 10357
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 22,
+      "start": 10359,
+      "end": 10401
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 23,
+      "start": 10403,
+      "end": 10487
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 24,
+      "start": 10489,
+      "end": 10681
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 25,
+      "start": 10683,
+      "end": 10929
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 26,
+      "start": 10931,
+      "end": 11123
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 27,
+      "start": 11125,
+      "end": 11438
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 28,
+      "start": 11440,
+      "end": 11764
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 29,
+      "start": 11766,
+      "end": 11880
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 30,
+      "start": 11882,
+      "end": 11920
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 31,
+      "start": 11922,
+      "end": 11967
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 32,
+      "start": 11969,
+      "end": 12043
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 33,
+      "start": 12045,
+      "end": 12160
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 34,
+      "start": 12162,
+      "end": 12224
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 35,
+      "start": 12226,
+      "end": 12400
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 36,
+      "start": 12402,
+      "end": 12584
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 37,
+      "start": 12586,
+      "end": 12736
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 38,
+      "start": 12738,
+      "end": 12889
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 39,
+      "start": 12891,
+      "end": 13124
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 40,
+      "start": 13126,
+      "end": 13270
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 41,
+      "start": 13272,
+      "end": 13472
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 42,
+      "start": 13474,
+      "end": 13708
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 43,
+      "start": 13710,
+      "end": 13746
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 44,
+      "start": 13748,
+      "end": 13933
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 45,
+      "start": 13935,
+      "end": 14285
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 46,
+      "start": 14287,
+      "end": 14303
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 47,
+      "start": 14305,
+      "end": 14415
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 48,
+      "start": 14417,
+      "end": 14580
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 49,
+      "start": 14582,
+      "end": 14716
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 50,
+      "start": 14718,
+      "end": 14869
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 51,
+      "start": 14871,
+      "end": 15053
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 52,
+      "start": 15055,
+      "end": 15189
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 53,
+      "start": 15191,
+      "end": 15321
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 54,
+      "start": 15323,
+      "end": 15406
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 55,
+      "start": 15408,
+      "end": 15618
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 56,
+      "start": 15620,
+      "end": 15750
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 57,
+      "start": 15752,
+      "end": 15904
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 58,
+      "start": 15906,
+      "end": 16055
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 59,
+      "start": 16057,
+      "end": 16247
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 60,
+      "start": 16249,
+      "end": 16360
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 61,
+      "start": 16362,
+      "end": 16414
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 62,
+      "start": 16416,
+      "end": 16477
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 63,
+      "start": 16479,
+      "end": 16529
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 64,
+      "start": 16531,
+      "end": 16706
+    }
+  ],
+  "warnings": [
+    "docx_paragraph_numbers_are_extraction_order_not_page_numbers",
+    "tables_notes_headers_footers_are_linearized"
+  ]
+}

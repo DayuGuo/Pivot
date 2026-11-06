@@ -1,7 +1,16 @@
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from sqlalchemy import JSON, CheckConstraint, DateTime, ForeignKey, String, Text, UniqueConstraint
+from sqlalchemy import (
+    JSON,
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    ForeignKeyConstraint,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -33,7 +42,10 @@ class User(Base):
 
 class Membership(Base):
     __tablename__ = "memberships"
-    __table_args__ = (UniqueConstraint("user_id", "journal_id"),)
+    __table_args__ = (
+        UniqueConstraint("user_id", "journal_id", "role", name="uq_membership_user_journal_role"),
+        UniqueConstraint("id", "user_id", name="uq_membership_id_user"),
+    )
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
     journal_id: Mapped[str] = mapped_column(ForeignKey("journals.id"))
@@ -42,8 +54,16 @@ class Membership(Base):
 
 class LoginSession(Base):
     __tablename__ = "login_sessions"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["active_membership_id", "user_id"],
+            ["memberships.id", "memberships.user_id"],
+            name="fk_session_active_membership_user",
+        ),
+    )
     token_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    active_membership_id: Mapped[str | None] = mapped_column(String(36))
     csrf_token: Mapped[str] = mapped_column(String(64))
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 

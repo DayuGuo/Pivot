@@ -1,0 +1,1822 @@
+{
+  "parser": "defusedxml-0.7.1-ooxml-v2",
+  "text": "An international, cross-sectional survey of preprint attitudes among biomedical researchers\n\nNg Jeremy Y.; Chow Valerie; Santoro Lucas J.; Armond Anna Catharina Vieira; Pirshahid Sanam Ebrahimzadeh; Cobey Kelly D.; Moher David\n\nBackground\n\nPreprints are scientific manuscripts that are made available on open-access servers but are not yet peer-reviewed. Although preprints are becoming more prevalent, uptake is not optimal. Understanding researchers’ opinions and attitudes toward preprints is valuable to optimize their use. Understanding knowledge gaps and researchers’ attitudes toward preprinting can assist stakeholders, such as journals, funding agencies, and universities, to use preprints more effectively. Here, we aimed to collect perceptions and behaviours regarding preprints across an international sample of biomedical researchers.\n\nMethods\n\nCorresponding authors of articles published in biomedical research journals were identified from a random sample of journals from the MEDLINE database. Their names and email addresses were extracted to invite them to our anonymous, cross-sectional survey, which asked participants questions about their knowledge, attitudes, and opinions regarding preprinting.\n\nResults\n\nThe survey was completed by 730 respondents providing a response rate of 3.20% and demonstrated a wide range of attitudes and opinions about preprints with authors from various disciplines and career stages worldwide. Most respondents were familiar with the concept of preprints but most had not previously posted one. The lead author of the project and journal policy had the greatest impact on decisions to post a preprint, whereas employers/research institutes had the least impact. Supporting open science practices was the highest ranked incentive, while increasing authors’ visibility was the highest ranked motivation for publishing preprints.\n\nConclusions\n\nAlthough many biomedical researchers recognize the benefits of preprints, there is still hesitation among others to engage in this practice. This may be due to the general lack of peer review of preprints and little enthusiasm from external organizations such as journals, funding agencies, and universities. Future work is needed to determine optimal ways to improve researchers’ attitudes through modifications to current preprint systems and policies.\n\nList of abbreviations\n\nChecklist for Reporting Results of Internet E-Surveys\n\nFocused, Appropriate, Specific and Transparent\n\nOpen Science Framework\n\nIntroduction\n\nThe term “preprints” refers to scientific manuscripts that are made available on an open-access infrastructure, known as the “preprint server,” which has not yet undergone formal peer review. 1 Preprints are typically posted by authors at a point in time before a manuscript is peer reviewed by a journal. Peer review is often considered necessary for publishing scholarly work. However, the time lag from journal submission to publication, typically takes around 8 to 10 months in the biomedical sciences due to multiple review rounds, editorial decision-making, high rejection rates, and time needed for revisions. 1 – 5 Preprints do not rely on peer review prior to release, allowing knowledge to be shared quickly with the introduction of novel results and methodology that can save months to years of research time. 4 While preprints may face scrutiny for not undergoing peer review, it is important to note that peer review is not always effective. 6 Preprints have become valuable for authors, as a larger group of researchers can critique their work (i.e., open peer review) via the preprint servers’ feedback system that allows for public and open feedback directly onto a manuscript that encourages discussion. 7 The focused, appropriate, specific, and transparent (FAST) principles are guidelines that reviewers can follow when reviewing preprints, which allow for high-quality, constructive feedback to be provided. 7 As a result, researchers can receive helpful suggestions that would not be provided by journals and therefore, make improvements to their final manuscript, so it can possibly be published sooner and with fewer revisions. 2 In addition, authors have also begun to cite preprints more frequently in their working manuscripts as institutions and funders have become more open and permitting in their policies regarding preprints. 2 Furthermore, funders acknowledge the importance of preprints by encouraging researchers to post and reference preprints in their grant applications. 2 Preprint servers still utilize a minimal screening process to evaluate articles for incompleteness, plagiarism, and whether they blatantly disregard or contradict widely accepted medical practices that could potentially result in harm to others if posted. 8\n\nHowever, despite their benefits, many researchers are hesitant about preprinting. Major concerns include the credibility of preprints and premature media coverage. 2 , 5 , 9 During the COVID-19 pandemic, many media outlets used preprints to rapidly introduce novel research to the public. However, patients and the public may be less familiar with the fact that preprints have not yet undergone peer-review and may not understand how to discern the difference between a preprint and an article published in peer-reviewed literature. 2 , 9 Nonetheless, much COVID-19 research posted on preprint servers has received high levels of coverage, and certain preprints could be used to push certain agendas, such as conspiracy theories and xenophobia, 8 thus leading to the spread of misinformation. 9 , 10\n\nThe purpose of this study was to explore biomedical researchers’ attitudes toward preprinting through the administration of an international, anonymous, online cross-sectional survey. We aimed to determine the factors that influence biomedical researchers’ opinions about posting and viewing preprints.\n\nMethods\n\nApproach\n\nPrior to commencing this study, a protocol was added to the Open Science Framework ( OSF) prior to participant recruitment. 11 The MEDLINE database was used to identify participants using publicly available information. Once identified, the participants were invited to complete a survey online. Survey questions were purpose-built by a core team of authors. They focused on understanding biomedical researchers’ attitudes and opinions concerning preprinting. This study was approved by the Ottawa Health Sciences Research Ethics Board (OHSN-REB Number: 20220584-01H) on November 17, 2022.\n\nOpen science statement\n\nThe protocol, study materials, and raw and analyzed data have been made available via OSF at the time of publication submission. 11 A preprint of our manuscript has been posted on MedRxiv. 12\n\nStudy design\n\nWe conducted a large-scale, anonymous, online, cross-sectional survey of authors who had published in biomedical journals contained within the NLM catalog.\n\nSampling framework\n\nThe sampling method followed that as described by Ebrahimzadeh et al. 13 We downloaded the MEDLINE database that contained approximately 30,000 journals. The “Journals currently indexed in MEDLINE” filter from the NLM Catalog was used to ensure only journals were included in the study. From this list, 400 journals (Extended data: Supplementary File 1) were randomly selected using the RAND() function of Microsoft Excel for Microsoft 365 MSO (Version 2310 Build 16.0.16924.20054) (2021). Authors’ names and emails were extracted using our script from articles published from 2021/07/01 to 2022/08/01. Extended data: Supplementary File 2 outlines the semi-automated process we used, generated by Ebrahimzadeh et al. 13 , 14\n\nParticipant recruitment\n\nOnly researchers who were identified by our sampling framework developed by Ebrahimzadeh et al. 13 received a closed survey. Using SurveyMonkey, the prospective participants received an email invitation to complete the survey. The email included an authorized recruitment script that described the study and its goals, invited recipients to review an informed consent form, and asked them to complete an anonymous online survey. Upon clicking on the survey link in the invitation email, participants had to read and agree with the informed consent form before being able to see the survey. The initial list of 24 000 names and e-mails of the corresponding authors contained duplicates and no longer functioning e-mails. We were able to determine that functioning emails were no longer available due to SurveyMonkey’s bounced function, which labels certain contact information that has a permanent reason for an email or text to not be delivered. Before recruitment, duplicate authors and no longer functioning emails were deleted from the dataset. Therefore, 22 808 corresponding authors were emailed. Participants were not offered any financial compensation, nor were they required to participate. Additionally, participants could skip any questions that they did not wish to answer.\n\nSurvey\n\nThe complete survey is provided in the Extended data: Supplementary File 3. 14 The first draft of the survey was created by JYN, then pilot tested by SEP, DM, KC, and ACA; feedback from the pilot test was discussed by the team and led to a final version of the survey. The survey was then distributed, and responses were collected both using the University of Ottawa’s approved version of SurveyMonkey. The survey contained 29 questions, and SurveyMonkey estimated that it would take approximately 15 minutes to complete. The survey initially asked participants five general demographic questions including gender, research role, area of research, and country of residence. Participants were then asked nine questions about their experiences with preprints, followed by fifteen questions about their preferences and opinions regarding preprinting. The survey used adaptive formatting, whereby a participant’s prior response would influence the next question they see and the answers that might be provided. Most of the questions were multiple-choice, while a handful were open-ended. Two reminder emails were sent to the participants, each spaced one week apart after the original invitation email was sent (i.e., three emails in total). The survey was closed approximately five weeks after the initial invitation email was sent. Both the initial invitation and reminder emails clearly made mention of this to the survey invitees. Responses were collected from January to February 2023.\n\nData management and analysis\n\nIn accordance with Ebrahimzadeh et al., 13 survey data gathered from the participants were exported to Microsoft Excel. Basic descriptive statistics, such as counts and percentages, were generated based on the analysis of the quantitative data. Based on gender, employment sector, current career stage, and research area, information and replies from participants were compared and studied. Thematic content analysis was used by different members of the research team to individually code replies to specific qualitative items. To reach an agreement on the respective codes, which were categorically classified and specified into distinct tables, researchers carried out multiple rounds of discussions. The Checklist for Reporting Results of Internet E-Surveys (CHERRIES) was used to report this survey. 15\n\nResults\n\nDemographics\n\nA total of 730 responses were received; the raw response rate is 3.04%, the response rate excluding the bounced emails is 3.20%, and the completion rate is 95.48%. Incomplete responses were defined as those with no questions answered on the second page of the survey onwards. Moreover, it should be noted that this response rate is underestimated because we cannot determine how many of the 22 808 authors who were emailed identified as biomedical researchers. It was also impossible to know a number of external factors that would impact the response rate, such as authors who moved institutions, were on vacation, were ill, and passed away, and thus, were unable to respond. As all questions were optional to answer, we therefore provide the total number of respondents for each question. The percentages provided were calculated using each question’s total number of responses. Over three-fifths of respondents (n=455, 62.41%) were identified as senior researchers, which we defined as researchers who started their careers after formal education over ten years ago. Of the 729 responses, participants were identified as follows: academia (n=580, 79.56%), research staff with no formal academic or industry position (n=58, 7.96%), government scientists (n=28, 3.84%), third sector (n=8, 1.10%), and pharmaceutical industry (n=5, 0.69%); none of the participants were part of the scholarly communication industry. We received 50 responses (6.86%) in which participants chose the “other” option, which mainly consisted of participants from the biotechnology industry, retired personnel, clinical researchers, clinicians, medical practitioners, and students. Detailed demographics and other aggregate participant data are presented in Table 1. The responses from participants were also stratified based on gender, employment sector, current career stage, and research area.\n\nCharacteristics of survey respondents.\n\nGender (n=728)\n\nMale\n\n401 (55.08%)\n\nFemale\n\n312 (42.86%)\n\nPrefer not to indicate\n\n14 (1.92%)\n\nNon-binary\n\n1 (0.14%)\n\nCountry of primary affiliation (n=698)\n\nUnited States of America\n\n189 (27.08%)\n\nCanada\n\n69 (9.89%)\n\nIndia\n\n41 (5.87%)\n\nUnited Kingdom of Great Britain and Northern Ireland\n\n38 (5.44%)\n\nAustralia\n\n34 (4.87%)\n\nSpain\n\n32 (4.58%)\n\nChina\n\n29 (4.15%)\n\nItaly\n\n25 (3.58%)\n\nBrazil\n\n18 (2.58%)\n\nNetherlands\n\n18 (2.58%)\n\nIran (Islamic Republic of)\n\n16 (2.29%)\n\nTurkey\n\n14 (2.01%)\n\nGermany\n\n12 (1.72%)\n\nSwitzerland\n\n12 (1.72%)\n\nFrance\n\n11 (1.58%)\n\nDenmark\n\n9 (1.29%)\n\nGreece\n\n9 (1.29%)\n\nMexico\n\n8 (1.15%)\n\nJapan\n\n7 (1.00%)\n\nNorway\n\n7 (1.00%)\n\nAustria\n\n6 (0.86%)\n\nRepublic of Korea\n\n6 (0.86%)\n\nBelgium\n\n5 (0.72%)\n\nColombia\n\n5 (0.72%)\n\nPoland\n\n5 (0.72%)\n\nRomania\n\n5 (0.72%)\n\nSweden\n\n5 (0.72%)\n\nIndonesia\n\n4 (0.57%)\n\nPortugal\n\n4 (0.57%)\n\nRussian Federation\n\n4 (0.57%)\n\nThailand\n\n4 (0.57%)\n\nChile\n\n3 (0.43%)\n\nIreland\n\n3 (0.43%)\n\nPakistan\n\n3 (0.43%)\n\nUnited Arab Emirates\n\n3 (0.43%)\n\nAlbania\n\n2 (0.29%)\n\nBangladesh\n\n2 (0.29%)\n\nCzech Republic\n\n2 (0.29%)\n\nJordan\n\n2 (0.29%)\n\nMalaysia\n\n2 (0.29%)\n\nNew Zealand\n\n2 (0.29%)\n\nOther *\n\n17 (2.38%)\n\nCurrent career stage (n=729)\n\nSenior researcher\n\n455 (62.41%)\n\nMid-career researcher\n\n139 (19.07%)\n\nEarly career researcher\n\n89 (12.21%)\n\nOther (please specify)\n\n25 (3.43%)\n\nGraduate student\n\n21 (2.88%)\n\nCurrent employment sector (n=729)\n\nAcademic\n\n580 (79.56%)\n\nResearch staff (no formal academic/industry position)\n\n58 (7.96%)\n\nOther (please specify)\n\n50 (6.86%)\n\nGovernment scientist\n\n28 (3.84%)\n\nThird sector (e.g., NGO, non-profit)\n\n8 (1.10%)\n\nPharmaceutical industry\n\n5 (0.69%)\n\nCurrent research area (n=727)\n\nClinical research\n\n335 (46.08%)\n\nOther (please specify)\n\n125 (17.19%)\n\nPre-clinical research - in vivo\n\n77 (10.59%)\n\nHealth systems research\n\n74 (10.18%)\n\nPre-clinical research - in vitro\n\n72 (9.90%)\n\nMethods research\n\n44 (6.05%)\n\nTotal number of countries with one response.\n\nExperience\n\nFamiliarity with preprints\n\nWe asked how familiar participants were with the concept of a preprint based on the Framework for Open and Reproducible Research Training ( FORRT) definition, “A publicly available version of any type of scientific manuscript/research output preceding formal publication”. Of the 694 responses, participants ranked how familiar they were with the concept of preprints: very familiar (n=167, 24.06%), familiar (n=269, 38.76%), and somewhat familiar (n=92, 13.26%). Only 61 (8.79%) respondents had never heard of this term.\n\nPublishing experience\n\nWe then asked about the participants’ personal experiences with posting on preprint servers. Of the 694 responses, approximately one-third (n=237, 34.15%) had authored more than 31 publications in the past five years. Most participants had not posted a manuscript on a preprint server, with 540 (78.15%) participants of 691 responses not posting their most recent work on a preprint server, and 414 (59.74%) respondents of 693 responses having never posted a manuscript on a preprint server. However, when asked if participants would create a preprint in the future, out of 695 responses, 303 (43.60%) participants said they would not, 296 (42.59%) participants said they were unsure if they would, and 96 (13.81%) participants said they would create a preprint in the future.\n\nOf the 335 respondents who had posted preprints before, the most common preprint server used was bioRxiv, with 148 (44.18%) respondents having published previously on this server. In addition, we asked at what point in the publication process were preprints posted, and of the 294 respondents who had previously posted preprints, 110 (37.41%) participants posted their preprint prior to submitting them to a journal, while 133 (45.24%) participants posted a preprint simultaneously while submitting to a journal.\n\nViewing/downloading preprints\n\nInterestingly, although most participants did not publish their own works on preprint servers, more than two-thirds of the 695 respondents (n=481, 69.21%) had previously viewed or downloaded preprints, although only approximately a quarter (n=176, 25.32%) had cited a preprint. The most common preprint servers used to view/download preprints among 682 responses were bioRxiv (n=243, 35.63%), MedRxiv (n=148, 21.70%), and ResearchGate (n=140, 20.53%). It is important to note that unlike bioRxiv and MedRxiv that are exclusively preprint servers, ResearchGate is not perceived by all to be a preprint server, as it serves other functions, such as asking and answering questions, connecting/networking with other scientists, and finding collaborators. Therefore, as we did not ask how participants interact with ResearchGate, it is possible that participants selected it for reasons other than viewing preprints.\n\nPeer reviewing preprints\n\nWe asked whether peer review should become a part of the preprinting process, and 684 responded, with 231 (33.77%) respondents believing that peer review should be part of the preprinting process, while 240 (35.09%) respondents said it should not. In contrast, 213 respondents (31.14%) were unsure ( Table 2). We also asked if our participants had experience with peer reviewing a preprint, and from the 688 responses, the vast majority (n=638, 92.73%) stated they had not. Of those who had peer-reviewed a preprint, we wanted to know if the FAST principles were used during the process, and we received 205 responses. Of the respondents, 148 (72.20%) stated that they were not familiar with the FAST principles, 44 (21.46%) said they did not use the FAST principles, and 13 (6.34%) said they did.\n\nRespondent’s opinion on mandating peer review in the preprinting process (n=684).\n\nYes\n\n231 (33.77%)\n\nNo\n\n240 (35.09%)\n\nI am not sure\n\n213 (31.14%)\n\nWe also asked if participants believed that patients or members of the public should be able to peer-review preprints. Of the 445 who expressed an opinion, 320 (71.91%) believed that patients and members of the public should not be able to peer review preprints, while 125 (28.09%) believed that they should have that opportunity.\n\nFactors and attitudes toward preprinting\n\nWe then aimed to determine the factors that impact an author’s decision to post a preprint. We asked participants to assess which had the most significant impact on posting a preprint: employer/research institution, funding agency, lead author, co-author consensus, and journal policy. From the 651 respondents, the lead author had the most significant impact on the decision to post a preprint, followed by journal policy, co-author consensus, and funding agency, with the least impactful being the employer/research institution ( Figure 1).\n\nRanking of factors that influence respondents’ decision to post a preprint.\n\nWe also asked whether employers required or prohibited the posting of a preprint prior to submission to a journal. Most employers did not, with 649 (94.06%) respondents of 690 responses stating that their employer does not require them to post a preprint, and 657 (95.08%) respondents of 691 responses stating that employers do not prohibit them from doing so. In addition, we wanted to see if a funder may impact this decision, and of the 692 responses, 639 (92.34%) participants stated that funders do not require them to post a preprint.\n\nWe also wanted to determine how familiar participants were with the preprint policies of journals that they had published with previously. First, we asked whether participants were familiar with either Sherpa Romeo or Transpose Publishing, which are resources that present the preprint policies of most peer-reviewed journals. Of the 686 responses, 623 (90.95%) were not familiar with Sherpa Romeo, and 656 (95.91%) were not familiar with Transpose Publishing. In addition, we asked what the preprint policy was for the journals of respondents’ most recent first author/co-author publications ( Figure 2). Of the 684 responses, 282 (41.23%) stated that they were not familiar with the preprint policies, while 183 (26.75%) stated that preprinting was permitted. Only 34 (4.97%) respondents and 61 (8.92%) respondents stated that preprinting was prohibited or that they had no preprinting policies.\n\nPreprint policies of journals respondents had most recently submitted a first author/corresponding author publication.\n\nRespondents were asked to what extent they agreed with certain incentives or the consequences of preprinting ( Figure 3). Of the 666 who answered, over half had positive attitudes toward the following incentives and consequences: 1) preprints support open science practices (n=456, 68.99%); 2) preprints should not be cited because they may contain results that lack credibility because they had not yet undergone peer review (n=433, 65.12%); 3) preprints can be used as a weapon for the dissemination of misinformation (n=417, 62.61%); 4) preprinting behaviors will increase in the biomedical field in the future (n=415, 62.32%); and 5) preprinting allows for more efficient scientific dissemination (n=400, 60.06%). In terms of whether respondents agreed or disagreed with the statement “Preprinting may encourage other researchers to steal project ideas (i.e., scooping), less than half (n=304, 45.66%) respondents agreed, 143 (21.47%) respondents remained neutral, and 219 (32.89%) respondents disagreed. On the other hand, 284 respondents (42.71%) did not agree that preprinting would ultimately lead to higher-quality research being published, while 224 (33.68%) and 157 (23.60%) respondents chose neutral and agreement options, respectively.\n\nRespondents’ opinions on incentives and consequences of preprinting.\n\nWe then asked the extent to which respondents agreed with the following motivations for publishing a preprint ( Figure 4). Of the 666 respondents who answered, over half had positive attitudes toward the following incentives and consequences: 1) preprinting increases authors’ visibility and allows for networking (n=489, 73.43%); 2) preprinting allows for early/more feedback on their manuscript submission (n=470, 70.58%); 3) preprinting allows authors to share studies that have been rigorously conducted but present negative/perceived low-impact results (i.e., lower likelihood of publication in a peer-reviewed journal) (n=437, 65.70%); 4) preprinting makes my research visible to all if it is published in a paywall journal (n=415, 62.89%); and 5) preprinting increases the likelihood of authors receiving more views and citations on their published article (n=365, 55.14%). In addition, slightly less than half of respondents (n=323, 48.57%) agreed that preprinting allows authors to prevent duplication of efforts, while 193 (29.02%) disagreed, and 149 (22.42%) remained neutral. In terms of if respondents agreed or disagreed with the statement “preprints aid researchers’ careers with respect to hiring, promotion, and tenure”, respondents’ opinions were more evenly split, with 205 (30.91%) respondents agreeing, 218 (32.88%) respondents remaining neutral, and 240 (36.19%) respondents disagreeing.\n\nRespondents’ opinions on motivations to publish a preprint.\n\nIn addition, we asked participants for their opinions on making preprinting mandatory during the research process. Of the 665 respondents who expressed opinions, over half (n=363, 54.58%) were leaning toward disagreeing with the statement. Only approximately a quarter (n=163, 24.52%) of the respondents had positive opinions regarding this statement.\n\nWe then asked an open-ended question to allow respondents to freely express other reasons that motivated or dissuaded them from preprinting ( Table 3). The 197 responses received could be primarily split into positive and negative factors. The most prevalent positive factor that motivated preprinting “preprints allow rapid dissemination”. This was followed by “preprints show research efforts,” in which preprinting allowed authors to show their research to other parties, such as other researchers, funding agencies, and universities, without the use of a publication in a journal. Lastly, the final positive factor commonly mentioned was “preprints are open-access items”.\n\nThematic analysis of the open-ended question (n=197).\n\nThemes\n\nSubthemes\n\nRepresentative Quote\n\nNumber of responses\n\nFactors that negatively influences factors to preprint\n\nPeer review is bypassed\n\n“The regular method of disseminated research provides quality control in the form of peer-review. Preprint often does not have this, but looks the same as a publication. […]”\n\n63 (31.98%)\n\nPreprinting is not needed\n\n“Preprint publications are not considered in scientists production evaluations at my Institution.”\n\n26 (13.20%)\n\nPreprints might release misinformation\n\n“Not peer-reviewed results in preprints are often treated like solid scientific evidence in the media. This could be very harmful.”\n\n25 (12.69%)\n\nPreprints are poor quality research\n\n“In my experience, I have seen very terrible research on preprint servers. […] The potential for applying erroneous/poor research presented in preprint manuscripts is much higher than regular peer-reviewed journals.”\n\n24 (12.18%)\n\nJournal policy impacts preprinting decisions\n\n“Worries as regards a potential negative influence on the chance of acceptance/editorial judgement – in spite of a journal policy of no objections to preprint.”\n\n20 (10.15%)\n\nPreprinting requires additional resources\n\n“Another layer of administrative work to create an account, upload. Not clear if there is any benefit. […] Seems like duplication of effort.”\n\n17 (8.63%)\n\nScooping\n\n“I am hesitant and based on my experience to preprint publish work, which can be easily replicated and published before our own. […]”\n\n17 (8.63%)\n\nUnfamiliar with preprints\n\n“Never done it before and can’t think of a fellow researcher who has done it who would/could help me become familiar with it/normalize it.”\n\n15 (7.61%)\n\nMultiple versions of the same paper\n\n“The preprint never gets removed form the site once the peer-reviewed publication is available. This is confusing because several references refer to the same published data. The data may change after peer-review (e.g. additional studies may report information that is pertinent to the interpretation of the data in the Preprint.”\n\n13 (6.60%)\n\nFactors that positively influenced decisions to preprint\n\nPreprints allow rapid dissemination\n\n“The peer-review process is too slow to rely on it or the efficient sharing of scientific results”\n\n23 (11.68%)\n\nPreprints show research efforts\n\n“I have posted research this is close to a final/published version. This was to get our research out to the community in a more timely manner and to demonstrate to my field that we have done this research.”\n\n16 (8.12%)\n\nPreprints are open access items\n\n“I have never published a preprint before. But having limited access to full-text articles motivates the use of preprint sources.”\n\n10 (5.08%)\n\nOn the other hand, the open-ended questions showed that many negative factors discouraged respondents from preprinting. The most frequent, with approximately a third of responses, was “peer review is bypassed,” as many responses stated that peer review must take place to determine the credibility and quality of research before publishing. In addition, many respondents believed that “preprinting is not needed,” since preprinting does not provide any benefits to the individual’s career and there were no issues with the current publishing system. Another negative factor was “preprints might release misinformation,” followed by “preprints are poor-quality research.” Next, many responses stated that the “journal policy prevented preprinting”, since journal policy rejected or was unclear about preprinting. “Scooping” was also mentioned frequently, along with “preprinting requires additional resources,” where respondents felt that preprinting needed extra time, effort, and funding that is deemed unnecessary for the overall publication of their work. Additionally, many respondents were “unfamiliar with preprints” which discouraged them from preprinting. Lastly, “multiple versions of the same paper” was another negative factor, where having a preprint and a journal published version of the same paper results in the release of unedited, possibly incorrect, work and causes confusion when referencing.\n\nDiscussion\n\nThe purpose of this study was to explore biomedical researchers’ attitudes toward preprinting through the administration of an international and anonymous cross-sectional online survey. We found that the most impactful factors that turned authors away from preprinting were the fear of disseminating misinformation, lack of peer review, and unfamiliarity with the preprinting policies of journals. Respondents believed that preprints are beneficial in increasing visibility and recognition, being openly accessible, providing rapid feedback, and publishing negative data.\n\nFuture work might benefit by exploring strategies for improving researchers’ attitudes toward preprinting and examine how other stakeholders can adjust their preprint policies in the future. To the best of our knowledge, this cross-sectional survey is the first to specifically investigate the attitudes of biomedical researchers toward preprinting. The insights gained from this study are crucial for understanding how biomedical researchers view preprints, which could influence the development and implementation of preprint policies by researchers, institutions, and publishing houses. In addition, this study may be used as a model for others interested in preprinting practices and polices within their discipline of study.\n\nOpinions on the benefits and consequences of preprints\n\nIn terms of the benefits and consequences of preprints, the three statements that respondents most agreed with were: 1) preprints support open science practices, 2) preprints should not be cited because they may contain results that lack credibility because they have not yet undergone peer review, and 3) preprints can be used as a weapon for the dissemination of misinformation. These results align with the preliminary work done by Funk et al ., who found that the most concerning issues with preprints from the perspective of respondents, who were mainly researchers in academia, were premature media coverage and public sharing of information prior to peer review, while respondents believed that the greatest benefit of preprints is making their work open access.\n\nOn the other hand, the top three most impactful factors among respondents with respect to deciding to publish a preprint included 1) increasing author visibility and networking opportunities, 2) allowing for early and more feedback on manuscripts, and 3) publishing of negative or perceived low-impact results. The findings by Funk et al . somewhat align with our results, as they found that only a little over half of the respondents found early feedback as “very beneficial” and were only seen as less impactful in comparison to open access and speed of dissemination. However, publishing negative or perceived low-impact results was the second least impactful factor, only being seen as “very beneficial” by approximately one-third of the respondents. This variation may be due to greater awareness of the bias of journals toward positive results, and why this is an issue for the scientific community. Nowadays, authors are pressured to only publish positive “groundbreaking” results, and journals often reject papers with negative or non-significant results to increase readers, citations, and submissions. 16 – 19 However, negative and non-significant results are vital to the scientific process as they allow for collective self-correcting progress and ensure that resources are not wasted on the replication of failed research. 17 , 18 A survey by Echevarría et al. 19 showed that the majority of authors believe this information should be shared, although only a handful have tried to publish negative results. Preprints may be an appropriate alternative for publishing ‘negative’ data by allowing researchers to quickly disseminate their findings without delays of a lengthy peer review process. Also, unlike traditional journals, preprints eliminate the risk of manuscript rejection and avoid concerns related to journal metrics. Future work should focus on gaining a better understanding of researchers’ attitudes toward publishing negative results and preprint practices to ensure that negative results are appropriately disseminated within the scientific community.\n\nScooping is often a negative factor that impacts authors’ decision to share their work with open access, at conferences, and on preprint servers. 20 Scooping is when someone unethically claims a research idea or results as their own via earlier publishing and often occurs due to public sharing of research prior to publishing in a journal. 20 , 21 As a result, scooping can prevent researchers from publishing their work in journals and turns their research into a waste of effort. 20 In our survey, slightly less than half of our respondents believed that preprints encouraged scooping, and this was also mentioned as a concern against preprinting in the open-ended questions. Thus, our findings agree that perceived scooping prevents researchers from publishing in preprint servers. However, there is no evidence of scooping via preprints occurring or that preprints encourage scooping, as observed by Tennant et al. 21 Rather, preprint servers actually protect against scooping, as preprint servers provide time-stamps and establishes priority of discovery, which does not occur when presenting research in public. 21 Efforts should therefore be made to show researchers that scooping and its consequences are unlikely to occur, and instead, researchers should focus on the benefits of preprinting.\n\nOne hesitation toward the use of preprints revolves around the fact that preprints have not undergone peer review; therefore, many researchers believe the manuscript content has not been validated before being released to the public. This is seen in our findings, whereby almost two-thirds of our respondents believe that preprints should not be cited because the results may lack credibility since there was no peer review. Moreover, over two-thirds of our respondents had viewed or downloaded a preprint, but only a quarter had ever cited it, implying distrust in preprint content. Additionally, peer review being bypassed was the most frequent factor that negatively impacted respondents’ motivations to preprint, as seen in the open-ended question, alongside the fear that preprints will disseminate misinformation and poor-quality research. Thus, we consistently observed that peer review is regarded as highly important and necessary for publishing scholarly work by respondents. Respondents’ hesitation toward preprints due to lack of peer review and fear of misinformation indicated a lack of knowledge about the evidence regarding the quality of the published literature and the effectiveness of peer review. Research conducted by Zeraatkar et al. 22 has shown that there was no evidence that preprints provided results that were inconsistent with peer-reviewed publications, specifically seen with COVID-19 treatments. Although Bai et al. 23 found differences in results between preprints and publications, the main conclusions remained consistent.\n\nMEDLINE is also currently indexing preprints as part of the NIH Preprint Pilot project, supporting research that has been posted to eligible preprint servers for easy discoverability and preservation. In addition, it is important to note that peer review is not always effective because of inconsistency and bias, as many peer reviewers have not received formal training on how to effectively peer review, and many training opportunities and courses are not openly accessible online, inhibiting researchers from gaining this education. 22 , 24 – 27 Thus, many believe that the peer review process ensures quality research is published may negatively impact researchers’ opinions toward preprints.\n\nInterestingly, despite many respondents distrusting preprints due to a lack of peer review, many were divided on whether peer review should be incorporated into the preprint process. This may be because preprints allow for the rapid dissemination of research as there is a delay from journal submission to publication when undergoing peer review. 1 , 5 If peer reviews were to be incorporated into preprinting in the same way as journals, then the work of peer reviewers would increase, and the delay would become much longer. It has thus been suggested by Soderberg et al., 5 that preprint servers should be modified to improve the credibility of preprints, as the current preprint feedback system allows for public feedback and discussion, which may aid in credibility or results. However, authors often fear unfair criticism from competitors, harm to their reputation, or softened criticism due to the public nature of feedback. 8 The FAST principle may be able to alleviate these issues. 7 Based on our findings, the majority of respondents had not peer-reviewed a preprint before, and of those that had, most were not familiar with the FAST principles. Therefore, efforts should be made to educate researchers on these principles to promote feedback on preprints. Future work may aim to better understand researchers’ opinions on peer reviewing preprints and potentially provide other novel solutions such that the benefits of peer review can be implemented in the preprinting process while simultaneously allaying the current fears of preprint feedback.\n\nExternal factors that play a role on opinions and attitudes toward preprints\n\nJournal policy is the second most impactful factor in the decision of authors to post a preprint and was frequently mentioned in the open-ended question. This may be a result of unfamiliarity towards a journal’s preprint policy, as seen in the survey. Nowadays, most, though not all, life science journals accept preprinted manuscripts for submission, and some journals either do not have a preprint policy or have contradicting statements. 3 Biomedical journals should create clear and concise preprint policies that allow researchers to understand whether they can publish preprints before or during submission to a journal. In addition, our data showed that most researchers were unfamiliar with resources about preprint policies, such as Sherpa Romeo and Transpose Publishing, which gather journal policies on open access and preprinting. In the future, it would be best to resolve the issue of lack of awareness towards journal’s preprint policies by educating researchers on these types of resources to address the concerns that preprints negatively impact the chances of publishing in a peer-reviewed journal.\n\nThe respondents did not have strong opinions on whether preprints aid researchers’ careers with respect to hiring, promotion, and tenure. In addition, our findings showed that universities and research institutes had the least impact on respondents’ decision to publish a preprint, and the majority of our respondents’ employers neither prohibited nor permitted the posting of preprints. This may be because few universities policies consider preprints when making decisions regarding hiring, promotion, and tenure. It has been suggested that hiring, promotion, and tenure policies should be modified, as current methods rely heavily on quantitative metrics, which have been recognized as a flawed system. 28 , 29 Preprints may prevent the hiring committee’s bias toward or against a journal due to its impact factor or reputation, as suggested by Polka. The inclusion of preprints in hiring, promotion, and tenure policies may improve biomedical researchers’ attitudes toward preprinting.\n\nStrengths and limitations\n\nBy implementing a cross-sectional survey for this project, we took a snapshot of the population of interest without following them over time. This study was able to generalize among biomedical researchers by randomly surveying a large sample of them with varying opinions regarding preprint postings. A limitation of our study design was that it was written in English, so researchers without working knowledge of English could not take the survey. In addition, as the present study was based on an English-speaking international sample, it does not consider the impact of national policies on attitudes and opinions toward preprinting. Another limitation of our sampling strategy is that the list of email addresses used potentially included inactive or invalid addresses, which may have been a result of changing professions, retiring, or passing away; furthermore, we did not consider autoreplies. Therefore, the response rate is underestimated. Our questionnaire was built on self-declared attitudes and preprint practices, which may not accurately capture independently confirmed practices. Inherent to the cross-sectional survey design, the final limitation also includes a low response rate, recall bias (in which participants do not correctly remember past events), and non-response bias (in which participants did not want to or could not complete a survey question). In addition, responses mostly reflected the opinions of senior academics, and there were less responses from early career researchers. Most responses were also from clinical and pre-clinical researchers due to our sampling of the MEDLINE database. Therefore, it is possible that researchers in fields not typically indexed in MEDLINE may have different views and experiences.\n\nConclusions\n\nThe purpose of this study was to explore biomedical researchers’ attitudes toward preprinting through the administration of an international, anonymous, online cross-sectional survey. We observed that biomedical researchers were familiar with the concept of preprints but lacked experience with preprints. The various attitudes and opinions of biomedical researchers provide insights into the important factors that influence the use of preprinting in the scientific community. With this study, we found that respondents believed that preprints have benefits such as increasing visibility and recognition, being openly accessible, providing rapid feedback, and publishing negative data. However, fear of disseminating misinformation, lack of peer review, and unfamiliarity with journal’s preprint policies resulted in authors avoiding preprints. To address preprint hesitation in biomedical researchers, we found that a modified preprint feedback system, clear journal policies regarding preprinting, and recognition of preprints as research contributions could aid in improving researcher attitudes towards preprinting. This study’s findings can inform the provision of suggestions to relevant stakeholders for the implemention and improvement of preprinting.\n\nConsent\n\nWritten informed consent for publication of the participants’ details was obtained from the participants.\n\nData availability\n\nUnderlying data\n\nOpen Science Framework: Underlying data for ‘An international, cross-sectional survey of preprint attitudes among biomedical researchers’, https://doi.org/10.17605/OSF.IO/QA9GN. 14\n\nThis project contains the following underlying data: • Preprints Survey Raw Data_Sep1723.xlsx • Current Career Stage_Sep1723.docx • Employment Sector_Sep1723.docx • Gender_Sep1723.docx • Participants’ Research Area_Sep1723.docx\n\nExtended data\n\nOpen Science Framework: Extended data for ‘An international, cross-sectional survey of preprint attitudes among biomedical researchers’, https://doi.org/10.17605/OSF.IO/QA9GN. 14\n\nThis project contains the following extended data: • Preprints Survey Protocol_Oct0322.pdf • Preprints Survey_Coding and Themes_Sep1723JYN.xlsx • Supplementary File 1: List of 400 randomly selected NLM catalog journals from which participant data was extracted • Supplementary File 2: Search strategy • Supplementary File 3: Survey\n\nReporting guidelines\n\nOpen Science Framework: CHERRIES checklist for ‘An international, cross-sectional survey of preprint attitudes among biomedical researchers’, https://doi.org/10.17605/OSF.IO/QA9GN. 14\n\nData are available under the terms of the Creative Commons Attribution 4.0 International license (CC-BY 4.0).\n\nReferences\n\nFraser N Mayr P Peters I : Motivations, concerns and selection biases when posting preprints: A survey of bioRxiv authors.2021 Sept 7. 10.1101/2021.09.07.459259\n\nPenfold NC Polka JK : Technical and social issues influencing the adoption of preprints in the Life Sciences. PLOS. Genetics. 2020 Apr 20;16(4):e1008565. 32310942 10.1371/journal.pgen.1008565 PMC7170218\n\nSarabipour S Debat HJ Emmott E : On the value of preprints: An early career researcher perspective. PLoS Biol. 2019 Feb 21;17(2):e3000151. 30789895 10.1371/journal.pbio.3000151 PMC6400415\n\nSugimoto CR Larivière V Ni C : Journal acceptance rates: A cross-disciplinary analysis of variability and relationships with journal measures. J. Informet. 2013 Sept 23;7(4):897–906. 10.1016/j.joi.2013.08.007\n\nSoderberg CK Errington TM Nosek BA : Credibility of preprints: An Interdisciplinary Survey of Researchers. R. Soc. Open Sci. 2020 Oct 28;7(10):201520. 33204484 10.1098/rsos.201520 PMC7657885\n\nBruce R Chauvin A Trinquart L : Impact of interventions to improve the quality of peer review of biomedical journals: a systematic review and meta-analysis. BMC Med. 2016 Jun 10;14(1):85. 27287500 10.1186/s12916-016-0631-5 PMC4902984\n\nFranco Iborra S Polka J Puebla I : Promoting constructive feedback on preprints with the fast principles. elife. 2022 Apr;11:11. 10.7554/elife.78424\n\nKwon D : How swamped preprint servers are blocking bad coronavirus research. Nature. 2020 May 7;581(7807):130–131. 32382120 10.1038/d41586-020-01394-6\n\nFraser N Brierley L Dey G : The evolving role of preprints in the dissemination of COVID-19 research and their impact on the Science Communication Landscape. PLoS Biol. 2021 Apr 2;19(4):e3000959. 33798194 10.1371/journal.pbio.3000959 PMC8046348\n\nMajumder MS Mandl KD : Early in the epidemic: Impact of preprints on global discourse about COVID-19 transmissibility. The Lancet. Glob. Health. 2020 May;8(5):e627–e630. 32220289 10.1016/s2214-109x(20)30113-3 PMC7159059\n\nNg JY Chow V Santoro LJ : A Survey of Preprinting Practices Among Biomedical Researchers.2023. 10.17605/OSF.IO/WN92Q\n\nNg JY Chow V Santoro LJ : A Survey of Preprinting Practices Among Biomedical Researchers. medRxiv. 2023; 10.1101/2023.09.17.23295682v1\n\nEbrahimzadeh S Cobey KD Page M : A Cross-sectional Survey on Biomedical Researchers Perceptions of Reproducibility: a Study Protocol.2022. 10.17605/OSF.IO/8NKZF\n\nNg JY Chow V Santoro LJ : A survey of preprint practices among biomedical researchers.[Dataset].2023. 10.17605/OSF.IO/QA9GN\n\nEysenbach G : Improving the quality of web surveys: The checklist for reporting results of internet E-surveys (cherries). J. Med. Internet Res. 2004;6(3). 15471760 10.2196/jmir.6.3.e34 PMC1550605\n\nFanelli D : Do pressures to publish increase scientists’ bias? an empirical support from US states data. PLoS One. 2010 Apr 21;5(4):e10271. 20422014 10.1371/journal.pone.0010271 PMC2858206\n\nFanelli D : Negative results are disappearing from most disciplines and countries. Scientometrics. 2011 Sept 11;90(3):891–904. 10.1007/s11192-011-0494-7\n\nNimpf S Keays DA : Why (and how) we should publish negative data. EMBO Rep. 2019 Dec 20;21(1):e49775. 31858691 10.15252/embr.201949775 PMC6945059\n\nEchevarría L Malerba A Arechavala-Gomeza V : Researcher’s perceptions on publishing “negative” results and open access. Nucleic Acid Ther. 2021 Jun 1;31(3):185–189. 32730128 10.1089/nat.2020.0865 PMC8215407\n\nLaine H : Afraid of Scooping – Case Study on Researcher Strategies against Fear of Scooping in the Context of Open Science. Data Sci. J. 2017 Jun 15;16(29). 10.5334/dsj-2017-029\n\nTennant JP Crane H Crick T : Ten Hot Topics around Scholarly Publishing. Publications. 2019 May 13;7(2):34. 10.3390/publications7020034\n\nZeraatkar D Pitre T Leung G : Consistency of covid-19 trial preprints with published reports and impact for decision making: Retrospective review. BMJ Med. 2022;1(1):e000309. 36936583 10.1136/bmjmed-2022-000309 PMC9951374\n\nBai AD Jiang Y Nguyen DL : Comparison of Preprint Postings of Randomized Clinical Trials on COVID-19 and Corresponding Published Journal Articles: A Systematic Review. JAMA Netw. Open. 2023;6(1): e2253301. 36705921 10.1001/jamanetworkopen.2022.53301\n\nSmith R : Peer Review: A flawed process at the heart of Science and journals. J. R. Soc. Med. 2006 Apr 1;99(4):178–182. 10.1258/jrsm.99.4.178\n\nPublons’ Global State of Peer Review 2018. Publons.2018. 10.14322/publons.gspr2018\n\nWillis JV Cobey KD Ramos J : Limited online training opportunities exist for scholarly peer reviewers. J. Clin. Epidemiol. 2023 Jul 6;161:65–73. 37421994 10.1016/j.jclinepi.2023.06.023\n\nWillis JV Ramos J Cobey KD : Knowledge and motivations of training in peer review: An International Cross-sectional survey. PLoS One. 2023 Jul 12;18(7):e0287660. 37436973 10.1371/journal.pone.0287660 PMC10337866\n\nMoher D Naudet F Cristea IA : Assessing scientists for hiring, promotion, and tenure. PLoS Biol. 2018 Mar 29;16(3):e2004089. 29596415 10.1371/journal.pbio.2004089 PMC5892914\n\nMcKiernan EC Schimanski LA Muñoz Nieves C : Use of the journal impact factor in Academic Review, promotion, and tenure evaluations. elife. 2019 Jul 31;8. 31364991 10.7554/elife.47338 PMC6668985",
+  "segments": [
+    {
+      "kind": "docx_paragraph",
+      "number": 1,
+      "start": 0,
+      "end": 91
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 2,
+      "start": 93,
+      "end": 226
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 3,
+      "start": 228,
+      "end": 238
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 4,
+      "start": 240,
+      "end": 847
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 5,
+      "start": 849,
+      "end": 856
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 6,
+      "start": 858,
+      "end": 1218
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 7,
+      "start": 1220,
+      "end": 1227
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 8,
+      "start": 1229,
+      "end": 1879
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 9,
+      "start": 1881,
+      "end": 1892
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 10,
+      "start": 1894,
+      "end": 2348
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 11,
+      "start": 2350,
+      "end": 2371
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 12,
+      "start": 2373,
+      "end": 2426
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 13,
+      "start": 2428,
+      "end": 2474
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 14,
+      "start": 2476,
+      "end": 2498
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 15,
+      "start": 2500,
+      "end": 2512
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 16,
+      "start": 2514,
+      "end": 4781
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 17,
+      "start": 4783,
+      "end": 5582
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 18,
+      "start": 5584,
+      "end": 5886
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 19,
+      "start": 5888,
+      "end": 5895
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 20,
+      "start": 5897,
+      "end": 5905
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 21,
+      "start": 5907,
+      "end": 6496
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 22,
+      "start": 6498,
+      "end": 6520
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 23,
+      "start": 6522,
+      "end": 6713
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 24,
+      "start": 6715,
+      "end": 6727
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 25,
+      "start": 6729,
+      "end": 6884
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 26,
+      "start": 6886,
+      "end": 6904
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 27,
+      "start": 6906,
+      "end": 7630
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 28,
+      "start": 7632,
+      "end": 7655
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 29,
+      "start": 7657,
+      "end": 8941
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 30,
+      "start": 8943,
+      "end": 8949
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 31,
+      "start": 8951,
+      "end": 10437
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 32,
+      "start": 10439,
+      "end": 10467
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 33,
+      "start": 10469,
+      "end": 11275
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 34,
+      "start": 11277,
+      "end": 11284
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 35,
+      "start": 11286,
+      "end": 11298
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 36,
+      "start": 11300,
+      "end": 13173
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 37,
+      "start": 13175,
+      "end": 13213
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 38,
+      "start": 13215,
+      "end": 13229
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 39,
+      "start": 13231,
+      "end": 13235
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 40,
+      "start": 13237,
+      "end": 13249
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 41,
+      "start": 13251,
+      "end": 13257
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 42,
+      "start": 13259,
+      "end": 13271
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 43,
+      "start": 13273,
+      "end": 13295
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 44,
+      "start": 13297,
+      "end": 13307
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 45,
+      "start": 13309,
+      "end": 13319
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 46,
+      "start": 13321,
+      "end": 13330
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 47,
+      "start": 13332,
+      "end": 13370
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 48,
+      "start": 13372,
+      "end": 13396
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 49,
+      "start": 13398,
+      "end": 13410
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 50,
+      "start": 13412,
+      "end": 13418
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 51,
+      "start": 13420,
+      "end": 13430
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 52,
+      "start": 13432,
+      "end": 13437
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 53,
+      "start": 13439,
+      "end": 13449
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 54,
+      "start": 13451,
+      "end": 13503
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 55,
+      "start": 13505,
+      "end": 13515
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 56,
+      "start": 13517,
+      "end": 13526
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 57,
+      "start": 13528,
+      "end": 13538
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 58,
+      "start": 13540,
+      "end": 13545
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 59,
+      "start": 13547,
+      "end": 13557
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 60,
+      "start": 13559,
+      "end": 13564
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 61,
+      "start": 13566,
+      "end": 13576
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 62,
+      "start": 13578,
+      "end": 13583
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 63,
+      "start": 13585,
+      "end": 13595
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 64,
+      "start": 13597,
+      "end": 13603
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 65,
+      "start": 13605,
+      "end": 13615
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 66,
+      "start": 13617,
+      "end": 13628
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 67,
+      "start": 13630,
+      "end": 13640
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 68,
+      "start": 13642,
+      "end": 13668
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 69,
+      "start": 13670,
+      "end": 13680
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 70,
+      "start": 13682,
+      "end": 13688
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 71,
+      "start": 13690,
+      "end": 13700
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 72,
+      "start": 13702,
+      "end": 13709
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 73,
+      "start": 13711,
+      "end": 13721
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 74,
+      "start": 13723,
+      "end": 13734
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 75,
+      "start": 13736,
+      "end": 13746
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 76,
+      "start": 13748,
+      "end": 13754
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 77,
+      "start": 13756,
+      "end": 13766
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 78,
+      "start": 13768,
+      "end": 13775
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 79,
+      "start": 13777,
+      "end": 13786
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 80,
+      "start": 13788,
+      "end": 13794
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 81,
+      "start": 13796,
+      "end": 13805
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 82,
+      "start": 13807,
+      "end": 13813
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 83,
+      "start": 13815,
+      "end": 13824
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 84,
+      "start": 13826,
+      "end": 13831
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 85,
+      "start": 13833,
+      "end": 13842
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 86,
+      "start": 13844,
+      "end": 13850
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 87,
+      "start": 13852,
+      "end": 13861
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 88,
+      "start": 13863,
+      "end": 13870
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 89,
+      "start": 13872,
+      "end": 13881
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 90,
+      "start": 13883,
+      "end": 13900
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 91,
+      "start": 13902,
+      "end": 13911
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 92,
+      "start": 13913,
+      "end": 13920
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 93,
+      "start": 13922,
+      "end": 13931
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 94,
+      "start": 13933,
+      "end": 13941
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 95,
+      "start": 13943,
+      "end": 13952
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 96,
+      "start": 13954,
+      "end": 13960
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 97,
+      "start": 13962,
+      "end": 13971
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 98,
+      "start": 13973,
+      "end": 13980
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 99,
+      "start": 13982,
+      "end": 13991
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 100,
+      "start": 13993,
+      "end": 13999
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 101,
+      "start": 14001,
+      "end": 14010
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 102,
+      "start": 14012,
+      "end": 14021
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 103,
+      "start": 14023,
+      "end": 14032
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 104,
+      "start": 14034,
+      "end": 14042
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 105,
+      "start": 14044,
+      "end": 14053
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 106,
+      "start": 14055,
+      "end": 14073
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 107,
+      "start": 14075,
+      "end": 14084
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 108,
+      "start": 14086,
+      "end": 14094
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 109,
+      "start": 14096,
+      "end": 14105
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 110,
+      "start": 14107,
+      "end": 14112
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 111,
+      "start": 14114,
+      "end": 14123
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 112,
+      "start": 14125,
+      "end": 14132
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 113,
+      "start": 14134,
+      "end": 14143
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 114,
+      "start": 14145,
+      "end": 14153
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 115,
+      "start": 14155,
+      "end": 14164
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 116,
+      "start": 14166,
+      "end": 14186
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 117,
+      "start": 14188,
+      "end": 14197
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 118,
+      "start": 14199,
+      "end": 14206
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 119,
+      "start": 14208,
+      "end": 14217
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 120,
+      "start": 14219,
+      "end": 14229
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 121,
+      "start": 14231,
+      "end": 14240
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 122,
+      "start": 14242,
+      "end": 14256
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 123,
+      "start": 14258,
+      "end": 14267
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 124,
+      "start": 14269,
+      "end": 14275
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 125,
+      "start": 14277,
+      "end": 14286
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 126,
+      "start": 14288,
+      "end": 14296
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 127,
+      "start": 14298,
+      "end": 14307
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 128,
+      "start": 14309,
+      "end": 14320
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 129,
+      "start": 14322,
+      "end": 14331
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 130,
+      "start": 14333,
+      "end": 14340
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 131,
+      "start": 14342,
+      "end": 14352
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 132,
+      "start": 14354,
+      "end": 14382
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 133,
+      "start": 14384,
+      "end": 14401
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 134,
+      "start": 14403,
+      "end": 14415
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 135,
+      "start": 14417,
+      "end": 14438
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 136,
+      "start": 14440,
+      "end": 14452
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 137,
+      "start": 14454,
+      "end": 14477
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 138,
+      "start": 14479,
+      "end": 14490
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 139,
+      "start": 14492,
+      "end": 14514
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 140,
+      "start": 14516,
+      "end": 14526
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 141,
+      "start": 14528,
+      "end": 14544
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 142,
+      "start": 14546,
+      "end": 14556
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 143,
+      "start": 14558,
+      "end": 14591
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 144,
+      "start": 14593,
+      "end": 14601
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 145,
+      "start": 14603,
+      "end": 14615
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 146,
+      "start": 14617,
+      "end": 14670
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 147,
+      "start": 14672,
+      "end": 14682
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 148,
+      "start": 14684,
+      "end": 14706
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 149,
+      "start": 14708,
+      "end": 14718
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 150,
+      "start": 14720,
+      "end": 14740
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 151,
+      "start": 14742,
+      "end": 14752
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 152,
+      "start": 14754,
+      "end": 14790
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 153,
+      "start": 14792,
+      "end": 14801
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 154,
+      "start": 14803,
+      "end": 14826
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 155,
+      "start": 14828,
+      "end": 14837
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 156,
+      "start": 14839,
+      "end": 14868
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 157,
+      "start": 14870,
+      "end": 14887
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 158,
+      "start": 14889,
+      "end": 14901
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 159,
+      "start": 14903,
+      "end": 14925
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 160,
+      "start": 14927,
+      "end": 14939
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 161,
+      "start": 14941,
+      "end": 14972
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 162,
+      "start": 14974,
+      "end": 14985
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 163,
+      "start": 14987,
+      "end": 15010
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 164,
+      "start": 15012,
+      "end": 15023
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 165,
+      "start": 15025,
+      "end": 15057
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 166,
+      "start": 15059,
+      "end": 15069
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 167,
+      "start": 15071,
+      "end": 15087
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 168,
+      "start": 15089,
+      "end": 15099
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 169,
+      "start": 15101,
+      "end": 15145
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 170,
+      "start": 15147,
+      "end": 15157
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 171,
+      "start": 15159,
+      "end": 15185
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 172,
+      "start": 15187,
+      "end": 15708
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 173,
+      "start": 15710,
+      "end": 15731
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 174,
+      "start": 15733,
+      "end": 16509
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 175,
+      "start": 16511,
+      "end": 17023
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 176,
+      "start": 17025,
+      "end": 17054
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 177,
+      "start": 17056,
+      "end": 17967
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 178,
+      "start": 17969,
+      "end": 17993
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 179,
+      "start": 17995,
+      "end": 18792
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 180,
+      "start": 18794,
+      "end": 18875
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 181,
+      "start": 18877,
+      "end": 18880
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 182,
+      "start": 18882,
+      "end": 18894
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 183,
+      "start": 18896,
+      "end": 18898
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 184,
+      "start": 18900,
+      "end": 18912
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 185,
+      "start": 18914,
+      "end": 18927
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 186,
+      "start": 18929,
+      "end": 18941
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 187,
+      "start": 18943,
+      "end": 19273
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 188,
+      "start": 19275,
+      "end": 19315
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 189,
+      "start": 19317,
+      "end": 19859
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 190,
+      "start": 19861,
+      "end": 19936
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 191,
+      "start": 19938,
+      "end": 20478
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 192,
+      "start": 20480,
+      "end": 21377
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 193,
+      "start": 21379,
+      "end": 21497
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 194,
+      "start": 21499,
+      "end": 22747
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 195,
+      "start": 22749,
+      "end": 22817
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 196,
+      "start": 22819,
+      "end": 24228
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 197,
+      "start": 24230,
+      "end": 24289
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 198,
+      "start": 24291,
+      "end": 24642
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 199,
+      "start": 24644,
+      "end": 25320
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 200,
+      "start": 25322,
+      "end": 25375
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 201,
+      "start": 25377,
+      "end": 25383
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 202,
+      "start": 25385,
+      "end": 25394
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 203,
+      "start": 25396,
+      "end": 25416
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 204,
+      "start": 25418,
+      "end": 25437
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 205,
+      "start": 25439,
+      "end": 25493
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 206,
+      "start": 25495,
+      "end": 25518
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 207,
+      "start": 25520,
+      "end": 25694
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 208,
+      "start": 25696,
+      "end": 25707
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 209,
+      "start": 25709,
+      "end": 25734
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 210,
+      "start": 25736,
+      "end": 25834
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 211,
+      "start": 25836,
+      "end": 25847
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 212,
+      "start": 25849,
+      "end": 25887
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 213,
+      "start": 25889,
+      "end": 26020
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 214,
+      "start": 26022,
+      "end": 26033
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 215,
+      "start": 26035,
+      "end": 26070
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 216,
+      "start": 26072,
+      "end": 26288
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 217,
+      "start": 26290,
+      "end": 26301
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 218,
+      "start": 26303,
+      "end": 26347
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 219,
+      "start": 26349,
+      "end": 26509
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 220,
+      "start": 26511,
+      "end": 26522
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 221,
+      "start": 26524,
+      "end": 26565
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 222,
+      "start": 26567,
+      "end": 26708
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 223,
+      "start": 26710,
+      "end": 26720
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 224,
+      "start": 26722,
+      "end": 26730
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 225,
+      "start": 26732,
+      "end": 26865
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 226,
+      "start": 26867,
+      "end": 26877
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 227,
+      "start": 26879,
+      "end": 26904
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 228,
+      "start": 26906,
+      "end": 27045
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 229,
+      "start": 27047,
+      "end": 27057
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 230,
+      "start": 27059,
+      "end": 27094
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 231,
+      "start": 27096,
+      "end": 27426
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 232,
+      "start": 27428,
+      "end": 27438
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 233,
+      "start": 27440,
+      "end": 27496
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 234,
+      "start": 27498,
+      "end": 27533
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 235,
+      "start": 27535,
+      "end": 27633
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 236,
+      "start": 27635,
+      "end": 27646
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 237,
+      "start": 27648,
+      "end": 27679
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 238,
+      "start": 27681,
+      "end": 27887
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 239,
+      "start": 27889,
+      "end": 27899
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 240,
+      "start": 27901,
+      "end": 27932
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 241,
+      "start": 27934,
+      "end": 28064
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 242,
+      "start": 28066,
+      "end": 28076
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 243,
+      "start": 28078,
+      "end": 29490
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 244,
+      "start": 29492,
+      "end": 29502
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 245,
+      "start": 29504,
+      "end": 30075
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 246,
+      "start": 30077,
+      "end": 30806
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 247,
+      "start": 30808,
+      "end": 30862
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 248,
+      "start": 30864,
+      "end": 31633
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 249,
+      "start": 31635,
+      "end": 33714
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 250,
+      "start": 33716,
+      "end": 35018
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 251,
+      "start": 35020,
+      "end": 36578
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 252,
+      "start": 36580,
+      "end": 37276
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 253,
+      "start": 37278,
+      "end": 38837
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 254,
+      "start": 38839,
+      "end": 38915
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 255,
+      "start": 38917,
+      "end": 40033
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 256,
+      "start": 40035,
+      "end": 41024
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 257,
+      "start": 41026,
+      "end": 41051
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 258,
+      "start": 41053,
+      "end": 42805
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 259,
+      "start": 42807,
+      "end": 42818
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 260,
+      "start": 42820,
+      "end": 44080
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 261,
+      "start": 44082,
+      "end": 44089
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 262,
+      "start": 44091,
+      "end": 44196
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 263,
+      "start": 44198,
+      "end": 44215
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 264,
+      "start": 44217,
+      "end": 44232
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 265,
+      "start": 44234,
+      "end": 44414
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 266,
+      "start": 44416,
+      "end": 44643
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 267,
+      "start": 44645,
+      "end": 44658
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 268,
+      "start": 44660,
+      "end": 44838
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 269,
+      "start": 44840,
+      "end": 45171
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 270,
+      "start": 45173,
+      "end": 45193
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 271,
+      "start": 45195,
+      "end": 45378
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 272,
+      "start": 45380,
+      "end": 45489
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 273,
+      "start": 45491,
+      "end": 45501
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 274,
+      "start": 45503,
+      "end": 45663
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 275,
+      "start": 45665,
+      "end": 45867
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 276,
+      "start": 45869,
+      "end": 46056
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 277,
+      "start": 46058,
+      "end": 46266
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 278,
+      "start": 46268,
+      "end": 46458
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 279,
+      "start": 46460,
+      "end": 46693
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 280,
+      "start": 46695,
+      "end": 46843
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 281,
+      "start": 46845,
+      "end": 46995
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 282,
+      "start": 46997,
+      "end": 47241
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 283,
+      "start": 47243,
+      "end": 47462
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 284,
+      "start": 47464,
+      "end": 47580
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 285,
+      "start": 47582,
+      "end": 47716
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 286,
+      "start": 47718,
+      "end": 47878
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 287,
+      "start": 47880,
+      "end": 48003
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 288,
+      "start": 48005,
+      "end": 48200
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 289,
+      "start": 48202,
+      "end": 48390
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 290,
+      "start": 48392,
+      "end": 48544
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 291,
+      "start": 48546,
+      "end": 48691
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 292,
+      "start": 48693,
+      "end": 48899
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 293,
+      "start": 48901,
+      "end": 49078
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 294,
+      "start": 49080,
+      "end": 49215
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 295,
+      "start": 49217,
+      "end": 49438
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 296,
+      "start": 49440,
+      "end": 49689
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 297,
+      "start": 49691,
+      "end": 49832
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 298,
+      "start": 49834,
+      "end": 49916
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 299,
+      "start": 49918,
+      "end": 50102
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 300,
+      "start": 50104,
+      "end": 50315
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 301,
+      "start": 50317,
+      "end": 50490
+    },
+    {
+      "kind": "docx_paragraph",
+      "number": 302,
+      "start": 50492,
+      "end": 50685
+    }
+  ],
+  "warnings": [
+    "docx_paragraph_numbers_are_extraction_order_not_page_numbers",
+    "tables_notes_headers_footers_are_linearized"
+  ]
+}

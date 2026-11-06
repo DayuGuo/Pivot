@@ -1,0 +1,2479 @@
+[
+  {
+    "id": "CLINICAL-01",
+    "paper_id": "zenodo:19059298",
+    "semantic_key": "byline_order",
+    "task": "A",
+    "split": "development",
+    "question": "请按原稿顺序列出作者，保留姓名中的重音符和弯引号。",
+    "input_materials": [
+      "clinical"
+    ],
+    "evidence": [
+      {
+        "source_id": "clinical",
+        "file_sha256": "44dfce02157372d4f62e47d8f3c3474fda8427b4042fbe08f2a1e2f7bde44203",
+        "version": "source-record",
+        "start": 150,
+        "end": 300,
+        "quote": "Kurinchi Gurusamy1, Danielle Roberts1,2, Jeffrey Leung1, Alastair O’Brien3, Christian Gluud4,5, Dimitrinka Nikolova4, Chavdar Pavlov6, Brian Davidson1",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 2,
+            "start": 150,
+            "end": 300
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "bounded_fact",
+      "expected_response": "8位作者，顺序为Kurinchi Gurusamy、Danielle Roberts、Jeffrey Leung、Alastair O’Brien、Christian Gluud、Dimitrinka Nikolova、Chavdar Pavlov、Brian Davidson；不将机构编号当姓名。"
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "CLINICAL-02",
+    "paper_id": "zenodo:19059298",
+    "semantic_key": "roberts_two_affiliations",
+    "task": "A",
+    "split": "development",
+    "question": "Danielle Roberts对应哪些机构？能否只采用联系地址中的第二机构？",
+    "input_materials": [
+      "clinical"
+    ],
+    "evidence": [
+      {
+        "source_id": "clinical",
+        "file_sha256": "44dfce02157372d4f62e47d8f3c3474fda8427b4042fbe08f2a1e2f7bde44203",
+        "version": "source-record",
+        "start": 150,
+        "end": 300,
+        "quote": "Kurinchi Gurusamy1, Danielle Roberts1,2, Jeffrey Leung1, Alastair O’Brien3, Christian Gluud4,5, Dimitrinka Nikolova4, Chavdar Pavlov6, Brian Davidson1",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 2,
+            "start": 150,
+            "end": 300
+          }
+        ]
+      },
+      {
+        "source_id": "clinical",
+        "file_sha256": "44dfce02157372d4f62e47d8f3c3474fda8427b4042fbe08f2a1e2f7bde44203",
+        "version": "source-record",
+        "start": 302,
+        "end": 468,
+        "quote": "1 Division of Surgery and Interventional Science, Hampstead Campus, University College London, 9th Floor, Royal Free Hospital, Rowland Hill Street, London NW3 2PF, UK",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 3,
+            "start": 302,
+            "end": 468
+          }
+        ]
+      },
+      {
+        "source_id": "clinical",
+        "file_sha256": "44dfce02157372d4f62e47d8f3c3474fda8427b4042fbe08f2a1e2f7bde44203",
+        "version": "source-record",
+        "start": 470,
+        "end": 584,
+        "quote": "2 North End Medical Centre, Hammersmith & Fulham Partnership, 160 North End Road, West Kensington, London, W14 9PR",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 4,
+            "start": 470,
+            "end": 584
+          }
+        ]
+      },
+      {
+        "source_id": "clinical",
+        "file_sha256": "44dfce02157372d4f62e47d8f3c3474fda8427b4042fbe08f2a1e2f7bde44203",
+        "version": "source-record",
+        "start": 2077,
+        "end": 2212,
+        "quote": "Danielle Roberts: North End Medical Centre, Hammersmith & Fulham Partnership, 160 North End Road, West Kensington, London, W14 9PR, UK;",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 16,
+            "start": 2077,
+            "end": 2212
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "bounded_fact",
+      "expected_response": "署名上标1,2对应UCL和North End Medical Centre；联系块只写第二机构不应覆盖署名的双机构。"
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "CLINICAL-03",
+    "paper_id": "zenodo:19059298",
+    "semantic_key": "correspondence",
+    "task": "A",
+    "split": "development",
+    "question": "谁是明确标注的通讯作者，其邮箱是什么？",
+    "input_materials": [
+      "clinical"
+    ],
+    "evidence": [
+      {
+        "source_id": "clinical",
+        "file_sha256": "44dfce02157372d4f62e47d8f3c3474fda8427b4042fbe08f2a1e2f7bde44203",
+        "version": "source-record",
+        "start": 1122,
+        "end": 1191,
+        "quote": "Corresponding author: Kurinchi Gurusamy (email: k.gurusamy@ucl.ac.uk)",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 9,
+            "start": 1122,
+            "end": 1191
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "bounded_fact",
+      "expected_response": "Kurinchi Gurusamy，k.gurusamy@ucl.ac.uk；这是稿件记载而非账号或ORCID身份认证。"
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "CLINICAL-04",
+    "paper_id": "zenodo:19059298",
+    "semantic_key": "sampling_and_cutoff",
+    "task": "A",
+    "split": "development",
+    "question": "这项工作使用随机临床试验招募，还是指南目的抽样？检索截止时间是什么？",
+    "input_materials": [
+      "clinical"
+    ],
+    "evidence": [
+      {
+        "source_id": "clinical",
+        "file_sha256": "44dfce02157372d4f62e47d8f3c3474fda8427b4042fbe08f2a1e2f7bde44203",
+        "version": "source-record",
+        "start": 3890,
+        "end": 4615,
+        "quote": "Methods: We selected four topics related to decompensated cirrhosis on which our group has recently published 7 Cochrane systematic reviews (variceal bleeding; spontaneous bacterial peritonitis; ascites; hepatorenal syndrome). We performed a purposive sample of CPGs from leading organisations covering these topics until January 2022. For each guideline recommendation statement, two researchers independently assessed whether there was agreement in the statement and the strength of recommendation given by guideline authors when compared to those derived from the Cochrane reviews. We meta-analysed the proportion of agreement using R utilising the ‘Generalised Linear Mixed Model’ method for meta-analysis of proportions.",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 32,
+            "start": 3890,
+            "end": 4615
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "bounded_fact",
+      "expected_response": "抽取指南进行比较，为purposive sample，覆盖至January 2022；不能把研究中提到的RCT当作本研究招募设计。"
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "CLINICAL-05",
+    "paper_id": "zenodo:19059298",
+    "semantic_key": "independent_assessment",
+    "task": "A",
+    "split": "development",
+    "question": "推荐一致性由谁按什么步骤评估？",
+    "input_materials": [
+      "clinical"
+    ],
+    "evidence": [
+      {
+        "source_id": "clinical",
+        "file_sha256": "44dfce02157372d4f62e47d8f3c3474fda8427b4042fbe08f2a1e2f7bde44203",
+        "version": "source-record",
+        "start": 4226,
+        "end": 4474,
+        "quote": "For each guideline recommendation statement, two researchers independently assessed whether there was agreement in the statement and the strength of recommendation given by guideline authors when compared to those derived from the Cochrane reviews.",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 32,
+            "start": 4226,
+            "end": 4474
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "bounded_fact",
+      "expected_response": "两名研究者独立对指南推荐陈述及推荐强度与Cochrane结论进行比较；后续汇总比例。"
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "CLINICAL-06",
+    "paper_id": "zenodo:19059298",
+    "semantic_key": "results_units",
+    "task": "A",
+    "split": "retained_for_followup",
+    "question": "9、62、7和0.145分别表示什么？不要混淆文章数、陈述数和一致率。",
+    "input_materials": [
+      "clinical"
+    ],
+    "evidence": [
+      {
+        "source_id": "clinical",
+        "file_sha256": "44dfce02157372d4f62e47d8f3c3474fda8427b4042fbe08f2a1e2f7bde44203",
+        "version": "source-record",
+        "start": 4617,
+        "end": 5116,
+        "quote": "Results: We identified 9 CPGs covering the 4 topics which contained 62 guideline statements that were also covered in 7 Cochrane reviews. Agreement between the guideline authors and independent assessment was 0.145 (95% CI: 0.077 to 0.256). Most disagreements related to the strength of recommendation given: the guideline authors overstated the strength of recommendation. These disagreements could not be explained by the difference in the search dates between the guidelines and Cochrane reviews.",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 33,
+            "start": 4617,
+            "end": 5116
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "bounded_fact",
+      "expected_response": "9份指南、62条指南陈述、7篇Cochrane综述；一致率0.145，95%CI 0.077至0.256；不是62例患者或14.5%的全部医学结论。"
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "CLINICAL-07",
+    "paper_id": "zenodo:19059298",
+    "semantic_key": "negative_explanation_scope",
+    "task": "A",
+    "split": "retained_for_followup",
+    "question": "能否说指南与综述不一致已经被检索日期差异解释？这能否推及所有专科指南？",
+    "input_materials": [
+      "clinical"
+    ],
+    "evidence": [
+      {
+        "source_id": "clinical",
+        "file_sha256": "44dfce02157372d4f62e47d8f3c3474fda8427b4042fbe08f2a1e2f7bde44203",
+        "version": "source-record",
+        "start": 4991,
+        "end": 5116,
+        "quote": "These disagreements could not be explained by the difference in the search dates between the guidelines and Cochrane reviews.",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 33,
+            "start": 4991,
+            "end": 5116
+          }
+        ]
+      },
+      {
+        "source_id": "clinical",
+        "file_sha256": "44dfce02157372d4f62e47d8f3c3474fda8427b4042fbe08f2a1e2f7bde44203",
+        "version": "source-record",
+        "start": 16217,
+        "end": 16359,
+        "quote": "We limited the comparisons to the guidelines developed by the major liver organisations as we expected these were most utilised by clinicians.",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 75,
+            "start": 16217,
+            "end": 16359
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "bounded_fact",
+      "expected_response": "原文明确说这些分歧不能由检索日期差异解释；比较限于主要肝病机构所选指南，不能由此断言全学科效果。"
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "REPRODUCIBLE-01",
+    "paper_id": "doi:10.1371/journal.pcbi.1003285",
+    "semantic_key": "byline_and_scope",
+    "task": "A",
+    "split": "development",
+    "question": "这篇文章列出哪四位作者？不要把机构当作者。",
+    "input_materials": [
+      "reproducible"
+    ],
+    "evidence": [
+      {
+        "source_id": "reproducible",
+        "file_sha256": "35648a3880bdd8bf30e8212a3847b7bd35f504ee5ccbd1ad3856d206acd181db",
+        "version": "source-record",
+        "start": 67,
+        "end": 146,
+        "quote": "Geir Kjetil Sandve 1,2*, Anton Nekrutenko 3, James Taylor 4, Eivind Hovig 1,5,6",
+        "locations": [
+          {
+            "kind": "pdf_page",
+            "number": 1,
+            "start": 67,
+            "end": 146
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "bounded_fact",
+      "expected_response": "Geir Kjetil Sandve、Anton Nekrutenko、James Taylor、Eivind Hovig。"
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "REPRODUCIBLE-02",
+    "paper_id": "doi:10.1371/journal.pcbi.1003285",
+    "semantic_key": "correspondence_email",
+    "task": "A",
+    "split": "development",
+    "question": "geirksa@ifi.uio.no应该关联到哪位作者？",
+    "input_materials": [
+      "reproducible"
+    ],
+    "evidence": [
+      {
+        "source_id": "reproducible",
+        "file_sha256": "35648a3880bdd8bf30e8212a3847b7bd35f504ee5ccbd1ad3856d206acd181db",
+        "version": "source-record",
+        "start": 67,
+        "end": 146,
+        "quote": "Geir Kjetil Sandve 1,2*, Anton Nekrutenko 3, James Taylor 4, Eivind Hovig 1,5,6",
+        "locations": [
+          {
+            "kind": "pdf_page",
+            "number": 1,
+            "start": 67,
+            "end": 146
+          }
+        ]
+      },
+      {
+        "source_id": "reproducible",
+        "file_sha256": "35648a3880bdd8bf30e8212a3847b7bd35f504ee5ccbd1ad3856d206acd181db",
+        "version": "source-record",
+        "start": 6844,
+        "end": 6872,
+        "quote": "* E-mail: geirksa@ifi.uio.no",
+        "locations": [
+          {
+            "kind": "pdf_page",
+            "number": 1,
+            "start": 6844,
+            "end": 6872
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "bounded_fact",
+      "expected_response": "署名星号与E-mail脚注共同支持Geir Kjetil Sandve；不能嫁接到最后一位Eivind Hovig。"
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "REPRODUCIBLE-03",
+    "paper_id": "doi:10.1371/journal.pcbi.1003285",
+    "semantic_key": "manual_data_manipulation",
+    "task": "A",
+    "split": "development",
+    "question": "文章为何建议避免手工修改数据？",
+    "input_materials": [
+      "reproducible"
+    ],
+    "evidence": [
+      {
+        "source_id": "reproducible",
+        "file_sha256": "35648a3880bdd8bf30e8212a3847b7bd35f504ee5ccbd1ad3856d206acd181db",
+        "version": "source-record",
+        "start": 8972,
+        "end": 9219,
+        "quote": "Rule 2: Avoid Manual Data\nManipulation Steps\nWhenever possible, rely on the execu-\ntion of programs instead of manual\nprocedures to modify data. Such manual\nprocedures are not only inefficient and\nerror-prone, they are also difficult to\nreproduce.",
+        "locations": [
+          {
+            "kind": "pdf_page",
+            "number": 2,
+            "start": 8972,
+            "end": 9219
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "bounded_fact",
+      "expected_response": "Rule2说明手工过程低效、易错且难以复现，尽可能以程序替代；不能改述成所有人工输入一律禁止。"
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "REPRODUCIBLE-04",
+    "paper_id": "doi:10.1371/journal.pcbi.1003285",
+    "semantic_key": "exact_software_versions",
+    "task": "A",
+    "split": "development",
+    "question": "仅记录软件名称足以按Rule3复现吗？",
+    "input_materials": [
+      "reproducible"
+    ],
+    "evidence": [
+      {
+        "source_id": "reproducible",
+        "file_sha256": "35648a3880bdd8bf30e8212a3847b7bd35f504ee5ccbd1ad3856d206acd181db",
+        "version": "source-record",
+        "start": 9910,
+        "end": 10239,
+        "quote": "Rule 3: Archive the Exact\nVersions of All External\nPrograms Used\nIn order to exactly reproduce a given\nresult, it may be necessary to use programs\nin the exact versions used originally. Also,\nas both input and output formats may\nchange between versions, a newer version\nof a program may not even run without\nmodifying its inputs.",
+        "locations": [
+          {
+            "kind": "pdf_page",
+            "number": 2,
+            "start": 9910,
+            "end": 10239
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "bounded_fact",
+      "expected_response": "应尽可能归档实际使用的确切软件版本；新版本输入输出变化可能使流程无法直接运行。"
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "REPRODUCIBLE-05",
+    "paper_id": "doi:10.1371/journal.pcbi.1003285",
+    "semantic_key": "random_seed",
+    "task": "A",
+    "split": "development",
+    "question": "包含随机性的分析应该另外记录什么？这里的说明能否保证跨所有硬件完全一致？",
+    "input_materials": [
+      "reproducible"
+    ],
+    "evidence": [
+      {
+        "source_id": "reproducible",
+        "file_sha256": "35648a3880bdd8bf30e8212a3847b7bd35f504ee5ccbd1ad3856d206acd181db",
+        "version": "source-record",
+        "start": 13440,
+        "end": 13877,
+        "quote": "Rule 6: For Analyses That\nInclude Randomness, Note\nUnderlying Random Seeds\nMany analyses and predictions include\nsome element of randomness, meaning the\nsame program will typically give slightly\ndifferent results every time it is executed\n(even when receiving identical inputs and\nparameters). However, given the same\ninitial seed, all random numbers used in\nan analysis will be equal, thus giving\nidentical results every time it is run.",
+        "locations": [
+          {
+            "kind": "pdf_page",
+            "number": 2,
+            "start": 13440,
+            "end": 13877
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "partially_answerable",
+      "result": "qualified_fact",
+      "expected_response": "记录底层随机种子；原文描述相同起始种子的机制，未在此证明任意硬件、库版本或并行实现均完全相同。"
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "REPRODUCIBLE-06",
+    "paper_id": "doi:10.1371/journal.pcbi.1003285",
+    "semantic_key": "statement_result_traceability",
+    "task": "A",
+    "split": "development",
+    "question": "Rule9要把什么连接起来，为什么只留图表不够？",
+    "input_materials": [
+      "reproducible"
+    ],
+    "evidence": [
+      {
+        "source_id": "reproducible",
+        "file_sha256": "35648a3880bdd8bf30e8212a3847b7bd35f504ee5ccbd1ad3856d206acd181db",
+        "version": "source-record",
+        "start": 17290,
+        "end": 17639,
+        "quote": "Rule 9: Connect Textual\nStatements to Underlying\nResults\nThroughout a typical research project, a\nrange of different analyses are tried and\ninterpretation of the results made. Al-\nthough the results of analyses and their\ncorresponding textual interpretations are\nclearly interconnected at the conceptual\nlevel, they tend to live quite separate lives",
+        "locations": [
+          {
+            "kind": "pdf_page",
+            "number": 3,
+            "start": 17290,
+            "end": 17639
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "bounded_fact",
+      "expected_response": "将文字陈述追溯到其底层分析结果；解释与数据常分离，应该保留可追踪关系。"
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "REPRODUCIBLE-07",
+    "paper_id": "doi:10.1371/journal.pcbi.1003285",
+    "semantic_key": "framework_automation_limit",
+    "task": "A",
+    "split": "retained_for_followup",
+    "question": "采用Galaxy等集成框架是否就说明十条规则全自动满足？",
+    "input_materials": [
+      "reproducible"
+    ],
+    "evidence": [
+      {
+        "source_id": "reproducible",
+        "file_sha256": "35648a3880bdd8bf30e8212a3847b7bd35f504ee5ccbd1ad3856d206acd181db",
+        "version": "source-record",
+        "start": 3439,
+        "end": 3777,
+        "quote": "If you are\ninstead performing your analyses through\nan integrated framework (such as Gene-\nPattern [10], Galaxy [11], LONI pipeline\n[12], or Taverna [13]), the system may\nalready provide full or partial support for\nmost of the rules. What is needed on your\npart is then merely the knowledge of how\nto exploit these existing possibilities.",
+        "locations": [
+          {
+            "kind": "pdf_page",
+            "number": 1,
+            "start": 3439,
+            "end": 3777
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "qualified_fact",
+      "expected_response": "原文只称框架可能对大多数规则提供全部或部分支持；仍需理解并利用这些能力，不能保证自动复现。"
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "RESEARCH-FINDINGS-01",
+    "paper_id": "doi:10.1371/journal.pmed.0020124",
+    "semantic_key": "author_affiliations_contact",
+    "task": "A",
+    "split": "development",
+    "question": "作者署名、两个机构和联系邮箱是什么？",
+    "input_materials": [
+      "research-findings"
+    ],
+    "evidence": [
+      {
+        "source_id": "research-findings",
+        "file_sha256": "ffc1005680cb620eec4c913437dfabbf311b535cfe16cbaeb2faec1f92afc362",
+        "version": "source-record",
+        "start": 4364,
+        "end": 4736,
+        "quote": "John P . A. Ioannidis is in the Department of Hygiene \nand Epidemiology, University of Ioannina School of \nMedicine, Ioannina, Greece, and Institute for Clinical \nResearch and Health Policy Studies, Department of \nMedicine, Tufts-New England Medical Center, Tufts \nUniversity School of Medicine, Boston, Massachusetts, \nUnited States of America. E-mail: jioannid@cc.uoi.gr",
+        "locations": [
+          {
+            "kind": "pdf_page",
+            "number": 1,
+            "start": 4364,
+            "end": 4736
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "bounded_fact",
+      "expected_response": "John P. A. Ioannidis；University of Ioannina及Tufts-New England Medical Center相关机构；邮箱jioannid@cc.uoi.gr。保留PDF空白差异，不凭名字授予账号访问。"
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "RESEARCH-FINDINGS-02",
+    "paper_id": "doi:10.1371/journal.pmed.0020124",
+    "semantic_key": "article_genre",
+    "task": "A",
+    "split": "development",
+    "question": "这是一项给出全世界错误论文百分比的抽样研究吗？",
+    "input_materials": [
+      "research-findings"
+    ],
+    "evidence": [
+      {
+        "source_id": "research-findings",
+        "file_sha256": "ffc1005680cb620eec4c913437dfabbf311b535cfe16cbaeb2faec1f92afc362",
+        "version": "source-record",
+        "start": 44,
+        "end": 86,
+        "quote": "Essay\nOpen access, freely available online",
+        "locations": [
+          {
+            "kind": "pdf_page",
+            "number": 1,
+            "start": 44,
+            "end": 86
+          }
+        ]
+      },
+      {
+        "source_id": "research-findings",
+        "file_sha256": "ffc1005680cb620eec4c913437dfabbf311b535cfe16cbaeb2faec1f92afc362",
+        "version": "source-record",
+        "start": 3769,
+        "end": 3870,
+        "quote": "The Essay section contains opinion pieces on topics \nof broad interest to a general medical audience.",
+        "locations": [
+          {
+            "kind": "pdf_page",
+            "number": 1,
+            "start": 3769,
+            "end": 3870
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "qualified_fact",
+      "expected_response": "原文为Essay意见文章并提出框架；标题不能当作对全球所有论文进行经验抽样得到的固定百分比。"
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "RESEARCH-FINDINGS-03",
+    "paper_id": "doi:10.1371/journal.pmed.0020124",
+    "semantic_key": "prior_ratio_definition",
+    "task": "A",
+    "split": "development",
+    "question": "文中R与研究前概率分别是什么？",
+    "input_materials": [
+      "research-findings"
+    ],
+    "evidence": [
+      {
+        "source_id": "research-findings",
+        "file_sha256": "ffc1005680cb620eec4c913437dfabbf311b535cfe16cbaeb2faec1f92afc362",
+        "version": "source-record",
+        "start": 2334,
+        "end": 3011,
+        "quote": "Let R \nbe the ratio of the number of “true \nrelationships” to “no relationships” \namong those tested in the ﬁ eld. R \nis characteristic of the ﬁ eld and can \nvary a lot depending on whether the \nﬁ eld targets highly likely relationships \nor searches for only one or a few \ntrue relationships among thousands \nand millions of hypotheses that may \nbe postulated. Let us also consider, \nfor computational simplicity, \ncircumscribed ﬁ elds where either there \nis only one true relationship (among \nmany that can be hypothesized) or \nthe power is similar to ﬁ nd any of the \nseveral existing true relationships. The \npre-study probability of a relationship \nbeing true is R⁄(R + 1).",
+        "locations": [
+          {
+            "kind": "pdf_page",
+            "number": 1,
+            "start": 2334,
+            "end": 3011
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "bounded_fact",
+      "expected_response": "R是真关系与无关系在所检验关系中的数量之比；研究前概率R/(R+1)。只是文中建模定义，不是具体稿件的实测概率。"
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "RESEARCH-FINDINGS-04",
+    "paper_id": "doi:10.1371/journal.pmed.0020124",
+    "semantic_key": "bias_vs_randomness",
+    "task": "A",
+    "split": "development",
+    "question": "作者把bias与偶然抽样变异当成同一件事吗？",
+    "input_materials": [
+      "research-findings"
+    ],
+    "evidence": [
+      {
+        "source_id": "research-findings",
+        "file_sha256": "ffc1005680cb620eec4c913437dfabbf311b535cfe16cbaeb2faec1f92afc362",
+        "version": "source-record",
+        "start": 6728,
+        "end": 7257,
+        "quote": "First, let us deﬁ ne bias as the \ncombination of various design, data, \nanalysis, and presentation factors that \ntend to produce research ﬁ ndings \nwhen they should not be produced. \nLet u be the proportion of probed \nanalyses that would not have been \n“research ﬁ ndings,” but nevertheless \nend up presented and reported as \nsuch, because of bias. Bias should not \nbe confused with chance variability \nthat causes some ﬁ ndings to be false by \nchance even though the study design, \ndata, analysis, and presentation are \nperfect.",
+        "locations": [
+          {
+            "kind": "pdf_page",
+            "number": 2,
+            "start": 6728,
+            "end": 7257
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "bounded_fact",
+      "expected_response": "没有；文中将设计、数据、分析和呈现因素造成的偏差与即便设计完美仍可能出现的随机错误区分。"
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "RESEARCH-FINDINGS-05",
+    "paper_id": "doi:10.1371/journal.pmed.0020124",
+    "semantic_key": "nonfinancial_conflicts",
+    "task": "A",
+    "split": "development",
+    "question": "文中是否认为只有经济利益才可能造成偏差？",
+    "input_materials": [
+      "research-findings"
+    ],
+    "evidence": [
+      {
+        "source_id": "research-findings",
+        "file_sha256": "ffc1005680cb620eec4c913437dfabbf311b535cfe16cbaeb2faec1f92afc362",
+        "version": "source-record",
+        "start": 15455,
+        "end": 15648,
+        "quote": "Prejudice may not necessarily \nhave ﬁ nancial roots. Scientists in a \ngiven ﬁ eld may be prejudiced purely \nbecause of their belief in a scientiﬁ c \ntheory or commitment to their own \nﬁ ndings.",
+        "locations": [
+          {
+            "kind": "pdf_page",
+            "number": 3,
+            "start": 15455,
+            "end": 15648
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "qualified_fact",
+      "expected_response": "不认为；明确指出偏见未必有经济根源，可来自理论信念或对本人结论的投入。"
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "RESEARCH-FINDINGS-06",
+    "paper_id": "doi:10.1371/journal.pmed.0020124",
+    "semantic_key": "pvalue_not_conclusive",
+    "task": "A",
+    "split": "retained_for_followup",
+    "question": "p<0.05在这篇文章里被当作单项研究真理的充分证明吗？",
+    "input_materials": [
+      "research-findings"
+    ],
+    "evidence": [
+      {
+        "source_id": "research-findings",
+        "file_sha256": "ffc1005680cb620eec4c913437dfabbf311b535cfe16cbaeb2faec1f92afc362",
+        "version": "source-record",
+        "start": 993,
+        "end": 1219,
+        "quote": "a consequence of the convenient, \nyet ill-founded strategy of claiming \nconclusive research ﬁ ndings solely on \nthe basis of a single study assessed by \nformal statistical signiﬁ cance, typically \nfor a p-value less than 0.05.",
+        "locations": [
+          {
+            "kind": "pdf_page",
+            "number": 1,
+            "start": 993,
+            "end": 1219
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "bounded_fact",
+      "expected_response": "作者批评仅凭单项研究形式显著性宣布确定结论的惯常策略；不能把统计显著等同于结论真实。"
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "RESEARCH-FINDINGS-07",
+    "paper_id": "doi:10.1371/journal.pmed.0020124",
+    "semantic_key": "conditional_not_universal",
+    "task": "A",
+    "split": "retained_for_followup",
+    "question": "Summary中“most study designs and settings”的限定能否省略为所有研究一定是假的？",
+    "input_materials": [
+      "research-findings"
+    ],
+    "evidence": [
+      {
+        "source_id": "research-findings",
+        "file_sha256": "ffc1005680cb620eec4c913437dfabbf311b535cfe16cbaeb2faec1f92afc362",
+        "version": "source-record",
+        "start": 5687,
+        "end": 5809,
+        "quote": "Simulations show that for most study \ndesigns and settings, it is more likely for \na research claim to be false than true.",
+        "locations": [
+          {
+            "kind": "pdf_page",
+            "number": 1,
+            "start": 5687,
+            "end": 5809
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "qualified_fact",
+      "expected_response": "不能；原文在框架和模拟条件下使用most，不是all，也不据此证明某篇具体研究为假。"
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "OATH-01",
+    "paper_id": "doi:10.12688/f1000research.5686",
+    "semantic_key": "author_list_unicode",
+    "task": "A",
+    "split": "development",
+    "question": "请保留v2作者顺序和姓名变音符，列出署名人数。",
+    "input_materials": [
+      "oath-v2"
+    ],
+    "evidence": [
+      {
+        "source_id": "oath-v2",
+        "file_sha256": "02ac9e5ab954c169f149e3bd37a2546cbb4d2219c49ff459e24c0792f9434deb",
+        "version": "2",
+        "start": 34,
+        "end": 330,
+        "quote": "Aleksic Jelena; Alexa Adrian; Attwood Teresa K; Chue Hong Neil; Dahlö Martin; Davey Robert; Dinkel Holger; Förstner Konrad U; Grigorov Ivo; Hériché Jean-Karim; Lahti Leo; MacLean Dan; Markie Michael L; Molloy Jenny; Schneider Maria Victoria; Scott Camille; Smith-Unna Richard; Vieira Bruno Miguel",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 2,
+            "start": 34,
+            "end": 330
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "bounded_fact",
+      "expected_response": "18位作者；原XML转制署名采用姓在前格式，应保留Dahlö、Förstner、Hériché等原样，不猜测ORCID或机构。"
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "OATH-02",
+    "paper_id": "doi:10.12688/f1000research.5686",
+    "semantic_key": "proposal_not_effectiveness_trial",
+    "task": "A",
+    "split": "development",
+    "question": "文章是在报告采用誓词已被随机试验证明提高复现率吗？",
+    "input_materials": [
+      "oath-v2"
+    ],
+    "evidence": [
+      {
+        "source_id": "oath-v2",
+        "file_sha256": "02ac9e5ab954c169f149e3bd37a2546cbb4d2219c49ff459e24c0792f9434deb",
+        "version": "2",
+        "start": 802,
+        "end": 989,
+        "quote": "Here, we propose steps to help increase the transparency of the scientific method and the reproducibility of research results: specifically, we introduce an open science peer-review oath.",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 3,
+            "start": 802,
+            "end": 989
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "qualified_fact",
+      "expected_response": "正文提出open science peer-review oath；这不等于已通过随机实验量化其有效性。"
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "OATH-03",
+    "paper_id": "doi:10.12688/f1000research.5686",
+    "semantic_key": "title_revision",
+    "task": "B",
+    "split": "development",
+    "question": "两版题名具体怎样改变？这能否证明全部审稿意见已满足？",
+    "input_materials": [
+      "oath-v1",
+      "oath-v2"
+    ],
+    "evidence": [
+      {
+        "source_id": "oath-v1",
+        "file_sha256": "f6b0f8e8770110f241596454e58f1a86eb746ade970b5b2481790803264be9db",
+        "version": "1",
+        "start": 0,
+        "end": 33,
+        "quote": "The Open Science Peer Review Oath",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 1,
+            "start": 0,
+            "end": 33
+          }
+        ]
+      },
+      {
+        "source_id": "oath-v2",
+        "file_sha256": "02ac9e5ab954c169f149e3bd37a2546cbb4d2219c49ff459e24c0792f9434deb",
+        "version": "2",
+        "start": 0,
+        "end": 32,
+        "quote": "An Open Science Peer Review Oath",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 1,
+            "start": 0,
+            "end": 32
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "located_change",
+      "expected_response": "The Open Science Peer Review Oath改为An Open Science Peer Review Oath；可定位这一变更，不能据题名变化认定所有意见落实。",
+      "full_reply_available": false,
+      "layers": {
+        "author_response": {
+          "status": "excerpt_not_pointwise"
+        },
+        "text_implementation": {
+          "status": "located_change"
+        },
+        "editor_sufficiency": {
+          "status": "requires_editor",
+          "note": "Published revision-note excerpt is not a complete rebuttal; no acceptance or rejection judgment."
+        }
+      }
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "OATH-04",
+    "paper_id": "doi:10.12688/f1000research.5686",
+    "semantic_key": "oath_condensation",
+    "task": "B",
+    "split": "development",
+    "question": "审稿人建议压缩重叠条目后，能否找到誓词结构的具体改变？",
+    "input_materials": [
+      "oath-reply",
+      "oath-review-0",
+      "oath-v1",
+      "oath-v2"
+    ],
+    "evidence": [
+      {
+        "source_id": "oath-v1",
+        "file_sha256": "f6b0f8e8770110f241596454e58f1a86eb746ade970b5b2481790803264be9db",
+        "version": "1",
+        "start": 7715,
+        "end": 9695,
+        "quote": "Box 1. While reviewing this manuscript: i) I will sign my review in order to be able to have an open dialogue with you ii) I will be honest at all times iii) I will state my limits iv) I will turn down reviews I am not qualified to provide v) I will not unduly delay the review process vi) I will not scoop research that I had not planned to do before reading the manuscript vii) I will be constructive in my criticism viii) I will treat reviews as scientific discourses ix) I will encourage discussion, and respond to your and/or editors’ questions x) I will try to assist in every way I ethically can to provide criticism and praise that is valid, relevant and cognisant of community norms xi) I will encourage the application of any other open science best practices relevant to my field that would support transparency, reproducibility, re-use and integrity of your research xii) If your results contradict earlier findings, I will allow them to stand, provided the methodology is sound and you have discussed them in context xiii) I will check that the data, software code and digital object identifiers are correct, and the models presented are archived, referenced, and accessible xiv) I will comment on how well you have achieved transparency, in terms of materials and methodology, data and code access, versioning, algorithms, software parameters and standards, such that your experiments can be repeated independently xv) I will encourage deposition with long-term unrestricted access to the data that underpin the published concept, towards transparency and re-use xvi) I will encourage central long-term unrestricted access to any software code and support documentation that underpin the published concept, both for reproducibility of results and software availability xvii) I will remind myself to adhere to this oath by providing a clear statement and link to it in each review I write, hence helping to perpetuate good practice to the authors whose work I review.",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 12,
+            "start": 7715,
+            "end": 9695
+          }
+        ]
+      },
+      {
+        "source_id": "oath-v2",
+        "file_sha256": "02ac9e5ab954c169f149e3bd37a2546cbb4d2219c49ff459e24c0792f9434deb",
+        "version": "2",
+        "start": 6009,
+        "end": 6311,
+        "quote": "Box 1. Open peer review oath. Principle 1: I will sign my name to my review Principle 2: I will review with integrity Principle 3: I will treat the review as a discourse with you; in particular, I will provide constructive criticism Principle 4: I will be an ambassador for the practice of open science",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 12,
+            "start": 6009,
+            "end": 6311
+          }
+        ]
+      },
+      {
+        "source_id": "oath-reply",
+        "file_sha256": "9bf8c946407b3059ff350e17579495580fc7d26b129b7f1a5916657a8454bc13",
+        "version": "2",
+        "start": 311,
+        "end": 489,
+        "quote": "The oath itself now comprises four concise principles, and we elucidate the open-science principle with accompanying guidelines, which should make it easier to apply in practice.",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 1,
+            "start": 311,
+            "end": 489
+          }
+        ]
+      },
+      {
+        "source_id": "oath-review-0",
+        "file_sha256": "3e606d6578f35dde99c1c42bbe9b99fa8823718d20c8419751b923840a968e57",
+        "version": "review-of-v1",
+        "start": 1106,
+        "end": 1240,
+        "quote": "With some careful attention I suspect the number of practices here could be halved, which would improve readability and likely uptake.",
+        "locations": [
+          {
+            "kind": "manifest_field",
+            "number": 1,
+            "start": 1106,
+            "end": 1240
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "located_change",
+      "expected_response": "旧Box1列出多项做法，新Box1为四条Principle；作者修订说明也声称压缩为四项。仅确认这个结构变化，不代表每条要求质量充分。",
+      "full_reply_available": false,
+      "layers": {
+        "author_response": {
+          "status": "claims_change_in_excerpt"
+        },
+        "text_implementation": {
+          "status": "located_change"
+        },
+        "editor_sufficiency": {
+          "status": "requires_editor",
+          "note": "Published revision-note excerpt is not a complete rebuttal; no acceptance or rejection judgment."
+        }
+      }
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "OATH-05",
+    "paper_id": "doi:10.12688/f1000research.5686",
+    "semantic_key": "signed_review_risks",
+    "task": "B",
+    "split": "development",
+    "question": "已公开的修订说明是否足以判定两项署名评审风险均已妥善处理？",
+    "input_materials": [
+      "oath-reply",
+      "oath-review-0"
+    ],
+    "evidence": [
+      {
+        "source_id": "oath-review-0",
+        "file_sha256": "3e606d6578f35dde99c1c42bbe9b99fa8823718d20c8419751b923840a968e57",
+        "version": "review-of-v1",
+        "start": 1818,
+        "end": 2858,
+        "quote": "Two concerns with signed reviews need to be addressed. The first is the potential negative consequences felt by junior (non-tenured) scientists or minorities, who could, at least in theory, face severe repercussions for criticizing the work of senior/powerful colleagues who sit on editorial boards or grant panels. In my mind this conflict has never been properly addressed; while I believe it is completely reasonable for tenured scientists to be open and accountable in their reviews (I always sign mine), it is questionable whether this should be required uniformly across science. The second concern with open reviewing is the potential legal backlash of scientists being sued by litigious authors who feel aggrieved by a reviewer's published comments. We are seeing this already on PubPeer and elsewhere. This raises the question of who assumes legal responsibility for the content of a signed review. In the case of F1000Research, for instance, does it or will it provide legal indemnity to reviewers who choose to unmask themselves?",
+        "locations": [
+          {
+            "kind": "manifest_field",
+            "number": 1,
+            "start": 1818,
+            "end": 2858
+          }
+        ]
+      },
+      {
+        "source_id": "oath-reply",
+        "file_sha256": "9bf8c946407b3059ff350e17579495580fc7d26b129b7f1a5916657a8454bc13",
+        "version": "2",
+        "start": 0,
+        "end": 115,
+        "quote": "We have taken into consideration all of the reviews and comments, and have made the manuscript shorter and clearer.",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 1,
+            "start": 0,
+            "end": 115
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "insufficient_material",
+      "result": "missing_material",
+      "expected_response": "不足。意见含初级研究者/少数群体风险与法律责任两个不同要求；现有回复只是总体修订说明节选，不能认定全部完成或完全未回应。",
+      "full_reply_available": false,
+      "layers": {
+        "author_response": {
+          "status": "no_pointwise_reply_available"
+        },
+        "text_implementation": {
+          "status": "not_certified"
+        },
+        "editor_sufficiency": {
+          "status": "requires_editor",
+          "note": "Published revision-note excerpt is not a complete rebuttal; no acceptance or rejection judgment."
+        }
+      }
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "OATH-06",
+    "paper_id": "doi:10.12688/f1000research.5686",
+    "semantic_key": "clarity_not_length",
+    "task": "B",
+    "split": "retained_for_followup",
+    "question": "作者说文章更短更清晰，可以直接把审稿人的全部精简要求标为完成吗？",
+    "input_materials": [
+      "oath-reply",
+      "oath-review-0",
+      "oath-v2"
+    ],
+    "evidence": [
+      {
+        "source_id": "oath-reply",
+        "file_sha256": "9bf8c946407b3059ff350e17579495580fc7d26b129b7f1a5916657a8454bc13",
+        "version": "2",
+        "start": 70,
+        "end": 115,
+        "quote": "have made the manuscript shorter and clearer.",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 1,
+            "start": 70,
+            "end": 115
+          }
+        ]
+      },
+      {
+        "source_id": "oath-review-0",
+        "file_sha256": "3e606d6578f35dde99c1c42bbe9b99fa8823718d20c8419751b923840a968e57",
+        "version": "review-of-v1",
+        "start": 1652,
+        "end": 1817,
+        "quote": "The authors should bear in mind that not all readers will have English as a first language, and so more direct and less metaphorical phrasing could widen the appeal.",
+        "locations": [
+          {
+            "kind": "manifest_field",
+            "number": 1,
+            "start": 1652,
+            "end": 1817
+          }
+        ]
+      },
+      {
+        "source_id": "oath-v2",
+        "file_sha256": "02ac9e5ab954c169f149e3bd37a2546cbb4d2219c49ff459e24c0792f9434deb",
+        "version": "2",
+        "start": 6009,
+        "end": 6311,
+        "quote": "Box 1. Open peer review oath. Principle 1: I will sign my name to my review Principle 2: I will review with integrity Principle 3: I will treat the review as a discourse with you; in particular, I will provide constructive criticism Principle 4: I will be an ambassador for the practice of open science",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 12,
+            "start": 6009,
+            "end": 6311
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "partially_answerable",
+      "result": "partial_implementation",
+      "expected_response": "只能记录作者声称及可见的条目结构改变；文字更清晰和适合非英语读者仍需编辑评价，不能由字符减少或四条原则替代。",
+      "full_reply_available": false,
+      "layers": {
+        "author_response": {
+          "status": "claims_change_in_excerpt"
+        },
+        "text_implementation": {
+          "status": "some_change_located_sufficiency_unknown"
+        },
+        "editor_sufficiency": {
+          "status": "requires_editor",
+          "note": "Published revision-note excerpt is not a complete rebuttal; no acceptance or rejection judgment."
+        }
+      }
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "OATH-07",
+    "paper_id": "doi:10.12688/f1000research.5686",
+    "semantic_key": "incentives_not_promised_success",
+    "task": "B",
+    "split": "retained_for_followup",
+    "question": "能否依据作者希望研究者采用誓词，就判定激励和落地机制的要求已经满足？",
+    "input_materials": [
+      "oath-reply",
+      "oath-review-0"
+    ],
+    "evidence": [
+      {
+        "source_id": "oath-review-0",
+        "file_sha256": "3e606d6578f35dde99c1c42bbe9b99fa8823718d20c8419751b923840a968e57",
+        "version": "review-of-v1",
+        "start": 2859,
+        "end": 3193,
+        "quote": "Finally, I would prompt the authors of this paper to consider, and ideally speculate on, ways their oath (or code of practice as I would call it) might be implemented and incentivised in science. Could it, for instance, be worked into the next REF in some way? How could this be achieved and what challenges would need to be overcome?",
+        "locations": [
+          {
+            "kind": "manifest_field",
+            "number": 1,
+            "start": 2859,
+            "end": 3193
+          }
+        ]
+      },
+      {
+        "source_id": "oath-reply",
+        "file_sha256": "9bf8c946407b3059ff350e17579495580fc7d26b129b7f1a5916657a8454bc13",
+        "version": "2",
+        "start": 116,
+        "end": 310,
+        "quote": "We have further discussed what we hope to achieve from researchers using the oath, and we have balanced the article to explain how we believe the oath can encourage the practice of open science.",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 1,
+            "start": 116,
+            "end": 310
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "insufficient_material",
+      "result": "response_claim_unverified",
+      "expected_response": "不能。审稿意见要求讨论落地及激励挑战；修订说明的意图不等于机制有效，完整逐点回复缺失。",
+      "full_reply_available": false,
+      "layers": {
+        "author_response": {
+          "status": "general_claim_in_excerpt"
+        },
+        "text_implementation": {
+          "status": "not_certified"
+        },
+        "editor_sufficiency": {
+          "status": "requires_editor",
+          "note": "Published revision-note excerpt is not a complete rebuttal; no acceptance or rejection judgment."
+        }
+      }
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "13-921-01",
+    "paper_id": "doi:10.12688/f1000research.154614",
+    "semantic_key": "byline_order",
+    "task": "A",
+    "split": "development",
+    "question": "这篇稿件有几位作者，顺序是什么？",
+    "input_materials": [
+      "13-921-v2"
+    ],
+    "evidence": [
+      {
+        "source_id": "13-921-v2",
+        "file_sha256": "6a65b97bbe837a939280a48699dd7327b24a419a5c2c53aa5e7d62b501a9bd7c",
+        "version": "2",
+        "start": 44,
+        "end": 111,
+        "quote": "Hidouri Saida; Kamoun Hela; Salah Sana; Jellad Anis; Ben Saad Helmi",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 2,
+            "start": 44,
+            "end": 111
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "bounded_fact",
+      "expected_response": "5位：Hidouri Saida、Kamoun Hela、Salah Sana、Jellad Anis、Ben Saad Helmi。转制文档署名不能当作平台认证信息。"
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "13-921-02",
+    "paper_id": "doi:10.12688/f1000research.154614",
+    "semantic_key": "opinion_article_method",
+    "task": "A",
+    "split": "development",
+    "question": "Methods写了什么？可以据此编造试验样本量吗？",
+    "input_materials": [
+      "13-921-v2"
+    ],
+    "evidence": [
+      {
+        "source_id": "13-921-v2",
+        "file_sha256": "6a65b97bbe837a939280a48699dd7327b24a419a5c2c53aa5e7d62b501a9bd7c",
+        "version": "2",
+        "start": 991,
+        "end": 1016,
+        "quote": "Methods\n\nOpinion article.",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 5,
+            "start": 991,
+            "end": 998
+          },
+          {
+            "kind": "docx_paragraph",
+            "number": 6,
+            "start": 1000,
+            "end": 1016
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "qualified_fact",
+      "expected_response": "明确为Opinion article，没有依据在该Methods条目中补出随机试验样本量。"
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "13-921-03",
+    "paper_id": "doi:10.12688/f1000research.154614",
+    "semantic_key": "noncitation_editor_guidance",
+    "task": "B",
+    "split": "development",
+    "question": "能否定位应对因作者声誉而要求不引用的新增说明？",
+    "input_materials": [
+      "13-921-reply",
+      "13-921-review-0",
+      "13-921-v2"
+    ],
+    "evidence": [
+      {
+        "source_id": "13-921-review-0",
+        "file_sha256": "3e606d6578f35dde99c1c42bbe9b99fa8823718d20c8419751b923840a968e57",
+        "version": "review-of-v1",
+        "start": 264,
+        "end": 846,
+        "quote": "Addressing Requests for Non-Citation of Specific Authors in the \"Ambiguous Situations\" Section: It would be beneficial for the manuscript to include guidance on handling situations where reviewers request that specific authors not be cited due to reputational concerns or prior behavior. In such cases, it is vital to determine whether the request pertains to the author as an individual or to the research itself. If the request is directed at the author for personal or ethical reasons, authors should consider contacting the editor privately to discuss the best course of action.",
+        "locations": [
+          {
+            "kind": "manifest_field",
+            "number": 1,
+            "start": 264,
+            "end": 846
+          }
+        ]
+      },
+      {
+        "source_id": "13-921-v2",
+        "file_sha256": "6a65b97bbe837a939280a48699dd7327b24a419a5c2c53aa5e7d62b501a9bd7c",
+        "version": "2",
+        "start": 21174,
+        "end": 21503,
+        "quote": "when reviewers express concerns about citing specific authors due to their reputation or past behavior, it is crucial to evaluate whether the issue is related to the individual or the research itself. If the request is rooted in personal or ethical concerns, authors should consider discreetly contacting the editor for guidance.",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 92,
+            "start": 21174,
+            "end": 21503
+          }
+        ]
+      },
+      {
+        "source_id": "13-921-reply",
+        "file_sha256": "2064ec798811318e62f4f74e18da5a15cb7f0930cf0980b97ba8d529c1b0692d",
+        "version": "2",
+        "start": 314,
+        "end": 488,
+        "quote": "1. Addressing requests for non-citation of specific authors: We have addressed any requests to avoid citing certain authors due to reputational concerns or previous behavior.",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 1,
+            "start": 314,
+            "end": 488
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "located_change",
+      "expected_response": "v2明确区分针对个人或研究的顾虑，并建议个人或伦理问题时私下联系编辑；可定位新增指导，但不是编辑已批准的事实。",
+      "full_reply_available": false,
+      "layers": {
+        "author_response": {
+          "status": "claims_change_in_excerpt"
+        },
+        "text_implementation": {
+          "status": "located_change"
+        },
+        "editor_sufficiency": {
+          "status": "requires_editor",
+          "note": "Published revision-note excerpt is not a complete rebuttal; no acceptance or rejection judgment."
+        }
+      }
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "13-921-04",
+    "paper_id": "doi:10.12688/f1000research.154614",
+    "semantic_key": "reviewer_acknowledgement_condition",
+    "task": "B",
+    "split": "development",
+    "question": "感谢审稿人的新增建议是否要求每篇文章无条件披露审稿人姓名？",
+    "input_materials": [
+      "13-921-reply",
+      "13-921-review-0",
+      "13-921-v2"
+    ],
+    "evidence": [
+      {
+        "source_id": "13-921-review-0",
+        "file_sha256": "3e606d6578f35dde99c1c42bbe9b99fa8823718d20c8419751b923840a968e57",
+        "version": "review-of-v1",
+        "start": 1306,
+        "end": 1607,
+        "quote": "Incorporating a Practice of Acknowledging Reviewers in the \"Express Gratitude Again\" Section: The manuscript could be further enriched by suggesting the inclusion of reviewers in the acknowledgements section of the article when their feedback has substantially contributed to improving the manuscript.",
+        "locations": [
+          {
+            "kind": "manifest_field",
+            "number": 1,
+            "start": 1306,
+            "end": 1607
+          }
+        ]
+      },
+      {
+        "source_id": "13-921-v2",
+        "file_sha256": "6a65b97bbe837a939280a48699dd7327b24a419a5c2c53aa5e7d62b501a9bd7c",
+        "version": "2",
+        "start": 7941,
+        "end": 8123,
+        "quote": "• Acknowledge the efforts of reviewers (and include them in the “Acknowledgements section” of the article if their feedback has substantially contributed to improving the manuscript)",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 62,
+            "start": 7941,
+            "end": 8123
+          }
+        ]
+      },
+      {
+        "source_id": "13-921-reply",
+        "file_sha256": "2064ec798811318e62f4f74e18da5a15cb7f0930cf0980b97ba8d529c1b0692d",
+        "version": "2",
+        "start": 489,
+        "end": 650,
+        "quote": "2. Incorporating reviewer acknowledgements: We have included a section in the acknowledgements to formally recognize the valuable contributions of the reviewers.",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 1,
+            "start": 489,
+            "end": 650
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "located_change",
+      "expected_response": "不是。v2建议在反馈对稿件有实质贡献时加入致谢；需保留条件，不能扩展为强制公开匿名身份。",
+      "full_reply_available": false,
+      "layers": {
+        "author_response": {
+          "status": "claims_change_in_excerpt"
+        },
+        "text_implementation": {
+          "status": "located_conditional_guidance"
+        },
+        "editor_sufficiency": {
+          "status": "requires_editor",
+          "note": "Published revision-note excerpt is not a complete rebuttal; no acceptance or rejection judgment."
+        }
+      }
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "13-921-05",
+    "paper_id": "doi:10.12688/f1000research.154614",
+    "semantic_key": "review_comment_plagiarism",
+    "task": "B",
+    "split": "development",
+    "question": "v2增加了什么防止照抄审稿意见的文字？它是否证明实际整篇文稿绝无抄袭？",
+    "input_materials": [
+      "13-921-reply",
+      "13-921-review-0",
+      "13-921-v2"
+    ],
+    "evidence": [
+      {
+        "source_id": "13-921-review-0",
+        "file_sha256": "3e606d6578f35dde99c1c42bbe9b99fa8823718d20c8419751b923840a968e57",
+        "version": "review-of-v1",
+        "start": 1993,
+        "end": 2299,
+        "quote": "Highlighting the Issue of Plagiarism of Reviewers' Comments: An additional point worth addressing is the problematic practice of directly copying and pasting reviewers' comments into the manuscript. This practice may be viewed as a lack of originality and could raise concerns regarding academic integrity.",
+        "locations": [
+          {
+            "kind": "manifest_field",
+            "number": 1,
+            "start": 1993,
+            "end": 2299
+          }
+        ]
+      },
+      {
+        "source_id": "13-921-v2",
+        "file_sha256": "6a65b97bbe837a939280a48699dd7327b24a419a5c2c53aa5e7d62b501a9bd7c",
+        "version": "2",
+        "start": 6341,
+        "end": 6459,
+        "quote": "• Avoid plagiarism of reviewers’ comments (avoid directly copying and pasting reviewers’ comments into the manuscript)",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 41,
+            "start": 6341,
+            "end": 6459
+          }
+        ]
+      },
+      {
+        "source_id": "13-921-reply",
+        "file_sha256": "2064ec798811318e62f4f74e18da5a15cb7f0930cf0980b97ba8d529c1b0692d",
+        "version": "2",
+        "start": 651,
+        "end": 858,
+        "quote": "3. Highlighting the issue of plagiarism: We have emphasized the importance of avoiding plagiarism of reviewers' comments and ensured that all feedback is integrated into the manuscript in authors' own words.",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 1,
+            "start": 651,
+            "end": 858
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "located_change",
+      "expected_response": "新增避免直接复制粘贴审稿意见的指导；可确认该说明出现，不能据此认证全文原创性或代作者声明。",
+      "full_reply_available": false,
+      "layers": {
+        "author_response": {
+          "status": "claims_change_in_excerpt"
+        },
+        "text_implementation": {
+          "status": "located_guidance_not_originality_proof"
+        },
+        "editor_sufficiency": {
+          "status": "requires_editor",
+          "note": "Published revision-note excerpt is not a complete rebuttal; no acceptance or rejection judgment."
+        }
+      }
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "13-921-06",
+    "paper_id": "doi:10.12688/f1000research.154614",
+    "semantic_key": "compound_request_not_all_resolved",
+    "task": "B",
+    "split": "development",
+    "question": "对四项复合意见，作者概述全部修改是否足以一次勾选全完成？",
+    "input_materials": [
+      "13-921-reply",
+      "13-921-review-0",
+      "13-921-v2"
+    ],
+    "evidence": [
+      {
+        "source_id": "13-921-review-0",
+        "file_sha256": "3e606d6578f35dde99c1c42bbe9b99fa8823718d20c8419751b923840a968e57",
+        "version": "review-of-v1",
+        "start": 2822,
+        "end": 3297,
+        "quote": "Reducing Redundancies and Repetition for Greater Clarity: While the manuscript provides many useful insights, there are instances where certain points, such as those concerning professionalism and the manner of responding to reviewers, are repeated multiple times throughout the text. Streamlining these sections by consolidating similar points would help reduce redundancies and improve the overall flow of the manuscript, making it more concise and engaging for the reader.",
+        "locations": [
+          {
+            "kind": "manifest_field",
+            "number": 1,
+            "start": 2822,
+            "end": 3297
+          }
+        ]
+      },
+      {
+        "source_id": "13-921-reply",
+        "file_sha256": "2064ec798811318e62f4f74e18da5a15cb7f0930cf0980b97ba8d529c1b0692d",
+        "version": "2",
+        "start": 859,
+        "end": 1037,
+        "quote": "4. Reducing redundancies and repetition: We have carefully reviewed the manuscript for redundancies and repetition, making necessary revisions to improve clarity and conciseness.",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 1,
+            "start": 859,
+            "end": 1037
+          }
+        ]
+      },
+      {
+        "source_id": "13-921-v2",
+        "file_sha256": "6a65b97bbe837a939280a48699dd7327b24a419a5c2c53aa5e7d62b501a9bd7c",
+        "version": "2",
+        "start": 21174,
+        "end": 21503,
+        "quote": "when reviewers express concerns about citing specific authors due to their reputation or past behavior, it is crucial to evaluate whether the issue is related to the individual or the research itself. If the request is rooted in personal or ethical concerns, authors should consider discreetly contacting the editor for guidance.",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 92,
+            "start": 21174,
+            "end": 21503
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "partially_answerable",
+      "result": "partial_implementation",
+      "expected_response": "不够。可定位非引用处理、条件致谢、防照抄指导；是否充分精简重复仍需独立阅读。保持逐项结论和完整回复缺口，不能由已定位子项推及整条全部完成。",
+      "full_reply_available": false,
+      "layers": {
+        "author_response": {
+          "status": "compound_claim_in_excerpt"
+        },
+        "text_implementation": {
+          "status": "some_components_located_other_sufficiency_unknown"
+        },
+        "editor_sufficiency": {
+          "status": "requires_editor",
+          "note": "Published revision-note excerpt is not a complete rebuttal; no acceptance or rejection judgment."
+        }
+      }
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "13-921-07",
+    "paper_id": "doi:10.12688/f1000research.154614",
+    "semantic_key": "missing_cope_reply_not_no_response",
+    "task": "B",
+    "split": "retained_for_followup",
+    "question": "只有总体修订说明时，可以认定作者完全没有回应COPE政策建议吗？",
+    "input_materials": [
+      "13-921-reply",
+      "13-921-review-1"
+    ],
+    "evidence": [
+      {
+        "source_id": "13-921-review-1",
+        "file_sha256": "3e606d6578f35dde99c1c42bbe9b99fa8823718d20c8419751b923840a968e57",
+        "version": "review-of-v1",
+        "start": 0,
+        "end": 282,
+        "quote": "However, in Ethical consideration: this section could be strengthened by referencing specific guidelines or policies that journals or organizations like COPE (Committee on Publication Ethics) have in place to handle such situations. This would give authors a clearer path to follow.",
+        "locations": [
+          {
+            "kind": "manifest_field",
+            "number": 1,
+            "start": 0,
+            "end": 282
+          }
+        ]
+      },
+      {
+        "source_id": "13-921-reply",
+        "file_sha256": "2064ec798811318e62f4f74e18da5a15cb7f0930cf0980b97ba8d529c1b0692d",
+        "version": "2",
+        "start": 0,
+        "end": 1385,
+        "quote": "Our paper was approved by both reviewers. The second reviewer identified four areas where our manuscript could be strengthened by incorporating additional insights and clarifying certain points. We carefully considered the reviewer's suggestions and have revised our paper accordingly. Specific revisions include: 1. Addressing requests for non-citation of specific authors: We have addressed any requests to avoid citing certain authors due to reputational concerns or previous behavior. 2. Incorporating reviewer acknowledgements: We have included a section in the acknowledgements to formally recognize the valuable contributions of the reviewers. 3. Highlighting the issue of plagiarism: We have emphasized the importance of avoiding plagiarism of reviewers' comments and ensured that all feedback is integrated into the manuscript in authors' own words. 4. Reducing redundancies and repetition: We have carefully reviewed the manuscript for redundancies and repetition, making necessary revisions to improve clarity and conciseness. In addition to these revisions, we have: 1. Added three new references to support our arguments. 2. Improved Table 1 to enhance its clarity and relevance. 3. Acknowledged the reviewers in the acknowledgements section. We believe that these revisions have significantly strengthened our manuscript and addressed the reviewer's comments effectively.",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 1,
+            "start": 0,
+            "end": 1385
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "insufficient_material",
+      "result": "missing_material",
+      "expected_response": "不能。意见要求具体政策/指南支持，但现有材料没有完整逐点回复；指出所需回复和可核实具体出处，不能把没有定位到等同于未回应。",
+      "full_reply_available": false,
+      "layers": {
+        "author_response": {
+          "status": "no_pointwise_reply_available"
+        },
+        "text_implementation": {
+          "status": "not_certified"
+        },
+        "editor_sufficiency": {
+          "status": "requires_editor",
+          "note": "Published revision-note excerpt is not a complete rebuttal; no acceptance or rejection judgment."
+        }
+      }
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "13-6-01",
+    "paper_id": "doi:10.12688/f1000research.143013",
+    "semantic_key": "author_sequence",
+    "task": "A",
+    "split": "development",
+    "question": "这篇文章的署名作者是否因修回而改变？",
+    "input_materials": [
+      "13-6-v1",
+      "13-6-v2"
+    ],
+    "evidence": [
+      {
+        "source_id": "13-6-v1",
+        "file_sha256": "4433d0966d43636151bb6f4621fc526d3b824f69b866a5713fabec664577e9fd",
+        "version": "1",
+        "start": 93,
+        "end": 226,
+        "quote": "Ng Jeremy Y.; Chow Valerie; Santoro Lucas J.; Armond Anna Catharina Vieira; Pirshahid Sanam Ebrahimzadeh; Cobey Kelly D.; Moher David",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 2,
+            "start": 93,
+            "end": 226
+          }
+        ]
+      },
+      {
+        "source_id": "13-6-v2",
+        "file_sha256": "2471e7f30c9e6c47f0fafe8104c801050294f01c039937738cbcffcff142f8cf",
+        "version": "2",
+        "start": 93,
+        "end": 226,
+        "quote": "Ng Jeremy Y.; Chow Valerie; Santoro Lucas J.; Armond Anna Catharina Vieira; Pirshahid Sanam Ebrahimzadeh; Cobey Kelly D.; Moher David",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 2,
+            "start": 93,
+            "end": 226
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "bounded_fact",
+      "expected_response": "原稿和修订稿的7位署名作者序列一致；只陈述文中署名，不等于账号或身份已认证。"
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "13-6-02",
+    "paper_id": "doi:10.12688/f1000research.143013",
+    "semantic_key": "response_rate_denominator",
+    "task": "A",
+    "split": "development",
+    "question": "730、3.20%和22808分别是什么？不能把730当作被邀请总数。",
+    "input_materials": [
+      "13-6-v2"
+    ],
+    "evidence": [
+      {
+        "source_id": "13-6-v2",
+        "file_sha256": "2471e7f30c9e6c47f0fafe8104c801050294f01c039937738cbcffcff142f8cf",
+        "version": "2",
+        "start": 1229,
+        "end": 1307,
+        "quote": "The survey was completed by 730 respondents providing a response rate of 3.20%",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 8,
+            "start": 1229,
+            "end": 1307
+          }
+        ]
+      },
+      {
+        "source_id": "13-6-v2",
+        "file_sha256": "2471e7f30c9e6c47f0fafe8104c801050294f01c039937738cbcffcff142f8cf",
+        "version": "2",
+        "start": 8705,
+        "end": 8758,
+        "quote": "Therefore, 22 808 corresponding authors were emailed.",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 29,
+            "start": 8705,
+            "end": 8758
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "bounded_fact",
+      "expected_response": "730是完成问卷者，3.20%是报告的回应率，22808是邮件邀请的通讯作者人数；使用各自原文依据。"
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "13-6-03",
+    "paper_id": "doi:10.12688/f1000research.143013",
+    "semantic_key": "journal_filter_and_missing_supplement",
+    "task": "B",
+    "split": "development",
+    "question": "关于只选期刊和提供400本期刊清单的复合要求，现有正文能确认到哪一步？",
+    "input_materials": [
+      "13-6-reply",
+      "13-6-review-2",
+      "13-6-v1",
+      "13-6-v2"
+    ],
+    "evidence": [
+      {
+        "source_id": "13-6-review-2",
+        "file_sha256": "3e606d6578f35dde99c1c42bbe9b99fa8823718d20c8419751b923840a968e57",
+        "version": "review-of-v1",
+        "start": 408,
+        "end": 871,
+        "quote": "It is not clear whether an additional screening was performed to ensure that only journals were included in the study. The odds of randomly picking a PubMed, Web of Science or SCImago indexed journal from this catalog appear to be pretty low. The odds may be even lower to pick high impact journals from the list. For this reason, it will add significantly if the authors provide the list of the journals or serial publications used in the survey as a supplement.",
+        "locations": [
+          {
+            "kind": "manifest_field",
+            "number": 1,
+            "start": 408,
+            "end": 871
+          }
+        ]
+      },
+      {
+        "source_id": "13-6-v1",
+        "file_sha256": "4433d0966d43636151bb6f4621fc526d3b824f69b866a5713fabec664577e9fd",
+        "version": "1",
+        "start": 6984,
+        "end": 7148,
+        "quote": "From this list, 400 journals were randomly selected using the RAND() function of Microsoft Excel for Microsoft 365 MSO (Version 2310 Build 16.0.16924.20054) (2021).",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 27,
+            "start": 6984,
+            "end": 7148
+          }
+        ]
+      },
+      {
+        "source_id": "13-6-v2",
+        "file_sha256": "2471e7f30c9e6c47f0fafe8104c801050294f01c039937738cbcffcff142f8cf",
+        "version": "2",
+        "start": 7060,
+        "end": 7395,
+        "quote": "The “Journals currently indexed in MEDLINE” filter from the NLM Catalog was used to ensure only journals were included in the study. From this list, 400 journals (Extended data: Supplementary File 1) were randomly selected using the RAND() function of Microsoft Excel for Microsoft 365 MSO (Version 2310 Build 16.0.16924.20054) (2021).",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 27,
+            "start": 7060,
+            "end": 7395
+          }
+        ]
+      },
+      {
+        "source_id": "13-6-reply",
+        "file_sha256": "8c233eefac58112306962020a7b3c1ee31091d20a08ce1e732c339aef2cfccdd",
+        "version": "2",
+        "start": 464,
+        "end": 635,
+        "quote": "We clarified the use of filters from the NLM catalog to ensure that only journal entries were included, and provided a list of the 400 journals used as supplementary data.",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 1,
+            "start": 464,
+            "end": 635
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "partially_answerable",
+      "result": "partial_implementation",
+      "expected_response": "v2明确增加NLM的“Journals currently indexed in MEDLINE”过滤说明，并提到400本期刊及补充文件1；但本包未包含那份补充清单，不能认证清单实际内容或整项充分完成。",
+      "full_reply_available": false,
+      "layers": {
+        "author_response": {
+          "status": "claims_change_in_excerpt"
+        },
+        "text_implementation": {
+          "status": "maintext_change_located_supplement_missing"
+        },
+        "editor_sufficiency": {
+          "status": "requires_editor",
+          "note": "Published revision-note excerpt is not a complete rebuttal; no acceptance or rejection judgment."
+        }
+      }
+    },
+    "limitations": [
+      "Complete author rebuttal and cited supplementary journal-list file are not in this packet."
+    ]
+  },
+  {
+    "id": "13-6-04",
+    "paper_id": "doi:10.12688/f1000research.143013",
+    "semantic_key": "researchgate_uncertainty",
+    "task": "B",
+    "split": "development",
+    "question": "对ResearchGate的新增解释是否证明全部选择它的人都在浏览预印本？",
+    "input_materials": [
+      "13-6-reply",
+      "13-6-review-1",
+      "13-6-v1",
+      "13-6-v2"
+    ],
+    "evidence": [
+      {
+        "source_id": "13-6-review-1",
+        "file_sha256": "3e606d6578f35dde99c1c42bbe9b99fa8823718d20c8419751b923840a968e57",
+        "version": "review-of-v1",
+        "start": 1448,
+        "end": 2080,
+        "quote": "I was confused by the inclusion of ResearchGate as a common preprint server to view/download preprints as presented in the Discussion section on Viewing/downloading preprints. Did 20.53% of respondents think downloading articles from ResearchGate equated to engaging with preprints? What about those cases where ResearchGate allows for downloading of the final publisher version? Can additional context around this survey question be provided to indicate how respondents thought ResearchGate related to preprints? I think to present it primarily as preprint server is a very concerning misunderstanding of the ResearchGate platform.",
+        "locations": [
+          {
+            "kind": "manifest_field",
+            "number": 1,
+            "start": 1448,
+            "end": 2080
+          }
+        ]
+      },
+      {
+        "source_id": "13-6-v1",
+        "file_sha256": "4433d0966d43636151bb6f4621fc526d3b824f69b866a5713fabec664577e9fd",
+        "version": "1",
+        "start": 16852,
+        "end": 16881,
+        "quote": "ResearchGate (n=140, 20.53%).",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 177,
+            "start": 16852,
+            "end": 16881
+          }
+        ]
+      },
+      {
+        "source_id": "13-6-v2",
+        "file_sha256": "2471e7f30c9e6c47f0fafe8104c801050294f01c039937738cbcffcff142f8cf",
+        "version": "2",
+        "start": 17508,
+        "end": 17967,
+        "quote": "It is important to note that unlike bioRxiv and MedRxiv that are exclusively preprint servers, ResearchGate is not perceived by all to be a preprint server, as it serves other functions, such as asking and answering questions, connecting/networking with other scientists, and finding collaborators. Therefore, as we did not ask how participants interact with ResearchGate, it is possible that participants selected it for reasons other than viewing preprints.",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 177,
+            "start": 17508,
+            "end": 17967
+          }
+        ]
+      },
+      {
+        "source_id": "13-6-reply",
+        "file_sha256": "8c233eefac58112306962020a7b3c1ee31091d20a08ce1e732c339aef2cfccdd",
+        "version": "2",
+        "start": 766,
+        "end": 868,
+        "quote": "addressing the reviewer’s request for more context on ResearchGate's inclusion as a preprint platform.",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 1,
+            "start": 766,
+            "end": 868
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "located_change",
+      "expected_response": "不是。v2增加ResearchGate多用途以及未询问具体交互方式的限制，明确可能因其他用途选择；应保留不确定性。",
+      "full_reply_available": false,
+      "layers": {
+        "author_response": {
+          "status": "claims_change_in_excerpt"
+        },
+        "text_implementation": {
+          "status": "located_limitation"
+        },
+        "editor_sufficiency": {
+          "status": "requires_editor",
+          "note": "Published revision-note excerpt is not a complete rebuttal; no acceptance or rejection judgment."
+        }
+      }
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "13-6-05",
+    "paper_id": "doi:10.12688/f1000research.143013",
+    "semantic_key": "claimed_response_rate_citation",
+    "task": "B",
+    "split": "development",
+    "question": "作者概述说补充了预计回应率文献，能否仅据此把这项标为已完成？",
+    "input_materials": [
+      "13-6-reply",
+      "13-6-review-1",
+      "13-6-v1",
+      "13-6-v2"
+    ],
+    "evidence": [
+      {
+        "source_id": "13-6-review-1",
+        "file_sha256": "3e606d6578f35dde99c1c42bbe9b99fa8823718d20c8419751b923840a968e57",
+        "version": "review-of-v1",
+        "start": 1007,
+        "end": 1447,
+        "quote": "Final sentence of the Methods paragraph on Participant Recruitment predicts a 10% response rate. Since this is remarkably different the that 3.2% response rate, I wonder if the authors could provide any justification or rationale for the 10% prediction. Was this estimate based on similar author-response studies? Length/survey presentation/etc. Citations supporting this estimate would be appreciated for further research and study design.",
+        "locations": [
+          {
+            "kind": "manifest_field",
+            "number": 1,
+            "start": 1007,
+            "end": 1447
+          }
+        ]
+      },
+      {
+        "source_id": "13-6-v1",
+        "file_sha256": "4433d0966d43636151bb6f4621fc526d3b824f69b866a5713fabec664577e9fd",
+        "version": "1",
+        "start": 8512,
+        "end": 8632,
+        "quote": "We predicted that we would receive approximately 2200 responses based on a predicted response rate of approximately 10%.",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 29,
+            "start": 8512,
+            "end": 8632
+          }
+        ]
+      },
+      {
+        "source_id": "13-6-v2",
+        "file_sha256": "2471e7f30c9e6c47f0fafe8104c801050294f01c039937738cbcffcff142f8cf",
+        "version": "2",
+        "start": 7632,
+        "end": 7655,
+        "quote": "Participant recruitment",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 28,
+            "start": 7632,
+            "end": 7655
+          }
+        ]
+      },
+      {
+        "source_id": "13-6-reply",
+        "file_sha256": "8c233eefac58112306962020a7b3c1ee31091d20a08ce1e732c339aef2cfccdd",
+        "version": "2",
+        "start": 636,
+        "end": 761,
+        "quote": "Additional clarifications were made regarding the expected response rate, citing literature to support our initial prediction",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 1,
+            "start": 636,
+            "end": 761
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "insufficient_material",
+      "result": "response_claim_unverified",
+      "expected_response": "不能。v1有约10%预计回应率，而所给v2招募段不再有该句；现有修订说明声称补充文献，但需定位具体出处和完整回复，不能把删除预测等同于提供依据。",
+      "full_reply_available": false,
+      "layers": {
+        "author_response": {
+          "status": "claims_citation_in_excerpt"
+        },
+        "text_implementation": {
+          "status": "deletion_observed_requested_citation_not_verified"
+        },
+        "editor_sufficiency": {
+          "status": "requires_editor",
+          "note": "Published revision-note excerpt is not a complete rebuttal; no acceptance or rejection judgment."
+        }
+      }
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "13-6-06",
+    "paper_id": "doi:10.12688/f1000research.143013",
+    "semantic_key": "table3_percentage_change",
+    "task": "B",
+    "split": "development",
+    "question": "能否定位Table3中“Peer review is bypassed”的人数呈现变化？不要因此说整张表都复核完了。",
+    "input_materials": [
+      "13-6-reply",
+      "13-6-review-1",
+      "13-6-v1",
+      "13-6-v2"
+    ],
+    "evidence": [
+      {
+        "source_id": "13-6-review-1",
+        "file_sha256": "3e606d6578f35dde99c1c42bbe9b99fa8823718d20c8419751b923840a968e57",
+        "version": "review-of-v1",
+        "start": 2800,
+        "end": 2937,
+        "quote": "Table 3 respondent column should be presented as a percentage of the total responses for that question, as provided in all other figures.",
+        "locations": [
+          {
+            "kind": "manifest_field",
+            "number": 1,
+            "start": 2800,
+            "end": 2937
+          }
+        ]
+      },
+      {
+        "source_id": "13-6-v1",
+        "file_sha256": "4433d0966d43636151bb6f4621fc526d3b824f69b866a5713fabec664577e9fd",
+        "version": "1",
+        "start": 24345,
+        "end": 24548,
+        "quote": "Peer review is bypassed\n\n“The regular method of disseminated research provides quality control in the form of peer review. Preprint often does not have this, but looks the same as a publication. […]”\n\n63",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 206,
+            "start": 24345,
+            "end": 24368
+          },
+          {
+            "kind": "docx_paragraph",
+            "number": 207,
+            "start": 24370,
+            "end": 24544
+          },
+          {
+            "kind": "docx_paragraph",
+            "number": 208,
+            "start": 24546,
+            "end": 24548
+          }
+        ]
+      },
+      {
+        "source_id": "13-6-v2",
+        "file_sha256": "2471e7f30c9e6c47f0fafe8104c801050294f01c039937738cbcffcff142f8cf",
+        "version": "2",
+        "start": 25495,
+        "end": 25707,
+        "quote": "Peer review is bypassed\n\n“The regular method of disseminated research provides quality control in the form of peer-review. Preprint often does not have this, but looks the same as a publication. […]”\n\n63 (31.98%)",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 206,
+            "start": 25495,
+            "end": 25518
+          },
+          {
+            "kind": "docx_paragraph",
+            "number": 207,
+            "start": 25520,
+            "end": 25694
+          },
+          {
+            "kind": "docx_paragraph",
+            "number": 208,
+            "start": 25696,
+            "end": 25707
+          }
+        ]
+      },
+      {
+        "source_id": "13-6-reply",
+        "file_sha256": "8c233eefac58112306962020a7b3c1ee31091d20a08ce1e732c339aef2cfccdd",
+        "version": "2",
+        "start": 1033,
+        "end": 1147,
+        "quote": "Table 3 has been updated to include percentages, improving the consistency of data presentation across all tables.",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 1,
+            "start": 1033,
+            "end": 1147
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "answerable",
+      "result": "located_change",
+      "expected_response": "对应项从63改为63 (31.98%)，可以核对此局部新增百分比；不能自动认证全表计算、其他条目或整轮修回。",
+      "full_reply_available": false,
+      "layers": {
+        "author_response": {
+          "status": "claims_change_in_excerpt"
+        },
+        "text_implementation": {
+          "status": "located_single_cell_change"
+        },
+        "editor_sufficiency": {
+          "status": "requires_editor",
+          "note": "Published revision-note excerpt is not a complete rebuttal; no acceptance or rejection judgment."
+        }
+      }
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  },
+  {
+    "id": "13-6-07",
+    "paper_id": "doi:10.12688/f1000research.143013",
+    "semantic_key": "explanation_for_unchanged_authors",
+    "task": "B",
+    "split": "retained_for_followup",
+    "question": "作者说作者列表无需更改，正文也没有变化，应自动算“未回应”吗？",
+    "input_materials": [
+      "13-6-reply",
+      "13-6-v1",
+      "13-6-v2"
+    ],
+    "evidence": [
+      {
+        "source_id": "13-6-reply",
+        "file_sha256": "8c233eefac58112306962020a7b3c1ee31091d20a08ce1e732c339aef2cfccdd",
+        "version": "2",
+        "start": 308,
+        "end": 360,
+        "quote": "Regarding the author list, no changes were required.",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 1,
+            "start": 308,
+            "end": 360
+          }
+        ]
+      },
+      {
+        "source_id": "13-6-v1",
+        "file_sha256": "4433d0966d43636151bb6f4621fc526d3b824f69b866a5713fabec664577e9fd",
+        "version": "1",
+        "start": 93,
+        "end": 226,
+        "quote": "Ng Jeremy Y.; Chow Valerie; Santoro Lucas J.; Armond Anna Catharina Vieira; Pirshahid Sanam Ebrahimzadeh; Cobey Kelly D.; Moher David",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 2,
+            "start": 93,
+            "end": 226
+          }
+        ]
+      },
+      {
+        "source_id": "13-6-v2",
+        "file_sha256": "2471e7f30c9e6c47f0fafe8104c801050294f01c039937738cbcffcff142f8cf",
+        "version": "2",
+        "start": 93,
+        "end": 226,
+        "quote": "Ng Jeremy Y.; Chow Valerie; Santoro Lucas J.; Armond Anna Catharina Vieira; Pirshahid Sanam Ebrahimzadeh; Cobey Kelly D.; Moher David",
+        "locations": [
+          {
+            "kind": "docx_paragraph",
+            "number": 2,
+            "start": 93,
+            "end": 226
+          }
+        ]
+      }
+    ],
+    "reference": {
+      "status": "engineering_draft_not_editor_validated",
+      "answerability": "partially_answerable",
+      "result": "explained_no_change",
+      "expected_response": "不应。回复节选明确称作者列表无需变化，两版署名一致；记录解释和未变事实。但节选未提供更完整理由，也未表明这是编辑要求，因此不判断解释是否充分。",
+      "full_reply_available": false,
+      "layers": {
+        "author_response": {
+          "status": "states_no_change_required"
+        },
+        "text_implementation": {
+          "status": "same_byline_observed"
+        },
+        "editor_sufficiency": {
+          "status": "requires_editor",
+          "note": "Published revision-note excerpt is not a complete rebuttal; no acceptance or rejection judgment."
+        }
+      }
+    },
+    "limitations": [
+      "Engineering reference draft; an authorised editor must independently check context and sufficiency."
+    ]
+  }
+]

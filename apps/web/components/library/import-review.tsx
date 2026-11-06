@@ -15,17 +15,37 @@ const tabs = [["fields", "核对表单"], ["text", "提取全文"], ["sources", 
 
 
 export default function ImportReview({ imported, detail, busy, onDirty, onConfirm }: {
-  imported: DocumentImport; detail: Dossier; busy: boolean; onDirty: (value: boolean) => void; onConfirm: (data: DossierData) => Promise<void>;
+  imported: DocumentImport; detail: Dossier; busy: boolean; onDirty: (value: boolean) => void; onConfirm: (data: DossierData, materialOnly: boolean) => Promise<void>;
 }) {
   const [tab, setTab] = useState<(typeof tabs)[number][0]>("fields");
   const [acknowledged, setAcknowledged] = useState(false);
+  const [materialOnly, setMaterialOnly] = useState(false);
+  const hasSavedFields = !!detail.file || detail.version_no > 1 || !!(detail.data.title.trim() || detail.data.abstract.trim() || detail.data.authors.length || detail.data.keywords.length || Object.values(detail.data.document_metadata ?? {}).some(value => value?.trim()));
+  const [useSaved, setUseSaved] = useState(hasSavedFields);
+  const [formEdits, setFormEdits] = useState(false);
+  const [formGeneration, setFormGeneration] = useState(0);
   const [source, setSource] = useState<FieldSource | null>(null);
   const [sourceError, setSourceError] = useState("");
   const mark = useRef<HTMLElement>(null);
   const original = fileDownloadURL(imported.original_download_url);
   const confirmed = imported.confirmed_version_id;
   const editable = imported.editable && !confirmed && detail.revision === imported.base_revision && detail.version_id === imported.base_version_id;
-  const candidate: Dossier = { ...detail, data: imported.proposed_data, missing: [] };
+  const savedMetadata = detail.data.document_metadata, proposedMetadata = imported.proposed_data.document_metadata;
+  const preservedMetadata = savedMetadata || proposedMetadata ? {
+    ...savedMetadata, ...proposedMetadata,
+    ...Object.fromEntries(Object.entries(savedMetadata ?? {}).filter(([, value]) => value?.trim())),
+  } : null;
+  const preservedData: DossierData = {
+    ...imported.proposed_data,
+    title: detail.data.title.trim() ? detail.data.title : imported.proposed_data.title,
+    abstract: detail.data.abstract.trim() ? detail.data.abstract : imported.proposed_data.abstract,
+    keywords: detail.data.keywords.length ? detail.data.keywords : imported.proposed_data.keywords,
+    authors: detail.data.authors.length ? detail.data.authors : imported.proposed_data.authors,
+    language: detail.version_no > 1 ? detail.data.language : imported.proposed_data.language,
+    source_kind: detail.data.source_kind, source_note: detail.data.source_note,
+    ...(preservedMetadata ? { document_metadata: preservedMetadata } : {}),
+  };
+  const candidate: Dossier = { ...detail, data: useSaved && !confirmed ? preservedData : imported.proposed_data, missing: [] };
   const characters = Array.from(imported.text);
   useEffect(() => {
     if (tab !== "text" || !source) return;
@@ -47,7 +67,16 @@ export default function ImportReview({ imported, detail, busy, onDirty, onConfir
     {sourceError && <p className={styles.sourceError} role="alert">{sourceError}</p>}
     <div className={styles.materialBody}>
       <div id="import-panel-fields" role="tabpanel" aria-labelledby="import-tab-fields" hidden={tab !== "fields"}>
-        <DossierEditor key={imported.id} detail={candidate} hidden={false} importIssues={imported.metadata_uncertainties} busy={busy || !editable} saving={busy} onDirty={value => { setAcknowledged(false); onDirty(value); }} onSave={async data => { if (!editable || !acknowledged) return; setAcknowledged(false); await onConfirm(data); }} importReview={{ canSubmit: editable && acknowledged, confirmation: <section className={styles.confirm}><label className={styles.checkbox}><input name="import-acknowledged" type="checkbox" checked={acknowledged} disabled={!editable || busy} onChange={event => setAcknowledged(event.target.checked)} /><span>我已对照原文件逐项核对提取全文和全部作者元数据，确认核对并保存为新版本。</span></label><p className={styles.hint}>修改字段后需要重新勾选。本次只确认导入，不提交稿件、认证作者身份或作编辑决定。</p></section> }} />
+        {editable && hasSavedFields && <section className={`${styles.importOverview} ${styles.candidateComparison}`}>
+          <p>{useSaved ? "已有资料字段已保留，空项采用识别候选。替换已有内容前请核对差异。" : "正在使用本次识别候选，保存前请核对与原资料的差异。"}</p>
+          <button type="button" disabled={busy} onClick={() => {
+            if (formEdits && !window.confirm("切换资料来源会放弃表单中尚未保存的修改。继续？")) return;
+            setUseSaved(!useSaved); setFormGeneration(value => value + 1); setFormEdits(false); setAcknowledged(false); onDirty(true);
+          }}>{useSaved ? "使用本次识别结果" : "保留当前资料字段"}</button>
+          <details><summary>比较已保存字段与识别候选</summary><h3>已保存字段</h3><pre>{JSON.stringify(detail.data, null, 2)}</pre><h3>识别候选</h3><pre>{JSON.stringify(imported.proposed_data, null, 2)}</pre></details>
+        </section>}
+        {editable && <label className={`${styles.checkbox} ${styles.materialOption}`}><input name="import-material-only" type="checkbox" checked={materialOnly} disabled={busy} onChange={event => { setMaterialOnly(event.target.checked); setAcknowledged(false); onDirty(true); }} /><span>先保存材料，作者及其他缺项稍后补齐</span></label>}
+        <DossierEditor key={`${imported.id}:${formGeneration}`} detail={candidate} hidden={false} importIssues={imported.metadata_uncertainties} busy={busy || !editable} saving={busy} onDirty={value => { setAcknowledged(false); setFormEdits(value); onDirty(value); }} onSave={async data => { if (!editable || !acknowledged) return; setAcknowledged(false); await onConfirm(data, materialOnly); }} importReview={{ materialOnly, canSubmit: editable && acknowledged, confirmation: <section className={styles.confirm}><label className={styles.checkbox}><input name="import-acknowledged" type="checkbox" checked={acknowledged} disabled={!editable || busy} onChange={event => setAcknowledged(event.target.checked)} /><span>{materialOnly ? "我已对照原件核对提取文字和当前表单，确认保存材料；缺项保留待补，不代表完整资料已核对。" : "我已对照原文件逐项核对提取全文和全部作者元数据，确认核对并保存为新版本。"}</span></label><p className={styles.hint}>修改字段后需要重新勾选。本次只确认导入，不提交稿件、认证作者身份或作编辑决定。</p></section> }} />
       </div>
       <section id="import-panel-text" role="tabpanel" aria-labelledby="import-tab-text" hidden={tab !== "text"} className={styles.original}>
         <div className={styles.originalHeading}><h2>提取全文</h2>{source && <span>{documentLocation(source.kind, source.number)}</span>}</div>

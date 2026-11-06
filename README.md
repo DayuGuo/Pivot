@@ -1,32 +1,41 @@
 # Pivot
 
-第七批已在本机验收：[上下文建议与正式修回对照](specs/024-contextual-guidance-and-revision-comparison.md)。资料区/正式出版对话上方给出按角色、阶段、缺项与已有证据选择的建议，只填草稿；正式修回逐项比较已分享要求、原/修订全文和回复，显示版本、原文行号及历史提示。AI判断仍须负责人核对，不自动发信、确认修回或作决定。本机1344后端＋93浏览器通过；真实DeepSeek合成两阶段协议通过，非真实论文准确率。同源码GitHub完整CI1344＋93通过，详[报告](docs/development/spec024-review.md)与[PR #5](https://github.com/DayuGuo/Pivot/pull/5)（依赖未合并PR #4）。保留数据，无新迁移，不部署VPS。
+## 统一搜索
 
-第六批已验收：[独立评价人工核对、回传和分歧](specs/023-independent-evaluation-returns.md)。在已有回答下打开“独立评价回传”，指定代号登记v2包，进入独立核对页下载/上传JSON，逐条对照原文并勾选后确认。按代号最新确认汇总，待核对/未评价单列，不改原回答/资料核对/出版决定。旧v1包不具备回传映射；代号不是身份认证。本机与同源码CI **1319后端＋91浏览器**通过，详[验收报告](docs/development/spec023-review.md)。本轮不部署VPS，邮件继续禁发。
+侧栏品牌下的搜索框支持对话标题、正式／早期稿件题名及编号、本人内部资料题名的部分关键词匹配；搜索范围随当前授权，原“搜索对话”已合并。输入后点击结果或用方向键与Enter打开，Escape关闭结果。资料页原题名过滤同步保留；搜索不会调用模型或改变稿件。实际验收见[PROGRESS](PROGRESS.md)和[范围](specs/030-global-search.md)。本轮完整本机验收1,641后端＋501浏览器通过（各引擎167，0重试），源码`e6f716e`；独立[Mock预览](http://127.0.0.1:13100/)使用现有本地演示账号。同源码PR完整CI与PR／push静态CI也通过；push完整CI在本次记录时仍运行，未计为成功。主应用／VPS未在本轮更新。
 
-第五批已验收：[读取一致性与独立评价包](specs/022-independent-evaluation-and-integrity.md)。修复反馈历史的并发快照和等待下载时切换账号问题，拆出共享来源/查询服务；回答下可下载隐藏AI判定、保留准确历史全文/作者/引文的私人评价JSON。本人核对与出版决定分离，没有新迁移/评价回传或专家盲评。本机与同源码CI **1287后端＋88浏览器**通过，详[复核与交付记录](docs/development/spec022-review.md)。PR #2已获授权合并；本轮不部署VPS，现有数据保持不变。
+## 身份工作区
 
-第四批源码增量：[逐条结论人工复核](specs/021-human-claim-feedback.md)。在对话中定位原文，再记录个人复核意见和理由；按历史版本追加，不改原回答、不替代稿件决定。支持复核历史和摘要下载，Mock/未检查及待核对意见不进入一致性比较分母。完整验收见PROGRESS；现有preview.4安装包不包含这次新增迁移/界面，本轮不部署VPS。
+点击工作区左下角头像／姓名，选择账号已获授的编辑、审稿人、主编或作者身份，在独立页确认后进入对应任务与稿件视图。切换保留原业务数据；不会授予新权限，取消离开可保留未保存内容。现有单职务账号不自动扩权。
 
-第三批本机已验收：[作者关联、不确定性与原文支持检查](specs/020-author-links-and-claim-support.md)。真实模型候选的机构、邮箱、ORCID与个人贡献增加正向归属证据，来源不足留空；结论经独立上下文检查，不足或矛盾项转待核对。旧记录不重写、ORCID不冒称已认证；最终已执行结果见[交付记录](docs/development/spec020-review.md)。VPS不自动更新。
+本轮完整本机验收：1,613后端＋465浏览器通过（三引擎各155，0重试；本机WebKit采用显式软件渲染），实现源 `267fd46`，同提交PR／push完整与静态CI均通过。独立Mock预览：[身份工作区](http://localhost:13100/publishing)。现有主服务没有在本轮更新。
 
-第二批维护已验收：[资料恢复、分页与小内存并发](specs/019-recovery-pagination-and-admission.md)。新源码提供主动同UUID重试、写成功后的仅读取恢复、资料/对话/版本/导入分页与单worker重任务准入；实际验收与发行状态以[PROGRESS](PROGRESS.md)顶部为准。VPS不会自动更新。
+本机 local 多身份体验账号：`multi@publishing.test` / `MultiDemo2026!`。私人 VPS bootstrap 不启用该公开密码。职责、官方 OJS／Janeway 依据与验收见 [spec029](specs/029-role-workspaces.md) 和[交付记录](docs/development/role-workspaces.md)；没有自动更新 VPS 或公开静态站。
 
-本轮已完成第一批[可靠性与模块维护](specs/018-dossier-reliability-and-maintenance.md)：导入确认回执绑定、原件重验与批量读取；[模块地图](docs/development/module-map.md)说明每类修改的位置，[审查记录](docs/development/spec019-review.md)保留重现与验收证据。
 
-已发布[完整应用私人体验包 v0.2.0-preview.4](https://github.com/DayuGuo/Pivot/releases/tag/v0.2.0-preview.4)（约270MiB）：独立于原静态展示站，预编译amd64镜像、私人登录、真实DeepSeek/PDF/Word、受限内存与备份恢复。无需在VPS编译，默认SSH隧道访问3210；旧站和旧资料保持不动。[安装说明](infrastructure/vps/README.md) · [本轮原生x86与真实模型验收](docs/development/spec020-review.md)。用户已报告旧版VPS安装完成；本轮未自动更新该服务器。[已安装用户的保留数据更新](docs/deployment/private-preview-upgrade.md)使用原--state，不重新init。不是生产投审稿服务。
+真实工作区侧栏下方新增“设置”：模型API状态/安全接入步骤、邮箱绑定和当前账号集中管理，打开面板保留当前稿件与对话草稿。spec028当时本机已更新，完整1559后端＋429浏览器通过；当前运行状态见本页顶部。模型密钥仍由服务器安全环境管理，不在网页录入或存储。[操作与验收](docs/development/settings.md)。
 
-最新增量：[公开论文实测与修复](docs/development/public-paper-evaluation.md)。使用3篇许可明确的真实论文、6份原始或明确标注的转制PDF/Word检查全文、26位次作者与38项机构对应，并实际运行独立核对和真实DeepSeek问答。模型结果及已执行验收以PROGRESS顶部为准；文本抽取不等于视觉版面、公式或科学正确性验证。可复现实验入口与许可见[样本目录](evals/public_documents/README.md)。
+[PR #8 最后一轮CI复核](docs/development/spec027/ci-followup.md)已完成：修复原生包慢镜像超时，6f76d7d完整push/PR各1559后端＋399浏览器通过，静态双轮和原生amd64包验收通过；真实超时回退路径也已验证。未合并、未部署VPS，失败及本机会话中断记录保留。
 
-[保留资料的 VPS 更新说明](docs/deployment/update-preserving-data.md)：分别说明静态 Demo 与完整 Compose，包含数据库/原件备份、增量迁移和模型环境保留；本轮未执行 VPS 部署。
+当前分支提供单刊辅助核对候选版：PDF/Word资料核对、带原文的问答、私人多版本修回核对和三层人工判断。使用说明见[操作指南](docs/development/spec027/operating-guide.md)，准确源码、测试、真实模型、升级恢复及限制见[交付记录](docs/development/spec027/review.md)和[PROGRESS](PROGRESS.md)。此段保留spec027历史快照：当时应用代码3307df6、CI修复源码6f76d7d；当前增量以本页顶部与PROGRESS为准。历史本机完整门禁1530＋399通过，本次本机会话143中断不计完整成功。此前本机更新保留原53表3560行/24原件，本轮不再改主服务或数据；工程通过不等于专家内容验收。
 
-本轮新增：[PDF/Word 导入与人工核对](docs/development/document-import-review.md)。本机真实 DeepSeek 的 PDF、DOCX 提取和问答各通过，浏览器引用定位、刷新与 API/Web 重启恢复通过；最终完整回归以 [PROGRESS.md](PROGRESS.md) 顶部为准。公网静态 Demo 不包含此真实后端增量。
+草稿[PR #8](https://github.com/DayuGuo/Pivot/pull/8)叠加未合并#7/#6，本轮不自动合并或更新VPS。公开静态站、已安装preview.4与本分支候选包分开；同刊已授权多职务切换见spec029；日历、多期刊选择和正式公开出版仍按[路线图](ROADMAP.md)后续推进。真实编辑评价尚未执行，不能据工程测试宣称节时或科学准确率。
 
-仅使用合成或获授权的公开非保密材料。负责人确认的是资料版本，不是正式投稿、邮件或编辑决定；模型没有这些确认工具。需要显式重现真实合成验收时：`.venv/bin/python scripts/accept-document-import.py --live`（本机8100/55432；会新建合成资料并由测试驱动模拟演示负责人核对，不读取或打印模型密钥）。
+已发布的[完整应用私人体验包 v0.2.0-preview.4](https://github.com/DayuGuo/Pivot/releases/tag/v0.2.0-preview.4)可与静态站并存：预编译amd64镜像、私人账号、DeepSeek/PDF/Word、受限内存与备份恢复。它不包含本分支全部增量；候选仅提供CI artifact，不自动发布Release。[安装说明](infrastructure/vps/README.md) · [保留数据升级](docs/deployment/private-preview-upgrade.md)。已安装用户不重新init、不删除卷；用户已报告VPS装有旧版，本轮没有连接或更新服务器。
+
+真实邮件继续禁发，关键决定由负责人独立核对。仅使用合成或明确授权的公开非保密材料，模型没有确认/发送/决定工具；ORCID文本不等于认证。历次发布和失败修复记录保留在PROGRESS及docs/development。
 
 以稿件资料为基础的对话式科研出版工作台。编辑从自己的待办进入稿件，在中心对话中审阅，随时在右侧核对原文、作者资料和引用；正式操作保留负责人的确认权。
 
 **[在线体验 Pivot](https://pivot.anotherdayu.com/)**
+
+## 正式稿件 PDF / Word 与修回
+
+作者以 `author@publishing.test` / `AuthorDemo2026!` 登录，打开[出版工作台](http://localhost:3100/publishing)并新建投稿或进入本人修回草稿，在资料栏选择“导入 PDF / Word 并核对”。明确授权与完整/节选范围后提取；独立核对原件、全文和正文起止页/段，三项勾选后才保存为当前正式草稿文件。已有作者元数据/声明保持原样，正式提交仍另行负责人确认。待核对导入可在同页找回；响应丢失重试原请求，不重复保存。
+
+正式修回请求和作者可见报告齐备时，在中心对话发起“逐条对照修回与作者回复”。引用包含新旧版本、原文行号和受控PDF页/Word段位置；点击“定位已核对全文”可展开实际版本并高亮引用，同时保留原件下载；超过8项可点击继续，保留未发送草稿。长意见分段、回复节选、未完整读取与不确定判断明确标注，AI不确认完成、不发邮件、不作编辑决定。
+
+规格：[spec025](specs/025-formal-document-revisions/spec.md)；许可与限制：[公开版本对语料](evals/public_revisions/README.md)。样本包含真实版本文章和真实文章内修订说明节选；Word是明确的许可XML转换，不是出版社原生Word，没有完整rebuttal letter。真实模型实验与完整自动化状态见PROGRESS，不以Mock或小样本推导科学准确率。
 
 ## 本地试用真实资料录入
 
@@ -34,9 +43,15 @@
 ./scripts/start.sh
 ```
 
-打开 [内部审阅资料](http://localhost:3100/library)，未登录时先用 `editor@publishing.test` / `EditorDemo2026!` 登录，再从“内部审阅资料”进入。可手动录入完整 TXT/Markdown（UTF-8、≤1 MiB），或在资料右侧点击“导入 PDF / Word”。文本层 PDF 与 `.docx` 原件≤5 MiB，PDF≤60页，提取文字≤1 MiB；系统提取完整文字、页/段位置及作者元数据候选，随后进入独立核对页。上传不改变当前版本；负责人补齐并核对完整表单、勾选确认后才建立已核对新版本。点击对话引用可定位对应 PDF 页或 Word 提取段并下载原件；刷新和重启可恢复。扫描件、加密文件、旧 `.doc` 及不支持的复杂结构明确拒绝，当前没有OCR或图表/公式理解。
+打开 [内部审阅资料](http://localhost:3100/library)，未登录时先用 `editor@publishing.test` / `EditorDemo2026!` 登录，再从“内部审阅资料”进入。可手动录入完整 TXT/Markdown（UTF-8、≤1 MiB），或在资料右侧点击“导入 PDF / Word”。文本层 PDF 与 `.docx` 原件≤5 MiB，PDF≤60页，提取文字≤1 MiB；系统提取完整文字、页/段位置及作者元数据候选，随后进入独立核对页。上传不改变当前版本；负责人可先勾“先保存材料，作者及其他缺项稍后补齐”，核对后保存待补材料版本并继续正文审阅；资料齐全时再走完整核对。材料保存不冒充完整资料确认或正式投稿。类型、基金、声明原文为可选候选，缺少则未知，录入不等于本人签署。再次提取默认保留人工字段，明确选择才替换。点击对话引用可定位对应 PDF 页或 Word 提取段并下载原件；刷新和重启可恢复。扫描件、加密文件、旧 `.doc` 及不支持的复杂结构明确拒绝，当前没有OCR或图表/公式理解。
 
 这是本地真实 PostgreSQL/CAS 资料功能，与公网静态 Demo 分开。资料对话沿服务端配置使用DeepSeek或明确标记的Mock，基于当前版本的全文/作者字段生成带逐字定位的审阅建议。外部引用目前仅核验资料或问题已给出的DOI书目元数据，不做全网检索或读取外部全文；结论仍须人工复核。ORCID为手工录入、格式检查，不等于身份认证。权限、字段、验收与下一步见 [spec013](specs/013-internal-review-dossiers.md) 、[基础交付记录](docs/development/internal-dossiers.md) 和 [真实问答](docs/development/dossier-grounded-review.md)。
+
+## 内部修回核对
+
+同一资料先保存原稿，再保存修订稿；在右栏选择“修回核对”，明确两版、预拆要求和原上下文、粘贴作者回复/来源及完整度。生成只读AI辅助包，点击新旧原文定位，负责人分别记录作者回应、正文落实、编辑充分性和理由，并显式核对后追加保存。结果及最新人判可导出JSON，历史不自动批准新版本；不存在邮件或出版决定工具。
+
+当前每批1—8条要求由编辑预拆，回复是粘贴文本；不是四份文件自动建整套修回，也未验证完整逐点回复信。[6篇/42项许可评价准备](evals/single_journal_pilot/README.md)与实际编辑评价分开，后者仍0人。中断沿原UUID主动恢复，已知保存后仅读取恢复，不自动重发。
 
 ## 先体验产品 Demo
 
@@ -67,7 +82,7 @@ bash install.sh
 
 前提为Linux amd64与Docker；默认监听环回8080，可通过HTTPS代理访问。明确需要公网IP直接演示时用`PIVOT_BIND=0.0.0.0 PIVOT_PORT=8080 bash install.sh`并自行放行端口。本机构建：`./scripts/build-demo.sh --image && ./scripts/package-vps-demo.sh`，VPS无需编译、数据库或模型密钥。[五分钟演示与完整安装说明](docs/deployment/demo-racknerd.md) · [本阶段范围](specs/012-showcase-demo.md) · [实际验证记录](docs/development/demo-delivery.md)。源码与4个附件已公开发布，本地与远端完整CI均835 Pytest +48 Playwright通过，x86实际解包安装/11 E2E通过；发行报告见[公开发行验收](docs/development/pivot-release.md)。用户已自行部署[公网Demo](https://pivot.anotherdayu.com/)，线上11项浏览器验收通过；本轮仅检查公开网页，未通过SSH审查服务器配置。
 
-核心产品设计：[PRODUCT_DESIGN.md](PRODUCT_DESIGN.md)。日历/双层对话当前只在独立Demo展示；真实数据库中的聚合、多身份、多刊邀请与邮箱/ORCID注册仍待实施，不能从截图推断上线。
+核心产品设计：[PRODUCT_DESIGN.md](PRODUCT_DESIGN.md)。日历/双层对话当前只在独立Demo展示；真实数据库中的跨刊聚合、多期刊选择、多刊邀请与邮箱/ORCID注册仍待实施；同刊已授权多职务切换见spec029，不能从展示截图推断部署。
 
 Demo反馈后：[单人＋Codex单刊审阅第一阶段](specs/011-single-journal-review-pilot.md)。包含8周计划、约3万元现金准备及真实试点前的专业复核关口；资料包、文本层PDF/DOCX与只读版本证据问答已按切片本地实现；公开样本评测已按spec016完成一轮；更广泛格式覆盖、ORCID认证与专业复核尚待完成。展示Demo沿用现有电脑/Codex/已购VPS，不需要这笔真实试点预算或新增模型消费。
 
@@ -79,20 +94,11 @@ Demo反馈后：[单人＋Codex单刊审阅第一阶段](specs/011-single-journa
 
 真实v0.1基线为835 Pytest +35 Playwright；2026-11-03展示增量后的完整验证为 **835 Pytest +48 Playwright**，scripts/verify.sh退出0，静态检查、PostgreSQL迁移/结构检查及前后端构建通过。独立原生静态包另通过11项；amd64包已在真实x86 GitHub CI实际安装并通过11项验收，用户VPS未实装，边界见[展示交付记录](docs/development/demo-delivery.md)。既有新领域真实API **6/6（35.178秒）** 与实际浏览器通过；[恢复验收](docs/development/deepseek-recovery.md)与[代码复核](docs/development/v01-code-review.md)记录此前发现、修复及限制，本轮Demo未调用真实模型。
 
-验证新代码使用独立栈，保护当前主服务中的真实模型环境：
-
-```bash
-docker compose -p publishing-os-verification -f compose.yaml -f infrastructure/compose.verify.yaml up -d --build --wait
-COMPOSE_PROJECT_NAME=publishing-os-verification COMPOSE_FILE=compose.yaml:infrastructure/compose.verify.yaml DATABASE_URL=postgresql+psycopg://publishing:publishing_local@localhost:55433/publishing E2E_BASE_URL=http://127.0.0.1:13100 ./scripts/verify.sh
-DATABASE_URL=postgresql+psycopg://publishing:publishing_local@localhost:55433/publishing .venv/bin/python scripts/rehearse-publishing-migration.py
-```
-
-隔离浏览器13100、API18100、DB55433、Mailpit18025；Mock且无供应商凭据。`check-research-library.py` 是离线资料完整性门禁，不会重新下载或执行上游代码。
-
+验证使用独立Mock栈，保护当前主服务中的数据和真实模型环境；启动与完整命令见[自动验证与本地开发](#自动验证与本地开发)。
 
 以对话与 AI Agent 为入口的科研期刊出版操作系统原型。首条业务链真实运行于 PostgreSQL：登录 → 对话创建合成测试稿件 → 提交并分派编辑初筛 → 状态、待办、对话、审计持久化 → 刷新恢复。
 
-**默认无凭据为明确标记的Mock；当前本机 `/publishing` 使用真实DeepSeek，已通过当前稿件/角色/实际文件/候选/待确认提案与危险请求拒绝验收。瞬时故障有限重试，持续失败明确回滚，不静默回退Mock。真实邮件始终禁用，不包含生产部署。**
+**默认无凭据为明确标记的Mock；此前本机 `/publishing` 的真实DeepSeek已通过当前稿件/角色/实际文件/候选/待确认提案与危险请求拒绝验收，当前运行与部署状态以PROGRESS为准。瞬时故障有限重试，持续失败明确回滚，不静默回退Mock。真实邮件始终禁用，不包含生产部署。**
 
 当前外观依据用户提供的最新 Hermes 工作台截图：浅灰侧栏、白色对话区、细蓝色选中线与底部输入框。参考证据和适配取舍见 [DESIGN.md](DESIGN.md)。原样遵循 AGENTS.md 中的精简标签规则；四个设计技能的来源、分工和安装记录见 [设计技能](docs/development/design-skills.md)，本轮审查与限制见 [设计验收](docs/development/design-acceptance.md)。
 
@@ -133,7 +139,7 @@ DATABASE_URL=postgresql+psycopg://publishing:publishing_local@localhost:55433/pu
 
 6. 制作人员上传实际正文校样并独立确认交作者；作者逐包检查、确认通过或要求更正；制作人员最后审核生成本地预览。预览需登录，仍非正式发表。
 
-新领域已更新至主服务 http://localhost:3100/publishing，主库迁移为12e06b9c4f53，结构检查通过；隔离Mock验证栈为13100/18100/55433。主服务保留真实模型配置，健康检查仅报告配置，不代替实际供应商验收。新领域真实API 6/6、浏览器文件引用/刷新/人类确认边界已通过，详见 [真实出版对话验收](docs/development/deepseek-recovery.md)。
+v0.1交付时新领域更新至主服务 http://localhost:3100/publishing、主库迁移为12e06b9c4f53；当前迁移及完整结果以PROGRESS顶部为准。隔离Mock验证栈为13100/18100/55433。主服务保留真实模型配置，健康检查仅报告配置，不代替实际供应商验收。新领域真实API 6/6、浏览器文件引用/刷新/人类确认边界已通过，详见 [真实出版对话验收](docs/development/deepseek-recovery.md)。
 
 ### 保留的旧版初筛演示
 
@@ -169,31 +175,25 @@ Mock 只模拟意图识别，稿件/任务/状态/审计不是前端假数据。
 
 ## 自动验证与本地开发
 
-运行测试工具需 Node.js 22、Python 3.12+、uv 和浏览器系统依赖。先启动服务，再安装项目隔离测试环境：
+测试工具需Node.js 22、Python 3.12+、uv、Docker与浏览器系统依赖。完整验收使用独立Mock数据库，不能与日常真实模型服务混用：
 
 ```bash
 ./scripts/setup.sh
-# Linux 首次若缺 Chromium 系统依赖：npx playwright install-deps chromium
-./scripts/verify.sh
+# Linux首次需要浏览器系统依赖；下载引擎本身不能替代此步
+npx playwright install-deps chromium firefox webkit
+docker compose -p publishing-os-verification -f compose.yaml -f infrastructure/compose.verify.yaml up -d --build --wait
+COMPOSE_PROJECT_NAME=publishing-os-verification COMPOSE_FILE=compose.yaml:infrastructure/compose.verify.yaml DATABASE_URL=postgresql+psycopg://publishing:publishing_local@localhost:55433/publishing E2E_BASE_URL=http://127.0.0.1:13100 ./scripts/verify.sh
 ```
 
-验证包含 Ruff、模型依赖边界、真实 PostgreSQL 迁移/漂移、Pytest、ESLint、TypeScript、Compose 中的 Next.js 生产构建和真实 API 的 Playwright。测试不会删除演示数据；普通 Pytest 使用外部事务回滚，并发测试只保留唯一命名合成数据，E2E 会保留新建演示稿件。
+Linux共享GPU主机若因WebKit图形上下文内存不足启动失败，可在下列隔离验证环境之外另加 `PIVOT_WEBKIT_SOFTWARE_RENDERING=1`。该选项只让测试WebKit和预检使用系统Mesa软件渲染，缺少Mesa明确失败；不更改系统驱动、应用或VPS。
 
-证据写入 `artifacts/pytest.xml`、`artifacts/playwright-report/index.html`、`artifacts/playwright-results/`；浏览器截图为 `artifacts/hermes-desktop-chat.png`、`artifacts/hermes-mobile-chat.png` 与 `artifacts/mail-settings.png`。最新实际执行结果见 [PROGRESS.md](PROGRESS.md)。CI 定义在 `.github/workflows/ci.yml`，本次交付不声称远端 GitHub Actions 已执行。
+隔离Web13100、API18100、DB55433、Mailpit18025，无供应商凭据。verify拒绝对真实模型服务运行；不要让Pytest与Playwright共用同一验证库并发。普通Pytest以外部事务回滚，专门并发/E2E保留唯一命名的合成数据，不删除已有演示资料。
 
-分项命令：
+门禁先实际启动三个空白浏览器，缺库时在数据库工作前失败；随后包含全仓离线语法、Ruff、研究完整性、模块依赖、引文回归、PostgreSQL迁移/漂移、Pytest、ESLint、TypeScript和Compose生产构建。构建后启动相同镜像，再用Chromium、Firefox、WebKit单worker验收。不会安装测试浏览器到VPS。物理设备/真实发行版边界与按引擎执行方式见[兼容性说明](docs/development/browser-compatibility.md)。
 
-```bash
-.venv/bin/pytest -q
-.venv/bin/alembic check
-npm run lint
-npm run typecheck
-docker compose build web
-npm run test:e2e
-.venv/bin/python scripts/check-boundaries.py
-```
+证据写入`artifacts/pytest.xml`、`artifacts/playwright-report/`、`artifacts/playwright-results/`。本轮日志/截图在`artifacts/spec027/`，可分享的结果见[复核报告](docs/development/spec027/review.md)与[PROGRESS](PROGRESS.md)。CI定义在`.github/workflows/ci.yml`和`demo.yml`；报告逐次绑定实际测试SHA，不将取消/失败运行算作通过。
 
-当前宿主环境 `npm run build` 的 PostCSS 内部工作进程端口被沙箱 EPERM 拒绝；验收执行与启动一致的 `docker compose build web`，没有跳过构建。
+静态子检查可直接执行`npm run lint`、`npm run typecheck`、`.venv/bin/python scripts/check-boundaries.py`。重跑数据库/API/浏览器子集时沿用上述隔离环境，不切回主库。生产构建使用`docker compose build web`，与实际运行环境一致。
 
 热更新开发：停止 Compose 中的 Web/API（`docker compose stop web api`），运行 `./scripts/dev.sh`；该脚本继续使用同一 PostgreSQL，启动本地 API 与 Next 开发服务，退出时停止这两个进程。`DATABASE_URL` 可通过环境覆盖；默认是本机项目数据库。只允许 PostgreSQL，不使用 SQLite 替代验收。
 

@@ -15,6 +15,7 @@ from packages.mail_adapters import MailCredentials, ProbeConfig, ProbeResult, pr
 
 from .audit import record
 from .db import get_db
+from .domain.core import ensure_actor
 from .models import MailAccount, now
 from .policy import EDITOR_ROLES
 from .security import Actor, get_actor
@@ -112,6 +113,8 @@ class MailAccountInput(BaseModel):
 
 
 def mail_editor(actor: Actor = Depends(get_actor), db: Session = Depends(get_db)) -> Actor:
+    # Pin the request's original authority before a row-lock or provider wait.
+    ensure_actor(db, actor)
     if actor.role not in EDITOR_ROLES:
         record(
             db,
@@ -120,6 +123,7 @@ def mail_editor(actor: Actor = Depends(get_actor), db: Session = Depends(get_db)
             action="mail.action_denied",
             details={"role": actor.role},
         )
+        ensure_actor(db, actor, for_commit=True)
         db.commit()
         raise HTTPException(403, "只有编辑或主编可以管理期刊邮箱")
     return actor
@@ -170,6 +174,7 @@ def owned_account(db: Session, actor: Actor, account_id: str) -> MailAccount:
         .where(MailAccount.id == account_id, MailAccount.journal_id == actor.journal_id)
         .with_for_update()
     )
+    ensure_actor(db, actor)
     if not account:
         raise HTTPException(404, "邮箱绑定不存在或无权访问")
     return account
@@ -182,6 +187,7 @@ def list_accounts(actor: Actor = Depends(mail_editor), db: Session = Depends(get
         .where(MailAccount.journal_id == actor.journal_id)
         .order_by(MailAccount.created_at.desc())
     ).all()
+    ensure_actor(db, actor)
     return {"accounts": [account_json(a) for a in accounts], "email_send_enabled": False}
 
 
@@ -198,6 +204,7 @@ def bind_account(
         )
         .with_for_update()
     )
+    ensure_actor(db, actor)
     rebinding = account is not None
     if account:
         if account.enabled:
@@ -228,6 +235,7 @@ def bind_account(
         entity_id=account.id,
         details={"provider": account.provider, "address": account.address},
     )
+    ensure_actor(db, actor, for_commit=True)
     db.commit()
     return account_json(account)
 
@@ -256,6 +264,9 @@ def verify_account(
         )
     except Exception:
         result = ProbeResult("error", "probe_failed")
+    # Probing has no send capability, but its status write still requires the
+    # original live session and membership. Never adopt a changed ORM role.
+    ensure_actor(db, actor)
     status, code = result.status, result.error_code
     if (
         status not in {"verified", "credentials_required", "blocked", "error"}
@@ -276,6 +287,7 @@ def verify_account(
         entity_id=account.id,
         details={"provider": account.provider, "status": status, "error_code": code},
     )
+    ensure_actor(db, actor, for_commit=True)
     db.commit()
     return account_json(account)
 
@@ -296,5 +308,6 @@ def disconnect_account(
             entity_id=account.id,
             details={"provider": account.provider},
         )
+        ensure_actor(db, actor, for_commit=True)
         db.commit()
     return account_json(account)

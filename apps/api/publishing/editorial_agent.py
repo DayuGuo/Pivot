@@ -29,8 +29,8 @@ from .editorial_chat import (
     validate_outputs,
 )
 from .editorial_demo import Identifier, TypedInput, editor
-from .models import LoginSession, Membership, now
-from .security import Actor
+from .models import now
+from .security import Actor, ensure_current_actor
 
 
 class Inspect(TypedInput):
@@ -145,24 +145,12 @@ class ToolGateway:
         self._session_id = self.actor.session.token_hash
 
     def check_actor(self):
-        membership = self.db.execute(
-            select(Membership.role, Membership.journal_id, Membership.user_id).where(
-                Membership.id == self._membership_id
-            )
-        ).one_or_none()
-        session = self.db.execute(
-            select(LoginSession.user_id, LoginSession.expires_at).where(
-                LoginSession.token_hash == self._session_id
-            )
-        ).one_or_none()
-        if (
-            membership is None
-            or tuple(membership) != self._identity
-            or session is None
-            or session.user_id != self._identity[2]
-            or session.expires_at <= now()
-        ):
-            raise GatewayError("editorial_authorization_changed")
+        from fastapi import HTTPException
+
+        try:
+            ensure_current_actor(self.db, self.actor)
+        except HTTPException:
+            raise GatewayError("editorial_authorization_changed") from None
         editor(self.actor)
 
     def allowed(self) -> dict[str, dict]:
