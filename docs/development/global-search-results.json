@@ -1,16 +1,14 @@
 {
   "schema": "pivot-global-search.v1",
-  "status": "full_validation_pending",
+  "status": "completed_local_validation",
   "spec": "030-global-search",
-  "runtime_source": null,
+  "runtime_source": "e6f716efab44b14bb769c238f1cd28b8864e83fc",
   "scope": "isolated_mock",
   "main_app_updated": false,
   "main_data_touched": false,
   "vps_deployed": false,
   "email_send_enabled": false,
   "key_decisions": "responsible_human_confirmation",
-  "business_model_calls": 0,
-  "business_model_cost": 0,
   "targeted": {
     "api": {
       "passed": 28,
@@ -42,7 +40,8 @@
     "detector_rerun": false,
     "hardware_device_certification": false,
     "disposition": "scoped_ship",
-    "independent_backend_projection_review": "no_material_issue"
+    "independent_backend_projection_review": "no_material_issue",
+    "documentation_owner_and_modal_qualifiers": "corrected"
   },
   "delegation": {
     "tokens": null,
@@ -51,6 +50,89 @@
     "unknown_metrics_not_estimated": true
   },
   "remote_ci": {
-    "status": "not_yet_run_for_current_changes"
+    "runtime_source": "e6f716efab44b14bb769c238f1cd28b8864e83fc",
+    "checked_at": "2026-11-06T20:26:56.595599+00:00",
+    "status": "pr_full_and_static_passed_push_full_in_progress",
+    "runs": [
+      {
+        "conclusion": "success",
+        "databaseId": 42283490190,
+        "headSha": "e6f716efab44b14bb769c238f1cd28b8864e83fc",
+        "status": "completed",
+        "workflowName": "static-demo"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 42283489910,
+        "headSha": "e6f716efab44b14bb769c238f1cd28b8864e83fc",
+        "status": "completed",
+        "workflowName": "verify"
+      },
+      {
+        "conclusion": "",
+        "databaseId": 42283330373,
+        "headSha": "e6f716efab44b14bb769c238f1cd28b8864e83fc",
+        "status": "in_progress",
+        "workflowName": "verify"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 42283330399,
+        "headSha": "e6f716efab44b14bb769c238f1cd28b8864e83fc",
+        "status": "completed",
+        "workflowName": "static-demo"
+      }
+    ],
+    "pr_full": {
+      "url": "https://github.com/DayuGuo/Pivot/actions/runs/42283489910",
+      "passed": true,
+      "backend": 1641,
+      "backend_seconds": 564.39,
+      "browser": 501,
+      "browser_duration": "15.4m",
+      "per_engine": 167,
+      "retries": 0,
+      "skipped": 0,
+      "log_evidence": "artifacts/search/ci-pr-runtime.log"
+    }
+  },
+  "full": {
+    "source": "e6f716efab44b14bb769c238f1cd28b8864e83fc",
+    "exit_code": 0,
+    "duration_seconds": 2009.61,
+    "backend": {
+      "passed": 1641,
+      "warnings": 10,
+      "seconds": 637.17
+    },
+    "browser": {
+      "passed": 501,
+      "reported_duration": "21.9m",
+      "engines": {
+        "chromium": 167,
+        "firefox": 167,
+        "webkit": 167
+      },
+      "failed": 0,
+      "skipped": 0,
+      "retries": 0
+    },
+    "static_checks": "passed",
+    "migration_drift": "none",
+    "exact_images_built_and_started": true,
+    "webkit_renderer": "explicit_mesa_software",
+    "real_model_calls": 0,
+    "main_database_touched": false,
+    "vps_touched": false
+  },
+  "pr": "https://github.com/DayuGuo/Pivot/pull/11",
+  "preview": "http://127.0.0.1:13100/",
+  "real_model_calls": 0,
+  "real_model_cost": 0,
+  "preview_health": {
+    "web_health_status": 200,
+    "provider": "mock",
+    "email_send_enabled": false,
+    "mailpit_total": 0
   }
 }
