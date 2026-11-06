@@ -10,7 +10,9 @@ jobs:
     # Keep the browser OS/dependency baseline stable instead of inheriting a
     # new distribution and mirror when ubuntu-latest advances.
     runs-on: ubuntu-24.04
-    timeout-minutes: 40
+    # The preceding 1,613/465 suite took 38m52s with bounded dependency setup.
+    # Leave room for the added permission/search cases; test/dependency limits stay fixed.
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@v4
         with:

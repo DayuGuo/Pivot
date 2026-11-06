@@ -1,5 +1,6 @@
 "use client";
 import IdentityControl from "../identity/control";
+import GlobalSearch from "../search/global-search";
 import { warnBeforeUnload } from "../browser";
 import { requestId as newRequestId } from "../browser";
 
@@ -87,6 +88,7 @@ export default function LibraryWorkspace({ reviewVersionId, importId, evaluation
       if (current !== epoch.current) return;
       if (!["editor", "chief_editor"].includes(nextSession.user.role)) throw new LibraryError(403, "内部资料仅向编辑和主编开放。请返回登录页切换身份。");
       setSession(nextSession);
+      const initialListRequest = pageRequest.current;
       const [list, dossier, imported] = await Promise.all([
         readJSON<Page<DossierItem>>(dossierListURL(queryRef.current)),
         selectedId ? readJSON<Dossier>(`/api/dossiers/${encodeURIComponent(selectedId)}${reviewVersionId ? `/versions/${encodeURIComponent(reviewVersionId)}` : ""}`) : Promise.resolve(null),
@@ -95,7 +97,8 @@ export default function LibraryWorkspace({ reviewVersionId, importId, evaluation
       if (current !== epoch.current) return;
       if ((reviewVersionId || importId || evaluationId) && !selectedId) throw new LibraryError(404, "核对链接缺少资料标识，请从我的资料重新打开。");
       if (imported && imported.dossier_id !== selectedId) throw new LibraryError(404, "导入记录不属于当前资料。");
-      setItems(list.items); setListCursor(list.next_cursor ?? null); setDetail(dossier); setDocumentImport(imported);
+      if (initialListRequest === pageRequest.current) { setItems(list.items); setListCursor(list.next_cursor ?? null); }
+      setDetail(dossier); setDocumentImport(imported);
     } catch (failure) {
       if (current !== epoch.current) return;
       clearPrivate(failure instanceof LibraryError && [401, 403].includes(failure.status));
@@ -317,8 +320,8 @@ export default function LibraryWorkspace({ reviewVersionId, importId, evaluation
     <a href="#library-main" className={styles.skip}>跳到对话</a>
     <aside className={`${styles.sidebar} ${drawer ? styles.drawerOpen : ""}`} aria-label="我的资料">
       <div className={styles.brand}><Link href="/">Pivot</Link><button className={styles.mobileOnly} aria-label="关闭资料列表" onClick={() => setDrawer(false)}><Glyph name="close" /></button></div>
+      <GlobalSearch scope={`${session.journal.id}:${session.user.id}:${session.user.role}:${session.csrf_token}`} onQueryChange={value => { setQuery(value); queryRef.current = value; ++pageRequest.current; setItems([]); setListCursor(null); setPaging("list"); setPageError(""); setPageRetry(null); }} />
       <div className={styles.sideHeading}><h2>我的资料</h2><button type="button" onClick={startNew}>新建资料</button></div>
-      <label className={styles.search}><Glyph name="search" /><input aria-label="搜索我的资料" name="search" autoComplete="off" disabled={loading} value={query} maxLength={500} onChange={event => { setQuery(event.target.value); queryRef.current = event.target.value; ++pageRequest.current; setItems([]); setListCursor(null); setPaging("list"); setPageError(""); setPageRetry(null); }} placeholder="搜索题名…" /></label>
       <nav className={styles.list} aria-busy={paging === "list"}>
         {paging === "list" && !items.length && <p role="status">正在查找资料…</p>}
         {items.map(item => <Link key={item.id} href={`/library?dossier=${item.id}`} aria-current={selectedId === item.id && !newDossier ? "page" : undefined} className={styles.listItem}><Glyph name="file" /><span>{item.title || "未命名资料"}<small>v{item.version_no} · {item.verified ? "已核对" : "待核对"}</small></span></Link>)}
@@ -326,7 +329,7 @@ export default function LibraryWorkspace({ reviewVersionId, importId, evaluation
         {listCursor && <button type="button" disabled={!!paging} onClick={() => void pageList(false)}>{paging === "list" ? "正在加载…" : "加载更多资料"}</button>}
 
       </nav>
-      <div className={styles.identity}><IdentityControl user={session.user} /><small>{session.journal.name}</small><SettingsButton onOpen={() => setDrawer(false)} /><Link href="/">返回主工作台</Link></div>
+      <div className={styles.identity}><IdentityControl user={session.user} /><SettingsButton onOpen={() => setDrawer(false)} /><Link href="/">返回主工作台</Link></div>
     </aside>
     <div className={styles.main}>
       <header className={styles.toolbar}><button className={styles.mobileOnly} aria-label="打开资料列表" onClick={() => setDrawer(true)}><Glyph name="inbox" /></button><h1>内部资料</h1><span>不构成正式投稿</span><Link href="/publishing">出版工作区</Link></header>

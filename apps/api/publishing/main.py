@@ -37,6 +37,7 @@ from .mail_accounts import router as mail_router
 from .models import AuditEvent, Conversation, Journal, Manuscript, Message, User, now
 from .policy import EDITOR_ROLES, can_view_manuscript
 from .runtime import execute_command
+from .search import router as search_router
 from .security import (
     Actor,
     check_password,
@@ -67,6 +68,7 @@ app.include_router(formal_document_router)
 app.include_router(document_import_router)
 app.include_router(mail_router)
 app.include_router(identity_router)
+app.include_router(search_router)
 app.include_router(editorial_demo_router)
 app.include_router(editorial_chat_router)
 DUMMY_HASH = hash_password("invalid-password-timing-padding")

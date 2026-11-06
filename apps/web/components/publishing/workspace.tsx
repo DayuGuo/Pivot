@@ -1,5 +1,6 @@
 "use client";
 import IdentityControl from "../identity/control";
+import GlobalSearch from "../search/global-search";
 import { requestId as newRequestId, readStorage, writeStorage, withRequestTimeout } from "../browser";
 
 import Link from "next/link";
@@ -131,7 +132,7 @@ export default function PublishingWorkspace({ children }: { children: ReactNode 
       <a className={styles.skip} href="#publishing-chat">跳到对话</a>
       <aside className={`${styles.sidebar} ${drawer ? styles.drawerOpen : ""}`} aria-label="我的工作">
         <div className={styles.brand}><strong>Pivot</strong><button className={styles.mobileOnly} onClick={() => setDrawer(false)} aria-label="关闭工作列表"><Glyph name="close" /></button></div>
-        <p className={styles.journal}>{session.journal.name}</p>
+        <GlobalSearch scope={`${session.journal.id}:${session.user.id}:${session.user.role}:${session.csrf_token}`} />
         <div className={styles.sidebarActions}>{["editor", "chief_editor"].includes(session.user.role) && <Link href="/library"><Glyph name="file" size={16} />内部审阅资料</Link>}<button onClick={() => select(null)}>{roleViews[session.user.role]?.tasks ?? "我的工作"} <span>{workspace?.counts.actionable ?? 0}</span></button>{session.user.role === "author" && <button onClick={() => void createDraft()} disabled={refreshing}><Glyph name="file" size={16} />新建投稿</button>}</div>
         <div className={styles.taskList}>{workspace?.tasks.length ? workspace.tasks.map(task => <Link key={task.id} href={`/publishing?manuscript=${task.manuscript_id}`} onClick={event => { event.preventDefault(); select(task.manuscript_id); }} className={selectedId === task.manuscript_id ? styles.selected : ""}><strong>{task.label}</strong><span>{task.title || "未命名投稿"}</span><small>{task.number}{task.status === "waiting" ? " · 等待处理" : task.blocking ? " · 需要你处理" : ""}</small></Link>) : <p className={styles.emptySmall}>目前没有分派给你的待办。</p>}</div>
         <div className={styles.userArea}><IdentityControl user={session.user} /><div className={styles.appearance}><label htmlFor="publishing-theme">外观</label><select id="publishing-theme" name="theme" value={theme} onChange={event => { memoryTheme = event.target.value; writeStorage("localStorage", "publishing-theme", memoryTheme); window.dispatchEvent(new Event("publishing-theme-change")); }}><option value="system">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option></select></div><SettingsButton onOpen={() => setDrawer(false)} /><Link href="/">返回主工作台</Link></div>

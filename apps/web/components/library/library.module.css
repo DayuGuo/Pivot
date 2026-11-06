@@ -41,9 +41,6 @@
 .sideHeading { display: flex; align-items: center; justify-content: space-between; padding-inline: 8px; gap: 8px; }
 .sideHeading h2 { font-size: 14px; }
 .sideHeading button { font-size: 12px; padding-inline: 8px; }
-.search { display: flex; align-items: center; gap: 6px; padding-inline: 8px; }
-.search svg { flex-shrink: 0; color: var(--muted); }
-.search input { padding: 6px; font-size: 13px; }
 .list { display: flex; flex-direction: column; gap: 4px; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 .listItem { display: flex; flex-shrink: 0; align-items: flex-start; gap: 8px; color: var(--ink) !important; padding: 10px 8px; border-radius: 4px; overflow-wrap: anywhere; content-visibility: auto; contain-intrinsic-size: auto 80px; }
 .listItem svg { flex-shrink: 0; margin-top: 3px; color: var(--muted); }

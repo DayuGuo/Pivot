@@ -26,7 +26,6 @@
 .sidebar { min-width: 0; display: flex; flex-direction: column; background: var(--p-sidebar); border-right: 1px solid var(--p-line); overflow: auto; padding: 14px 10px 0; }
 .brand { padding: 0 8px; display: flex; align-items: center; justify-content: space-between; min-height: 30px; }
 .brand strong { font-size: 14px; font-weight: 550; }
-.journal { color: var(--p-muted); font-size: 12px; padding: 6px 8px 14px; margin-bottom: 0; overflow-wrap: anywhere; }
 .sidebarActions { display: grid; gap: 4px; }
 .sidebarActions button { text-align: left; justify-content: flex-start; border-color: transparent; background: transparent; }
 .sidebarActions button span { margin-left: auto; font-variant-numeric: tabular-nums; }
@@ -183,3 +182,5 @@
 }
 @media (max-height: 500px) and (min-width: 650px) and (max-width: 850px) { .shell { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; } .center { grid-row: 1; grid-column: 1; border-right: 1px solid var(--p-line); } .material { grid-row: 1; grid-column: 2; } .chatContext { display: none; } }
 @media (prefers-reduced-motion: reduce) { .shell *, .shell *::before, .shell *::after { animation: none; transition: none; scroll-behavior: auto; } }
+
+.sidebar > [role="search"] { margin: 10px 0 14px; }

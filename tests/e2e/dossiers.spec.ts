@@ -314,7 +314,7 @@ test("资料分页：更多资料、早期对话、版本、导入和全库搜�
   await expect(page.getByText("earlier.docx", { exact: true })).toBeVisible();
   await page.getByRole("tab", { name: "资料", exact: true }).click();
   await page.getByLabel("题名", { exact: true }).fill("未保存的题名");
-  await page.getByLabel("搜索我的资料").fill("乙");
+  await page.getByLabel("全局搜索").fill("乙");
   await expect(page.getByRole("link", { name: /合成资料甲/ })).toHaveCount(0);
   await expect(page.getByRole("link", { name: /合成资料乙/ })).toBeVisible();
   await expect(page.getByLabel("题名", { exact: true })).toHaveValue("未保存的题名");
@@ -383,7 +383,7 @@ test("资料恢复：保存后的旧列表读取不覆盖新搜索", async ({ pa
     await page.getByLabel("题名", { exact: true }).fill("合成保存");
     await page.getByRole("button", { name: "保存为新版本", exact: true }).click();
     await expect.poll(() => waiting).toBe(true);
-    await page.getByLabel("搜索我的资料").fill("乙");
+    await page.getByLabel("全局搜索").fill("乙");
     await expect(page.getByRole("link", { name: /合成资料乙/ })).toBeVisible();
     release();
     await expect(page.getByText("新版本已保存，请重新核对。", { exact: true })).toBeVisible();
@@ -408,4 +408,30 @@ test("资料恢复：失败后修改问题取消旧重试，不误发旧问题",
   await expect(page.getByText("已按新问题回复", { exact: true })).toBeVisible();
   expect(requests.map(item => item.message)).toEqual(["原问题", "修改后的问题"]);
   expect(requests[0].request_id).not.toBe(requests[1].request_id);
+});
+
+test("资料搜索：初次列表迟到不覆盖已输入的统一搜索，当前资料仍正常载入", async ({ page }) => {
+  await fixtures(page);
+  let waiting = false; let release!: () => void;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  const item = (id: string) => ({ id, title: syntheticDossier(id).data.title, version_no: 1, verified: false });
+  await page.route(url => url.pathname === "/api/search", route => route.fulfill({ json: { query: new URL(route.request().url()).searchParams.get("q"), groups: [] } }));
+  await page.route(url => url.pathname === "/api/dossiers", async route => {
+    const query = new URL(route.request().url()).searchParams.get("query");
+    if (!query) { waiting = true; await gate; }
+    return route.fulfill({ json: { items: query ? [item(OTHER)] : [item(ID)], next_cursor: null } });
+  });
+  try {
+    await page.goto(`/library?dossier=${ID}`);
+    const search = page.getByLabel("全局搜索", { exact: true });
+    await expect(search).toBeVisible(); await expect.poll(() => waiting).toBe(true);
+    await search.fill("乙");
+    const list = page.getByRole("complementary", { name: "我的资料" }).getByRole("navigation");
+    await expect(list.getByRole("link", { name: /合成资料乙/ })).toBeVisible();
+    release();
+    await expect(page.getByLabel("题名", { exact: true })).toHaveValue("合成资料甲");
+    await expect(list.getByRole("link", { name: /合成资料甲/ })).toHaveCount(0);
+    await expect(list.getByRole("link", { name: /合成资料乙/ })).toBeVisible();
+    await expect(search).toHaveValue("乙");
+  } finally { release(); }
 });

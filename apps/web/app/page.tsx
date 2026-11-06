@@ -1,5 +1,6 @@
 "use client";
 import IdentityControl from "../components/identity/control";
+import GlobalSearch from "../components/search/global-search";
 import { requestId as newRequestId } from "../components/browser";
 
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
@@ -73,7 +74,6 @@ export default function Home() {
   const [detailsVisible, setDetailsVisible] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [search, setSearch] = useState("");
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const drawerRef = useRef<HTMLElement>(null);
   const menuRef = useRef<HTMLButtonElement>(null);
@@ -93,7 +93,15 @@ export default function Home() {
           data = await api<Workspace>("/workspace");
           if (active) setError("无法打开此对话，已返回你的工作台。");
         }
-        if (active) { setSession(restored); setWorkspace(data); rememberConversation(data.active_conversation_id); }
+        const manuscriptId = new URLSearchParams(window.location.search).get("manuscript");
+        if (manuscriptId) {
+          try {
+            const item = await api<Manuscript>(`/manuscripts/${encodeURIComponent(manuscriptId)}`);
+            data = { ...data, manuscripts: [item, ...data.manuscripts.filter(value => value.id !== item.id)] };
+            if (active) { setSelectedId(item.id); setDetailsVisible(true); }
+          } catch { if (active) setError("无法打开此稿件，已返回你的工作台。"); }
+        }
+        if (active) { setSession(restored); setWorkspace(data); rememberConversation(data.active_conversation_id, false); }
       } catch { /* No active session: show login. */ }
       finally { if (active) setLoading(false); }
     }
@@ -129,9 +137,10 @@ export default function Home() {
     const selected = id === undefined ? new URLSearchParams(window.location.search).get("conversation") : id;
     return selected ? `/workspace?conversation_id=${encodeURIComponent(selected)}` : "/workspace";
   }
-  function rememberConversation(id: string | null) {
+  function rememberConversation(id: string | null, clearManuscript = true) {
     const url = new URL(window.location.href);
     if (id) url.searchParams.set("conversation", id); else url.searchParams.delete("conversation");
+    if (clearManuscript) url.searchParams.delete("manuscript");
     window.history.replaceState(null, "", url);
   }
   function navigate(next: typeof view) { setView(next); setDrawerOpen(false); }
@@ -156,7 +165,7 @@ export default function Home() {
       const conversation = await api<Conversation>("/conversations", { method: "POST", headers: { "X-CSRF-Token": session.csrf_token }, body: "{}" });
       const data = await api<Workspace>(workspacePath(conversation.id));
       setDrafts(current => ({ ...current, [workspace?.active_conversation_id || "new"]: message }));
-      setMessage(""); setWorkspace(data); rememberConversation(conversation.id); setSearch("");
+      setMessage(""); setWorkspace(data); rememberConversation(conversation.id);
       setSelectedId(null); setDetailsVisible(false); navigate("chat"); pendingRequest.current = null;
     } catch (cause) { setError(cause instanceof Error ? cause.message : "无法创建对话"); }
     finally { setBusy(false); }
@@ -202,7 +211,12 @@ export default function Home() {
   }
   async function openManuscript(id: string) {
     setError("");
-    try { await api<Manuscript>(`/manuscripts/${id}`); setSelectedId(id); setDetailsVisible(true); }
+    try {
+      const item = await api<Manuscript>(`/manuscripts/${encodeURIComponent(id)}`);
+      setWorkspace(current => current ? { ...current, manuscripts: [item, ...current.manuscripts.filter(value => value.id !== item.id)] } : current);
+      setSelectedId(id); setDetailsVisible(true);
+      const url = new URL(window.location.href); url.searchParams.set("manuscript", id); window.history.replaceState(null, "", url);
+    }
     catch (cause) { setError(cause instanceof Error ? cause.message : "无法读取稿件"); }
   }
 
@@ -219,11 +233,19 @@ export default function Home() {
   return <div className={`app-shell ${sidebarCollapsed ? "sidebar-collapsed" : ""} ${drawerOpen ? "drawer-open" : ""}`}><a className="skip-link" href="#workspace-main">跳转到工作区</a>
     {drawerOpen && <button className="drawer-backdrop" aria-label="关闭导航遮罩" tabIndex={-1} onClick={() => setDrawerOpen(false)}/>}
     <aside className="sidebar" ref={drawerRef} aria-label="侧栏" role={drawerOpen ? "dialog" : undefined} aria-modal={drawerOpen || undefined}><div className="sidebar-top"><Brand small/><button className="icon-button desktop-collapse" aria-label="收起侧栏" onClick={() => setSidebarCollapsed(true)}><Icon name="panel"/></button><button className="icon-button mobile-close" aria-label="关闭导航" onClick={() => setDrawerOpen(false)}><Icon name="close"/></button></div>
-    <div className="journal-name">{workspace.journal.name}</div>
+    <GlobalSearch scope={`${workspace.journal.id}:${session.user.id}:${session.user.role}:${session.csrf_token}`} onActivate={(item, event) => {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
+      const target = new URL(item.href, window.location.href);
+      if (target.pathname !== "/") return;
+      event.preventDefault();
+      if (busy) { setError("正在处理当前请求，请完成后再切换对话或稿件。"); return; }
+      const conversation = target.searchParams.get("conversation"), manuscript = target.searchParams.get("manuscript");
+      if (conversation) void switchConversation(conversation);
+      else if (manuscript) { setDrawerOpen(false); void openManuscript(manuscript); }
+    }} />
     <nav aria-label="工作空间">{canCreate && <button onClick={() => router.push("/library")}><Icon name="file"/>内部审阅资料</button>}<button onClick={() => router.push("/publishing")}><Icon name="file"/>出版工作台</button>{canCreate && <button onClick={() => router.push("/workbench")}><Icon name="file"/>我的工作<span className="nav-count">演示</span></button>}<button className={view === "chat" ? "active" : ""} onClick={() => navigate("chat")}><Icon name="chat"/>编辑助手</button><button className={view === "manuscripts" ? "active" : ""} onClick={() => navigate("manuscripts")}><Icon name="file"/>稿件管理<span className="nav-count">{workspace.manuscripts.length}</span></button><button className={view === "audit" ? "active" : ""} onClick={() => navigate("audit")}><Icon name="activity"/>审计记录</button></nav>
     <div className="sessions-toolbar"><button className="new-conversation" onClick={() => void newConversation()} disabled={busy}><Icon name="plus"/>新对话</button></div>
-    <label className="session-search"><Icon name="search" size={15}/><input aria-label="搜索对话" type="search" name="conversation-search" autoComplete="off" placeholder="搜索对话…" value={search} onChange={event => setSearch(event.target.value)}/></label>
-    <div className="conversation-list" aria-label="会话列表">{(workspace.conversations || []).filter(item => item.title.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase())).map(item => <button key={item.id} data-conversation-id={item.id} className={view === "chat" && item.id === workspace.active_conversation_id ? "selected" : ""} aria-current={view === "chat" && item.id === workspace.active_conversation_id ? "true" : undefined} onClick={() => void switchConversation(item.id)} disabled={busy}><strong>{item.title}</strong><small>{item.message_count} 条消息<span>{date(item.updated_at)}</span></small></button>)}{!(workspace.conversations || []).filter(item => item.title.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase())).length && <p className="session-empty">{search ? "没有匹配的对话" : "暂无对话"}</p>}</div>
+    <div className="conversation-list" aria-label="会话列表">{(workspace.conversations || []).map(item => <button key={item.id} data-conversation-id={item.id} className={view === "chat" && item.id === workspace.active_conversation_id ? "selected" : ""} aria-current={view === "chat" && item.id === workspace.active_conversation_id ? "true" : undefined} onClick={() => void switchConversation(item.id)} disabled={busy}><strong>{item.title}</strong><small>{item.message_count} 条消息<span>{date(item.updated_at)}</span></small></button>)}{!workspace.conversations?.length && <p className="session-empty">暂无对话</p>}</div>
     <div className="settings-entry"><SettingsButton onOpen={() => setDrawerOpen(false)} /></div><div className="user-area"><IdentityControl user={session.user} /><button className="icon-button" aria-label="退出登录" onClick={logout} disabled={busy}><Icon name="logout" size={17}/></button></div></aside>
     <main className="workspace" id="workspace-main" tabIndex={-1} inert={drawerOpen}><header className="workspace-header"><div className="breadcrumb"><button ref={menuRef} className="icon-button sidebar-toggle" aria-label="打开导航" aria-expanded={drawerOpen} onClick={() => { if (window.matchMedia("(max-width: 700px)").matches) setDrawerOpen(true); else setSidebarCollapsed(false); }}><Icon name="panel"/></button><h1>{titles[view]}</h1></div><div className="header-actions"><button className="icon-button" aria-label={detailsVisible ? "隐藏稿件面板" : "显示稿件面板"} aria-pressed={detailsVisible} onClick={() => setDetailsVisible(!detailsVisible)}><Icon name="file" size={16}/></button><button className="icon-button" aria-label="刷新工作台" onClick={refresh} disabled={busy}><Icon name="refresh" size={16}/></button></div></header>
       {error && <div role="alert" ref={errorRef} tabIndex={-1} className="error workspace-error">{error}<button aria-label="关闭错误提示" onClick={() => setError("")}><Icon name="close" size={15}/></button></div>}

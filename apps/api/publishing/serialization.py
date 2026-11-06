@@ -17,14 +17,14 @@ def user_json(actor: Actor) -> dict:
 def manuscript_json(db: Session, item: Manuscript) -> dict:
     task = db.scalar(select(EditorialTask).where(EditorialTask.manuscript_id == item.id))
     author = db.get(User, item.author_id)
-    editor = db.get(User, item.editor_id)
+    editor = db.get(User, item.editor_id) if item.editor_id else None
     return {
         "id": item.id,
         "title": item.title,
         "status": item.status,
         "created_at": item.created_at.isoformat(),
         "author_name": author.name,
-        "editor_name": editor.name,
+        "editor_name": editor.name if editor else "",
         "task": {"id": task.id, "status": task.status, "kind": task.kind} if task else None,
     }
 

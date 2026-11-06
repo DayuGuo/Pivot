@@ -1,0 +1,56 @@
+{
+  "schema": "pivot-global-search.v1",
+  "status": "full_validation_pending",
+  "spec": "030-global-search",
+  "runtime_source": null,
+  "scope": "isolated_mock",
+  "main_app_updated": false,
+  "main_data_touched": false,
+  "vps_deployed": false,
+  "email_send_enabled": false,
+  "key_decisions": "responsible_human_confirmation",
+  "business_model_calls": 0,
+  "business_model_cost": 0,
+  "targeted": {
+    "api": {
+      "passed": 28,
+      "seconds": 15.75,
+      "warnings": 1,
+      "evidence": "artifacts/search/api-review-final.log"
+    },
+    "browser": {
+      "passed": 114,
+      "per_engine": 38,
+      "reported_duration": "3.2m",
+      "retries": 0,
+      "evidence": "artifacts/search/browser-targeted-final.log"
+    },
+    "focus_and_resize": {
+      "passed": 6,
+      "reported_duration": "10.9s",
+      "retries": 0,
+      "evidence": "artifacts/search/focus-resize-final.log"
+    }
+  },
+  "failures_retained": [
+    "artifacts/search/first-browser-failure",
+    "artifacts/search/initial-list-failure",
+    "artifacts/search/hidden-field-failure"
+  ],
+  "review": {
+    "captures": 7,
+    "detector_rerun": false,
+    "hardware_device_certification": false,
+    "disposition": "scoped_ship",
+    "independent_backend_projection_review": "no_material_issue"
+  },
+  "delegation": {
+    "tokens": null,
+    "cost": null,
+    "total_wall_seconds": null,
+    "unknown_metrics_not_estimated": true
+  },
+  "remote_ci": {
+    "status": "not_yet_run_for_current_changes"
+  }
+}
