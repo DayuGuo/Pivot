@@ -27,7 +27,9 @@
     "artifacts/calendar/footer-red.log",
     "artifacts/calendar/browser-footer-first.log",
     "artifacts/calendar/stall-red.log",
-    "artifacts/calendar/revision-red.log"
+    "artifacts/calendar/revision-red.log",
+    "artifacts/calendar/first-full-failure",
+    "artifacts/calendar/hint-red.log"
   ],
   "full": null,
   "ui_review": {
@@ -53,5 +55,27 @@
     "failed": 0,
     "retries": 0,
     "evidence": "artifacts/calendar/browser-calendar-reviewed.log"
+  },
+  "first_local_full": {
+    "source": "8e4c171e7812234bbf6e3ad5f2072a350cd27ab4",
+    "exit_code": 1,
+    "duration_seconds": 2545.45,
+    "api_passed": 1666,
+    "api_seconds": 927.8,
+    "warnings": 10,
+    "browser_passed": 536,
+    "browser_failed": 1,
+    "browser_duration": "26.2m",
+    "finding": "History response remounted NextSteps between pointer-down/up, dropping a real Firefox click. Controlled old-image test reproduced.",
+    "evidence": "artifacts/calendar/first-full-failure"
+  },
+  "hint_fix_targeted_browser": {
+    "passed": 12,
+    "per_engine": 4,
+    "duration": "3.5m",
+    "failed": 0,
+    "retries": 0,
+    "evidence": "artifacts/calendar/hint-green.log",
+    "scope": "Existing isolated verification data; real full workflow and context-guidance, plus deterministic old-image red/new-image green pointer race."
   }
 }

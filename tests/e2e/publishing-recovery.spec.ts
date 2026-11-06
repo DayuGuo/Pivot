@@ -350,3 +350,20 @@ for (const phase of ['after-send', 'before-send'] as const) test(`UI fixture: �
   await expect(page).toHaveURL(new RegExp(OTHER)); expect(prompts).toBe(previous + 1);
   expect(await file.evaluate(input => (input as HTMLInputElement).files?.[0]?.name)).toBe('new-unsaved.txt');
 });
+
+test("UI fixture：历史载入发生在建议按钮按下与松开之间，点击仍保留草稿并填入建议", async ({page}) => {
+  await fixtures(page); const history = gate(); let posts = 0;
+  page.on("request", r => { if (r.method() === "POST") posts++; });
+  await page.route(`**/api/publishing/manuscripts/${MID}/guidance`, route => route.fulfill({json:{schema:"next-steps.v1",object_id:MID,version_id:null,revision:1,role:session.user.role,suggestions:[{id:"compare",label:"逐条对照修回",prompt:"逐条比对本次修回（合成UI夹具）",reason:"合成UI点击时序"}]}}));
+  await page.route("**/api/publishing/chat*", async route => { await history.promise; await route.fulfill({json:{messages:[message("arrived-history","受控历史载入完成")]}}); });
+  try {
+    await page.goto(`/publishing?manuscript=${MID}`);
+    const composer=page.getByLabel("向出版助手发送消息",{exact:true});await composer.fill("保留用户草稿");
+    const choice=page.getByRole("button",{name:"逐条对照修回",exact:true});await expect(choice).toBeVisible();
+    const box=await choice.boundingBox();expect(box).not.toBeNull();
+    await page.mouse.move(box!.x+box!.width/2,box!.y+box!.height/2);await page.mouse.down();
+    history.release();await expect(page.getByText("受控历史载入完成",{exact:true})).toBeVisible();
+    await page.mouse.up();
+    await expect(composer).toHaveValue("保留用户草稿\n\n逐条比对本次修回（合成UI夹具）");expect(posts).toBe(0);
+  } finally {history.release();}
+});
