@@ -1,0 +1,57 @@
+{
+  "schema": "pivot-personal-calendar.v1",
+  "status": "implementation_and_validation_in_progress",
+  "spec": "031-personal-deadline-calendar",
+  "base": "bb340da407a8fbc654e5f0e3f84e01e8050c081a",
+  "pr11_merged_to_main": true,
+  "pr11_verified_head": "47057ccd62ea2d71bbcfae07f1d92455ee553c97",
+  "merge_tree_matches_verified_head": true,
+  "runtime_source": null,
+  "scope": "isolated_mock",
+  "main_app_updated": false,
+  "main_data_touched": false,
+  "vps_deployed": false,
+  "email_send_enabled": false,
+  "key_decisions": "responsible_human_confirmation",
+  "real_model_calls": 0,
+  "targeted_api": {
+    "passed": 53,
+    "seconds": 37.27,
+    "warnings": 1,
+    "evidence": "artifacts/calendar/api-query-split.log",
+    "note": "Final shared SQL/query split passed; full gate pending."
+  },
+  "failure_evidence": [
+    "artifacts/calendar/first-integration-failure.log",
+    "artifacts/calendar/recovery-red.log",
+    "artifacts/calendar/footer-red.log",
+    "artifacts/calendar/browser-footer-first.log",
+    "artifacts/calendar/stall-red.log",
+    "artifacts/calendar/revision-red.log"
+  ],
+  "full": null,
+  "ui_review": {
+    "reviewer": "generic_fresh_impeccable_finish_reviewer_031",
+    "initial_disposition": "fix",
+    "material_findings": [
+      {
+        "priority": 2,
+        "issue": "Home expanded calendar clipped later weeks and filters at1280x720",
+        "status": "resolved"
+      }
+    ],
+    "captures": 10,
+    "detector": [],
+    "token_cost_metrics": null,
+    "disposition": "ship",
+    "scope": "Read-only fresh generic reviewer; ten recaptures; verdict limited to previous P2 viewport finding. No backend, physical-device or screen-reader certification."
+  },
+  "targeted_browser": {
+    "passed": 36,
+    "per_engine": 12,
+    "reported_duration": "1.9m",
+    "failed": 0,
+    "retries": 0,
+    "evidence": "artifacts/calendar/browser-calendar-reviewed.log"
+  }
+}

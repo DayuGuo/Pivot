@@ -64,3 +64,13 @@
 spec027前端：`library/revision-check.tsx`维护材料包、三层人工草稿和已知/未知写入恢复，`revision-types.ts`定义协议，`metadata-export.tsx`保护下载前后身份；不把编辑的人判交给对话工具。`scripts/accept-vps-upgrade.py`只在随机隔离项目验证旧版升级与新卷恢复；`build-vps-app.py`绑定实际源码身份，`install-browser-deps.sh`对CI依赖安装设次数/时限，均不操作用户VPS。改变这些边界时运行相应有意义的失败回归，再统一verify。
 
 可选`DocumentMetadata`属于版本data_json中的原文字符串，不是正式DeclarationsInput。空扩展在Pydantic序列化时省略，旧快照/回执不增键；`document_candidates`只接受类型标识和基金/声明完整区块，模型引文与纠正反馈限定实际发送窗口。`dossier_evidence`通用leaf索引、`document_sources`字段值匹配及`dossier_export`统一使用版本来源；前端evidence保留显式可定位字段白名单。新增字段时必须同时检查此白名单、来源和人工改值不能冒领原件的回归。
+
+
+## 共享元数据与本人日历（spec031）
+
+- domain/metadata_access.py：SQL题名与角色版本可见性，搜索与日历共同消费，不发放动作或文件权限。
+- domain/calendar_queries.py：本人/当前职务/实际分派/当前步骤和邀请的WorkItem只读SQL；没有HTTP、模型、文件或提交能力。
+- domain/calendar.py：日期/时区、绑定筛选的游标、有界分页与HTTP/会话复核。
+- components/calendar：四工作区同一展开入口和有界读取；当前表单保护仍由所在工作区负责。
+
+check-boundaries为上述SQL构造模块禁止传输、路由和执行/写入调用；原Action Gateway与审批边界不变。

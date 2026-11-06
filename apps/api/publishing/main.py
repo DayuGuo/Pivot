@@ -20,6 +20,7 @@ from .conversations import (
 )
 from .db import get_db
 from .domain.api import router as publishing_router
+from .domain.calendar import router as calendar_router
 from .domain.claim_evaluation import router as claim_evaluation_router
 from .domain.claim_reviews import router as claim_review_router
 from .domain.document_imports import router as document_import_router
@@ -69,6 +70,7 @@ app.include_router(document_import_router)
 app.include_router(mail_router)
 app.include_router(identity_router)
 app.include_router(search_router)
+app.include_router(calendar_router)
 app.include_router(editorial_demo_router)
 app.include_router(editorial_chat_router)
 DUMMY_HASH = hash_password("invalid-password-timing-padding")

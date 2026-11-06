@@ -1,5 +1,6 @@
 "use client";
 import IdentityControl from "../identity/control";
+import PersonalCalendar from "../calendar/personal-calendar";
 import GlobalSearch from "../search/global-search";
 import { warnBeforeUnload } from "../browser";
 import { requestId as newRequestId } from "../browser";
@@ -329,7 +330,7 @@ export default function LibraryWorkspace({ reviewVersionId, importId, evaluation
         {listCursor && <button type="button" disabled={!!paging} onClick={() => void pageList(false)}>{paging === "list" ? "正在加载…" : "加载更多资料"}</button>}
 
       </nav>
-      <div className={styles.identity}><IdentityControl user={session.user} /><SettingsButton onOpen={() => setDrawer(false)} /><Link href="/">返回主工作台</Link></div>
+      <PersonalCalendar scope={`${session.journal.id}:${session.user.id}:${session.user.role}:${session.csrf_token}`} /><div className={styles.identity}><IdentityControl user={session.user} /><SettingsButton onOpen={() => setDrawer(false)} /><Link href="/">返回主工作台</Link></div>
     </aside>
     <div className={styles.main}>
       <header className={styles.toolbar}><button className={styles.mobileOnly} aria-label="打开资料列表" onClick={() => setDrawer(true)}><Glyph name="inbox" /></button><h1>内部资料</h1><span>不构成正式投稿</span><Link href="/publishing">出版工作区</Link></header>
