@@ -184,3 +184,6 @@
 @media (prefers-reduced-motion: reduce) { .shell *, .shell *::before, .shell *::after { animation: none; transition: none; scroll-behavior: auto; } }
 
 .sidebar > [role="search"] { margin: 10px 0 14px; }
+
+.sidebar:has([data-calendar-open="true"]) .taskList { min-height: 0; }
+.userArea { flex-shrink: 0; }

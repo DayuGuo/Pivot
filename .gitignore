@@ -16,3 +16,6 @@ artifacts/
 var/
 *.tsbuildinfo
 apps/web/next-env.d.ts
+
+# Local visual acceptance captures; never publish manuscript screenshots.
+.impeccable/review/

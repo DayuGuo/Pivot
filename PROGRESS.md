@@ -1,4 +1,20 @@
-# 已完成本机验收：spec030 统一搜索
+# 已完成工程验收：spec031 本人截止日期日历
+
+PR #11 已按授权合并 main：`bb340da407a8fbc654e5f0e3f84e01e8050c081a`，树与已验收 `47057cc` 相同，叠加的 #6–#10 依赖随原历史进入 main。main 完整、静态及原生 amd64 包/保留数据升级/隔离恢复 CI 均成功；没有更新 VPS。新日历交付[草稿 PR #12](https://github.com/DayuGuo/Pivot/pull/12)，不自动合并或发布。
+
+四个真实工作区左下角共享本人日历，按当前身份/期刊/有效分派展示持久 WorkItem 期限、月份/单日/跨月跨年逾期及正式稿件链接。复用既有邀请/报告/修回日期，不新增表或推测日期；保留中央对话、未保存保护及负责人决定权。共享 metadata_access 安全题名，calendar_queries 独立 SQL，路由有界分页、当地日期/DST及会话重验。[规格](specs/031-personal-deadline-calendar.md) · [官方研究](docs/research/deadlines-2026-11-06.md) · [交付](docs/development/personal-calendar.md) · [结果](docs/development/personal-calendar-results.json)。
+
+应用冻结 `1d9610f5ea2d5fcc1fa9dddaa1c30943ba54f83d`；验证提交 `1502d72fd88897870d313439d0cfc87ccc8133e5` 仅修正恢复测试的异步 URL 断言及文档，应用/依赖/迁移/脚本/后端测试差异为空。该提交[PR 完整 CI](https://github.com/DayuGuo/Pivot/actions/runs/42320043165)与[push 完整 CI](https://github.com/DayuGuo/Pivot/actions/runs/42320039623)各实际执行 scripts/verify.sh 成功：**1,666 后端（424.69/535.59秒，各10条提醒）＋540浏览器（14.9/16.1m，三引擎各180）**，0失败/跳过/浏览器重试，全部作业及步骤成功；静态 PR/push 各17步骤成功。
+
+本机为**分次验证**：同一应用的1,666后端818.95秒通过；修正后的540浏览器1696.25秒/28.3m通过、每引擎180、0失败/跳过/重试。没有宣称新的本机完整脚本exit0，完整门禁结论依据上述确切提交CI。源码语法、Ruff/format、研究/模块边界、18条离线引文、迁移无漂移、ESLint/TypeScript及准确镜像构建均在完整CI通过。本机WebKit显式Mesa软件渲染，不等于物理Safari/IME/软键盘认证。53 API、36日历、12建议、3年份可见性、18重复恢复专项与全量重叠，不累加。
+
+失败保留：初始两处API夹具违反时序/冻结守卫，合法修正而未弱化规则；分页422、未知时区、正文停住超时及职责变化后日历滞留均旧镜像红测后修复。8e4c171本机完整exit1（1666 API/536浏览器过1失败），发现历史到达重建建议按钮丢失点击，改稳定上下文key和数据刷新；cc02b68后端过，因跨年逾期缺年红测主动中断exit-15，不计完整成功；1d9610f完整exit1（1666 API/539浏览器过1失败），WebKit即时URL比较先于异步观察稳定。旧镜像原生history诊断5次通过；保留相同精确谓词，改官方web-first URL断言，默认预算/重试及消息/草稿/请求数条件不改，18次专项和最终全量通过。全部日志/trace保留在忽略的artifacts/calendar，未删测试或清库。
+
+通用fresh Impeccable审查十张重拍解决展开月历P2，三张年份截图再限定resolved/ship；单次检测[]不替代测试。WebKit旧图未拍到条目，已改原生Tab及完整入视口断言后重拍并逐一查看。审查不认证后端或真机，Codex审查Token/费用未提供记null；应用真实模型请求0，本轮未重测DeepSeek凭据。
+
+独立Mock预览13100（API18100/DB55433/Mailpit18025）健康200、PostgreSQL正常、邮件捕获0，EMAIL_SEND_ENABLED=false。原主应用四容器仍保持2026-11-06 12:59的原停止状态，主库/原件/模型配置及VPS未改。实际编辑试用和专业工程复核仍待外部负责人安排。后续纯文档提交触发独立CI，不从旧提交推断其结束。
+
+# spec030 历史验收快照（PR #11 现已合并）
 
 四个真实工作区品牌下移除期刊副文案，统一搜索当前身份可见的对话／正式及早期稿件／本人内部资料，原“搜索对话”和资料题名过滤已合并。只读标题、编号、ID及字面关键词，不查正文／作者、不用模型；不改变角色与对象权限。[范围](specs/030-global-search.md) · [交付](docs/development/global-search.md) · [结果](docs/development/global-search-results.json)。
 

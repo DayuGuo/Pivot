@@ -1,0 +1,346 @@
+{
+  "schema": "pivot-personal-calendar.v1",
+  "status": "validated_engineering_candidate",
+  "spec": "031-personal-deadline-calendar",
+  "base": "bb340da407a8fbc654e5f0e3f84e01e8050c081a",
+  "pr11_merged_to_main": true,
+  "pr11_verified_head": "47057ccd62ea2d71bbcfae07f1d92455ee553c97",
+  "merge_tree_matches_verified_head": true,
+  "runtime_source": "1d9610f5ea2d5fcc1fa9dddaa1c30943ba54f83d",
+  "scope": "isolated_mock",
+  "main_app_updated": false,
+  "main_data_touched": false,
+  "vps_deployed": false,
+  "email_send_enabled": false,
+  "key_decisions": "responsible_human_confirmation",
+  "real_model_calls": 0,
+  "targeted_api": {
+    "passed": 53,
+    "seconds": 37.27,
+    "warnings": 1,
+    "evidence": "artifacts/calendar/api-query-split.log",
+    "note": "Overlaps complete CI coverage; not added to full totals."
+  },
+  "failure_evidence": [
+    "artifacts/calendar/first-integration-failure.log",
+    "artifacts/calendar/recovery-red.log",
+    "artifacts/calendar/footer-red.log",
+    "artifacts/calendar/browser-footer-first.log",
+    "artifacts/calendar/stall-red.log",
+    "artifacts/calendar/revision-red.log",
+    "artifacts/calendar/first-full-failure",
+    "artifacts/calendar/hint-red.log",
+    "artifacts/calendar/year-red.log",
+    "artifacts/calendar/third-full-failure"
+  ],
+  "full": {
+    "authority": "GitHub Actions",
+    "command": "scripts/verify.sh",
+    "source": "1502d72fd88897870d313439d0cfc87ccc8133e5",
+    "runs": [
+      {
+        "conclusion": "success",
+        "databaseId": 42320043029,
+        "event": "pull_request",
+        "headSha": "1502d72fd88897870d313439d0cfc87ccc8133e5",
+        "name": "static-demo",
+        "status": "completed",
+        "url": "https://github.com/DayuGuo/Pivot/actions/runs/42320043029"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 42320043165,
+        "event": "pull_request",
+        "headSha": "1502d72fd88897870d313439d0cfc87ccc8133e5",
+        "name": "verify",
+        "status": "completed",
+        "url": "https://github.com/DayuGuo/Pivot/actions/runs/42320043165"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 42320039643,
+        "event": "push",
+        "headSha": "1502d72fd88897870d313439d0cfc87ccc8133e5",
+        "name": "static-demo",
+        "status": "completed",
+        "url": "https://github.com/DayuGuo/Pivot/actions/runs/42320039643"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 42320039623,
+        "event": "push",
+        "headSha": "1502d72fd88897870d313439d0cfc87ccc8133e5",
+        "name": "verify",
+        "status": "completed",
+        "url": "https://github.com/DayuGuo/Pivot/actions/runs/42320039623"
+      }
+    ],
+    "test_counts": [
+      {
+        "source": "1502d72fd88897870d313439d0cfc87ccc8133e5",
+        "event": "pr",
+        "run_id": 42320043165,
+        "api_passed": 1666,
+        "api_warnings": 10,
+        "api_seconds": 424.69,
+        "browser_passed": 540,
+        "browser_duration": "14.9m",
+        "per_engine": {
+          "chromium": 180,
+          "firefox": 180,
+          "webkit": 180
+        },
+        "failed": 0,
+        "skipped": 0,
+        "browser_retries": 0,
+        "all_log_failure_markers": []
+      },
+      {
+        "source": "1502d72fd88897870d313439d0cfc87ccc8133e5",
+        "event": "push",
+        "run_id": 42320039623,
+        "api_passed": 1666,
+        "api_warnings": 10,
+        "api_seconds": 535.59,
+        "browser_passed": 540,
+        "browser_duration": "16.1m",
+        "per_engine": {
+          "chromium": 180,
+          "firefox": 180,
+          "webkit": 180
+        },
+        "failed": 0,
+        "skipped": 0,
+        "browser_retries": 0,
+        "all_log_failure_markers": []
+      }
+    ],
+    "all_job_steps_success": true
+  },
+  "ui_review": {
+    "reviewer": "generic_fresh_impeccable_finish_reviewer_031",
+    "initial_disposition": "fix",
+    "material_findings": [
+      {
+        "priority": 2,
+        "issue": "Home expanded calendar clipped later weeks and filters at1280x720",
+        "status": "resolved"
+      },
+      {
+        "issue": "Overdue items across years omitted year",
+        "status": "resolved",
+        "captures": 3,
+        "scope": "Generic reviewer independently read three captures and formatter; no backend or physical-device certification."
+      }
+    ],
+    "captures": 10,
+    "detector": [],
+    "token_cost_metrics": null,
+    "disposition": "ship",
+    "scope": "Generic fresh reviewer; ten recaptures for viewport P2, three overdue-year captures for date information. Limited visual verdict, no backend, physical-device or screen-reader certification.",
+    "review_rounds": 3,
+    "final_capture_count": 13
+  },
+  "targeted_browser": {
+    "passed": 36,
+    "per_engine": 12,
+    "reported_duration": "1.9m",
+    "failed": 0,
+    "retries": 0,
+    "evidence": "artifacts/calendar/browser-calendar-reviewed.log"
+  },
+  "first_local_full": {
+    "source": "8e4c171e7812234bbf6e3ad5f2072a350cd27ab4",
+    "exit_code": 1,
+    "duration_seconds": 2545.45,
+    "api_passed": 1666,
+    "api_seconds": 927.8,
+    "warnings": 10,
+    "browser_passed": 536,
+    "browser_failed": 1,
+    "browser_duration": "26.2m",
+    "finding": "History response remounted NextSteps between pointer-down/up, dropping a real Firefox click. Controlled old-image test reproduced.",
+    "evidence": "artifacts/calendar/first-full-failure"
+  },
+  "hint_fix_targeted_browser": {
+    "passed": 12,
+    "per_engine": 4,
+    "duration": "3.5m",
+    "failed": 0,
+    "retries": 0,
+    "evidence": "artifacts/calendar/hint-green.log",
+    "scope": "Existing isolated verification data; real full workflow and context-guidance, plus deterministic old-image red/new-image green pointer race."
+  },
+  "second_local_full_interrupted": {
+    "source": "cc02b685e145e3985bd6b47cc02861af9c1ea547",
+    "finished_head": "cc02b685e145e3985bd6b47cc02861af9c1ea547",
+    "exit_code": -15,
+    "duration_seconds": 1859.85,
+    "started_at": "2026-11-06T23:11:44.140796+00:00",
+    "finished_at": "2026-11-06T23:42:43.987715+00:00",
+    "scope": "isolated_mock",
+    "webkit_renderer": "explicit_mesa_software",
+    "real_model_calls": 0,
+    "vps_touched": false,
+    "main_database_touched": false,
+    "api_passed": 1666,
+    "api_seconds": 670.07,
+    "warnings": 10,
+    "browser_passes_at_stop": {
+      "chromium": 180,
+      "firefox": 180,
+      "webkit": 39
+    },
+    "reason": "Controlled old-image red test confirmed overdue dates omitted year. Intentionally stopped this batch to validate corrected source; not a complete pass.",
+    "evidence": "artifacts/calendar/second-full-interrupted"
+  },
+  "overdue_year_targeted_browser": {
+    "passed": 36,
+    "per_engine": 12,
+    "duration": "2.0m",
+    "failed": 0,
+    "retries": 0,
+    "evidence": "artifacts/calendar/year-green.log",
+    "captures": 3,
+    "ui_review": "resolved_ship_limited_year_display"
+  },
+  "overdue_year_visibility_browser": {
+    "passed": 3,
+    "per_engine": 1,
+    "seconds": 11.5,
+    "failed": 0,
+    "retries": 0,
+    "overlaps_calendar_suite": true,
+    "evidence": "artifacts/calendar/year-visibility-green.log",
+    "method": "Native Tab to both task links, full viewport intersections, no horizontal overflow, page clip preserves scroll."
+  },
+  "third_local_full": {
+    "source": "1d9610f5ea2d5fcc1fa9dddaa1c30943ba54f83d",
+    "finished_head": "1d9610f5ea2d5fcc1fa9dddaa1c30943ba54f83d",
+    "exit_code": 1,
+    "duration_seconds": 2539.23,
+    "started_at": "2026-11-06T23:52:10.388059+00:00",
+    "finished_at": "2026-11-07T00:34:29.619171+00:00",
+    "scope": "isolated_mock",
+    "webkit_renderer": "explicit_mesa_software",
+    "real_model_calls": 0,
+    "vps_touched": false,
+    "main_database_touched": false,
+    "api_passed": 1666,
+    "api_seconds": 818.95,
+    "warnings": 10,
+    "browser_passed": 539,
+    "browser_failed": 1,
+    "browser_duration": "27.9m",
+    "finding": "WebKit recovery test immediately compared page.url after error UI became visible; synchronous query comparison raced asynchronous router/history observation. Default-budget web-first exact predicate under diagnosis; application unchanged.",
+    "evidence": "artifacts/calendar/third-full-failure"
+  },
+  "url_recovery_diagnostic": {
+    "passed": 5,
+    "browser": "webkit",
+    "seconds": 42.1,
+    "retries": 0,
+    "application_source": "1d9610f5ea2d5fcc1fa9dddaa1c30943ba54f83d",
+    "evidence": "artifacts/calendar/url-probe.log",
+    "note": "Native history and final URL, messages and draft restored in all five runs. Does not claim the original timing race reproduced in these five runs."
+  },
+  "url_recovery_targeted_browser": {
+    "passed": 18,
+    "per_engine": 6,
+    "repeat_each": 3,
+    "duration": "2.2m",
+    "retries": 0,
+    "evidence": "artifacts/calendar/url-recovery-green.log",
+    "application_unchanged": true,
+    "assertion_predicates_unchanged": true,
+    "default_assertion_budget_unchanged": true
+  },
+  "validation_source": "1502d72fd88897870d313439d0cfc87ccc8133e5",
+  "local_backend": {
+    "source": "1d9610f5ea2d5fcc1fa9dddaa1c30943ba54f83d",
+    "passed": 1666,
+    "seconds": 818.95,
+    "warnings": 10,
+    "failed": 0,
+    "skipped": 0,
+    "evidence": "artifacts/calendar/pytest3-final.xml"
+  },
+  "local_browser": {
+    "source": "1502d72fd88897870d313439d0cfc87ccc8133e5",
+    "application_source": "1d9610f5ea2d5fcc1fa9dddaa1c30943ba54f83d",
+    "application_and_backend_test_diff_empty": true,
+    "checked_paths": [
+      "apps",
+      "packages",
+      "infrastructure",
+      "scripts",
+      "tests/api",
+      "tests/mail_adapters",
+      "evals",
+      "package.json",
+      "package-lock.json",
+      "pyproject.toml",
+      "playwright.config.ts"
+    ],
+    "command": [
+      "npm",
+      "run",
+      "test:e2e",
+      "--",
+      "--max-failures=1",
+      "--retries=0"
+    ],
+    "scope": "isolated_mock",
+    "local_scope": "browser_regression_only",
+    "webkit_renderer": "explicit_mesa_software",
+    "started_at": "2026-11-07T00:44:13.695029+00:00",
+    "pid": 2878900,
+    "finished_head": "1502d72fd88897870d313439d0cfc87ccc8133e5",
+    "exit_code": 0,
+    "duration_seconds": 1696.25,
+    "finished_at": "2026-11-07T01:12:29.948893+00:00",
+    "application_real_model_calls": 0,
+    "vps_touched": false,
+    "main_database_touched": false,
+    "passed": 540,
+    "per_engine": {
+      "chromium": 180,
+      "firefox": 180,
+      "webkit": 180
+    },
+    "duration": "28.3m",
+    "failed": 0,
+    "skipped": 0,
+    "browser_retries": 0,
+    "all_log_failure_markers": []
+  },
+  "local_complete_script_success_claimed": false,
+  "application_and_backend_test_diff_empty": true,
+  "health": {
+    "scope": "isolated_mock",
+    "web_status": 200,
+    "api_status": 200,
+    "database": "postgresql",
+    "editorial_model_provider": "mock",
+    "email_send_enabled": false,
+    "mailpit_captured_messages": 0,
+    "vps_touched": false,
+    "main_data_touched": false
+  },
+  "pr": {
+    "number": 12,
+    "url": "https://github.com/DayuGuo/Pivot/pull/12",
+    "draft": true,
+    "merged": false
+  },
+  "native_calendar_bundle": "not_run_this_stage",
+  "documentation_followup_ci": "Separate runs after docs-only push; do not infer their completion from validation source.",
+  "model_telemetry": {
+    "application_real_provider_requests": 0,
+    "application_api_cost_usd": 0,
+    "delegated_review_rounds": 3,
+    "delegated_review_tokens": null,
+    "delegated_review_api_cost": null,
+    "note": "Codex review usage/cost not exposed; null is not a zero-cost claim. No real DeepSeek request or credential verification in this stage."
+  }
+}

@@ -8,16 +8,14 @@ search signals. This read-only route has no model, file, audit or mutation work.
 from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import and_, case, exists, false, func, literal, or_, select, union_all
+from sqlalchemy import and_, exists, false, func, literal, or_, select, union_all
 from sqlalchemy.orm import Session
 
 from .db import get_db
-from .domain.decision_models import EditorialDecision
 from .domain.dossier_models import Dossier, DossierVersion
-from .domain.models import Assignment, ManuscriptVersion, SubmissionWorkflow, VersionAuthor
-from .domain.review_access import visible_condition
-from .domain.review_models import ReviewInvitation, ReviewRound
-from .models import Conversation, Manuscript, now
+from .domain.metadata_access import formal_metadata_statement
+from .domain.models import SubmissionWorkflow
+from .models import Conversation, Manuscript
 from .policy import EDITOR_ROLES
 from .security import Actor, ensure_current_actor, get_actor
 
@@ -47,137 +45,16 @@ def _conversation_rows(db, actor, tokens, limit):
 
 
 def _formal_statement(actor, tokens):
-    """SQL form of core.can_view and the current version's safe title projection.
-
-    Ownership remains available in every registered role. Production is narrowed
-    to production.source/can_produce prerequisites, and reviewer matching uses
-    only the same latest personal invitation as reviewer_projection.
-    """
-    owner = Manuscript.author_id == actor.user.id
-    role_caps = {
-        "author": {"author"},
-        "editor": {"author", "precheck", "handling_editor"},
-        "chief_editor": {"author", "chief"},
-        "reviewer": {"author"},
-        "production_editor": {"author", "production"},
-    }.get(actor.role, set())
-    assigned = exists(
-        select(Assignment.id).where(
-            Assignment.manuscript_id == Manuscript.id,
-            Assignment.journal_id == actor.journal_id,
-            Assignment.user_id == actor.user.id,
-            Assignment.capability.in_(role_caps),
-            Assignment.starts_at <= now(),
-            or_(Assignment.ends_at.is_(None), Assignment.ends_at > now()),
-        )
-    )
-    visible = or_(
-        owner,
-        and_(
-            SubmissionWorkflow.stage != "author_draft",
-            or_(actor.role == "chief_editor", assigned, visible_condition(actor)),
-        ),
-    )
-    selected_version = case(
-        (
-            and_(owner, SubmissionWorkflow.draft_version_id.is_not(None)),
-            SubmissionWorkflow.draft_version_id,
-        ),
-        (and_(~owner, actor.role == "production_editor"), SubmissionWorkflow.accepted_version_id),
-        else_=SubmissionWorkflow.current_version_id,
-    )
-    invitation_title = (
-        select(ReviewInvitation.invitation_snapshot["title"].as_string())
-        .join(ReviewRound, ReviewRound.id == ReviewInvitation.round_id)
-        .where(
-            ReviewInvitation.manuscript_id == Manuscript.id,
-            ReviewInvitation.journal_id == actor.journal_id,
-            ReviewInvitation.reviewer_id == actor.user.id,
-        )
-        .order_by(ReviewRound.round_no.desc(), ReviewInvitation.attempt_no.desc())
-        .limit(1)
-        .correlate(Manuscript)
-        .scalar_subquery()
-    )
-    title = case(
-        (and_(~owner, actor.role == "reviewer"), invitation_title),
-        else_=ManuscriptVersion.title,
-    )
-    statement = (
-        select(
+    statement = formal_metadata_statement(actor)
+    return statement.where(
+        _matches(
+            tokens,
+            statement.selected_columns.title,
             Manuscript.id,
-            title.label("title"),
-            SubmissionWorkflow.updated_at.label("at"),
-            literal("formal").label("route"),
-        )
-        .join(
-            SubmissionWorkflow,
-            and_(
-                SubmissionWorkflow.manuscript_id == Manuscript.id,
-                SubmissionWorkflow.journal_id == Manuscript.journal_id,
-            ),
-        )
-        .outerjoin(
-            ManuscriptVersion,
-            and_(
-                ManuscriptVersion.id == selected_version,
-                ManuscriptVersion.manuscript_id == Manuscript.id,
-            ),
-        )
-        .where(
-            Manuscript.journal_id == actor.journal_id,
-            visible,
-            title.is_not(None),
-            _matches(
-                tokens,
-                title,
-                Manuscript.id,
-                func.concat("#", Manuscript.id),
-                SubmissionWorkflow.number,
-            ),
+            func.concat("#", Manuscript.id),
+            SubmissionWorkflow.number,
         )
     )
-    if actor.role == "production_editor":
-        production_assignment = exists(
-            select(Assignment.id).where(
-                Assignment.manuscript_id == Manuscript.id,
-                Assignment.journal_id == actor.journal_id,
-                Assignment.user_id == actor.user.id,
-                Assignment.capability == "production",
-                Assignment.starts_at <= now(),
-                or_(Assignment.ends_at.is_(None), Assignment.ends_at > now()),
-            )
-        )
-        conflict = exists(
-            select(VersionAuthor.id).where(
-                VersionAuthor.manuscript_id == Manuscript.id,
-                or_(
-                    VersionAuthor.linked_user_id == actor.user.id,
-                    func.lower(VersionAuthor.email) == actor.user.email.casefold(),
-                ),
-            )
-        )
-        acceptance = exists(
-            select(EditorialDecision.id).where(
-                EditorialDecision.manuscript_id == Manuscript.id,
-                EditorialDecision.journal_id == actor.journal_id,
-                EditorialDecision.version_id == SubmissionWorkflow.accepted_version_id,
-                EditorialDecision.decision_code == "accept",
-            )
-        )
-        statement = statement.where(
-            or_(
-                owner,
-                and_(
-                    production_assignment,
-                    ~conflict,
-                    Manuscript.status == "accepted",
-                    ManuscriptVersion.frozen_at.is_not(None),
-                    acceptance,
-                ),
-            )
-        )
-    return statement
 
 
 def _manuscript_rows(db, actor, tokens, limit):
