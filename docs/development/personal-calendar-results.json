@@ -1,6 +1,6 @@
 {
   "schema": "pivot-personal-calendar.v1",
-  "status": "implementation_and_validation_in_progress",
+  "status": "validated_engineering_candidate",
   "spec": "031-personal-deadline-calendar",
   "base": "bb340da407a8fbc654e5f0e3f84e01e8050c081a",
   "pr11_merged_to_main": true,
@@ -19,7 +19,7 @@
     "seconds": 37.27,
     "warnings": 1,
     "evidence": "artifacts/calendar/api-query-split.log",
-    "note": "Final shared SQL/query split passed; full gate pending."
+    "note": "Overlaps complete CI coverage; not added to full totals."
   },
   "failure_evidence": [
     "artifacts/calendar/first-integration-failure.log",
@@ -33,7 +33,90 @@
     "artifacts/calendar/year-red.log",
     "artifacts/calendar/third-full-failure"
   ],
-  "full": null,
+  "full": {
+    "authority": "GitHub Actions",
+    "command": "scripts/verify.sh",
+    "source": "1502d72fd88897870d313439d0cfc87ccc8133e5",
+    "runs": [
+      {
+        "conclusion": "success",
+        "databaseId": 42320043029,
+        "event": "pull_request",
+        "headSha": "1502d72fd88897870d313439d0cfc87ccc8133e5",
+        "name": "static-demo",
+        "status": "completed",
+        "url": "https://github.com/DayuGuo/Pivot/actions/runs/42320043029"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 42320043165,
+        "event": "pull_request",
+        "headSha": "1502d72fd88897870d313439d0cfc87ccc8133e5",
+        "name": "verify",
+        "status": "completed",
+        "url": "https://github.com/DayuGuo/Pivot/actions/runs/42320043165"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 42320039643,
+        "event": "push",
+        "headSha": "1502d72fd88897870d313439d0cfc87ccc8133e5",
+        "name": "static-demo",
+        "status": "completed",
+        "url": "https://github.com/DayuGuo/Pivot/actions/runs/42320039643"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 42320039623,
+        "event": "push",
+        "headSha": "1502d72fd88897870d313439d0cfc87ccc8133e5",
+        "name": "verify",
+        "status": "completed",
+        "url": "https://github.com/DayuGuo/Pivot/actions/runs/42320039623"
+      }
+    ],
+    "test_counts": [
+      {
+        "source": "1502d72fd88897870d313439d0cfc87ccc8133e5",
+        "event": "pr",
+        "run_id": 42320043165,
+        "api_passed": 1666,
+        "api_warnings": 10,
+        "api_seconds": 424.69,
+        "browser_passed": 540,
+        "browser_duration": "14.9m",
+        "per_engine": {
+          "chromium": 180,
+          "firefox": 180,
+          "webkit": 180
+        },
+        "failed": 0,
+        "skipped": 0,
+        "browser_retries": 0,
+        "all_log_failure_markers": []
+      },
+      {
+        "source": "1502d72fd88897870d313439d0cfc87ccc8133e5",
+        "event": "push",
+        "run_id": 42320039623,
+        "api_passed": 1666,
+        "api_warnings": 10,
+        "api_seconds": 535.59,
+        "browser_passed": 540,
+        "browser_duration": "16.1m",
+        "per_engine": {
+          "chromium": 180,
+          "firefox": 180,
+          "webkit": 180
+        },
+        "failed": 0,
+        "skipped": 0,
+        "browser_retries": 0,
+        "all_log_failure_markers": []
+      }
+    ],
+    "all_job_steps_success": true
+  },
   "ui_review": {
     "reviewer": "generic_fresh_impeccable_finish_reviewer_031",
     "initial_disposition": "fix",
@@ -54,8 +137,9 @@
     "detector": [],
     "token_cost_metrics": null,
     "disposition": "ship",
-    "scope": "Read-only fresh generic reviewer; ten recaptures; verdict limited to previous P2 viewport finding. No backend, physical-device or screen-reader certification.",
-    "review_rounds": 3
+    "scope": "Generic fresh reviewer; ten recaptures for viewport P2, three overdue-year captures for date information. Limited visual verdict, no backend, physical-device or screen-reader certification.",
+    "review_rounds": 3,
+    "final_capture_count": 13
   },
   "targeted_browser": {
     "passed": 36,
@@ -170,5 +254,93 @@
     "application_unchanged": true,
     "assertion_predicates_unchanged": true,
     "default_assertion_budget_unchanged": true
+  },
+  "validation_source": "1502d72fd88897870d313439d0cfc87ccc8133e5",
+  "local_backend": {
+    "source": "1d9610f5ea2d5fcc1fa9dddaa1c30943ba54f83d",
+    "passed": 1666,
+    "seconds": 818.95,
+    "warnings": 10,
+    "failed": 0,
+    "skipped": 0,
+    "evidence": "artifacts/calendar/pytest3-final.xml"
+  },
+  "local_browser": {
+    "source": "1502d72fd88897870d313439d0cfc87ccc8133e5",
+    "application_source": "1d9610f5ea2d5fcc1fa9dddaa1c30943ba54f83d",
+    "application_and_backend_test_diff_empty": true,
+    "checked_paths": [
+      "apps",
+      "packages",
+      "infrastructure",
+      "scripts",
+      "tests/api",
+      "tests/mail_adapters",
+      "evals",
+      "package.json",
+      "package-lock.json",
+      "pyproject.toml",
+      "playwright.config.ts"
+    ],
+    "command": [
+      "npm",
+      "run",
+      "test:e2e",
+      "--",
+      "--max-failures=1",
+      "--retries=0"
+    ],
+    "scope": "isolated_mock",
+    "local_scope": "browser_regression_only",
+    "webkit_renderer": "explicit_mesa_software",
+    "started_at": "2026-11-07T00:44:13.695029+00:00",
+    "pid": 2878900,
+    "finished_head": "1502d72fd88897870d313439d0cfc87ccc8133e5",
+    "exit_code": 0,
+    "duration_seconds": 1696.25,
+    "finished_at": "2026-11-07T01:12:29.948893+00:00",
+    "application_real_model_calls": 0,
+    "vps_touched": false,
+    "main_database_touched": false,
+    "passed": 540,
+    "per_engine": {
+      "chromium": 180,
+      "firefox": 180,
+      "webkit": 180
+    },
+    "duration": "28.3m",
+    "failed": 0,
+    "skipped": 0,
+    "browser_retries": 0,
+    "all_log_failure_markers": []
+  },
+  "local_complete_script_success_claimed": false,
+  "application_and_backend_test_diff_empty": true,
+  "health": {
+    "scope": "isolated_mock",
+    "web_status": 200,
+    "api_status": 200,
+    "database": "postgresql",
+    "editorial_model_provider": "mock",
+    "email_send_enabled": false,
+    "mailpit_captured_messages": 0,
+    "vps_touched": false,
+    "main_data_touched": false
+  },
+  "pr": {
+    "number": 12,
+    "url": "https://github.com/DayuGuo/Pivot/pull/12",
+    "draft": true,
+    "merged": false
+  },
+  "native_calendar_bundle": "not_run_this_stage",
+  "documentation_followup_ci": "Separate runs after docs-only push; do not infer their completion from validation source.",
+  "model_telemetry": {
+    "application_real_provider_requests": 0,
+    "application_api_cost_usd": 0,
+    "delegated_review_rounds": 3,
+    "delegated_review_tokens": null,
+    "delegated_review_api_cost": null,
+    "note": "Codex review usage/cost not exposed; null is not a zero-cost claim. No real DeepSeek request or credential verification in this stage."
   }
 }

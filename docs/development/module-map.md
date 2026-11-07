@@ -74,3 +74,5 @@ spec027前端：`library/revision-check.tsx`维护材料包、三层人工草稿
 - components/calendar：四工作区同一展开入口和有界读取；当前表单保护仍由所在工作区负责。
 
 check-boundaries为上述SQL构造模块禁止传输、路由和执行/写入调用；原Action Gateway与审批边界不变。
+
+同稿同版本的NextSteps随消息变化通过refreshToken重读数据，保持按钮节点；身份/版本上下文仍重建绑定。请求序号丢弃迟到自动/手动刷新。浏览器URL恢复使用原精确谓词的web-first断言，避免把异步history观察当同步状态。

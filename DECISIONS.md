@@ -308,3 +308,5 @@ spec029增加会话成员字段并扩展角色唯一键，升级验收不能把�
 日历阶段完整回归还发现建议按钮随对话历史消息ID重建的点击竞态。保持身份/稿件/版本上下文key，消息ID只作为refreshToken重读数据，请求序号丢弃迟到刷新；版本/角色变化仍重建并核对绑定，选择仅填输入草稿。旧镜像受控按下/历史到达/松开已复现，不用重试或更长断言掩盖。
 
 恢复URL的浏览器断言沿用相同conversation精确谓词，改用await expect(page).toHaveURL。当前Next.js依赖通过startTransition分发history恢复，非等待式page.url比较可先于路由观察稳定；本机WebKit原失败与五次原生history诊断保留，不归咎于未证实的浏览器缓存缺陷。不改应用、消息/草稿/请求数断言、默认5秒预算或用例重试。依据[Playwright官方断言文档](https://playwright.dev/docs/test-assertions#auto-retrying-assertions)。
+
+验收落地：逾期跨年条目必须显示年份；普通月视图由月份标题说明年份。应用冻结1d9610f，1502d72仅修正测试等待方式，应用与后端测试树相同。完整门禁以该验证提交PR/push实际scripts/verify.sh成功为准；本机1666后端和540浏览器是分次通过，不把三轮失败/主动中断改记为本机完整成功。结果见docs/development/personal-calendar-results.json。
