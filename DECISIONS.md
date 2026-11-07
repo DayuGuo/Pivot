@@ -306,3 +306,5 @@ spec029增加会话成员字段并扩展角色唯一键，升级验收不能把�
 后端按IANA当地月/日转UTC半开区间，月内日计数与有界keyset任务页分开读取；游标不授予权限，绑定用户/期刊/角色及全部筛选，过期分页主动回首批。前端部署不识别浏览器时区时提供显式UTC选择，窄屏使用原生日期控件，不挤入微小点击目标；中央对话与原未保存保护保持。此为既有侧栏扩展，DESIGN不改；不引入外部日历/通知、模型动作或期限修改权限。官方依据见docs/research/deadlines-2026-11-06.md。
 
 日历阶段完整回归还发现建议按钮随对话历史消息ID重建的点击竞态。保持身份/稿件/版本上下文key，消息ID只作为refreshToken重读数据，请求序号丢弃迟到刷新；版本/角色变化仍重建并核对绑定，选择仅填输入草稿。旧镜像受控按下/历史到达/松开已复现，不用重试或更长断言掩盖。
+
+恢复URL的浏览器断言沿用相同conversation精确谓词，改用await expect(page).toHaveURL。当前Next.js依赖通过startTransition分发history恢复，非等待式page.url比较可先于路由观察稳定；本机WebKit原失败与五次原生history诊断保留，不归咎于未证实的浏览器缓存缺陷。不改应用、消息/草稿/请求数断言、默认5秒预算或用例重试。依据[Playwright官方断言文档](https://playwright.dev/docs/test-assertions#auto-retrying-assertions)。

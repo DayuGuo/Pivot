@@ -6,7 +6,7 @@
   "pr11_merged_to_main": true,
   "pr11_verified_head": "47057ccd62ea2d71bbcfae07f1d92455ee553c97",
   "merge_tree_matches_verified_head": true,
-  "runtime_source": null,
+  "runtime_source": "1d9610f5ea2d5fcc1fa9dddaa1c30943ba54f83d",
   "scope": "isolated_mock",
   "main_app_updated": false,
   "main_data_touched": false,
@@ -30,7 +30,8 @@
     "artifacts/calendar/revision-red.log",
     "artifacts/calendar/first-full-failure",
     "artifacts/calendar/hint-red.log",
-    "artifacts/calendar/year-red.log"
+    "artifacts/calendar/year-red.log",
+    "artifacts/calendar/third-full-failure"
   ],
   "full": null,
   "ui_review": {
@@ -128,5 +129,46 @@
     "overlaps_calendar_suite": true,
     "evidence": "artifacts/calendar/year-visibility-green.log",
     "method": "Native Tab to both task links, full viewport intersections, no horizontal overflow, page clip preserves scroll."
+  },
+  "third_local_full": {
+    "source": "1d9610f5ea2d5fcc1fa9dddaa1c30943ba54f83d",
+    "finished_head": "1d9610f5ea2d5fcc1fa9dddaa1c30943ba54f83d",
+    "exit_code": 1,
+    "duration_seconds": 2539.23,
+    "started_at": "2026-11-06T23:52:10.388059+00:00",
+    "finished_at": "2026-11-07T00:34:29.619171+00:00",
+    "scope": "isolated_mock",
+    "webkit_renderer": "explicit_mesa_software",
+    "real_model_calls": 0,
+    "vps_touched": false,
+    "main_database_touched": false,
+    "api_passed": 1666,
+    "api_seconds": 818.95,
+    "warnings": 10,
+    "browser_passed": 539,
+    "browser_failed": 1,
+    "browser_duration": "27.9m",
+    "finding": "WebKit recovery test immediately compared page.url after error UI became visible; synchronous query comparison raced asynchronous router/history observation. Default-budget web-first exact predicate under diagnosis; application unchanged.",
+    "evidence": "artifacts/calendar/third-full-failure"
+  },
+  "url_recovery_diagnostic": {
+    "passed": 5,
+    "browser": "webkit",
+    "seconds": 42.1,
+    "retries": 0,
+    "application_source": "1d9610f5ea2d5fcc1fa9dddaa1c30943ba54f83d",
+    "evidence": "artifacts/calendar/url-probe.log",
+    "note": "Native history and final URL, messages and draft restored in all five runs. Does not claim the original timing race reproduced in these five runs."
+  },
+  "url_recovery_targeted_browser": {
+    "passed": 18,
+    "per_engine": 6,
+    "repeat_each": 3,
+    "duration": "2.2m",
+    "retries": 0,
+    "evidence": "artifacts/calendar/url-recovery-green.log",
+    "application_unchanged": true,
+    "assertion_predicates_unchanged": true,
+    "default_assertion_budget_unchanged": true
   }
 }
