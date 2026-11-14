@@ -110,6 +110,8 @@ def personal_task_statement(actor, stamp):
             WorkItem.kind,
             WorkItem.status,
             WorkItem.due_at,
+            SubmissionWorkflow.revision.label("workflow_revision"),
+            SubmissionWorkflow.stage,
         )
         .join(visible, visible.c.id == WorkItem.manuscript_id)
         .join(Manuscript, Manuscript.id == WorkItem.manuscript_id)

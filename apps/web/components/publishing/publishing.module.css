@@ -124,6 +124,7 @@
 .notice { color: var(--p-notice); background: var(--p-notice-bg); }
 .error { color: var(--p-danger); background: var(--p-danger-bg); }
 .notice button, .error button { margin: 8px 0 0; display: block; }
+.shell .timezoneRecovery { min-height: 44px; max-width: 100%; }
 .notice a { display: block; margin-top: 8px; }
 .notice p { margin-bottom: 3px; }
 .saved { color: var(--p-success); font-size: 12px; min-height: 20px; margin-bottom: 12px; }

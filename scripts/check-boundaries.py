@@ -153,3 +153,40 @@ for module in ("metadata_access", "calendar_queries"):
         ):
             raise SystemExit(f"Metadata query acquired execution/write authority: {source}")
 print("Metadata/calendar query builders remain transport-free and read-only")
+
+# Calendar HTTP and chat consume this service without giving it write or model authority.
+source = Path("apps/api/publishing/domain/deadlines.py")
+for node in ast.walk(ast.parse(source.read_text())):
+    names = (
+        [item.name for item in node.names]
+        if isinstance(node, ast.Import)
+        else [node.module or ""]
+        if isinstance(node, ast.ImportFrom)
+        else []
+    )
+    if any(
+        name.split(".")[0] in {"httpx", "requests", "smtplib", "subprocess", "socket"}
+        or "model_gateway" in name
+        or name.rsplit(".", 1)[-1] in http_routes
+        for name in names
+    ):
+        raise SystemExit(f"Deadline service imported transport/route authority: {source}")
+    if (
+        isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Attribute)
+        and node.func.attr
+        in {
+            "add",
+            "add_all",
+            "commit",
+            "flush",
+            "delete",
+            "run_action",
+            "confirm",
+            "prepare_proposal",
+            "write_text",
+            "write_bytes",
+        }
+    ):
+        raise SystemExit(f"Deadline service acquired write authority: {source}")
+print("Shared deadline service remains read-only and has no model/transport authority")
