@@ -1,6 +1,6 @@
 # spec032：当前身份的日常待办问答
 
-状态：实现中，最终回归结果另见PROGRESS。基于未合并日历PR #12的e4c790f，不自动合并或部署。对应[阶段计划](../docs/planning/next-stage-2026-11-14.md)的第一个里程碑。
+状态：066d9b4完成工程验收，本机完整脚本exit0、1706后端＋552浏览器及两轮完整/静态CI成功。[交付](../docs/development/deadline-questions.md)与PROGRESS记录证据和限制。基于未合并日历PR #12的e4c790f，不自动合并或部署。对应[阶段计划](../docs/planning/next-stage-2026-11-14.md)的第一个里程碑。
 
 ## 产品范围
 

@@ -1,6 +1,6 @@
 # 架构
 
-## 日常待办问答（spec032，实施中）
+## 日常待办问答（spec032，已实现）
 
 deadlines服务组合原personal_task_statement，供calendar薄路由与正式chat复用；保留日历响应协议。常见期限提问走确定记录路径，通用模型增加read_my_deadlines，事实回复由服务构建。每批12项，日期基准与本批读取时间分开；提交前复读事实，历史/回执检查原任务当前职责。ChatContext缺省timezone序列化省略，旧摘要保持；无新表/迁移。详细约束见spec032，验收以PROGRESS为准。
 
