@@ -420,6 +420,19 @@ def test_review_classifier_regression(text, expected):
     assert deadlines.requested_period(text) == expected
 
 
+@pytest.mark.parametrize(
+    "text",
+    [
+        "创建一个测试准备稿，超出整轮截止时间时不得提交。",
+        "创建稿件，API请求超出截止时间后回滚。",
+        "What is the model request deadline?",
+        "请解释模型工具回合的超时时间。",
+    ],
+)
+def test_runtime_time_budget_is_not_a_task_due_date(text):
+    assert deadlines.requested_period(text) is None
+
+
 def test_review_unknown_timezone_does_not_disable_unrelated_chat(client, login):
     login()
     assert post(client, "解释一下当前工作区", timezone="Mars/Unknown").status_code == 200

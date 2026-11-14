@@ -133,6 +133,12 @@ def calendar_data(db, actor, *, month, tz, view, day, cursor, limit, stamp):
 
 def requested_period(text):
     """Narrow shortcuts for factual requests; all other requests retain the model path."""
+    # A model/request timeout is not a manuscript responsibility deadline. Let
+    # the existing runtime handle those requests, including creation/rollback.
+    if re.search(
+        r"整轮|回合|请求|网络|模型|工具|超时|\b(?:api|timeout|turn|network|request)\b", text, re.I
+    ) and not re.search(r"待办|任务|审稿|修回|校样|\btasks?\b", text, re.I):
+        return None
     if re.fullmatch(
         r"\s*(?:继续(?:查看|查询)?(?:我的)?待办|下一页待办|more tasks)[。？！.!?\s]*", text, re.I
     ):
