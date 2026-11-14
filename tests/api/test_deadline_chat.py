@@ -475,3 +475,43 @@ def test_review_deadline_change_after_manuscript_lock_is_rechecked(
 
     monkeypatch.setattr(core, "load_submission", during_lock)
     assert post(client, mid=m.id).status_code == 409
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "请整理资料\n标题：合成稿件\n摘要：本研究验证编辑待办以及本周截止任务。",
+        "请整理资料 摘要：所有待办均由编辑执行。",
+        "请整理以下信息\n本文讨论今天到期的任务与期限。",
+        "标题：所有待办",
+        "Please extract manuscript metadata\nAbstract: all my tasks are due today.",
+    ],
+)
+def test_metadata_payload_does_not_route_as_task_query(text):
+    assert deadlines.requested_period(text) is None
+
+
+def test_source_payload_cannot_change_explicit_query_range():
+    assert (
+        deadlines.requested_period(
+            "我今天需要做什么？\n摘要：本周存在逾期任务，并讨论模型请求的截止时间。"
+        )
+        == "today"
+    )
+
+
+def test_metadata_payload_preserves_actual_intake_operation(client, login):
+    from tests.api.test_publishing_intake import draft
+
+    login("author")
+    mid = draft(client)["manuscript_id"]
+    response = post(
+        client,
+        "请整理资料\n标题：合成资料路由回归\n摘要：本研究采用合成材料验证负责人确认与编辑待办，并讨论本周截止任务。\n关键词：合成数据，出版流程",
+        mid=mid,
+    )
+    message = answer(response)
+    assert response.json()["state_changed"] is True
+    assert "work_snapshot" not in message
+    assert "propose_intake" in {x["tool"] for x in message["tool_receipts"]}
+    assert "已将识别到的信息整理为候选" in message["content"]

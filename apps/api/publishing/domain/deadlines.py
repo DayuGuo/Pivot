@@ -133,6 +133,21 @@ def calendar_data(db, actor, *, month, tz, view, day, cursor, limit, stamp):
 
 def requested_period(text):
     """Narrow shortcuts for factual requests; all other requests retain the model path."""
+    # A pasted manuscript is data, not a routing command. Inspect only the
+    # leading request line and exclude explicitly labeled inline metadata.
+    text = text.strip().splitlines()[0] if text.strip() else ""
+    text = re.split(
+        r"(?:^|\s)(?:标题|摘要|关键词|作者|正文|资助|title|abstract|keywords|authors?|fulltext|funding)\s*[:：]",
+        text,
+        maxsplit=1,
+        flags=re.I,
+    )[0].strip()
+    if re.search(
+        r"(?:整理|提取|总结|概括|润色|改写|核对|检查).{0,8}(?:资料|信息|全文|摘要|作者|元数据|题名|标题)|(?:extract|summarize|edit|rewrite|organize).{0,30}(?:metadata|abstract|authors?|manuscript)",
+        text,
+        re.I,
+    ) and not re.search(r"待办|任务|\btasks?\b", text, re.I):
+        return None
     # A model/request timeout is not a manuscript responsibility deadline. Let
     # the existing runtime handle those requests, including creation/rollback.
     if re.search(
