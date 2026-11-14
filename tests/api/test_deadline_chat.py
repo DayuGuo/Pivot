@@ -54,7 +54,7 @@ def test_old_context_digest_is_unchanged_and_invalid_timezones_rejected():
     assert core.digest(chat.ChatInput(message="原请求", context=old).model_dump()) == core.digest(
         {"message": "原请求", "context": old}
     )
-    for zone in ["Mars/Unknown", "localtime", "posix/Europe/London"]:
+    for zone in ["bad zone", "<script>", "sk-" + "x" * 20]:
         with pytest.raises(ValueError):
             chat.ChatContext.model_validate({**old, "timezone": zone})
 
@@ -405,3 +405,60 @@ def test_bounded_work_queries_do_not_inherit_recent_200_manuscript_limit(client,
     with patch.object(core, "workspace", older):
         snapshot = answer(post(client))["work_snapshot"]
     assert [x["id"] for x in snapshot["items"]] == [item.id]
+
+
+@pytest.mark.parametrize(
+    "text,expected",
+    [
+        ("列出今天的所有待办", "today"),
+        ("What are all my tasks due today?", "today"),
+        ("为什么今天的待办这么多？", "today"),
+        ("哪些任务没有截止时间？", "undated"),
+    ],
+)
+def test_review_classifier_regression(text, expected):
+    assert deadlines.requested_period(text) == expected
+
+
+def test_review_unknown_timezone_does_not_disable_unrelated_chat(client, login):
+    login()
+    assert post(client, "解释一下当前工作区", timezone="Mars/Unknown").status_code == 200
+
+
+def test_review_provider_cannot_skip_read_and_invent_task_deadlines(client, login, monkeypatch):
+    login()
+
+    class Supplier:
+        name = "deepseek"
+        last_telemetry = None
+
+        def completion(self, messages, tools):
+            return completion(
+                "respond",
+                {"content": "你有3项待办，截止日期为2099年12月31日。", "evidence_ids": []},
+            )
+
+    monkeypatch.setattr(chat, "get_editorial_provider", Supplier)
+    assert post(client, "帮我看看工作区情况").status_code == 502
+
+
+def test_review_deadline_change_after_manuscript_lock_is_rechecked(
+    client, login, db, world, monkeypatch
+):
+    m, _, item = task(db, world, due=STAMP)
+    db.commit()
+    login()
+    load = core.load_submission
+    changed = False
+
+    def during_lock(*args, **kwargs):
+        nonlocal changed
+        result = load(*args, **kwargs)
+        if kwargs.get("write") and not changed:
+            changed = True
+            db.get(WorkItem, item.id).due_at = STAMP + timedelta(days=1)
+            db.flush()
+        return result
+
+    monkeypatch.setattr(core, "load_submission", during_lock)
+    assert post(client, mid=m.id).status_code == 409

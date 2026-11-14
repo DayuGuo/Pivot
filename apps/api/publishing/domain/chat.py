@@ -27,10 +27,11 @@ from ..security import Actor
 from . import core
 from .deadlines import (
     PERIODS,
+    TIMEZONES,
     read_work,
     requested_period,
     require_snapshot_access,
-    timezone_name,
+    ungrounded_task_claim,
     work_reply,
 )
 from .files import FileValidationError, read_bytes
@@ -61,6 +62,7 @@ SAFE_TURN_ERROR_CODES = frozenset(
         "publishing_final_tool_required",
         "publishing_response_must_be_last",
         "publishing_turn_budget_exceeded",
+        "publishing_deadline_read_required",
     }
 )
 
@@ -101,7 +103,14 @@ class ChatContext(StrictInput):
     @field_validator("timezone")
     @classmethod
     def valid_timezone(cls, value):
-        return timezone_name(value) if value is not None else None
+        # The browser and server may have different tzdata. Only deadline reads
+        # require server support; unrelated questions must remain usable.
+        if value is not None and (
+            not re.fullmatch(r"[A-Za-z0-9_+./-]{1,100}", value)
+            or re.search(r"sk-[A-Za-z0-9_-]{16,}", value)
+        ):
+            raise ValueError("无效的时区名称")
+        return value
 
     @model_serializer(mode="wrap")
     def compatible_context(self, handler):
@@ -313,6 +322,8 @@ class Runtime:
             "email_send_enabled": False,
             "my_tasks": work["tasks"],
         }
+        if self.system_context["context"].get("timezone") not in TIMEZONES:
+            self.system_context["context"].pop("timezone", None)
         if self.current_id:
             if deadlines_only:
                 self.allowed_ids.add(self.current_id)
@@ -610,6 +621,12 @@ class Runtime:
         if name == "respond":
             content, ids = arguments["content"], arguments["evidence_ids"]
             if (
+                isinstance(content, str)
+                and not self.work_snapshot
+                and ungrounded_task_claim(content)
+            ):
+                raise GatewayError("publishing_deadline_read_required")
+            if (
                 not isinstance(content, str)
                 or not content.strip()
                 or len(content) > 6000
@@ -792,13 +809,13 @@ class Runtime:
         # No existing manuscript row is locked during supplier network calls.
         self.db.expire_all()
         self.validate_scopes()
-        self.validate_deadline_facts()
         for mid, revision in sorted(self.read_revisions.items()):
             _, flow = core.load_submission(self.db, self.actor, mid, write=True)
             core.require_revision(flow, revision)
         # Invitation-summary access may survive losing the full-text grant while
         # this transaction waits for the manuscript row. Recheck the finer scope.
         self.validate_scopes()
+        self.validate_deadline_facts()
         if not self.staged:
             return
         kind, mid, revision, payload = self.staged
@@ -1137,7 +1154,9 @@ def conversation(db: Session, actor: Actor, request_id: str, body: ChatInput) ->
                 raise GatewayError("publishing_turn_budget_exceeded")
         if runtime.work_snapshot:
             # A model may choose the read tool, but cannot author task dates, totals or links.
-            reply = work_reply(runtime.work_snapshot)
+            reply = work_reply(
+                runtime.work_snapshot, explain=bool(re.search(r"为什么|why", body.message, re.I))
+            )
         check_deadline = getattr(provider, "check_deadline", None)
         if check_deadline:
             check_deadline()

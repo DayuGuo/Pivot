@@ -24,7 +24,7 @@ async function send(page: Page, text: string) {
   return r.json();
 }
 
-test("真实待办问答：当前稿件、浏览器时区、刷新和引用", async ({ page }) => {
+test("真实待办问答：当前稿件、浏览器时区、刷新和引用", async ({ page, browserName }) => {
   const auth = await login(page);
   const mid = await draft(page, auth.csrf_token);
   await page.goto(`/publishing?manuscript=${mid}`);
@@ -39,6 +39,8 @@ test("真实待办问答：当前稿件、浏览器时区、刷新和引用", as
   await expect(page.getByText("工作记录", { exact: true })).toBeVisible();
   const reference = page.getByRole("link", { name: message.references[0].label, exact: true }).last();
   await expect(reference).toHaveAttribute("href", `/publishing?manuscript=${mid}`);
+  await page.evaluate(() => document.fonts.ready);
+  await page.screenshot({ animations: "disabled", path: `artifacts/deadline-chat/${browserName}-answer.png` });
   await page.reload();
   await expect(page.getByText(message.content, { exact: true })).toBeVisible();
   const current = await page.request.get(`/api/publishing/manuscripts/${mid}`);
@@ -75,4 +77,53 @@ test("真实分页：自然语言继续、刷新保留、零重复", async ({ pa
   expect(second.cursor).toBe(first.next_cursor);
   const seen = new Set(first.items.map((x: { id: string }) => x.id));
   expect(second.items.every((x: { id: string }) => !seen.has(x.id))).toBe(true);
+});
+
+test("未知浏览器时区：普通对话可用，明确选择UTC后以新请求恢复", async ({ page, browserName }) => {
+  const errors: string[] = [];
+  page.on("pageerror", error => errors.push(error.message));
+  await page.addInitScript(() => {
+    const original = Intl.DateTimeFormat.prototype.resolvedOptions;
+    Intl.DateTimeFormat.prototype.resolvedOptions = function() { return { ...original.call(this), timeZone: "Mars/Unknown" }; };
+  });
+  await login(page);
+  await page.goto("/publishing");
+  await send(page, "解释一下当前工作区");
+  const sent: { request_id: string; context: { timezone: string } }[] = [];
+  page.on("request", request => { if (chatURL.test(request.url()) && request.method() === "POST") sent.push(request.postDataJSON()); });
+  await page.getByRole("textbox", { name: "向出版助手发送消息" }).fill("今天的所有待办");
+  const refused = page.waitForResponse(r => chatURL.test(r.url()) && r.request().method() === "POST");
+  await page.getByRole("button", { name: "发送消息", exact: true }).click();
+  expect((await refused).status()).toBe(422);
+  const fallback = page.getByRole("button", { name: "使用UTC重新发送", exact: true });
+  await expect(fallback).toBeVisible();
+  await expect(page.getByRole("textbox", { name: "向出版助手发送消息" })).toHaveValue("今天的所有待办");
+  await page.evaluate(() => document.fonts.ready);
+  await fallback.focus();
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Shift+Tab");
+  await expect(fallback).toBeFocused();
+  await expect(fallback).toHaveCSS("outline-style", "solid");
+  await page.screenshot({ animations: "disabled", path: `artifacts/deadline-chat/${browserName}-timezone-desktop.png` });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ colorScheme: "dark" });
+  await expect(fallback).toBeInViewport({ ratio: 1 });
+  expect((await fallback.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ animations: "disabled", path: `artifacts/deadline-chat/${browserName}-timezone-mobile.png` });
+  expect(sent).toHaveLength(1);
+  const recovered = page.waitForResponse(r => chatURL.test(r.url()) && r.request().method() === "POST");
+  await fallback.press("Enter");
+  const r = await recovered;
+  expect(r.status()).toBe(200);
+  const result = await r.json();
+  expect(result.state_changed).toBe(false);
+  expect(result.messages[1].work_snapshot.timezone).toBe("UTC");
+  expect(sent).toHaveLength(2);
+  expect(sent[0].context.timezone).toBe("Mars/Unknown");
+  expect(sent[1].context.timezone).toBe("UTC");
+  expect(sent[1].request_id).not.toBe(sent[0].request_id);
+  await expect(fallback).toHaveCount(0);
+  await expect(page.getByRole("textbox", { name: "向出版助手发送消息" })).toHaveValue("");
+  expect(errors).toEqual([]);
 });
