@@ -311,7 +311,7 @@ export default function LibraryWorkspace({ reviewVersionId, importId, evaluation
   }
 
   if (loading && !session) return <main className={styles.gate}><p role="status">正在恢复登录…</p></main>;
-  if (!session) return <main className={styles.gate}><h1>内部资料</h1><p role="alert">{error || "请先登录后打开内部资料。"}</p><Link href="/">返回登录</Link><button type="button" onClick={() => void load()}>重试连接</button></main>;
+  if (!session) return <main className={styles.gate}><h1>内部资料</h1><p role="alert">{error || "请先登录后打开内部资料。"}</p><Link href={selectedId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(selectedId) ? `/?entry=library&dossier=${encodeURIComponent(selectedId)}` : "/?entry=library"}>返回登录</Link><button type="button" onClick={() => void load()}>重试连接</button></main>;
 
   const configuredModel = detail?.model;
   const modelLabel = configuredModel?.provider === "deepseek" ? "DeepSeek · 只读审阅" : configuredModel?.provider === "mock" ? "Mock · 模拟审阅" : "模型状态待确认";

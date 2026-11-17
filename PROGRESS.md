@@ -1,5 +1,10 @@
 # spec032已完成工程验收：日常待办问答
 
+## 2026-11-17：编辑部试用准备（spec033，验证进行中）
+
+从已验收5ea3f82建立codex/editorial-trial-access，PR #12/#13保持未合并。补充服务器运维专用编辑账号开通/停用/恢复/密码轮换、旧会话撤销和私人登录资料入口；只在隔离Mock栈迁移/测试，主服务、数据及VPS不变。针对性64项后端与15项浏览器通过；新增边界/CLI补充测试及完整scripts/verify.sh仍待最终记录。研究门禁曾发现models.py行号漂移，已按实际AST更新Manuscript来源定位，未改变其字段或约束。计划/操作与未完成边界见[试用交付](docs/development/editorial-trial/README.md)。
+
+
 验证源码066d9b4b0ae5f7d6af0c2ee009cd80141cad9210，本机scripts/verify.sh实际exit0、1814.03秒：**1706后端633.27秒＋552浏览器19.3m**，三引擎各184，0失败/跳过/浏览器重试。该源PR完整CI43624783455与push完整CI43624778221各1706＋552、14步骤全success；两静态CI43624783456/43624778326各17步骤全success。整份日志、XML、源SHA和退出回执已核对。[交付](docs/development/deadline-questions.md) · [结构化结果](docs/development/deadline-questions-results.json) · [草稿PR #13](https://github.com/DayuGuo/Pivot/pull/13)。
 
 当前身份/期刊/实际分派的真实期限问答、分页/刷新/稿件引用、明确UTC恢复和来源隔离已验收；无新表/迁移。前后端200、PostgreSQL、Mock、邮件禁用及Mailpit0已核对；原主服务仍停在2026-11-06 12:59，主库/原件/模型配置和VPS未改。PR #13依赖未合并#12，均未合并或部署。应用真实模型0，未重验DeepSeek凭据、真机/专业工程审计/VPS容量或实际编辑效果。下一步为许可完整修回材料与内容/编辑评价；以下保留实施失败记录。纯文档更新CI另行记录，不从旧源推断结束。

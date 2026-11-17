@@ -1,5 +1,10 @@
 # 架构
 
+## 试用访问生命周期（spec033）
+
+新增TrialAccount七字段及迁移33a1b9c7d204，仅管理本轮新建的单刊editor。operations/trial_accounts为服务器认证Action Gateway，复用ActionReceipt/AuditEvent；无HTTP或模型入口。account_access统一共享/独占advisory锁，先于会话行锁，登录拿锁后重读密码，停用事务撤销会话，最终业务提交重验状态。运维管道传递无回显密码，回执不含密码摘要。login/me的landing_path仅导航提示，实际权限不依赖它。详spec033。
+
+
 ## 日常待办问答（spec032，已实现）
 
 deadlines服务组合原personal_task_statement，供calendar薄路由与正式chat复用；保留日历响应协议。常见期限提问走确定记录路径，通用模型增加read_my_deadlines，事实回复由服务构建。每批12项，日期基准与本批读取时间分开；提交前复读事实，历史/回执检查原任务当前职责。ChatContext缺省timezone序列化省略，旧摘要保持；无新表/迁移。详细约束见spec032，验收以PROGRESS为准。

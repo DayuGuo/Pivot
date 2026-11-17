@@ -7,6 +7,7 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     ForeignKeyConstraint,
+    Integer,
     String,
     Text,
     UniqueConstraint,
@@ -66,6 +67,23 @@ class LoginSession(Base):
     active_membership_id: Mapped[str | None] = mapped_column(String(36))
     csrf_token: Mapped[str] = mapped_column(String(64))
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class TrialAccount(Base):
+    """Operator-managed pilot access; existing users and memberships stay untouched."""
+
+    __tablename__ = "trial_accounts"
+    __table_args__ = (
+        CheckConstraint("status IN ('active','disabled')", name="ck_trial_account_status"),
+        CheckConstraint("revision >= 1", name="ck_trial_account_revision"),
+    )
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    journal_id: Mapped[str] = mapped_column(ForeignKey("journals.id"))
+    operator_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    status: Mapped[str] = mapped_column(String(20), default="active")
+    revision: Mapped[int] = mapped_column(Integer, default=1)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
 
 
 class Manuscript(Base):
