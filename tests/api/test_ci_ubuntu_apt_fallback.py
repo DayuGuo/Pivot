@@ -189,3 +189,43 @@ def test_partial_write_failure_rolls_back_and_keeps_private_backup(runner, monke
     assert not (root / fallback.NETWORK_PATH).exists()
     assert (root / "etc/apt/sources.list.d/ubuntu.sources").read_bytes() == trust
     assert len(backups(root)) == 1
+
+
+@pytest.mark.parametrize(
+    "primary",
+    ["http://azure.archive.ubuntu.com/ubuntu/", "http://us-east-2.ec2.archive.ubuntu.com/ubuntu/"],
+)
+def test_current_official_runner_cloud_mirrors_can_fall_back(runner, primary):
+    root, options, _, trust = runner
+    original = (
+        f"{primary}\tpriority:1\n"
+        "https://archive.ubuntu.com/ubuntu/\tpriority:2\n"
+        "https://security.ubuntu.com/ubuntu/\tpriority:3\n"
+    ).encode()
+    (root / fallback.MIRROR_PATH).write_bytes(original)
+    assert fallback.apply_fallback(**options) == 2
+    assert (root / fallback.MIRROR_PATH).read_bytes() == fallback.MIRROR_TEXT
+    assert (root / "etc/apt/sources.list.d/ubuntu.sources").read_bytes() == trust
+    assert (backups(root)[0] / "original-0.bin").read_bytes() == original
+
+
+@pytest.mark.parametrize(
+    "primary",
+    [
+        "http://us-east-2.ec2.archive.ubuntu.com.attacker.test/ubuntu/",
+        "http://us-west-2.ec2.archive.ubuntu.com/ubuntu/",
+        "http://user:password@us-east-2.ec2.archive.ubuntu.com/ubuntu/",
+    ],
+)
+def test_other_cloud_or_lookalike_mirrors_still_fail_closed(runner, primary):
+    root, options, _, _ = runner
+    original = (
+        f"{primary}\tpriority:1\n"
+        "https://archive.ubuntu.com/ubuntu/\tpriority:2\n"
+        "https://security.ubuntu.com/ubuntu/\tpriority:3\n"
+    ).encode()
+    (root / fallback.MIRROR_PATH).write_bytes(original)
+    with pytest.raises(fallback.FallbackError):
+        fallback.apply_fallback(**options)
+    assert (root / fallback.MIRROR_PATH).read_bytes() == original
+    assert not backups(root)
