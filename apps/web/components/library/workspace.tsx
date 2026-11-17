@@ -1,4 +1,5 @@
 "use client";
+import { useLibraryDrawer } from "./use-drawer";
 import IdentityControl from "../identity/control";
 import PersonalCalendar from "../calendar/personal-calendar";
 import GlobalSearch from "../search/global-search";
@@ -43,6 +44,12 @@ export default function LibraryWorkspace({ reviewVersionId, importId, evaluation
   const [documentImport, setDocumentImport] = useState<DocumentImport | null>(null);
   const [uploadingDocument, setUploadingDocument] = useState(false);
   const [drawer, setDrawer] = useState(false);
+  const closeDrawer = useCallback(() => setDrawer(false), []);
+  const navigation = useLibraryDrawer(drawer, closeDrawer);
+  const composing = useRef(false);
+  const transcript = useRef<HTMLDivElement>(null);
+  const nearBottom = useRef(true);
+  const [hasNewMessages, setHasNewMessages] = useState(false);
   const [tab, setTab] = useState<"metadata" | "text" | "versions">("metadata");
   const [question, setQuestion] = useState("");
   const [query, setQuery] = useState("");
@@ -84,7 +91,7 @@ export default function LibraryWorkspace({ reviewVersionId, importId, evaluation
     if (revisionCheckId && !revisionPanel) { clearPrivate(false); setError("修回核对链接缺少正确视图，请从资料重新打开。"); return; }
     ++citationRequest.current; setSourcePreview(null); setSourceError(""); setLocating(null);
     operation.current = null; busyRef.current = false; setBusy(""); ++pageRequest.current; setPaging(""); setPageError(""); setPageRetry(null); setListCursor(null);
-    setRoleDenied(false); setLoading(true); setNewDossier(false); setError(""); setItems([]); setDetail(null); setDocumentImport(null); setUploadingDocument(false); setQuestion(""); setNotice(""); setRetry(null); changeDirty(false);
+    nearBottom.current = true; setHasNewMessages(false); setRoleDenied(false); setLoading(true); setNewDossier(false); setError(""); setItems([]); setDetail(null); setDocumentImport(null); setUploadingDocument(false); setQuestion(""); setNotice(""); setRetry(null); changeDirty(false);
     try {
       const nextSession = await readJSON<Session>("/api/publishing/session");
       if (current !== epoch.current) return;
@@ -122,7 +129,7 @@ export default function LibraryWorkspace({ reviewVersionId, importId, evaluation
     window.addEventListener("beforeunload", guard);
     return () => window.removeEventListener("beforeunload", guard);
   }, []);
-  useEffect(() => { if (scrollToLatest.current) chatEnd.current?.scrollIntoView({ block: "nearest" }); scrollToLatest.current = true; }, [detail?.messages.length]);
+  useEffect(() => { if (scrollToLatest.current && nearBottom.current) chatEnd.current?.scrollIntoView({ block: "nearest" }); scrollToLatest.current = true; }, [detail?.messages.length]);
   useEffect(() => {
     if (lastQuery.current === query) return;
     lastQuery.current = query;
@@ -240,11 +247,12 @@ export default function LibraryWorkspace({ reviewVersionId, importId, evaluation
     });
   }
   async function send(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault(); if (!detail || !question.trim()) return;
+    event.preventDefault(); if (!detail || !question.trim() || busyRef.current || loading || newDossier || modelBlocked || !detail.is_current) return;
     const snapshot = detail; const message = question.trim(); const current = epoch.current;
     await run("assist", async () => {
       const reply = await post<Message>(`/api/dossiers/${snapshot.id}/chat`, { expected_revision: snapshot.revision, version_id: snapshot.version_id, message });
       if (current !== epoch.current) return;
+      setHasNewMessages(!nearBottom.current);
       setDetail(previous => {
         const base = previous ?? snapshot;
         return base.id === snapshot.id && base.version_id === snapshot.version_id ? { ...base, messages: base.messages.some(item => item.id === reply.id) ? base.messages : [...base.messages, reply] } : previous;
@@ -320,7 +328,7 @@ export default function LibraryWorkspace({ reviewVersionId, importId, evaluation
   const historicalVersion = detail !== null && !detail.is_current;
   return <div className={styles.workspace} onClickCapture={guardLinks}>
     <a href="#library-main" className={styles.skip}>跳到对话</a>
-    <aside className={`${styles.sidebar} ${drawer ? styles.drawerOpen : ""}`} aria-label="我的资料">
+    <aside ref={navigation.panel} onKeyDown={navigation.onKeyDown} role={drawer ? "dialog" : undefined} aria-modal={drawer || undefined} className={`${styles.sidebar} ${drawer ? styles.drawerOpen : ""}`} aria-label="我的资料">
       <div className={styles.brand}><Link href="/">Pivot</Link><button className={styles.mobileOnly} aria-label="关闭资料列表" onClick={() => setDrawer(false)}><Glyph name="close" /></button></div>
       <GlobalSearch scope={`${session.journal.id}:${session.user.id}:${session.user.role}:${session.csrf_token}`} onQueryChange={value => { setQuery(value); queryRef.current = value; ++pageRequest.current; setItems([]); setListCursor(null); setPaging("list"); setPageError(""); setPageRetry(null); }} />
       <div className={styles.sideHeading}><h2>我的资料</h2><button type="button" onClick={startNew}>新建资料</button></div>
@@ -333,21 +341,23 @@ export default function LibraryWorkspace({ reviewVersionId, importId, evaluation
       </nav>
       <PersonalCalendar scope={`${session.journal.id}:${session.user.id}:${session.user.role}:${session.csrf_token}`} /><div className={styles.identity}><IdentityControl user={session.user} /><SettingsButton onOpen={() => setDrawer(false)} /><Link href="/">返回主工作台</Link></div>
     </aside>
-    <div className={styles.main}>
-      <header className={styles.toolbar}><button className={styles.mobileOnly} aria-label="打开资料列表" onClick={() => setDrawer(true)}><Glyph name="inbox" /></button><h1>内部资料</h1><span>不构成正式投稿</span><Link href="/publishing">出版工作区</Link></header>
+    {drawer && <button type="button" tabIndex={-1} className={styles.drawerBackdrop} aria-label="关闭资料导航遮罩" onClick={closeDrawer} />}
+    <div className={styles.main} inert={drawer || undefined}>
+      <header className={styles.toolbar}><button ref={navigation.trigger} className={styles.mobileOnly} aria-label="打开资料列表" aria-expanded={drawer} onClick={() => setDrawer(true)}><Glyph name="inbox" /></button><div className={styles.toolbarTitle}><h1>内部资料</h1><span>不构成正式投稿</span></div><Link href="/publishing">出版工作区</Link></header>
       {error && <div className={styles.alert} role="alert">{error} {retry ? <button disabled={!!busy} onClick={() => void retry()}>{retryLabel}</button> : <button disabled={!!busy} onClick={() => { if (leaveAllowed()) void load(); }}>重新载入</button>}</div>}
       {pageError && <div className={styles.alert} role="alert">{pageError} {pageRetry && <button disabled={!!paging} onClick={() => void pageRetry()}>重试加载</button>}</div>}
       {notice && <p className={styles.notice} role="status">{notice}</p>}
       <div className={styles.columns}>
         <main className={styles.chat} id="library-main" tabIndex={-1}>
           <div className={styles.chatHeader}><h2>{detail?.data.title || "资料对话"}</h2><p>{modelBlocked ? "模型未就绪，请检查服务配置后重新载入。" : `${modelLabel} · 结论待人工复核`}</p></div>
-          <div className={styles.transcript} aria-label="资料对话历史" aria-busy={busy === "assist"}>
+          <div ref={transcript} onScroll={event => { const element = event.currentTarget; nearBottom.current = element.scrollHeight - element.scrollTop - element.clientHeight < 72; if (nearBottom.current) setHasNewMessages(false); }} className={styles.transcript} aria-label="资料对话历史" aria-busy={busy === "assist"}>
             {detail?.messages_next_cursor && <button type="button" disabled={!!paging} onClick={() => void pageMessages()}>{paging === "messages" ? "正在加载…" : "加载较早对话"}</button>}
-            {loading ? <p role="status">正在载入资料…</p> : !detail ? <div className={styles.empty}><Glyph name="file" size={28} /><h2>从资料开始</h2><p>选择或新建资料，围绕已保存的全文与作者信息提问。</p></div> : !detail.messages.length ? <div className={styles.empty}><h2>从哪一处开始审阅？</h2><p>回答依据当前已保存资料。点击结论后的引用，可核对原版全文或作者字段；资料不足时不会补造结论。</p><button onClick={() => { setRetry(null); setQuestion("请概括这份全文的研究方法，并引用原文。"); }}>审阅研究方法</button></div> : detail.messages.map(message => <MessageTurn key={message.id} message={message} feedback={{ dossierId: detail.id, session, onDirty: changeFeedbackDirty, onDenied: () => { clearPrivate(true); setError("访问权限或身份已变化，请重新登录。"); } }} currentVersionId={detail.version_id} locating={locating} onCitation={(citation, trigger) => void locateCitation(citation, trigger)} />)}
+            {loading ? <p role="status">正在载入资料…</p> : !detail ? <div className={styles.empty}><Glyph name="file" size={28} /><h2>从资料开始</h2><p>选择或新建资料，围绕已保存的全文与作者信息提问。</p></div> : !detail.messages.length ? <div className={styles.empty}><h2>{detail.file ? "从哪一处开始审阅？" : "先添加稿件全文"}</h2><p>{detail.file ? "围绕已保存资料提问，点击引用核对原文。" : "导入 PDF 或 Word，核对全文与作者后再提问。"}</p>{detail.file ? <button onClick={() => { setRetry(null); setQuestion("请概括这份全文的研究方法，并引用原文。"); document.getElementById("library-question")?.focus(); }}>审阅研究方法</button> : <button disabled={!!busy || historicalVersion || newDossier} onClick={startDocumentUpload}>导入稿件</button>}</div> : detail.messages.map(message => <MessageTurn key={message.id} message={message} feedback={{ dossierId: detail.id, session, onDirty: changeFeedbackDirty, onDenied: () => { clearPrivate(true); setError("访问权限或身份已变化，请重新登录。"); } }} currentVersionId={detail.version_id} locating={locating} onCitation={(citation, trigger) => void locateCitation(citation, trigger)} />)}
             <div ref={chatEnd} />
           </div>
+          {hasNewMessages && <button type="button" className={styles.latest} onClick={() => { const element = transcript.current; if (element) element.scrollTop = element.scrollHeight; nearBottom.current = true; setHasNewMessages(false); }}>查看最新消息</button>}
           {detail && !newDossier && !loading && !historicalVersion && <NextSteps key={`${detail.id}:${detail.version_id}:${detail.revision}:${session.user.role}`} refreshToken={detail.messages.at(-1)?.id} url={`/api/dossiers/${detail.id}/guidance`} objectId={detail.id} versionId={detail.version_id} revision={detail.revision} role={session.user.role} disabled={!!busy || modelBlocked} onChoose={prompt => { const next = question.trim() ? `${question}\n\n${prompt}` : prompt; if (next.length > 2000) { setError("输入已较长，请先发送或清理当前草稿，再选择建议。"); return; } setRetry(null); setQuestion(next); document.getElementById("library-question")?.focus(); }} />}
-          <form className={styles.composer} onSubmit={send}><label htmlFor="library-question" className={styles.srOnly}>询问当前资料</label><textarea id="library-question" name="question" value={question} maxLength={2000} onChange={event => { setRetry(null); setQuestion(event.target.value); }} disabled={!detail || newDossier || !!busy || loading || modelBlocked || historicalVersion} rows={3} placeholder={historicalVersion ? "历史版本只读，请返回当前资料提问" : "询问当前全文、作者或文献来源…"} /><div><span>{detail ? `${detail.is_current ? "当前" : "历史"} v${detail.version_no}${documentImport && !documentImport.confirmed_version_id ? " · 导入候选核对保存后参与问答" : dirty ? " · 有未保存修改，回答依据已保存版本" : ""}` : "先选择资料"}</span><button type="submit" className={styles.primary} disabled={!detail || newDossier || !question.trim() || !!busy || loading || modelBlocked || historicalVersion}>{busy === "assist" ? "回复中…" : "发送"}<Glyph name="arrow" size={16} /></button></div><p className={styles.boundary}>邮件与关键决定须负责人确认。</p></form>
+          <form className={styles.composer} onSubmit={send}><label htmlFor="library-question" className={styles.srOnly}>询问当前资料</label><textarea id="library-question" name="question" value={question} maxLength={2000} onChange={event => { setRetry(null); setQuestion(event.target.value); }} disabled={!detail || newDossier || !!busy || loading || modelBlocked || historicalVersion} rows={2} onCompositionStart={() => { composing.current = true; }} onCompositionEnd={() => { composing.current = false; }} onKeyDown={event => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing && !composing.current && event.keyCode !== 229) { event.preventDefault(); event.currentTarget.form?.requestSubmit(); } }} placeholder={historicalVersion ? "历史版本只读，请返回当前资料提问" : "询问当前全文、作者或文献来源…"} /><div><span>{detail ? `${detail.is_current ? "当前" : "历史"} v${detail.version_no}${documentImport && !documentImport.confirmed_version_id ? " · 导入候选核对保存后参与问答" : dirty ? " · 有未保存修改，回答依据已保存版本" : ""}` : "先选择资料"}</span><button type="submit" className={styles.primary} disabled={!detail || newDossier || !question.trim() || !!busy || loading || modelBlocked || historicalVersion}>{busy === "assist" ? "回复中…" : "发送"}<Glyph name="arrow" size={16} /></button></div><p className={styles.boundary}>邮件与关键决定须负责人确认。</p></form>
         </main>
         <section className={styles.material} aria-label={importId ? "独立导入核对" : reviewVersionId ? "独立版本核对" : "资料内容"}>
           {sourceError && <p className={styles.sourceError} role="alert">{sourceError}</p>}
