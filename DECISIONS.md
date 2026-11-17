@@ -314,3 +314,9 @@ spec029增加会话成员字段并扩展角色唯一键，升级验收不能把�
 恢复URL的浏览器断言沿用相同conversation精确谓词，改用await expect(page).toHaveURL。当前Next.js依赖通过startTransition分发history恢复，非等待式page.url比较可先于路由观察稳定；本机WebKit原失败与五次原生history诊断保留，不归咎于未证实的浏览器缓存缺陷。不改应用、消息/草稿/请求数断言、默认5秒预算或用例重试。依据[Playwright官方断言文档](https://playwright.dev/docs/test-assertions#auto-retrying-assertions)。
 
 验收落地：逾期跨年条目必须显示年份；普通月视图由月份标题说明年份。应用冻结1d9610f，1502d72仅修正测试等待方式，应用与后端测试树相同。完整门禁以该验证提交PR/push实际scripts/verify.sh成功为准；本机1666后端和540浏览器是分次通过，不把三轮失败/主动中断改记为本机完整成功。结果见docs/development/personal-calendar-results.json。
+
+## ADR-044：先补齐指定编辑试用的访问生命周期
+
+2026-11-17。已有导入/版本问答/人判可复用，但私人包仅一个已知密码账号，阻碍两人独立试用。选择在模块化单体内增加运维专用认证Action Gateway与TrialAccount状态表，复用会话、角色、回执和审计；不另建管理后台或开放用户扩权API。密码通过stdin，新账号仅editor；停用不删除材料，恢复不恢复旧会话。新表保护旧数据不改写，历史存在时禁止降级丢状态。私人编辑默认/library，固定返回路径避免开放重定向。
+
+参考OJS官方用户/角色文档和Janeway期刊/站点管理区分，链接与取舍见docs/development/editorial-trial/README.md。本轮账号/入口工程验收不代替真实模型当前可用性、人评或安全审核；现有6篇42项仍是准备材料，完整回复0、人评0。不合并、不部署、不发信。

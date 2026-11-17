@@ -190,3 +190,24 @@ for node in ast.walk(ast.parse(source.read_text())):
     ):
         raise SystemExit(f"Deadline service acquired write authority: {source}")
 print("Shared deadline service remains read-only and has no model/transport authority")
+
+# Server-operator credentials never become HTTP/model authority. Account access
+# queries are shared, but the provisioning gateway is importable only by its CLI.
+for source in [*Path("apps/api/publishing").rglob("*.py"), *Path("packages").rglob("*.py")]:
+    if "operations" in source.parts:
+        continue
+    for node in ast.walk(ast.parse(source.read_text())):
+        names = (
+            [item.name for item in node.names]
+            if isinstance(node, ast.Import)
+            else [node.module or "", *[item.name for item in node.names]]
+            if isinstance(node, ast.ImportFrom)
+            else []
+        )
+        if any(
+            "operations" in name.split(".") or "trial_accounts" in name.split(".") for name in names
+        ):
+            raise SystemExit(
+                f"Operator gateway must not be imported by runtime routes/models: {source}"
+            )
+print("Trial provisioning remains isolated from HTTP and model tools")

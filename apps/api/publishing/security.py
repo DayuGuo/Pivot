@@ -8,6 +8,7 @@ from fastapi import Depends, HTTPException, Request
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from .account_access import account_enabled, lock_account_access
 from .db import get_db
 from .models import LoginSession, Membership, User, now
 
@@ -73,6 +74,10 @@ def ensure_current_actor(db: Session, actor: Actor, *, for_commit: bool = False)
         )
         actor.__dict__["_publishing_identity"] = identity
     user_id, journal_id, role, membership_id, session_hash, csrf = identity
+    if for_commit:
+        lock_account_access(db, user_id)
+    if not account_enabled(db, user_id):
+        raise HTTPException(403, "试用访问已停用，请联系负责人")
     query = select(
         LoginSession.user_id,
         LoginSession.expires_at,
@@ -115,6 +120,8 @@ def get_actor(request: Request, db: Session = Depends(get_db)) -> Actor:
     if not session or session.expires_at <= now():
         raise HTTPException(401, "请先登录 Publishing OS")
     user = db.get(User, session.user_id)
+    if not account_enabled(db, session.user_id):
+        raise HTTPException(403, "试用访问已停用，请联系负责人")
     memberships = journal_memberships(db, session.user_id)
     membership = next((m for m in memberships if m.id == session.active_membership_id), None)
     if session.active_membership_id is None and len(memberships) == 1:

@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { SettingsButton } from "../components/settings/panel";
 
 type User = { id: string; email: string; name: string; role: string };
-type Session = { user: User; csrf_token: string };
+type Session = { user: User; csrf_token: string; landing_path?: string };
 type Manuscript = {
   id: string; title: string; status: string; created_at: string;
   author_name: string; editor_name: string;
@@ -20,6 +20,20 @@ type Audit = { id: string; action: string; actor_name: string; entity_id: string
 type Conversation = { id: string; title: string; updated_at: string; message_count: number };
 type Workspace = { conversations: Conversation[]; active_conversation_id: string | null; journal: { id: string; name: string }; manuscripts: Manuscript[]; messages: Message[]; audit: Audit[]; email_send_enabled: boolean };
 const privatePreview = process.env.NEXT_PUBLIC_PIVOT_PRIVATE_PREVIEW === "true";
+
+function libraryEntry(session: Session): string | null {
+  const search = new URLSearchParams(window.location.search);
+  // Explicit legacy links retain their original workspace, even in a private install.
+  if (search.has("conversation") || search.has("manuscript")) return null;
+  if (!["editor", "chief_editor"].includes(session.user.role)) return null;
+  const requested = search.get("entry") === "library";
+  if (!requested && !privatePreview && session.landing_path !== "/library") return null;
+  const dossier = requested ? search.get("dossier") : null;
+  // Never accept a caller-supplied URL. The server still checks object ownership.
+  return dossier && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(dossier)
+    ? `/library?dossier=${encodeURIComponent(dossier)}` : "/library";
+}
+
 const prompt = "创建一篇测试稿件，并交给编辑初筛。";
 const statuses: Record<string, string> = { draft: "草稿", submitted: "已投稿", screening: "编辑初筛", assigned: "已分派", pending: "待处理", open: "待处理" };
 
@@ -65,6 +79,7 @@ export default function Home() {
   const [session, setSession] = useState<Session | null>(null);
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [loading, setLoading] = useState(true);
+  const [enteringLibrary, setEnteringLibrary] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [email, setEmail] = useState(privatePreview ? "" : "editor@publishing.test");
@@ -87,6 +102,11 @@ export default function Home() {
     async function restore() {
       try {
         const restored = await api<Session>("/auth/me");
+        const entry = libraryEntry(restored);
+        if (entry) {
+          if (active) { setEnteringLibrary(true); router.replace(entry); }
+          return;
+        }
         let data: Workspace;
         try { data = await api<Workspace>(workspacePath()); }
         catch (cause) {
@@ -108,7 +128,7 @@ export default function Home() {
     }
     void restore();
     return () => { active = false; };
-  }, []);
+  }, [router]);
   useEffect(() => {
     if (!drawerOpen) return;
     const menu = menuRef.current;
@@ -175,6 +195,11 @@ export default function Home() {
     event.preventDefault(); setBusy(true); setError("");
     try {
       const nextSession = await api<Session>("/auth/login", { method: "POST", body: JSON.stringify({ email, password }) });
+      const entry = libraryEntry(nextSession);
+      if (entry) {
+        setPassword(""); setEnteringLibrary(true); router.replace(entry);
+        return;
+      }
       const data = await api<Workspace>("/workspace");
       setSession(nextSession); setWorkspace(data); setPassword(""); rememberConversation(data.active_conversation_id);
     } catch (cause) { setError(cause instanceof Error ? cause.message : "登录失败，请重试"); }
@@ -221,7 +246,7 @@ export default function Home() {
     catch (cause) { setError(cause instanceof Error ? cause.message : "无法读取稿件"); }
   }
 
-  if (loading) return <main className="loading-screen"><Brand /><span className="loader"/><p>正在恢复工作台…</p></main>;
+  if (loading || enteringLibrary) return <main className="loading-screen"><Brand /><span className="loader"/><p role="status">正在恢复工作台…</p></main>;
   if (!session || !workspace) return <main className="login-screen">
     <div className="login-story"><Brand /><p>编辑工作台</p></div>
     <section className="login-panel"><div className="login-form-wrap"><h2>欢迎回到工作台</h2><form onSubmit={login}><label htmlFor="email">邮箱</label><input id="email" name="email" spellCheck={false} autoComplete="username" type="email" required value={email} onChange={e => setEmail(e.target.value)} /><label htmlFor="password">密码</label><input id="password" name="password" autoComplete="current-password" type="password" required value={password} onChange={e => setPassword(e.target.value)} />{error && <div role="alert" ref={errorRef} tabIndex={-1} className="error">{error}</div>}<button className="primary login-button" disabled={busy}>{busy ? "正在登录…" : "进入工作台"}<Icon name="chevron"/></button></form>{!privatePreview && <div className="demo-account"><span>本地演示账号</span><button type="button" onClick={() => { setEmail("multi@publishing.test"); setPassword("MultiDemo2026!"); }}>多身份</button><button type="button" onClick={() => { setEmail("editor@publishing.test"); setPassword("EditorDemo2026!"); }}>编辑</button><button type="button" onClick={() => { setEmail("author@publishing.test"); setPassword("AuthorDemo2026!"); }}>作者</button><button type="button" onClick={() => { setEmail("reviewer@publishing.test"); setPassword("ReviewerDemo2026!"); }}>审稿人</button></div>}<p className="login-safety"><Icon name="lock" size={14}/>仅使用合成测试数据 · 真实邮件发送已禁用</p></div></section>

@@ -1,4 +1,17 @@
-# spec032已完成工程验收：日常待办问答
+# spec033已完成工程验收：编辑部试用访问与入口
+
+## 2026-11-17：单刊、两位指定编辑、公开材料
+
+交付[草稿PR #14](https://github.com/DayuGuo/Pivot/pull/14)，叠加未合并#13/#12。部署负责人可开通独立editor账号、停用、恢复和轮换密码；停用撤销旧会话但保留材料和审计，私人编辑登录直达资料区。服务器运维入口不能由模型或普通浏览器调用；现有账号不扩权。[试用步骤与后续放行](docs/development/editorial-trial/README.md) · [结构化证据](docs/development/editorial-trial/results.json)。
+
+冻结源码`576fbb88c7c6e3017938a7cb0c36204b22c0abb9`，本机`scripts/verify.sh`实际exit0、1954.17秒：**1750后端（713.92秒、11条提醒）＋567浏览器（20.3分钟、三引擎各189）**，0失败/跳过/浏览器重试。语法、研究/模块边界、Ruff/format、18条离线引文、Alembic升级/无漂移、ESLint/TypeScript和准确镜像构建均通过。同源码[PR完整CI](https://github.com/DayuGuo/Pivot/actions/runs/44119346587)14步骤全部success，1750后端544.28秒＋567浏览器16.3分钟、0重试；[静态CI](https://github.com/DayuGuo/Pivot/actions/runs/44119346351)17步骤全部success。静态包成功不代表新的私人完整包升级恢复已验收。后续纯文档提交另有CI，不从本源推断状态。
+
+复核修复：无TTY时getpass回显风险改为直接拒绝；新表迁移头与保留数据测试同步；原作者返回根入口回归保持原断言并按实际角色修复。69后端专项、25无回显/引导、2迁移与18浏览器专项与全量重叠，不累加。前三轮停止/失败证据保留：首轮140.73秒主动exit-15；第二轮会话exit143无完成回执，含旧迁移头断言失败；第三轮22d3f90后端1750过，浏览器发现作者返回路径后1159.69秒主动exit-15。均不计完整成功。源码行号映射按AST更新，未弱化原字段断言或删除测试。
+
+隔离Mock栈前后端200、PostgreSQL正常、邮件false、Mailpit0；原主服务仍停于2026-11-06，主库/原件/模型配置和VPS未动。桌面和390px截图已查看，WebKit使用Linux Mesa软件渲染，不认证物理Safari。实际编辑0、专业复核0、完整作者回复0；6篇42项材料只通过工程完整性检查，不是语义人评。应用真实模型调用0。后续依次补任务包/完整回复、真实模型和两位编辑评价、原生amd64保留数据升级/恢复/容量与专业复核。邮件禁用，关键决定保留负责人确认，不合并、不部署。
+
+## spec032历史验收
+
 
 验证源码066d9b4b0ae5f7d6af0c2ee009cd80141cad9210，本机scripts/verify.sh实际exit0、1814.03秒：**1706后端633.27秒＋552浏览器19.3m**，三引擎各184，0失败/跳过/浏览器重试。该源PR完整CI43624783455与push完整CI43624778221各1706＋552、14步骤全success；两静态CI43624783456/43624778326各17步骤全success。整份日志、XML、源SHA和退出回执已核对。[交付](docs/development/deadline-questions.md) · [结构化结果](docs/development/deadline-questions-results.json) · [草稿PR #13](https://github.com/DayuGuo/Pivot/pull/13)。
 

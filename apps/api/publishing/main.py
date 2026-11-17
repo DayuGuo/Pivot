@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from packages.model_gateway import MockModelProvider
 from packages.model_gateway.editorial import editorial_model_status
 
+from .account_access import account_enabled, lock_account_access
 from .audit import record
 from .conversations import (
     conversation_json,
@@ -133,6 +134,12 @@ def health(db: Session = Depends(get_db)):
     }
 
 
+def landing_path(actor: Actor) -> str:
+    if os.getenv("PIVOT_BOOTSTRAP_PROFILE") == "private-preview" and actor.role in EDITOR_ROLES:
+        return "/library"
+    return "/"
+
+
 @app.post("/api/auth/login")
 def login(body: LoginInput, response: Response, db: Session = Depends(get_db)):
     # Persistent local-demo throttle. No passwords, raw cookies or API keys are audited.
@@ -149,8 +156,11 @@ def login(body: LoginInput, response: Response, db: Session = Depends(get_db)):
     if failures >= 10:
         raise HTTPException(429, "登录尝试过多，请稍后重试")
     user = db.scalar(select(User).where(User.email == body.email.lower()))
+    if user:
+        lock_account_access(db, user.id)
+        db.refresh(user)
     valid = check_password(body.password, user.password_hash if user else DUMMY_HASH)
-    if not user or not valid:
+    if not user or not valid or not account_enabled(db, user.id):
         record(
             db,
             actor_id=None,
@@ -181,12 +191,20 @@ def login(body: LoginInput, response: Response, db: Session = Depends(get_db)):
         max_age=28800,
         path="/",
     )
-    return {"user": user_json(actor), "csrf_token": session.csrf_token}
+    return {
+        "user": user_json(actor),
+        "csrf_token": session.csrf_token,
+        "landing_path": landing_path(actor),
+    }
 
 
 @app.get("/api/auth/me")
 def me(actor: Actor = Depends(get_actor)):
-    return {"user": user_json(actor), "csrf_token": actor.session.csrf_token}
+    return {
+        "user": user_json(actor),
+        "csrf_token": actor.session.csrf_token,
+        "landing_path": landing_path(actor),
+    }
 
 
 @app.post("/api/auth/logout")

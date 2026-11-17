@@ -1,5 +1,8 @@
 # Pivot
 
+编辑部试用访问与入口（spec033，工程验收通过）：[首次试用任务与账号操作](docs/development/editorial-trial/README.md)。本分支新增独立编辑账号的受控开通、停用和恢复，以及私人登录直达资料区；源码576fbb8的本机完整验收与PR CI通过：1,750后端＋567浏览器；[结果与限制](docs/development/editorial-trial/results.json)。尚未发布本片VPS包，不自动更新现有安装。
+
+
 日常待办问答（spec032，工程验收通过）：在`/publishing`对话输入“我今天需要做什么？”、“本周到期任务”、“逾期待办”、“未设日期的待办”或“所有待办”；输入“继续查看待办”读取下一批。选中稿件时仅查询本稿，期刊主对话查询当前身份本人任务。事实回答显示“工作记录”，不调用模型；通用模型也有同源只读工具。日期范围、时区和本批读取时间明确，复合范围请分别提问。实际结果以PROGRESS为准；本轮不更新VPS、不启用邮件或扩大关键决定权限。
 
 验证源码`066d9b4`的本机完整脚本实际exit0、1814.03秒，**1,706后端＋552浏览器**通过（三引擎各184，0失败/跳过/浏览器重试）；PR/push完整与静态CI全部成功。[交付与限制](docs/development/deadline-questions.md) · [结构化结果](docs/development/deadline-questions-results.json) · [草稿PR #13](https://github.com/DayuGuo/Pivot/pull/13)。后续纯文档提交的CI状态独立记录，不自动合并或部署。
