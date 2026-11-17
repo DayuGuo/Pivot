@@ -1,0 +1,240 @@
+{
+  "schema": "editorial-trial-kit-results.v1",
+  "date": "2026-11-17",
+  "verified_source": "b013ea287c454a29b7dc927a2d7ccb6bc2b173a9",
+  "local": {
+    "command": "scripts/verify.sh",
+    "receipt": {
+      "source": "b013ea287c454a29b7dc927a2d7ccb6bc2b173a9",
+      "finished_head": "b013ea287c454a29b7dc927a2d7ccb6bc2b173a9",
+      "exit_code": 0,
+      "seconds": 1980.79
+    },
+    "backend": {
+      "tests": 1779,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "passed": 1779,
+      "warnings": 11,
+      "seconds": 720.57
+    },
+    "browser": {
+      "passed": 567,
+      "engines": {
+        "chromium": 189,
+        "firefox": 189,
+        "webkit": 189
+      },
+      "minutes": 20.6,
+      "retries": 0,
+      "failures": 0,
+      "skipped": 0,
+      "webkit": "Linux Mesa software; not physical Safari certification"
+    }
+  },
+  "ci": {
+    "verify_run": 44130656253,
+    "static_run": 44130656276,
+    "all_steps_success": true,
+    "verify_steps": 14,
+    "static_steps": 17,
+    "backend": {
+      "passed": 1779,
+      "warnings": 11,
+      "seconds": 529.27
+    },
+    "browser": {
+      "passed": 567,
+      "minutes": 15.7,
+      "retry_markers": 0,
+      "failure_markers": 0
+    }
+  },
+  "pr14_final_ci": {
+    "source": "84365bfbfbf4dec00dbdfc1e34edf7500e1a8cac",
+    "verify_run": 44125991601,
+    "static_run": 44125991639,
+    "all_steps_success": true,
+    "backend_passed": 1750,
+    "backend_seconds": 565.86,
+    "browser_passed": 567,
+    "browser_minutes": 16.4,
+    "browser_retries": 0
+  },
+  "package": {
+    "files_verified": 6,
+    "questions": 4,
+    "pack_sha256": "47edee57c70d017ebc4e43865f9df015b410255c849d152a767ca30305c7ce16",
+    "zip_sha256": "d0d782939060acd9bd77f10e3b3fd8d583d3261d9eaa11ba51a8b985d1dba854",
+    "human_evaluations": 0,
+    "answers_distributed": false
+  },
+  "historical_recheck": {
+    "scope": "historical_stored_candidate_recheck_only_not_current_live_acceptance",
+    "cases": [
+      {
+        "case": "reproducible-pdf",
+        "audit": {
+          "expected_authors": 4,
+          "extracted_authors": 4,
+          "name_errors": [],
+          "affiliation_errors": [],
+          "missing_affiliations": [],
+          "email_errors": [],
+          "missing_emails": [
+            0
+          ],
+          "corresponding_errors": [
+            0
+          ],
+          "orcid_errors": [],
+          "passed": false
+        }
+      },
+      {
+        "case": "reproducible-word",
+        "audit": {
+          "expected_authors": 4,
+          "extracted_authors": 4,
+          "name_errors": [],
+          "affiliation_errors": [],
+          "missing_affiliations": [],
+          "email_errors": [],
+          "missing_emails": [],
+          "corresponding_errors": [
+            0
+          ],
+          "orcid_errors": [],
+          "passed": false
+        }
+      },
+      {
+        "case": "research-findings-pdf",
+        "audit": {
+          "expected_authors": 1,
+          "extracted_authors": 1,
+          "name_errors": [],
+          "affiliation_errors": [],
+          "missing_affiliations": [],
+          "email_errors": [],
+          "missing_emails": [],
+          "corresponding_errors": [
+            0
+          ],
+          "orcid_errors": [],
+          "passed": false
+        }
+      },
+      {
+        "case": "research-findings-word",
+        "audit": {
+          "expected_authors": 1,
+          "extracted_authors": 1,
+          "name_errors": [],
+          "affiliation_errors": [],
+          "missing_affiliations": [],
+          "email_errors": [],
+          "missing_emails": [],
+          "corresponding_errors": [
+            0
+          ],
+          "orcid_errors": [],
+          "passed": false
+        }
+      }
+    ],
+    "real_model_calls": 0,
+    "interpretation": "Stored historical candidates only. Correspondence mismatches may reflect intentionally unconfirmed flags; no current-provider regression or automatic fill is inferred. Current strict audit reports incompleteness until human review."
+  },
+  "review": {
+    "date": "2026-11-17",
+    "source": "b013ea287c454a29b7dc927a2d7ccb6bc2b173a9",
+    "review_kind": "Codex; not professional audit",
+    "findings": [
+      {
+        "code": "remote_docker_context",
+        "status": "fixed",
+        "evidence": "Fixed Unix socket; removes host/context/TLS environment; targeted test passed"
+      },
+      {
+        "code": "optimized_assertions_false_pass",
+        "status": "fixed",
+        "evidence": "Explicit exceptions; python -O subprocess test; report passed guard"
+      },
+      {
+        "code": "author_correspondence_missing",
+        "status": "fixed",
+        "evidence": "Correspondence, ORCID and missing affiliation/email tests"
+      }
+    ],
+    "delegation": {
+      "agent": "pilot_task_pack",
+      "scope": "3 isolated task pack files then read-only live harness review",
+      "completed": true,
+      "rework_findings": 3,
+      "tokens": null,
+      "api_cost": null,
+      "seconds": null
+    },
+    "actual_application_model_calls": 0,
+    "application_model_api_cost": 0,
+    "real_model_status": "blocked_no_fresh_environment_credential_yet",
+    "human_evaluations": 0
+  },
+  "health": {
+    "frontend": {
+      "status": 200,
+      "database": "postgresql",
+      "email_send_enabled": false,
+      "model_provider": "mock"
+    },
+    "backend": {
+      "status": 200,
+      "database": "postgresql",
+      "email_send_enabled": false,
+      "model_provider": "mock"
+    },
+    "mailpit": {
+      "status": 200,
+      "total": 0
+    }
+  },
+  "live": {
+    "status": "blocked_missing_fresh_environment_credential_and_isolated_service_not_started",
+    "provider_authentication_attempted": false,
+    "actual_provider_calls": 0,
+    "model": "deepseek-flash",
+    "launcher_without_key_exit": 2,
+    "acceptance_preflight_exit": 1,
+    "preflight": {
+      "schema": "editorial-trial-live.v1",
+      "passed": false,
+      "real_model_verified": false,
+      "human_evaluations": 0,
+      "complete_response_letters": 0,
+      "model": "deepseek-flash",
+      "steps": [],
+      "started_at": "2026-11-17T17:18:07.807331+00:00",
+      "phase": "preflight",
+      "source": "b013ea287c454a29b7dc927a2d7ccb6bc2b173a9",
+      "working_tree_dirty": false,
+      "error": "acceptance_incomplete_see_step_reports_no_automatic_retry",
+      "failure_kind": "ConnectError",
+      "seconds": 0.067,
+      "semantic_editor_assessment": "not_executed; quote equality is not semantic entailment"
+    },
+    "human_evaluations": 0,
+    "full_public_paper_review_loop": "not_executed; candidates and synthetic Q&A are separately scoped",
+    "complete_response_letters": 0
+  },
+  "safety": {
+    "main_services_original_stop_preserved": "2026-11-06T12:59 UTC",
+    "email_send_enabled": false,
+    "critical_decisions_human_confirmed": true,
+    "vps_deployed": false,
+    "merged": false,
+    "professional_engineer_review": false
+  },
+  "later_documentation_ci": "Independent new runs; not inferred from the verified source"
+}

@@ -1,3 +1,17 @@
+# spec034工程验收通过；真实DeepSeek待安全凭据
+
+2026-11-17。已复核PR #14最终文档提交84365bf的[完整CI](https://github.com/DayuGuo/Pivot/actions/runs/44125991601)和[静态CI](https://github.com/DayuGuo/Pivot/actions/runs/44125991639)，分别14/17步骤全部成功；日志确认1750后端565.86秒＋567浏览器16.4分钟、零浏览器重试。已更新PR说明，无失败需要修复，未合并。
+
+下一批在[草稿PR #15](https://github.com/DayuGuo/Pivot/pull/15)，依赖未合并#14。离线生成2份公开许可原件（原生DOCX/出版者PDF）、4问题、署名许可及空白人工/计时记录，排除工程答案与保留题；实际生成8文件并核对摘要。原始包SHA为47edee57c70d017ebc4e43865f9df015b410255c849d152a767ca30305c7ce16，ZIP位于artifacts/editorial-trial-kit/editor-first-session.zip。专业人评0，完整回复信0。[操作与边界](docs/development/editorial-trial-kit/README.md) · [结构化结果](docs/development/editorial-trial-kit/results.json)。
+
+冻结源码`b013ea287c454a29b7dc927a2d7ccb6bc2b173a9`的本机`scripts/verify.sh`实际exit0、1980.79秒：**1779后端（720.57秒、11条提醒）＋567浏览器（20.6分钟、三引擎各189）**，0失败/跳过/浏览器重试。语法、研究/模块边界、Ruff/format、离线引文、迁移无漂移、lint/typecheck和准确镜像构建均通过。[同源PR完整CI](https://github.com/DayuGuo/Pivot/actions/runs/44130656253)14步骤全success，1779后端529.27秒＋567浏览器15.7分钟、0重试；[静态CI](https://github.com/DayuGuo/Pivot/actions/runs/44130656276)17步骤全success。46项专项与全量重叠不累加。后续纯文档提交另有CI，不从本源推断结束。
+
+审查修复三项：固定本机Unix Docker socket并去掉远端host/context；质量门禁从assert改显式异常并核对报告，python -O不能跳过；作者检查补通讯关系、ORCID及缺失机构/邮箱。4份历史候选与工程参考的通讯标记不一致，其中1份缺邮箱；已作为历史不完整记录保留，不推断当前模型错误、不擅自补填或称为专家判定。通讯标记也可能是既有保守待核对策略，需原文和负责人复核。
+
+真实入口`scripts/start-trial-live.py --live`使用独立项目/端口/卷且不继承邮箱配置，安全TTY读取新密钥。当前Codex环境无新DEEPSEEK_API_KEY，实际非交互启动器exit2、未启服务；独立验收预检在连接阶段exit1（ConnectError，0.067秒），没有调用供应商或业务写入。不能声称密钥有效、DeepSeek成功或503已重验。已提供用户本机安全命令，等待实际执行后继续；不复用聊天暴露密钥。合成资料覆盖工具/换版问答，公开论文仅候选导入；真实论文人类核对和正式版本问答不能冒称已完成。
+
+原主服务仍停于2026-11-06 12:59，主库/原件/模型配置及VPS未改；隔离Mock前后端200/PostgreSQL、邮件false、Mailpit0。WebKit为Linux软件渲染，不认证真机。未发布私人安装包、未合并或部署，负责人关键决定保留。后续为安全凭据真实验收、两位编辑实际填写/分歧、完整回复材料和专业工程复核/容量验证。
+
 # spec033已完成工程验收：编辑部试用访问与入口
 
 ## 2026-11-17：单刊、两位指定编辑、公开材料

@@ -1,0 +1,17 @@
+# Dedicated local acceptance only. No inherited mailbox credentials or main volumes.
+services:
+  db:
+    ports: !override ["127.0.0.1:55434:5432"]
+  mailpit:
+    ports: !override ["127.0.0.1:18026:8025"]
+  api:
+    env_file: !reset []
+    ports: !override ["127.0.0.1:18101:8100"]
+    environment:
+      EMAIL_SEND_ENABLED: "false"
+      MODEL_PROVIDER: mock
+      EDITORIAL_MODEL_PROVIDER: deepseek
+      EDITORIAL_MODEL_LIVE_ENABLED: "true"
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:?A fresh environment credential is required}
+  web:
+    ports: !override ["127.0.0.1:13101:3100"]
