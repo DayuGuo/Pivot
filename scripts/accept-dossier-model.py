@@ -33,9 +33,18 @@ def expect(value, reason):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--live", action="store_true")
+    parser.add_argument(
+        "--isolated-trial",
+        action="store_true",
+        help="Use only the dedicated trial API/database pair",
+    )
     parser.add_argument("--base-url", default="http://127.0.0.1:8100")
     parser.add_argument("--report", default="artifacts/dossier-live-acceptance.json")
     args = parser.parse_args()
+    if args.isolated_trial:
+        expect(
+            args.base_url == "http://127.0.0.1:18101", "Isolated trial requires its fixed local API"
+        )
     target = urlsplit(args.base_url)
     expect(args.live, "Explicit --live is required; no request was made")
     expect(
@@ -49,7 +58,9 @@ def main():
     )
     # Fixed local demo DB, never a caller-provided remote database or secret URL.
     engine = create_engine(
-        "postgresql+psycopg://publishing:publishing_local@127.0.0.1:55432/publishing",
+        "postgresql+psycopg://publishing:publishing_local@127.0.0.1:"
+        + ("55434" if args.isolated_trial else "55432")
+        + "/publishing",
         pool_pre_ping=True,
     )
     tables = (
@@ -74,6 +85,8 @@ def main():
 
             def request(method, path, body=None):
                 response = client.request(method, path, json=body)
+                if response.status_code != 200:
+                    report["failed_http_status"] = response.status_code
                 expect(
                     response.status_code == 200,
                     f"HTTP {response.status_code}; no response body logged",
@@ -85,6 +98,7 @@ def main():
                 health.get("editorial_model", {}).get("provider") == "deepseek",
                 "Local API must be explicitly configured for DeepSeek",
             )
+            expect(health.get("email_send_enabled") is False, "Mail must remain disabled")
             auth = request(
                 "POST",
                 "/api/auth/login",
@@ -147,6 +161,7 @@ def main():
             snapshot = save_fulltext(body)
 
             def chat(question, label, external=False, required_word=None, require_claims=True):
+                report["current_check"] = label
                 request_id = str(uuid4())
                 payload = {
                     "request_id": request_id,
@@ -269,8 +284,9 @@ def main():
                     "real_mail_sent": 0,
                 }
             )
-    except (AcceptanceFailed, httpx.HTTPError, OSError):
+    except (AcceptanceFailed, httpx.HTTPError, OSError) as exc:
         report["passed"] = False
+        report["failure_kind"] = type(exc).__name__
         print(
             "Live dossier acceptance incomplete; fixed diagnostics only, no provider response or credentials logged.",
             flush=True,
