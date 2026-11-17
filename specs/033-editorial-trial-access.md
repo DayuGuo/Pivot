@@ -22,7 +22,7 @@
 
 ## 使用入口
 
-私人包 `manage.py trial-list/create/disable/resume/rotate-password`。先list取得期刊及账号revision，修改用命令中的目标ID；密码只无回显读取后通过stdin管道传入容器，不能通过命令行参数设置，不保存参与者明文密码。负责人按已有线下安全方式交付登录信息；程序不代发邮件。
+私人包 `manage.py trial-list/create/disable/resume/rotate-password`。先list取得期刊及账号revision，修改用命令中的目标ID；无可控制回显的TTY时拒绝读取（GetPassWarning作为错误）；密码只无回显读取后通过stdin管道传入容器，不能通过命令行参数设置，不保存参与者明文密码。负责人按已有线下安全方式交付登录信息；程序不代发邮件。
 
 login与auth/me增加landing_path。私人profile的editor/chief_editor为/library，其余为/；前端只接受精确站内目标。原显式conversation/manuscript深链优先。资料页返回登录只传entry=library和合法dossier UUID，不接受任意URL。页面路由不替代后端对象授权。
 

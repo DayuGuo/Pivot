@@ -64,3 +64,40 @@ def test_no_password_command_line_option():
 def test_list_is_read_only_and_does_not_prompt(monkeypatch):
     monkeypatch.setattr("builtins.input", lambda _: pytest.fail("Unexpected prompt"))
     assert manage.trial_request(SimpleNamespace(command="trial-list")) == {"action": "list"}
+
+
+@pytest.mark.parametrize("action", ["create", "resume", "rotate-password"])
+def test_no_tty_password_fallback_refuses_before_read_or_submit(monkeypatch, action, capsys):
+    import warnings
+
+    read_fallback = []
+
+    def unavailable_tty(prompt):
+        warnings.warn(
+            "Cannot control echo on terminal", manage.getpass.GetPassWarning, stacklevel=2
+        )
+        read_fallback.append(True)
+        return "ThisMustNeverBeRead2026!"
+
+    monkeypatch.setattr(manage.getpass, "getpass", unavailable_tty)
+    monkeypatch.setattr("builtins.input", lambda _: "synthetic@example.test")
+    args = SimpleNamespace(
+        command=f"trial-{action}",
+        journal=uuid4(),
+        request_id=uuid4(),
+        user=None if action == "create" else uuid4(),
+        revision=None if action == "create" else 1,
+    )
+    with pytest.raises(manage.PreviewError, match="secure no-echo"):
+        manage.trial_request(args)
+    assert read_fallback == []
+    assert "ThisMustNeverBeRead" not in capsys.readouterr().out
+
+
+def test_secure_input_restores_warning_filter_and_allows_terminal(monkeypatch):
+    import warnings
+
+    before = list(warnings.filters)
+    monkeypatch.setattr(manage.getpass, "getpass", lambda _: "SyntheticNoEcho2026!")
+    assert manage.secret_input("Password: ") == "SyntheticNoEcho2026!"
+    assert warnings.filters == before

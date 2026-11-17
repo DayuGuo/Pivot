@@ -25,7 +25,7 @@ python3.11 manage.py trial-resume --state /绝对路径/既有私密state --jour
 python3.11 manage.py trial-rotate-password --state /绝对路径/既有私密state --journal 期刊UUID --user 用户UUID --revision 当前修订号
 ```
 
-list给出期刊ID、托管名单和当前修订号。create询问邮箱/显示名/无回显密码，其余操作按目标ID执行；变更前必须输入CONFIRM。账号仅editor，密码不显示、不保存到state、不放进命令行。负责人先获得参与者同意，并用双方认可的安全方式交付凭据；系统不会发通知邮件。
+list给出期刊ID、托管名单和当前修订号。create询问邮箱/显示名/无回显密码，其余操作按目标ID执行；变更前必须输入CONFIRM。账号仅editor，密码不显示、不保存到state、不放进命令行。终端不能关闭回显时命令直接停止；远程运行需分配安全TTY，不能退回管道输入密码。负责人先获得参与者同意，并用双方认可的安全方式交付凭据；系统不会发通知邮件。
 
 每次变更先打印非敏感request ID。网络断开或结果未知时先trial-list；必要时用原`--request-id UUID`及相同输入重试。已被后来修改取代的回执会拒绝，不恢复旧密码或旧状态。错误不打印秘密，服务端审计记录实际操作及revision。名单最多10个，包括停用账号；账号owner交接、多期刊和角色变化不在此命令内。
 

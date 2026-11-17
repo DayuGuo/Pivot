@@ -14,6 +14,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
+import warnings
 from pathlib import Path
 from uuid import UUID, uuid4
 
@@ -27,6 +28,19 @@ class PreviewError(Exception):
 def require(ok, message):
     if not ok:
         raise PreviewError(message)
+
+
+def secret_input(prompt):
+    # getpass otherwise falls back to potentially echoed stdin when /dev/tty
+    # cannot disable echo. Fail before reading any secret in that fallback.
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", getpass.GetPassWarning)
+            return getpass.getpass(prompt)
+    except (getpass.GetPassWarning, EOFError, OSError):
+        raise PreviewError(
+            "A terminal with secure no-echo input is required; no credential read"
+        ) from None
 
 
 def checked_run(args, **kwargs):
@@ -473,13 +487,13 @@ def main():
         manifest = release()
         if args.command == "init":
             email = input("Operator email (login only, never sends mail): ")
-            password = getpass.getpass("Private login password (16+ characters, no echo): ")
-            require(password == getpass.getpass("Confirm login password: "), "Passwords differ")
+            password = secret_input("Private login password (16+ characters, no echo): ")
+            require(password == secret_input("Confirm login password: "), "Passwords differ")
             key = (
                 ""
                 if args.mock
                 else os.getenv("DEEPSEEK_API_KEY", "")
-                or getpass.getpass("Fresh DeepSeek key (blank = explicit Mock, no echo): ")
+                or secret_input("Fresh DeepSeek key (blank = explicit Mock, no echo): ")
             )
             configure(
                 state,
@@ -551,9 +565,9 @@ def trial_request(args):
         )
         payload.update(user_id=str(args.user), expected_revision=args.revision)
     if action != "disable":
-        password = getpass.getpass("New private password (16–256 characters, no echo): ")
+        password = secret_input("New private password (16–256 characters, no echo): ")
         require(16 <= len(password) <= 256, "Password must contain 16–256 characters")
-        require(password == getpass.getpass("Confirm new password: "), "Passwords differ")
+        require(password == secret_input("Confirm new password: "), "Passwords differ")
         payload["password"] = password
     payload["reason"] = {
         "create": "pilot_enrollment",

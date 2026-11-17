@@ -2,7 +2,7 @@
 
 ## 2026-11-17：编辑部试用准备（spec033，验证进行中）
 
-从已验收5ea3f82建立codex/editorial-trial-access，PR #12/#13保持未合并。补充服务器运维专用编辑账号开通/停用/恢复/密码轮换、旧会话撤销和私人登录资料入口；只在隔离Mock栈迁移/测试，主服务、数据及VPS不变。针对性64项后端与15项浏览器通过；新增边界/CLI补充测试及完整scripts/verify.sh仍待最终记录。研究门禁曾发现models.py行号漂移，已按实际AST更新Manuscript来源定位，未改变其字段或约束。计划/操作与未完成边界见[试用交付](docs/development/editorial-trial/README.md)。
+从已验收5ea3f82建立codex/editorial-trial-access，PR #12/#13保持未合并。补充服务器运维专用编辑账号开通/停用/恢复/密码轮换、旧会话撤销和私人登录资料入口；只在隔离Mock栈迁移/测试，主服务、数据及VPS不变。针对性69项后端与15项浏览器通过；只读审查发现getpass无TTY时可能回显，已将GetPassWarning转为拒绝，并将安全读取复用到init；补充警告路径测试。首轮完整验证140.73秒时主动中止（exit -15，不计通过），保留证据后重新验收。完整scripts/verify.sh仍待最终记录。研究门禁曾发现models.py行号漂移，已按实际AST更新Manuscript来源定位，未改变其字段或约束。计划/操作与未完成边界见[试用交付](docs/development/editorial-trial/README.md)。
 
 
 验证源码066d9b4b0ae5f7d6af0c2ee009cd80141cad9210，本机scripts/verify.sh实际exit0、1814.03秒：**1706后端633.27秒＋552浏览器19.3m**，三引擎各184，0失败/跳过/浏览器重试。该源PR完整CI43624783455与push完整CI43624778221各1706＋552、14步骤全success；两静态CI43624783456/43624778326各17步骤全success。整份日志、XML、源SHA和退出回执已核对。[交付](docs/development/deadline-questions.md) · [结构化结果](docs/development/deadline-questions-results.json) · [草稿PR #13](https://github.com/DayuGuo/Pivot/pull/13)。
