@@ -116,3 +116,29 @@ test("原文更换：取消清空原生选择器，同一文件可重选并持�
   await page.reload();
   await expect(page.getByText(/当前：reselect-synthetic.md/)).toBeVisible();
 });
+
+
+test("无效原文可取消：元数据草稿保留且原文不变", async ({ page }) => {
+  const id = await openSynthetic(page);
+  const input = page.getByLabel("原文文件", { exact: true });
+  const text = "合成原文必须在取消错误文件后保持原样。";
+  await input.setInputFiles({ name: "original.md", mimeType: "text/markdown", buffer: Buffer.from(text) });
+  await page.getByRole("button", { name: "保存为新版本", exact: true }).click();
+  await expect(page.getByText("新版本已保存，请重新核对。", { exact: true })).toBeVisible();
+  await page.getByLabel("题名", { exact: true }).fill("保留的合成题名草稿");
+  await input.setInputFiles({ name: "invalid.md", mimeType: "text/markdown", buffer: Buffer.from([0xff, 0xfe]) });
+  await expect(page.getByRole("alert").filter({ hasText: "无法读取 UTF-8" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "保存为新版本", exact: true })).toBeDisabled();
+  await page.getByRole("button", { name: "取消更换文件", exact: true }).click();
+  await expect(input).toHaveValue("");
+  await expect(page.getByRole("alert").filter({ hasText: "无法读取 UTF-8" })).toHaveCount(0);
+  const save = page.waitForResponse(response => response.request().method() === "POST" && response.url().endsWith(`/api/dossiers/${id}/versions`));
+  await page.getByRole("button", { name: "保存为新版本", exact: true }).click();
+  expect((await save).ok()).toBe(true);
+  await expect(page.getByLabel("题名", { exact: true })).toHaveValue("保留的合成题名草稿");
+  const saved = await (await page.request.get(`/api/dossiers/${id}`)).json() as Dossier;
+  expect(saved.data.title).toBe("保留的合成题名草稿");
+  expect(saved.file?.text).toBe(text);
+  expect(saved.version_no).toBe(3);
+  expect(saved.verified).toBe(false);
+});
