@@ -1,6 +1,20 @@
+# spec035工程验收通过：资料交互精简与恢复
+
+2026-11-17。已回顾产品/架构/安全/模块及主要工作区，改动集中在资料区；交付草稿 [PR #16](https://github.com/DayuGuo/Pivot/pull/16)，依赖未合并 #15。手机标题/输入区精简、空全文先导入、抽屉焦点和设置交接、IME/Enter、历史阅读保持，以及有效/无效文件取消恢复已完成。[项目回顾](docs/development/ui-interaction-review.md) · [结果](docs/development/ui-interaction-results.json) · [规格](specs/035-ui-interaction-refinement.md)。不是全仓逐行或外部专业安全审计。
+
+最终功能/CI源码 `4fb6eaea1f959c4249f982a4b299c2a2531b1129` 的 [完整 PR CI](https://github.com/DayuGuo/Pivot/actions/runs/44197107444) 14步骤全success：**1784后端（740.65秒，11条提醒）＋582浏览器（21.7分钟，各194）**，0失败/跳过/浏览器重试；[静态 CI](https://github.com/DayuGuo/Pivot/actions/runs/44197107746)17步骤全success。完整脚本含语法、研究/模块边界、Ruff/format、离线引文、迁移无漂移、lint/typecheck和准确镜像构建。后续纯文档提交CI另行运行，不从本源码推断新运行已结束。
+
+本机 UI 源码75873c0的1779后端（714.98秒）＋582浏览器（21.0分钟）全部通过，三引擎各194、零重试。终端控制进程exit143，但独立子进程继续完成；日志/XML/浏览器报告已保存，无包装器完成回执，不冒称本机全脚本exit0。最终4fb6eae仅改CI脚本及测试，应用文件与75873c0相同。新增15专项和42离线安装器检查与全量重叠不累加；桌面/390px及出版/编辑工作台实际截图均已查看。
+
+CI首次44193996898依赖下载两次exit124、受限镜像回退拒绝，应用测试未启动。依据GitHub官方runner源码，隔离修复AWS精确镜像组合识别；不开放任意域名，不改签名/宿主/路径守卫、超时或重试。旧源码红测1失败/1通过，修复后42离线测试通过0.37秒；未改本机/etc。早期8e1a668完整运行因追加文件错误恢复修复在64.41秒主动exit-15，全部失败/中断证据保留artifacts/ui-refinement。
+
+隔离Mock前后端200/PostgreSQL健康、邮件false、Mailpit0；原主服务保留此前停止状态，主库/原件/模型配置和VPS未动。无新依赖或迁移，不合并、不部署。真实供应商调用0，关键决定保留负责人确认。Linux WebKit与合成IME事件不代表真机；实际编辑体验、真实DeepSeek语义和专业复核仍待完成。下一步先按既有试用包收集实际编辑操作记录，再收敛入口与长表单。
+
 # spec034工程验收通过；真实DeepSeek待安全凭据
 
 2026-11-17。已复核PR #14最终文档提交84365bf的[完整CI](https://github.com/DayuGuo/Pivot/actions/runs/44125991601)和[静态CI](https://github.com/DayuGuo/Pivot/actions/runs/44125991639)，分别14/17步骤全部成功；日志确认1750后端565.86秒＋567浏览器16.4分钟、零浏览器重试。已更新PR说明，无失败需要修复，未合并。
+
+2026-11-17本轮 UI 回顾补查：PR #15 最终 558ea52 的 [完整 CI](https://github.com/DayuGuo/Pivot/actions/runs/44137132587) 与 [静态 CI](https://github.com/DayuGuo/Pivot/actions/runs/44137132558) 均已 completed/success，未合并。
 
 下一批在[草稿PR #15](https://github.com/DayuGuo/Pivot/pull/15)，依赖未合并#14。离线生成2份公开许可原件（原生DOCX/出版者PDF）、4问题、署名许可及空白人工/计时记录，排除工程答案与保留题；实际生成8文件并核对摘要。原始包SHA为47edee57c70d017ebc4e43865f9df015b410255c849d152a767ca30305c7ce16，ZIP位于artifacts/editorial-trial-kit/editor-first-session.zip。专业人评0，完整回复信0。[操作与边界](docs/development/editorial-trial-kit/README.md) · [结构化结果](docs/development/editorial-trial-kit/results.json)。
 

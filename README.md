@@ -1,5 +1,7 @@
 # Pivot
 
+资料交互精简（spec035）：[回顾与验收](docs/development/ui-interaction-review.md) · [草稿 PR #16](https://github.com/DayuGuo/Pivot/pull/16)。移动抽屉、输入法发送、历史阅读与文件取消恢复已验收；4fb6eae 完整 CI 通过1784后端＋582浏览器，静态CI通过。准确源码/边界见 PROGRESS；未合并或部署。
+
 首次编辑试用包与隔离真实模型验收入口（spec034）：[操作指南](docs/development/editorial-trial-kit/README.md) · [验收记录](docs/development/editorial-trial-kit/results.json) · [草稿PR #15](https://github.com/DayuGuo/Pivot/pull/15)。源码b013ea2的本机完整门禁与PR CI通过1779后端＋567浏览器；真实DeepSeek本轮仍待新安全凭据，尚无供应商调用。PR #14最终CI已核实全部通过，均未合并/部署。
 
 编辑部试用访问与入口（spec033，工程验收通过）：[首次试用任务与账号操作](docs/development/editorial-trial/README.md)。本分支新增独立编辑账号的受控开通、停用和恢复，以及私人登录直达资料区；源码576fbb8的本机完整验收与PR CI通过：1,750后端＋567浏览器；[结果与限制](docs/development/editorial-trial/results.json)。尚未发布本片VPS包，不自动更新现有安装。

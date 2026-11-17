@@ -1,5 +1,7 @@
 # 资料区模块维护地图
 
+spec035增量：library/use-drawer.ts 只负责移动资料侧栏焦点、Escape和视口恢复；不读取业务/模型/存储。editor.tsx 同时清空 React 文件候选和原生 input，错误文件取消不丢元数据。workspace 仍负责版本、请求隔离和组合；未改后端接口。
+
 spec033增量：account_access.py仅认证状态与账号锁；operations/trial_accounts.py为服务器运维Action Gateway，不被HTTP或模型模块导入；TrialAccount在models.py、增量迁移33a1b9c7d204保存停用与revision。infrastructure/vps/manage.py负责安全TTY输入和stdin管道；账号/权限逻辑不复制到部署管理器。登录落点仅导航提示，资料访问继续走dossier_access。
 
 spec032增量：domain/deadlines.py组合实际职责SQL、时间范围、游标和期限事实回复，供calendar与chat消费，不调用模型/网络或业务写入。chat保存查询记录并处理原权限、回执/历史、提交前事实重验；前端沿原Conversation传入浏览器时区，不新增另一套待办界面。scripts/check-boundaries.py限制服务依赖和直接写调用。

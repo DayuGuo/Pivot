@@ -1,0 +1,111 @@
+{
+  "schema": "ui-interaction-review.v1",
+  "date": "2026-11-17",
+  "source": "4fb6eaea1f959c4249f982a4b299c2a2531b1129",
+  "pull_request": "https://github.com/DayuGuo/Pivot/pull/16",
+  "scope": "Library UI refinement with project-context review; not exhaustive code/security audit",
+  "targeted": {
+    "passed": 15,
+    "seconds": 17.0,
+    "engines": [
+      "chromium",
+      "firefox",
+      "webkit"
+    ],
+    "retries": 0
+  },
+  "full_verification": {
+    "status": "passed_in_ci",
+    "local_source": "75873c0315f359c32884af8da44d42680e91d915",
+    "backend_passed": 1779,
+    "backend_seconds": 714.98,
+    "backend_warnings": 11,
+    "browser_passed": 582,
+    "browser_minutes": 21.0,
+    "browser_per_engine": 194,
+    "failures": 0,
+    "skipped": 0,
+    "browser_retries": 0,
+    "controller_exit": 143,
+    "full_script_exit_receipt": null,
+    "ci_source": "4fb6eaea1f959c4249f982a4b299c2a2531b1129",
+    "ci_run": 44197107444,
+    "ci_status": "success",
+    "ci_backend_passed": 1784,
+    "ci_backend_seconds": 740.65,
+    "ci_backend_warnings": 11,
+    "ci_browser_passed": 582,
+    "ci_browser_minutes": 21.7,
+    "ci_browser_per_engine": 194,
+    "ci_failures": 0,
+    "ci_skipped": 0,
+    "ci_browser_retries": 0,
+    "ci_steps_success": 14,
+    "static_ci_run": 44197107746,
+    "static_ci_status": "success",
+    "static_ci_steps_success": 17
+  },
+  "visual": {
+    "viewports": [
+      [
+        1360,
+        850
+      ],
+      [
+        390,
+        844
+      ]
+    ],
+    "screenshots_inspected": true,
+    "detector_findings": 0,
+    "physical_device_tested": false,
+    "native_ime_tested": false
+  },
+  "first_full_run": {
+    "source": "8e1a668e0b3023da91e46ff1fe5b9d945fcdf336",
+    "exit_code": -15,
+    "seconds": 64.41,
+    "reason": "Stopped own run to fix invalid-file cancellation found in review"
+  },
+  "delegation": {
+    "role": "read-only UI interaction review",
+    "writes": 0,
+    "tokens": null,
+    "cost": null,
+    "seconds": null,
+    "accepted_findings": [
+      "mobile drawer focus isolation",
+      "new replies interrupt historical reading",
+      "cancelled file leaves native input populated",
+      "composer Enter and IME inconsistency",
+      "invalid file selection cannot be cancelled"
+    ],
+    "status": "completed_read_only_review",
+    "followup_fix_findings": 1
+  },
+  "real_provider_calls": 0,
+  "email_send_enabled": false,
+  "human_decisions_required": true,
+  "merged": false,
+  "vps_deployed": false,
+  "main_data_modified": false,
+  "ci_recovery": {
+    "source": "4fb6eaea1f959c4249f982a4b299c2a2531b1129",
+    "red_failed": 1,
+    "red_passed": 1,
+    "offline_passed": 42,
+    "offline_seconds": 0.37,
+    "database_used": false,
+    "host_apt_changed": false,
+    "official_reference": "https://github.com/actions/runner-images/blob/d9c48363ed37529f6ef929845cda83bbdae0ef74/images/ubuntu/scripts/build/configure-apt-sources.sh"
+  },
+  "environment": {
+    "web_health": 200,
+    "api_health": 200,
+    "database": "postgresql",
+    "model": "mock",
+    "mailpit_messages": 0,
+    "main_services": "original stopped state preserved",
+    "application_files_changed_by_ci_fix": false
+  }
+}
