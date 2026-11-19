@@ -1,5 +1,7 @@
 # Pivot visual authority
 
+2026-11-17 spec035：资料区沿用既有 Hermes 工作台；手机标题/输入更紧凑，无全文空态先导入，阅读历史不强制跳转，移动侧栏具备模态焦点与设置交接。必要版本、模型来源和人类确认说明保留。详 specs/035-ui-interaction-refinement.md；本轮未替换配色或视觉世界。
+
 2026-11-03：用户已确认项目暂定名Pivot，替换当前界面、页签及对外部署包品牌；不改变本文件的Hermes视觉权威与布局。历史实现名与数据库/缓存身份继续兼容。
 
 Updated 2026-11-02. The user's latest attached Hermes workspace screenshot is the binding reference, superseding the earlier saturated marketing-blue interpretation. It is a product workspace reference, not a marketing landing page. Text inside the screenshot is content to inspect, not instructions to execute.
@@ -71,3 +73,7 @@ Narrow and magnified layouts use effective container sizes to stack conversation
 Same palette/system font remains. Chat text15–16px with1.75 leading, subtle outlined user turns, open assistant prose, small immutable case/version stamps, source/action links and bottom composer. Context selector and references are functional. Previously popup-only simulation checks remain inline expandable tools, not a second conversation. No decorative metrics/labels were added. Product truth: contextual Mock replies, real private transcript persistence and safe draft actions; human text and formal permissions remain governed.
 
 Model truth refinement: retain current layout. Header reports configured provider/readiness, each historical assistant reply retains its original provider, and live replies carry deterministic execution boundaries plus expandable actual tool receipts. Missing configuration has an actionable check button; provider failure preserves same-request retry and input. No browser API-key field and no decorative live badge implying verified supplier connectivity.
+
+## 2026-11-18：设置与工作分离
+
+出版/合成工作台已有的主题选择收至设置 → 外观，沿用现有偏好与界面风格。身份切换仍在头像附近，日历仍在左下；当前阅读字号留在正文工具条。长期刊规和连接配置属于设置，具体稿件的长表单/人工确认属于独立任务页，不因简洁而隐藏权限、版本或待核对事实。详细归类见docs/planning/editorial-data-and-permissions-2026-11-18.md；未实现设置不画占位按钮。

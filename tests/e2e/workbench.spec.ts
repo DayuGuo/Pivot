@@ -1,3 +1,4 @@
+import { selectTheme } from "./support/settings";
 import { test, expect, type Page } from "@playwright/test";
 import type { Case, CaseState, Dataset } from "../../apps/web/components/editorial/types";
 
@@ -392,17 +393,17 @@ test.describe("合成编辑工作台 · 跨浏览器验收", () => {
     await page.keyboard.press("Control+k");
     await expect(page.getByLabel("搜索工作稿件")).toBeFocused();
     await expect(page.getByLabel("搜索工作稿件")).toHaveCSS("outline-style", "solid");
-    await page.getByLabel("界面主题").selectOption("dark");
+    await selectTheme(page, "dark");
     await expect(page.locator("[data-theme]")).toHaveAttribute("data-theme", "dark");
     await openProgressPreview(page);
     await page.getByRole("button", { name: "打开稿件", exact: true }).click();
     await page.screenshot({ path: "artifacts/workbench-reader-dark.png", fullPage: true });
-    await page.getByLabel("界面主题").selectOption("system");
+    await selectTheme(page, "system");
     await page.emulateMedia({ colorScheme: "light" });
     await expect(page.locator("[data-theme]")).toHaveAttribute("data-theme", "light");
     await page.emulateMedia({ colorScheme: "dark" });
     await expect(page.locator("[data-theme]")).toHaveAttribute("data-theme", "dark");
-    await page.getByLabel("界面主题").selectOption("light");
+    await selectTheme(page, "light");
     await page.setViewportSize({ width: 1440, height: 900 });
     // Actual document CSS zoom, recorded explicitly rather than claiming OS or
     // browser chrome zoom coverage. It exercises enlarged rendered controls.

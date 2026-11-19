@@ -287,3 +287,7 @@ nav svg { color: var(--ui-muted); }
 .settings-entry > button { width: 100%; }
 
 .sidebar > [role="search"] { margin-bottom: 14px; }
+
+/* Expanded calendar shares the existing sidebar; keep identity below it visible. */
+.sidebar:has([data-calendar-open="true"]) > nav { min-height: 0; overflow-y: auto; }
+.sidebar:has([data-calendar-open="true"]) > :is(.settings-entry, .user-area) { flex-shrink: 0; }

@@ -15,6 +15,12 @@ INITIAL_MIRRORS = [
     ("https://archive.ubuntu.com/ubuntu/", 2),
     ("https://security.ubuntu.com/ubuntu/", 3),
 ]
+# Exact alternate emitted by actions/runner-images configure-apt-sources.sh
+# (d9c48363ed37529f6ef929845cda83bbdae0ef74); do not wildcard cloud hosts.
+AWS_MIRRORS = [
+    ("http://us-east-2.ec2.archive.ubuntu.com/ubuntu/", 1),
+    *INITIAL_MIRRORS[1:],
+]
 HTTPS_MIRRORS = [
     ("https://archive.ubuntu.com/ubuntu/", 1),
     ("https://security.ubuntu.com/ubuntu/", 2),
@@ -72,7 +78,7 @@ def checked_mirrors(raw):
         records.append((match[1], int(match[2])))
     # Exact approved endpoints/priority tuples reject credentials, query strings,
     # third-party mirrors and changes to authentication/trust configuration.
-    require(records == INITIAL_MIRRORS or records == HTTPS_MIRRORS)
+    require(records in (INITIAL_MIRRORS, AWS_MIRRORS, HTTPS_MIRRORS))
 
 
 def write_atomic(path, raw):

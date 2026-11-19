@@ -1,5 +1,7 @@
 "use client";
+import { useWorkspaceDrawer } from "../use-workspace-drawer";
 import IdentityControl from "../identity/control";
+import PersonalCalendar from "../calendar/personal-calendar";
 import GlobalSearch from "../search/global-search";
 import { requestId as newRequestId, readStorage, writeStorage, withRequestTimeout } from "../browser";
 
@@ -7,7 +9,7 @@ import Link from "next/link";
 import NextSteps from "../assistant/next-steps";
 import RevisionComparisonPanel from "../assistant/revision-comparison";
 import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
-import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode, type MouseEvent } from "react";
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode, type MouseEvent } from "react";
 import Glyph from "../editorial/icons";
 import { SettingsButton } from "../settings/panel";
 import type { ChatMessage, Detail, PublishingSession, Workspace } from "./types";
@@ -44,6 +46,8 @@ function subscribeTheme(listener: () => void) { window.addEventListener("publish
 let memoryTheme = "system";
 function themeSnapshot() { const value = readStorage("localStorage", "publishing-theme") ?? memoryTheme; return value && ["light", "dark", "system"].includes(value) ? value : "system"; }
 
+function confirmLeave() { return window.confirm("当前资料尚未保存。离开并放弃这些修改？"); }
+
 export default function PublishingWorkspace({ children }: { children: ReactNode }) {
   const router = useRouter(); const pathname = usePathname(); const search = useSearchParams(); const params = useParams();
   const [session, setSession] = useState<PublishingSession | null>(null);
@@ -52,8 +56,11 @@ export default function PublishingWorkspace({ children }: { children: ReactNode 
   const [reviewContext, setReviewContext] = useState<string | null>(null);
   const [error, setError] = useState(""); const [authLost, setAuthLost] = useState(false);
   const [refreshing, setRefreshing] = useState(true); const [drawer, setDrawer] = useState(false);
+  const [creatingDraft, setCreatingDraft] = useState(false);
+  const closeDrawer = useCallback(() => setDrawer(false), []);
+  const { panelRef, triggerRef, closeRef, onKeyDown: onDrawerKeyDown } = useWorkspaceDrawer(drawer, closeDrawer, "(max-width: 850px)");
   const theme = useSyncExternalStore(subscribeTheme, themeSnapshot, () => "system");
-  const dirty = useRef(new Map<string, boolean>()); const requests = useRef(new Map<string, string>()); const sequence = useRef(0);
+  const dirty = useRef(new Map<string, number>()); const changeCount = useRef(0); const requests = useRef(new Map<string, string>()); const sequence = useRef(0);
   const uiScope = JSON.stringify([session?.journal.id, session?.user.id, session?.user.role, session?.csrf_token, pathname, search.toString()]);
   const activeScope = useRef<string | null>(uiScope);
   useLayoutEffect(() => { activeScope.current = uiScope; return () => { activeScope.current = null; }; }, [uiScope]);
@@ -94,6 +101,7 @@ export default function PublishingWorkspace({ children }: { children: ReactNode 
     } }
     finally { if (refreshController.current === control) refreshController.current = null; if (isCurrent()) setRefreshing(false); }
   }, [selectedId, pathname]);
+  const calendarRevision = useMemo(() => workspace ? JSON.stringify(workspace.tasks) : null, [workspace]);
   const latestRefresh = useRef<null | (() => Promise<void>)>(refresh);
   useLayoutEffect(() => { latestRefresh.current = refresh; return () => { latestRefresh.current = null; }; }, [refresh]);
   const refreshCurrent = useCallback(() => latestRefresh.current?.() ?? Promise.resolve(), []);
@@ -101,15 +109,33 @@ export default function PublishingWorkspace({ children }: { children: ReactNode 
   // Network responses update this external server snapshot; no derived state is recomputed here.
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { void refresh(); return invalidateRefresh; }, [refresh, invalidateRefresh]);
-  const navigate = useCallback((url: string) => { if (dirty.current.get(uiScope) && !window.confirm("当前资料尚未保存。离开并放弃这些修改？")) return; dirty.current.delete(uiScope); setDrawer(false); router.push(url); }, [router, uiScope]);
-  const setUnsaved = useCallback((value: boolean) => { if (value) dirty.current.set(uiScope, true); else dirty.current.delete(uiScope); }, [uiScope]);
+  const navigate = useCallback((url: string, approvedChange?: number) => {
+    const target = new URL(url, window.location.href);
+    if (target.pathname === window.location.pathname && target.search === window.location.search) {
+      closeDrawer();
+      return true;
+    }
+    const unsavedChange = dirty.current.get(uiScope);
+    if (unsavedChange !== undefined && unsavedChange !== approvedChange && !confirmLeave()) return false;
+    dirty.current.delete(uiScope);
+    closeDrawer();
+    router.push(url);
+    return true;
+  }, [closeDrawer, router, uiScope]);
+  const setUnsaved = useCallback((value: boolean) => {
+    if (value) dirty.current.set(uiScope, ++changeCount.current);
+    else dirty.current.delete(uiScope);
+  }, [uiScope]);
   function guardLink(event: MouseEvent<HTMLDivElement>) {
-    if (!dirty.current.get(uiScope) || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const hasUnsaved = dirty.current.has(uiScope);
+    if ((!drawer && !hasUnsaved) || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>("a[href]") : null;
     if (!link || link.hasAttribute("download") || (link.target && link.target !== "_self")) return;
     const target = new URL(link.href, window.location.href);
     if (target.origin !== window.location.origin || !["http:", "https:"].includes(target.protocol)) return;
-    if (target.pathname === window.location.pathname && target.search === window.location.search) return;
+    if (!hasUnsaved && target.pathname !== "/publishing") return;
+    const samePage = target.pathname === window.location.pathname && target.search === window.location.search;
+    if (samePage && (!drawer || target.hash)) return;
     event.preventDefault(); event.stopPropagation(); navigate(`${target.pathname}${target.search}${target.hash}`);
   }
   const select = useCallback((id: string | null) => navigate(id ? `/publishing?manuscript=${encodeURIComponent(id)}` : "/publishing"), [navigate]);
@@ -125,20 +151,38 @@ export default function PublishingWorkspace({ children }: { children: ReactNode 
       return result;
     } catch (failure) { if (activeScope.current === uiScope && failure instanceof APIError && failure.status === 401) setAuthLost(true); throw failure; }
   }, [session, uiScope]);
-  async function createDraft() { setError(""); setRefreshing(true); try { const result = await mutate<{ manuscript_id: string }>("/drafts", {}); select(result.manuscript_id); await refresh(); } catch (failure) { setError((failure as Error).message); } finally { setRefreshing(false); } }
+  async function createDraft() {
+    if (creatingDraft) return;
+    const before = dirty.current.get(uiScope);
+    if (before !== undefined && !confirmLeave()) return;
+    setError("");
+    setCreatingDraft(true);
+    try {
+      const { manuscript_id } = await mutate<{ manuscript_id: string }>("/drafts", {});
+      const opened = navigate(`/publishing?manuscript=${encodeURIComponent(manuscript_id)}`, before);
+      if (!opened) await refreshCurrent();
+    } catch (failure) {
+      if (activeScope.current === uiScope) setError((failure as Error).message);
+    } finally {
+      setCreatingDraft(false);
+    }
+  }
   if (!session || authLost) return <div className={styles.loading}><h1>Pivot</h1><p role="status">{error || "正在载入工作区…"}</p>{authLost ? <Link href="/">返回登录</Link> : <button onClick={() => void refresh()} disabled={refreshing}>重新载入</button>}</div>;
   return <Context.Provider value={{ session, workspace, detail, selectedId, error, refreshing, refresh: refreshCurrent, select, setReviewContext, setUnsaved, mutate }}>
-    <div className={styles.shell} data-theme={theme} onClickCapture={guardLink}>
-      <a className={styles.skip} href="#publishing-chat">跳到对话</a>
-      <aside className={`${styles.sidebar} ${drawer ? styles.drawerOpen : ""}`} aria-label="我的工作">
-        <div className={styles.brand}><strong>Pivot</strong><button className={styles.mobileOnly} onClick={() => setDrawer(false)} aria-label="关闭工作列表"><Glyph name="close" /></button></div>
+    <div className={styles.shell} data-theme={theme} onClickCapture={guardLink} onChangeCapture={() => {
+      if (dirty.current.has(uiScope)) dirty.current.set(uiScope, ++changeCount.current);
+    }}>
+      <a className={styles.skip} href="#publishing-chat" inert={drawer || undefined}>跳到对话</a>
+      <aside ref={panelRef} onKeyDown={onDrawerKeyDown} role={drawer ? "dialog" : undefined} aria-modal={drawer || undefined} className={`${styles.sidebar} ${drawer ? styles.drawerOpen : ""}`} aria-label="我的工作">
+        <div className={styles.brand}><strong>Pivot</strong><button ref={closeRef} className={styles.mobileOnly} onClick={closeDrawer} aria-label="关闭工作列表"><Glyph name="close" /></button></div>
         <GlobalSearch scope={`${session.journal.id}:${session.user.id}:${session.user.role}:${session.csrf_token}`} />
-        <div className={styles.sidebarActions}>{["editor", "chief_editor"].includes(session.user.role) && <Link href="/library"><Glyph name="file" size={16} />内部审阅资料</Link>}<button onClick={() => select(null)}>{roleViews[session.user.role]?.tasks ?? "我的工作"} <span>{workspace?.counts.actionable ?? 0}</span></button>{session.user.role === "author" && <button onClick={() => void createDraft()} disabled={refreshing}><Glyph name="file" size={16} />新建投稿</button>}</div>
-        <div className={styles.taskList}>{workspace?.tasks.length ? workspace.tasks.map(task => <Link key={task.id} href={`/publishing?manuscript=${task.manuscript_id}`} onClick={event => { event.preventDefault(); select(task.manuscript_id); }} className={selectedId === task.manuscript_id ? styles.selected : ""}><strong>{task.label}</strong><span>{task.title || "未命名投稿"}</span><small>{task.number}{task.status === "waiting" ? " · 等待处理" : task.blocking ? " · 需要你处理" : ""}</small></Link>) : <p className={styles.emptySmall}>目前没有分派给你的待办。</p>}</div>
-        <div className={styles.userArea}><IdentityControl user={session.user} /><div className={styles.appearance}><label htmlFor="publishing-theme">外观</label><select id="publishing-theme" name="theme" value={theme} onChange={event => { memoryTheme = event.target.value; writeStorage("localStorage", "publishing-theme", memoryTheme); window.dispatchEvent(new Event("publishing-theme-change")); }}><option value="system">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option></select></div><SettingsButton onOpen={() => setDrawer(false)} /><Link href="/">返回主工作台</Link></div>
+        <div className={styles.sidebarActions}>{["editor", "chief_editor"].includes(session.user.role) && <Link href="/library"><Glyph name="file" size={16} />内部审阅资料</Link>}<button onClick={() => select(null)}>{roleViews[session.user.role]?.tasks ?? "我的工作"} {workspace && <span>{workspace.counts.actionable}</span>}</button>{session.user.role === "author" && <button onClick={() => void createDraft()} disabled={refreshing || creatingDraft}><Glyph name="file" size={16} />新建投稿</button>}</div>
+        <div className={styles.taskList}>{workspace?.tasks.length ? workspace.tasks.map(task => <Link key={task.id} href={`/publishing?manuscript=${task.manuscript_id}`} onClick={event => { event.preventDefault(); select(task.manuscript_id); }} className={selectedId === task.manuscript_id ? styles.selected : ""}><strong>{task.label}</strong><span>{task.title || "未命名投稿"}</span><small>{task.number}{task.status === "waiting" ? " · 等待处理" : task.blocking ? " · 需要你处理" : ""}</small></Link>) : workspace ? <p className={styles.emptySmall}>目前没有分派给你的待办。</p> : refreshing ? <p className={styles.emptySmall} role="status">正在载入待办…</p> : null}</div>
+        <PersonalCalendar scope={`${session.journal.id}:${session.user.id}:${session.user.role}:${session.csrf_token}`} revision={calendarRevision} /><div className={styles.userArea}><IdentityControl user={session.user} /><SettingsButton onOpen={() => setDrawer(false)} appearance={{ value: theme, subscribe: subscribeTheme, getSnapshot: themeSnapshot, onChange: value => { memoryTheme = value; writeStorage("localStorage", "publishing-theme", value); window.dispatchEvent(new Event("publishing-theme-change")); } }} /><Link href="/">返回主工作台</Link></div>
       </aside>
-      <section className={styles.center} aria-label="出版助手"><header className={styles.topbar}><button className={styles.mobileOnly} aria-label="打开工作列表" onClick={() => setDrawer(value => !value)}><Glyph name="inbox" /></button><span>出版助手</span><span className={styles.model}>{session.model.provider === "mock" ? "Mock · 模拟模型" : `${session.model.provider} · ${session.model.model ?? ""}`}{session.model.available === false ? " · 未就绪" : ""}</span></header><Conversation key={`${session.journal.id}:${session.user.id}:${session.user.role}:${session.csrf_token}`} navigate={navigate} /></section>
-      <main className={styles.material} aria-label="稿件材料">{error && <div role="alert" className={styles.error}>{error}<button onClick={() => void refresh()} disabled={refreshing}>重新载入</button></div>}{children}</main>
+      {drawer && <button type="button" tabIndex={-1} className={styles.drawerBackdrop} aria-label="关闭工作导航遮罩" onClick={closeDrawer} />}
+      <section className={styles.center} aria-label="出版助手" inert={drawer || undefined}><header className={styles.topbar}><button ref={triggerRef} className={styles.mobileOnly} aria-label="打开工作列表" aria-expanded={drawer} onClick={() => setDrawer(true)}><Glyph name="inbox" /></button><span>出版助手</span><span className={styles.model}>{session.model.provider === "mock" ? "Mock · 模拟模型" : `${session.model.provider} · ${session.model.model ?? ""}`}{session.model.available === false ? " · 未就绪" : ""}</span></header><Conversation key={`${session.journal.id}:${session.user.id}:${session.user.role}:${session.csrf_token}`} navigate={navigate} /></section>
+      <main className={styles.material} aria-label="稿件材料" inert={drawer || undefined}>{error && <div role="alert" className={styles.error}>{error}<button onClick={() => void refresh()} disabled={refreshing}>重新载入</button></div>}{children}</main>
     </div>
   </Context.Provider>;
 }
@@ -152,7 +196,8 @@ function Conversation({ navigate }: { navigate: (url: string) => void }) {
   const [transcript, setTranscript] = useState<{ key: string; messages: ChatMessage[]; loaded: boolean; error: string; historyError: string; historyLoading: boolean }>({ key: contextKey, messages: [], loaded: false, error: "", historyError: "", historyLoading: true });
   const [input, setInput] = useState(() => typeof window === "undefined" ? "" : readStorage("sessionStorage", cacheKey) ?? "");
   const [busy, setBusy] = useState(false);
-  const pending = useRef<{ scopeKey: string; request_id: string; message: string; context: { manuscript_id: string | null; version_id: string | null; scope: string; view: string } } | null>(null);
+  const [forceUTC, setForceUTC] = useState(false);
+  const pending = useRef<{ scopeKey: string; request_id: string; message: string; context: { manuscript_id: string | null; version_id: string | null; scope: string; view: string; timezone?: string } } | null>(null);
   const bottom = useRef<HTMLDivElement>(null); const composing = useRef(false); const historySequence = useRef(0);
   const historyController = useRef<AbortController | null>(null);
   const inFlightHistory = useRef<{ generation: number; key: string; messages: ChatMessage[] } | null>(null);
@@ -196,9 +241,11 @@ function Conversation({ navigate }: { navigate: (url: string) => void }) {
   // The always-mounted composer preserves its unsent per-user draft across route changes.
   useEffect(() => { writeStorage("sessionStorage", cacheKey, input); }, [input, cacheKey]);
   useEffect(() => { bottom.current?.scrollIntoView({ block: "end" }); }, [messages, busy]);
-  async function send(retry = false) {
+  async function send(retry = false, timezoneOverride?: string) {
     if (busy || (!retry && !input.trim())) return;
-    const context = { manuscript_id: selectedId, version_id: detail?.id === selectedId ? detail.version?.id ?? detail.accepted_version_id ?? null : null, scope: selectedId ? "case" : "journal", view: pathname.includes("/preview/") ? "preview" : pathname.includes("/review/") ? "review" : detail?.can_edit_intake ? "intake" : "work" };
+    let timezone: string | undefined;
+    try { timezone = timezoneOverride ?? (forceUTC ? "UTC" : Intl.DateTimeFormat().resolvedOptions().timeZone || undefined); } catch { /* The response explicitly reports UTC if the browser cannot supply a zone. */ }
+    const context = { manuscript_id: selectedId, version_id: detail?.id === selectedId ? detail.version?.id ?? detail.accepted_version_id ?? null : null, scope: selectedId ? "case" : "journal", view: pathname.includes("/preview/") ? "preview" : pathname.includes("/review/") ? "review" : detail?.can_edit_intake ? "intake" : "work", ...(timezone ? { timezone } : {}) };
     if (!pending.current || pending.current.scopeKey !== contextKey || (!retry && (pending.current.message !== input.trim() || JSON.stringify(pending.current.context) !== JSON.stringify(context)))) pending.current = { scopeKey: contextKey, request_id: newRequestId(), message: input.trim(), context };
     const request = pending.current; const requestKey = request.scopeKey;
     const authorizedAtStart = permissionEpoch.current.get(requestKey) ?? 0;
@@ -222,8 +269,8 @@ function Conversation({ navigate }: { navigate: (url: string) => void }) {
     } finally { setBusy(false); }
   }
   return <><div className={styles.chatContext}>{detail?.id === selectedId ? `${detail.number} · ${detail.stage_label}` : "期刊工作区"}<span>仅限合成或公开授权测试资料 · 邮件发送已禁用</span></div><div id="publishing-chat" className={styles.transcript} tabIndex={-1}>
-    {!loaded && <p role="status" className={styles.subtle}>正在载入当前对话…</p>}{loaded && !messages.length && <div className={styles.chatEmpty}><h1>今天需要推进什么？</h1><p>告诉我你的目标，或先从左侧选择待办。你也可以先把投稿信息交给我整理。</p></div>}
-    {messages.map(message => <article key={message.id} className={message.role === "user" ? styles.userMessage : styles.assistantMessage}>{message.revision_comparison ? <RevisionComparisonPanel scopeKey={`${session.journal.id}:${session.user.id}:${session.user.role}`} disabled={busy} report={message.revision_comparison} onContinue={prompt => { if (busy) return; const next = input.trim() ? `${input}\n\n${prompt}` : prompt; if (next.length <= 8000) { setInput(next); document.getElementById("publishing-message")?.focus(); } else { setTranscript(previous => ({...previous, error:"输入已较长，请先发送或清理草稿后再继续。"})); } }} current={detail?.id === selectedId ? { versionId: detail.version?.id ?? detail.accepted_version_id ?? null, revision: detail.revision, versions: detail.versions } : undefined} /> : <div className={styles.messageText}>{message.content}</div>}{message.role === "assistant" && <small>{message.provider === "mock" ? "Mock · 模拟结果" : message.provider}</small>}{message.references?.map((reference, index) => <div className={styles.reference} key={`${reference.manuscript_id}-${index}`}><Link href={`/publishing?manuscript=${reference.manuscript_id}`} onClick={event => { event.preventDefault(); navigate(`/publishing?manuscript=${reference.manuscript_id}`); }}>{reference.label}</Link>{reference.quote && <blockquote>{reference.quote}</blockquote>}</div>)}{message.tool_receipts?.length > 0 && <details className={styles.receipts}><summary>工具执行记录 · {message.tool_receipts.length}</summary>{message.tool_receipts.map((receipt, index) => <div key={index}>{receipt.tool} · {receipt.status}</div>)}</details>}{message.action && <Link className={styles.actionLink} href={message.action.type === "review" ? `/publishing/review/${message.action.proposal_id}` : `/publishing?manuscript=${message.action.manuscript_id}`} onClick={event => { event.preventDefault(); if (message.action) navigate(message.action.type === "review" ? `/publishing/review/${message.action.proposal_id}` : `/publishing?manuscript=${message.action.manuscript_id}`); }}>{message.action.type === "review" ? "打开负责人审核" : "查看稿件"}</Link>}</article>)}
+    {!loaded && <p role="status" className={styles.subtle}>正在载入当前对话…</p>}{loaded && !messages.length && <div className={styles.chatEmpty}><h1>今天需要推进什么？</h1><p>选择一条待办，或在这里提问。</p></div>}
+    {messages.map(message => <article key={message.id} className={message.role === "user" ? styles.userMessage : styles.assistantMessage}>{message.revision_comparison ? <RevisionComparisonPanel scopeKey={`${session.journal.id}:${session.user.id}:${session.user.role}`} disabled={busy} report={message.revision_comparison} onContinue={prompt => { if (busy) return; const next = input.trim() ? `${input}\n\n${prompt}` : prompt; if (next.length <= 8000) { setInput(next); document.getElementById("publishing-message")?.focus(); } else { setTranscript(previous => ({...previous, error:"输入已较长，请先发送或清理草稿后再继续。"})); } }} current={detail?.id === selectedId ? { versionId: detail.version?.id ?? detail.accepted_version_id ?? null, revision: detail.revision, versions: detail.versions } : undefined} /> : <div className={styles.messageText}>{message.content}</div>}{message.role === "assistant" && <small>{message.provider === "mock" ? "Mock · 模拟结果" : message.provider === "records" ? "工作记录" : message.provider}</small>}{message.references?.map((reference, index) => <div className={styles.reference} key={`${reference.manuscript_id}-${index}`}><Link href={`/publishing?manuscript=${reference.manuscript_id}`} onClick={event => { event.preventDefault(); navigate(`/publishing?manuscript=${reference.manuscript_id}`); }}>{reference.label}</Link>{reference.quote && <blockquote>{reference.quote}</blockquote>}</div>)}{message.tool_receipts?.length > 0 && <details className={styles.receipts}><summary>工具执行记录 · {message.tool_receipts.length}</summary>{message.tool_receipts.map((receipt, index) => <div key={index}>{receipt.tool} · {receipt.status}</div>)}</details>}{message.action && <Link className={styles.actionLink} href={message.action.type === "review" ? `/publishing/review/${message.action.proposal_id}` : `/publishing?manuscript=${message.action.manuscript_id}`} onClick={event => { event.preventDefault(); if (message.action) navigate(message.action.type === "review" ? `/publishing/review/${message.action.proposal_id}` : `/publishing?manuscript=${message.action.manuscript_id}`); }}>{message.action.type === "review" ? "打开负责人审核" : "查看稿件"}</Link>}</article>)}
     {busy && <p className={styles.subtle} role="status">正在理解并执行允许的工具…</p>}<div ref={bottom} />
-  </div><div className={styles.composerArea}>{historyError && <div className={styles.error} role="alert">对话历史未载入：{historyError}<button disabled={transcript.historyLoading} onClick={() => void load()}>重新载入历史</button></div>}{error && <div className={styles.error} role="alert">{error}<button disabled={busy} onClick={() => void send(true)}>重试</button></div>}<NextSteps key={`${contextKey}:${detail?.revision}:${messages.at(-1)?.id}`} url={selectedId ? `/api/publishing/manuscripts/${selectedId}/guidance` : '/api/publishing/guidance'} objectId={selectedId} versionId={detail?.id === selectedId ? detail.version?.id ?? null : null} revision={detail?.id === selectedId ? detail.revision : null} role={session.user.role} disabled={busy} onChoose={prompt => { const next = input.trim() ? `${input}\n\n${prompt}` : prompt; if (next.length > 8000) { setTranscript(previous => ({...previous, error: "输入已较长，请先发送或清理当前草稿，再选择建议。"})); return; } setInput(next); document.getElementById('publishing-message')?.focus(); }} /><form className={styles.composer} onSubmit={event => { event.preventDefault(); void send(); }}><label className={styles.srOnly} htmlFor="publishing-message">向出版助手发送消息</label><textarea id="publishing-message" name="message" autoComplete="off" rows={2} maxLength={8000} placeholder={roleViews[session.user.role]?.prompt ?? "描述目标，或粘贴你的投稿信息…"} value={input} onChange={event => setInput(event.target.value)} onCompositionStart={() => { composing.current = true; }} onCompositionEnd={() => { composing.current = false; }} onKeyDown={event => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing && !composing.current && event.keyCode !== 229) { event.preventDefault(); void send(); } }} /><div className={styles.composerFooter}><span>Enter 发送 · Shift+Enter 换行</span><button type="submit" disabled={busy || !input.trim()} aria-label="发送消息"><Glyph name="arrow" size={18} />{busy ? "处理中…" : "发送"}</button></div></form></div></>;
+  </div><div className={styles.composerArea}>{historyError && <div className={styles.error} role="alert">对话历史未载入：{historyError}<button disabled={transcript.historyLoading} onClick={() => void load()}>重新载入历史</button></div>}{error && <div className={styles.error} role="alert">{error}{error.includes("当前时区不可用") ? <button type="button" className={styles.timezoneRecovery} disabled={busy || !input.trim()} onClick={() => { setForceUTC(true); void send(false, "UTC"); }}>使用UTC重新发送</button> : <button type="button" disabled={busy} onClick={() => void send(true)}>重试</button>}</div>}<NextSteps key={`${contextKey}:${detail?.revision}`} refreshToken={messages.at(-1)?.id} url={selectedId ? `/api/publishing/manuscripts/${selectedId}/guidance` : '/api/publishing/guidance'} objectId={selectedId} versionId={detail?.id === selectedId ? detail.version?.id ?? null : null} revision={detail?.id === selectedId ? detail.revision : null} role={session.user.role} disabled={busy} onChoose={prompt => { const next = input.trim() ? `${input}\n\n${prompt}` : prompt; if (next.length > 8000) { setTranscript(previous => ({...previous, error: "输入已较长，请先发送或清理当前草稿，再选择建议。"})); return; } setInput(next); document.getElementById('publishing-message')?.focus(); }} /><form className={styles.composer} onSubmit={event => { event.preventDefault(); void send(); }}><label className={styles.srOnly} htmlFor="publishing-message">向出版助手发送消息</label><textarea id="publishing-message" name="message" autoComplete="off" rows={2} maxLength={8000} placeholder={roleViews[session.user.role]?.prompt ?? "描述目标，或粘贴你的投稿信息…"} value={input} onChange={event => setInput(event.target.value)} onCompositionStart={() => { composing.current = true; }} onCompositionEnd={() => { composing.current = false; }} onKeyDown={event => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing && !composing.current && event.keyCode !== 229) { event.preventDefault(); void send(); } }} /><div className={styles.composerFooter}><span>Enter 发送 · Shift+Enter 换行</span><button type="submit" disabled={busy || !input.trim()} aria-label="发送消息"><Glyph name="arrow" size={18} />{busy ? "处理中…" : "发送"}</button></div></form></div></>;
 }

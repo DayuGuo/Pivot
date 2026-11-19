@@ -1,3 +1,4 @@
+import { selectTheme } from "./support/settings";
 import { test, expect, type Page } from '@playwright/test';
 import path from 'node:path';
 async function start(page: Page) {
@@ -156,7 +157,7 @@ test('引文定位真实已核对Word全文，高亮Unicode并保留原件下载
  const mark=page.getByLabel('已定位原文引用',{exact:true});await expect(mark).toHaveText(quote);await expect(mark).toBeFocused();
  await expect(page.getByRole('link',{name:'Word 第2段 · 下载原件',exact:true})).toBeVisible();expect(posts).toBe(0);
  await page.screenshot({path:test.info().outputPath('word-source-desktop.png')});
- await page.getByLabel('外观',{exact:true}).selectOption('dark');await page.setViewportSize({width:375,height:812});await mark.scrollIntoViewIfNeeded();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:test.info().outputPath('word-source-mobile-dark.png')});
+ await selectTheme(page, "dark");await page.setViewportSize({width:375,height:812});await mark.scrollIntoViewIfNeeded();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:test.info().outputPath('word-source-mobile-dark.png')});
 });
 
 test('等待原件期间切换身份，迟到的已核对全文不显示',async({page})=>{

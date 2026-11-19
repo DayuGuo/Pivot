@@ -13,6 +13,7 @@ export default function DossierEditor({ detail, hidden, busy, saving, onDirty, o
   const [fileError, setFileError] = useState("");
   const [reading, setReading] = useState(false);
   const fileGeneration = useRef(0);
+  const fileInput = useRef<HTMLInputElement>(null);
   const [validationError, setValidationError] = useState("");
   const [changed, setChanged] = useState(false);
   const issues = currentAuthorIssues(data.authors);
@@ -74,10 +75,10 @@ export default function DossierEditor({ detail, hidden, busy, saving, onDirty, o
       </section>
       <label>资料类型<select name="source-kind" value={data.source_kind} onChange={event => update("source_kind", event.target.value as DossierData["source_kind"])}><option value="synthetic">合成资料</option><option value="public_authorized">公开 / 已获授权资料</option></select></label>
       <label>来源与授权说明<textarea name="source-note" rows={3} required minLength={5} maxLength={2000} value={data.source_note} onChange={event => update("source_note", event.target.value)} /></label>
-      {!importReview && <><label>原文文件<input name="file" type="file" accept=".txt,.md,text/plain,text/markdown" aria-describedby="library-file-help library-file-error" onChange={event => void readFile(event.target.files?.[0])} /></label>
+      {!importReview && <><label>原文文件<input ref={fileInput} name="file" type="file" accept=".txt,.md,text/plain,text/markdown" aria-describedby="library-file-help library-file-error" onChange={event => void readFile(event.target.files?.[0])} /></label>
       <p id="library-file-help" className={styles.hint}>{reading ? "正在读取文件…" : file ? `待保存：${file.filename}` : detail.file ? `当前：${detail.file.filename}；未选择新文件时沿用本版原文。` : "UTF-8 TXT / Markdown，最大 1 MiB。"}</p>
       {fileError && <p id="library-file-error" className={styles.fieldError} role="alert">{fileError}</p>}
-      {file && <button type="button" onClick={() => { ++fileGeneration.current; setFile(null); markDirty(); }}>取消更换文件</button>}</>}
+      {(file || fileError) && <button type="button" onClick={() => { ++fileGeneration.current; setFile(null); setFileError(""); if (fileInput.current) fileInput.current.value = ""; markDirty(); }}>取消更换文件</button>}</>}
     </fieldset>
     {!importReview && detail.missing.length > 0 && <section className={styles.missing}><h2>当前已保存版本的缺项</h2><ul>{detail.missing.map((item, index) => <li key={`${item.field}-${index}`}>{item.message}</li>)}</ul></section>}
     {validationError && <p className={styles.fieldError} role="alert">{validationError}</p>}

@@ -51,6 +51,7 @@ ranks = {
 }
 route_modules = {
     "formal_documents",
+    "calendar",
     "dossiers",
     "document_imports",
     "dossier_chat",
@@ -115,3 +116,98 @@ for module in ("guidance_rules", "revision_compare"):
         ):
             raise SystemExit(f"Comparison/rule module cannot acquire mutation authority: {source}")
 print("Guidance and revision comparison remain free of database/action authority")
+
+# Shared metadata/calendar query builders have no transport or write authority.
+for module in ("metadata_access", "calendar_queries"):
+    source = Path("apps/api/publishing/domain") / f"{module}.py"
+    for node in ast.walk(ast.parse(source.read_text())):
+        names = (
+            [item.name for item in node.names]
+            if isinstance(node, ast.Import)
+            else [node.module or ""]
+            if isinstance(node, ast.ImportFrom)
+            else []
+        )
+        if any(
+            name.split(".")[0] in {"fastapi", "httpx", "requests", "smtplib", "subprocess"}
+            or "model_gateway" in name
+            or name.rsplit(".", 1)[-1] in http_routes
+            for name in names
+        ):
+            raise SystemExit(f"Metadata query imported transport/route authority: {source}")
+        if (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr
+            in {
+                "add",
+                "add_all",
+                "commit",
+                "flush",
+                "delete",
+                "execute",
+                "run_action",
+                "confirm",
+                "prepare",
+            }
+        ):
+            raise SystemExit(f"Metadata query acquired execution/write authority: {source}")
+print("Metadata/calendar query builders remain transport-free and read-only")
+
+# Calendar HTTP and chat consume this service without giving it write or model authority.
+source = Path("apps/api/publishing/domain/deadlines.py")
+for node in ast.walk(ast.parse(source.read_text())):
+    names = (
+        [item.name for item in node.names]
+        if isinstance(node, ast.Import)
+        else [node.module or ""]
+        if isinstance(node, ast.ImportFrom)
+        else []
+    )
+    if any(
+        name.split(".")[0] in {"httpx", "requests", "smtplib", "subprocess", "socket"}
+        or "model_gateway" in name
+        or name.rsplit(".", 1)[-1] in http_routes
+        for name in names
+    ):
+        raise SystemExit(f"Deadline service imported transport/route authority: {source}")
+    if (
+        isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Attribute)
+        and node.func.attr
+        in {
+            "add",
+            "add_all",
+            "commit",
+            "flush",
+            "delete",
+            "run_action",
+            "confirm",
+            "prepare_proposal",
+            "write_text",
+            "write_bytes",
+        }
+    ):
+        raise SystemExit(f"Deadline service acquired write authority: {source}")
+print("Shared deadline service remains read-only and has no model/transport authority")
+
+# Server-operator credentials never become HTTP/model authority. Account access
+# queries are shared, but the provisioning gateway is importable only by its CLI.
+for source in [*Path("apps/api/publishing").rglob("*.py"), *Path("packages").rglob("*.py")]:
+    if "operations" in source.parts:
+        continue
+    for node in ast.walk(ast.parse(source.read_text())):
+        names = (
+            [item.name for item in node.names]
+            if isinstance(node, ast.Import)
+            else [node.module or "", *[item.name for item in node.names]]
+            if isinstance(node, ast.ImportFrom)
+            else []
+        )
+        if any(
+            "operations" in name.split(".") or "trial_accounts" in name.split(".") for name in names
+        ):
+            raise SystemExit(
+                f"Operator gateway must not be imported by runtime routes/models: {source}"
+            )
+print("Trial provisioning remains isolated from HTTP and model tools")

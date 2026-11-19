@@ -16,6 +16,7 @@ import sys
 import unicodedata
 from collections import Counter
 from pathlib import Path
+from urllib.parse import urlsplit
 from uuid import uuid4
 
 import httpx
@@ -39,6 +40,11 @@ def save(path, value):
 
 def compact(value):
     return "".join(unicodedata.normalize("NFKC", value).split())
+
+
+def require(condition, code):
+    if not condition:
+        raise ValueError(code)
 
 
 def files(manifest):
@@ -70,11 +76,27 @@ def fetch(manifest):
     print("PASS: six exact public original/labelled derivative files available")
 
 
-def stage(manifest, staging_path=None):
+def stage(manifest, staging_path=None, base_url="http://127.0.0.1:8100"):
+    target = urlsplit(base_url)
+    if (
+        target.scheme != "http"
+        or target.hostname not in {"127.0.0.1", "localhost"}
+        or target.username
+        or target.password
+        or target.path not in {"", "/"}
+        or target.query
+        or target.fragment
+    ):
+        raise ValueError("local_api_required")
     staging_path = Path(staging_path or CACHE / "staging.json")
     result = {"schema": "public_paper_staging.v1", "cases": [], "passed": False}
-    with httpx.Client(base_url="http://127.0.0.1:8100", timeout=80, trust_env=False) as client:
-        assert client.get("/api/health").json()["editorial_model"]["provider"] == "deepseek"
+    with httpx.Client(base_url=base_url, timeout=80, trust_env=False) as client:
+        health = client.get("/api/health").json()
+        if (
+            health.get("editorial_model", {}).get("provider") != "deepseek"
+            or health.get("email_send_enabled") is not False
+        ):
+            raise ValueError("live_provider_and_disabled_mail_required")
         response = client.post(
             "/api/auth/login",
             json={"email": "editor@publishing.test", "password": "EditorDemo2026!"},
@@ -119,6 +141,12 @@ def stage(manifest, staging_path=None):
             if response.status_code == 200:
                 iid = response.json()["import_id"]
                 draft = client.get(f"/api/dossiers/{did}/imports/{iid}").json()
+                if (
+                    draft.get("metadata_provider") != "deepseek"
+                    or draft.get("metadata_model") != "deepseek-flash"
+                ):
+                    raise ValueError("actual_deepseek_import_required")
+                case["telemetry"] = draft.get("telemetry", [])
                 candidate_path = staging_path.parent / (spec["case"] + ".candidate.json")
                 save(candidate_path, draft)
                 case["import_id"] = iid
@@ -128,7 +156,10 @@ def stage(manifest, staging_path=None):
                     else candidate_path.name
                 )
             after = client.get(f"/api/dossiers/{did}").json()
-            assert after["version_id"] == before["version_id"] and not after["verified"]
+            require(
+                after["version_id"] == before["version_id"] and not after["verified"],
+                "candidate_advanced_without_confirmation",
+            )
             case["candidate_did_not_advance"] = True
             result["cases"].append(case)
             save(staging_path, result)
@@ -148,6 +179,8 @@ def author_audit(expected, actual):
         "missing_affiliations": [],
         "email_errors": [],
         "missing_emails": [],
+        "corresponding_errors": [],
+        "orcid_errors": [],
     }
     for i, gold in enumerate(expected):
         if i >= len(actual):
@@ -166,8 +199,21 @@ def author_audit(expected, actual):
             result["email_errors"].append(i)
         if gold["email"] and not author["email"]:
             result["missing_emails"].append(i)
+        if author.get("corresponding") is not gold.get("corresponding"):
+            result["corresponding_errors"].append(i)
+        if author.get("orcid") != gold.get("orcid"):
+            result["orcid_errors"].append(i)
     result["passed"] = len(actual) == len(expected) and not any(
-        result[k] for k in ("name_errors", "affiliation_errors", "email_errors")
+        result[k]
+        for k in (
+            "name_errors",
+            "affiliation_errors",
+            "email_errors",
+            "missing_affiliations",
+            "missing_emails",
+            "corresponding_errors",
+            "orcid_errors",
+        )
     )
     return result
 
@@ -180,11 +226,17 @@ def audit(manifest, staged_path, report_path=None):
         extracted = extract_document(path.name, path.read_bytes())
         case = staged[spec["case"]]
         draft = load(CACHE / case.get("candidate_path", spec["case"] + ".candidate.json"))
-        assert draft["sha256"] == spec["sha256"] and draft["text"] == extracted["text"]
+        require(
+            draft["sha256"] == spec["sha256"] and draft["text"] == extracted["text"],
+            "import_source_mismatch",
+        )
         for source in draft["field_sources"]:
-            assert extracted["text"][source["start"] : source["end"]] == source["quote"]
+            require(
+                extracted["text"][source["start"] : source["end"]] == source["quote"],
+                "metadata_quote_mismatch",
+            )
             if not source["field_path"].endswith(".corresponding"):
-                assert source["value"] in source["quote"]
+                require(source["value"] in source["quote"], "metadata_value_not_in_quote")
         item = {
             "case": spec["case"],
             "metadata": author_audit(
@@ -271,7 +323,7 @@ def audit(manifest, staged_path, report_path=None):
     )
     for result in results:
         print(result["case"], json.dumps(result["metadata"], ensure_ascii=False), flush=True)
-    assert all(c["metadata"]["passed"] for c in results), "public_author_alignment_failed"
+    require(all(c["metadata"]["passed"] for c in results), "public_author_alignment_failed")
 
 
 def main():

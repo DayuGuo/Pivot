@@ -1,0 +1,103 @@
+{
+  "date": "2026-11-18",
+  "spec": "036",
+  "baseline_commit": "951587a9d56c0e0e68a5c8568516c921c26e6b92",
+  "scope": "Data/role/workspace inventory and existing theme controls moved into settings",
+  "backend_or_schema_changes": false,
+  "business_permissions_changed": false,
+  "deployment": false,
+  "github_push": false,
+  "real_model_calls": 0,
+  "email_send_enabled": false,
+  "full_verification": {
+    "status": "stopped_after_browser_failure",
+    "command": "scripts/verify.sh",
+    "exit_code": 130,
+    "seconds": 965.91,
+    "backend_passed": 1784,
+    "backend_seconds": 721.97,
+    "backend_warnings": 11,
+    "browser_passed_before_stop": 101,
+    "browser_failed": 1,
+    "browser_interrupted": 1,
+    "browser_not_run": 485,
+    "reason": "Three legacy test flows still used the removed sidebar theme selector; stopped at first observed failure to update interaction paths.",
+    "log": "artifacts/data-permissions-review/full.log",
+    "receipt": "artifacts/data-permissions-review/full-exit.json",
+    "junit": "artifacts/data-permissions-review/pytest.xml"
+  },
+  "targeted_previous_revision": {
+    "passed": 36,
+    "seconds_approx": 72,
+    "engines": [
+      "chromium",
+      "firefox",
+      "webkit"
+    ],
+    "scope": "before cross-tab theme subscription",
+    "log": "artifacts/data-permissions-review/targeted-final.log",
+    "controller_exit": 143,
+    "full_script_exit_claimed": false
+  },
+  "first_targeted_attempt": {
+    "status": "stopped_after_accessible_label_failures",
+    "controller_exit": 130,
+    "evidence": "artifacts/data-permissions-review/first-targeted-failure"
+  },
+  "readonly_agent_review": {
+    "name": "data_permissions_review",
+    "fixes": [
+      "Distinguish formal all-author email requirement from private corresponding-email requirement",
+      "Clarify single-corresponding-author limit in both confirmation flows",
+      "Subscribe open publishing settings to cross-tab theme changes"
+    ],
+    "tests_executed_by_agent": false,
+    "tokens": null,
+    "cost": null,
+    "followup": "Confirmed shared subscription fixes open-panel cross-tab synchronization; no new obvious risk found."
+  },
+  "limits": [
+    "No current live provider verification",
+    "No real editorial trial evaluation",
+    "Linux WebKit is not physical Safari",
+    "No production deployment or new database migration",
+    "Proposed data structures and roles are not implemented by this document"
+  ],
+  "final_browser_verification": {
+    "status": "passed",
+    "command": "git diff --check && npm run lint && npm run typecheck && npm run test:e2e",
+    "exit_code": 0,
+    "seconds": 1296.28,
+    "browser_reported_duration": "21.5m",
+    "passed": 588,
+    "by_engine": {
+      "chromium": 196,
+      "firefox": 196,
+      "webkit": 196
+    },
+    "failures": 0,
+    "skipped": 0,
+    "retries": 0,
+    "source_unchanged": true,
+    "source_manifest": "artifacts/data-permissions-review/browser-source.json",
+    "source_manifest_sha256": "71c57ca6d16bb3d916cbb2344358b5967d4d7692f70d24f5d042d12bdfc830f9",
+    "log": "artifacts/data-permissions-review/browser-final.log",
+    "receipt": "artifacts/data-permissions-review/browser-exit.json",
+    "scope": "Same application build as backend/full-script attempt; only test interaction paths/helper changed afterward"
+  },
+  "first_full_working_source_sha256": "96e48c066c8f98bef40b405d74ff4df1d29fe29b8e56024a09f8f4cc16dd7831",
+  "acceptance": "Checks passed in phases; no successful full verify.sh exit is claimed for this iteration.",
+  "visual_review": {
+    "viewed": [
+      "artifacts/settings-appearance-publishing-chromium.png",
+      "artifacts/settings-chromium-dark-model.png"
+    ],
+    "scope": "390px light appearance panel after cross-tab update; desktop dark settings; no physical-device certification"
+  },
+  "final_health": {
+    "web_health_status": 200,
+    "email_send_enabled": false,
+    "editorial_model_provider": "mock",
+    "mailpit_total": 0
+  }
+}

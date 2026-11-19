@@ -1,5 +1,13 @@
 # 资料区模块维护地图
 
+角色走查增量：`components/use-workspace-drawer.ts` 为资料区和正式工作台提供移动侧栏焦点、Escape 和视口恢复。
+
+spec035增量：editor.tsx 同时清空 React 文件候选和原生 input，错误文件取消不丢元数据。workspace 仍负责版本、请求隔离和组合；未改后端接口。
+
+spec033增量：account_access.py仅认证状态与账号锁；operations/trial_accounts.py为服务器运维Action Gateway，不被HTTP或模型模块导入；TrialAccount在models.py、增量迁移33a1b9c7d204保存停用与revision。infrastructure/vps/manage.py负责安全TTY输入和stdin管道；账号/权限逻辑不复制到部署管理器。登录落点仅导航提示，资料访问继续走dossier_access。
+
+spec032增量：domain/deadlines.py组合实际职责SQL、时间范围、游标和期限事实回复，供calendar与chat消费，不调用模型/网络或业务写入。chat保存查询记录并处理原权限、回执/历史、提交前事实重验；前端沿原Conversation传入浏览器时区，不新增另一套待办界面。scripts/check-boundaries.py限制服务依赖和直接写调用。
+
 资料区继续采用模块化单体，接口和事务保持在同一应用内。分文件是为了隔离变更原因，不引入微服务、事件总线或另一套权限。
 
 | 模块 | 修改它的理由 | 边界 |
@@ -64,3 +72,19 @@
 spec027前端：`library/revision-check.tsx`维护材料包、三层人工草稿和已知/未知写入恢复，`revision-types.ts`定义协议，`metadata-export.tsx`保护下载前后身份；不把编辑的人判交给对话工具。`scripts/accept-vps-upgrade.py`只在随机隔离项目验证旧版升级与新卷恢复；`build-vps-app.py`绑定实际源码身份，`install-browser-deps.sh`对CI依赖安装设次数/时限，均不操作用户VPS。改变这些边界时运行相应有意义的失败回归，再统一verify。
 
 可选`DocumentMetadata`属于版本data_json中的原文字符串，不是正式DeclarationsInput。空扩展在Pydantic序列化时省略，旧快照/回执不增键；`document_candidates`只接受类型标识和基金/声明完整区块，模型引文与纠正反馈限定实际发送窗口。`dossier_evidence`通用leaf索引、`document_sources`字段值匹配及`dossier_export`统一使用版本来源；前端evidence保留显式可定位字段白名单。新增字段时必须同时检查此白名单、来源和人工改值不能冒领原件的回归。
+
+
+## 共享元数据与本人日历（spec031）
+
+- domain/metadata_access.py：SQL题名与角色版本可见性，搜索与日历共同消费，不发放动作或文件权限。
+- domain/calendar_queries.py：本人/当前职务/实际分派/当前步骤和邀请的WorkItem只读SQL；没有HTTP、模型、文件或提交能力。
+- domain/calendar.py：日期/时区、绑定筛选的游标、有界分页与HTTP/会话复核。
+- components/calendar：四工作区同一展开入口和有界读取；当前表单保护仍由所在工作区负责。
+
+check-boundaries为上述SQL构造模块禁止传输、路由和执行/写入调用；原Action Gateway与审批边界不变。
+
+同稿同版本的NextSteps随消息变化通过refreshToken重读数据，保持按钮节点；身份/版本上下文仍重建绑定。请求序号丢弃迟到自动/手动刷新。浏览器URL恢复使用原精确谓词的web-first断言，避免把异步history观察当同步状态。
+
+## spec036：设置中的工作区偏好
+
+`components/settings/panel.tsx` 通过可选 appearance 接口调用现有页面主题更新；正式出版页提供外部存储订阅与快照，设置打开期间也跟随跨标签页主题变更；合成工作台仍由原页面state持有并按原用户键保存。无数据库、权限或模型依赖，不把全局设置作为业务状态存储。阅读字号与稿件任务保持原位置。数据/角色清单见docs/planning/editorial-data-and-permissions-2026-11-18.md。

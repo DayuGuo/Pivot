@@ -1,0 +1,176 @@
+{
+  "schema": "pivot-deadline-questions.v1",
+  "status": "validated_engineering_candidate",
+  "spec": "032-deadline-questions",
+  "source": "066d9b4b0ae5f7d6af0c2ee009cd80141cad9210",
+  "base": "e4c790f11ebbdc08357b96da8a4974856b065500",
+  "pull_request": "https://github.com/DayuGuo/Pivot/pull/13",
+  "depends_on_unmerged_pr": 12,
+  "draft": true,
+  "merged": false,
+  "scope": "single_journal_current_role_read_only_deadlines",
+  "schema_migration": false,
+  "local_full": {
+    "source": "066d9b4b0ae5f7d6af0c2ee009cd80141cad9210",
+    "finished_head": "066d9b4b0ae5f7d6af0c2ee009cd80141cad9210",
+    "exit_code": 0,
+    "seconds": 1814.03,
+    "command": "scripts/verify.sh",
+    "backend_passed": 1706,
+    "backend_seconds": 633.27,
+    "backend_warnings": 10,
+    "browser_passed": 552,
+    "browser_duration": "19.3m",
+    "engines": {
+      "chromium": 184,
+      "firefox": 184,
+      "webkit": 184
+    },
+    "failed": 0,
+    "skipped": 0,
+    "browser_retries": 0,
+    "webkit": "explicit_mesa_software"
+  },
+  "ci": [
+    {
+      "run": 43624783455,
+      "source": "066d9b4b0ae5f7d6af0c2ee009cd80141cad9210",
+      "jobs": 1,
+      "steps": 14,
+      "all_steps_success": true,
+      "backend_passed": 1706,
+      "backend_seconds": 520.79,
+      "backend_warnings": 10,
+      "browser_passed": 552,
+      "browser_duration": "15.7m",
+      "engines": {
+        "chromium": 184,
+        "firefox": 184,
+        "webkit": 184
+      },
+      "browser_failures": 0,
+      "browser_retries": 0
+    },
+    {
+      "run": 43624778221,
+      "source": "066d9b4b0ae5f7d6af0c2ee009cd80141cad9210",
+      "jobs": 1,
+      "steps": 14,
+      "all_steps_success": true,
+      "backend_passed": 1706,
+      "backend_seconds": 464.27,
+      "backend_warnings": 10,
+      "browser_passed": 552,
+      "browser_duration": "16.2m",
+      "engines": {
+        "chromium": 184,
+        "firefox": 184,
+        "webkit": 184
+      },
+      "browser_failures": 0,
+      "browser_retries": 0
+    },
+    {
+      "run": 43624783456,
+      "source": "066d9b4b0ae5f7d6af0c2ee009cd80141cad9210",
+      "jobs": 1,
+      "steps": 17,
+      "all_steps_success": true
+    },
+    {
+      "run": 43624778326,
+      "source": "066d9b4b0ae5f7d6af0c2ee009cd80141cad9210",
+      "jobs": 1,
+      "steps": 17,
+      "all_steps_success": true
+    }
+  ],
+  "health": {
+    "web_status": 200,
+    "api_status": 200,
+    "database": "postgresql",
+    "provider": "mock",
+    "email_send_enabled": false,
+    "mailpit_total": 0
+  },
+  "targeted": {
+    "api_passed": 93,
+    "api_seconds": 35.91,
+    "browser_passed": 15,
+    "browser_duration": "3.1m",
+    "source_boundary_checks": 7,
+    "counts_overlap_full_suite": true
+  },
+  "failure_history": [
+    {
+      "source": "40e144a",
+      "exit_code": -15,
+      "seconds": 349.98,
+      "reason": "independent review findings; deliberately stopped",
+      "evidence": "artifacts/deadline-chat/first-full-interrupted"
+    },
+    {
+      "source": "9d56075",
+      "exit_code": 1,
+      "seconds": 644.03,
+      "backend_passed": 1694,
+      "backend_failed": 1,
+      "reason": "execution deadline misrouted as task deadline",
+      "evidence": "artifacts/deadline-chat/second-full-failure"
+    },
+    {
+      "source": "07c864c",
+      "exit_code": 1,
+      "seconds": 1667.8,
+      "backend_passed": 1699,
+      "browser_passed": 549,
+      "browser_failed": 3,
+      "reason": "abstract content misrouted intake as task query",
+      "evidence": "artifacts/deadline-chat/third-full-failure"
+    }
+  ],
+  "review": {
+    "kind": "independent_codex_read_only",
+    "p2_findings": 3,
+    "additional_lock_check": 1,
+    "old_source_red": 7,
+    "fixed_green": 7,
+    "fixes_by": "lead",
+    "professional_review": false,
+    "tokens": null,
+    "cost": null,
+    "duration_seconds": null
+  },
+  "visual": {
+    "detector_runs": 1,
+    "detector_scope": "TSX_regex_only_not_parsed_contrast_checks",
+    "fresh_images_inspected": [
+      "chromium-answer.png",
+      "firefox-timezone-desktop.png",
+      "webkit-timezone-mobile.png"
+    ],
+    "viewport": "desktop1280x720/mobile390x844",
+    "keyboard_utc_recovery": true,
+    "physical_devices_or_screen_reader_certified": false
+  },
+  "application_real_model_calls": 0,
+  "application_model_api_cost": 0,
+  "real_deepseek_credentials_revalidated": false,
+  "main_data_modified": false,
+  "main_services_started": false,
+  "main_originals_or_model_configuration_modified": false,
+  "vps_deployed": false,
+  "native_vps_capacity_revalidated": false,
+  "email_send_enabled": false,
+  "critical_decisions": "responsible_human_confirmation",
+  "actual_editor_evaluations": 0,
+  "complete_author_reply_letters_in_existing_pilot": 0,
+  "limitations": [
+    "shortcut examines leading request, not arbitrary multi-line intent",
+    "current role and one date range per query",
+    "not enabled in private library chat",
+    "text guard is not arbitrary semantic proof",
+    "page reads are current-authority re-reads, not cross-page snapshot isolation"
+  ],
+  "next": "licensed complete revision materials, content evaluation and actual editor/professional review; no automatic deployment"
+}

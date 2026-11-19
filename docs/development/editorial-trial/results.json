@@ -1,0 +1,404 @@
+{
+  "schema": "pivot-editorial-trial-results.v1",
+  "date": "2026-11-17",
+  "verified_source": "576fbb88c7c6e3017938a7cb0c36204b22c0abb9",
+  "scope": "spec033 controlled trial access; not production readiness",
+  "local": {
+    "command": "scripts/verify.sh",
+    "receipt": {
+      "source": "576fbb88c7c6e3017938a7cb0c36204b22c0abb9",
+      "finished_head": "576fbb88c7c6e3017938a7cb0c36204b22c0abb9",
+      "exit_code": 0,
+      "seconds": 1954.17
+    },
+    "backend": {
+      "tests": 1750,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 1750,
+      "warnings": 11,
+      "seconds": 713.92
+    },
+    "browser": {
+      "passed": 567,
+      "engines": {
+        "chromium": 189,
+        "firefox": 189,
+        "webkit": 189
+      },
+      "minutes": 20.3,
+      "failed": 0,
+      "skipped": 0,
+      "retries": 0,
+      "webkit_rendering": "Mesa software on Linux; not physical Safari certification"
+    },
+    "checks": [
+      "syntax",
+      "research evidence",
+      "module boundaries",
+      "ruff",
+      "format",
+      "18 offline citation checks",
+      "Alembic upgrade and no drift",
+      "bootstrap",
+      "frontend lint and typecheck",
+      "exact image build",
+      "backend and browser regression"
+    ]
+  },
+  "ci": {
+    "source": "576fbb88c7c6e3017938a7cb0c36204b22c0abb9",
+    "runs": [
+      {
+        "id": 44119346587,
+        "name": "verify",
+        "status": "success",
+        "jobs": [
+          {
+            "id": 134166356676,
+            "name": "prototype",
+            "status": "completed",
+            "conclusion": "success",
+            "run_id": 44119346587,
+            "logs_url": null,
+            "steps": [
+              {
+                "name": "Set up job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 1
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 2
+              },
+              {
+                "name": "Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 3
+              },
+              {
+                "name": "Run astral-sh/setup-uv@v6",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 4
+              },
+              {
+                "name": "Run ./scripts/setup.sh",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 5
+              },
+              {
+                "name": "Install all browser host dependencies with bounded retry",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 6
+              },
+              {
+                "name": "Run ./scripts/start.sh",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 7
+              },
+              {
+                "name": "Run ./scripts/verify.sh",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 8
+              },
+              {
+                "name": "Run docker compose logs --no-color > artifacts/compose.log",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 9
+              },
+              {
+                "name": "Run actions/upload-artifact@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 10
+              },
+              {
+                "name": "Post Run astral-sh/setup-uv@v6",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 18
+              },
+              {
+                "name": "Post Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 19
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 20
+              },
+              {
+                "name": "Complete job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 21
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": 44119346351,
+        "name": "static-demo",
+        "status": "success",
+        "jobs": [
+          {
+            "id": 134166096807,
+            "name": "demo",
+            "status": "completed",
+            "conclusion": "success",
+            "run_id": 44119346351,
+            "logs_url": null,
+            "steps": [
+              {
+                "name": "Set up job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 1
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 2
+              },
+              {
+                "name": "Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 3
+              },
+              {
+                "name": "Run npm ci",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 4
+              },
+              {
+                "name": "Download the three browser engines",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 5
+              },
+              {
+                "name": "Install browser host dependencies with bounded retry",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 6
+              },
+              {
+                "name": "Run npm run lint && npm run typecheck",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 7
+              },
+              {
+                "name": "Run ./scripts/demo.sh",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 8
+              },
+              {
+                "name": "Verify isolated static artifact",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 9
+              },
+              {
+                "name": "Package amd64 VPS image",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 10
+              },
+              {
+                "name": "Assemble VPS installation bundle",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 11
+              },
+              {
+                "name": "Verify amd64 offline image on x86 runner",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 12
+              },
+              {
+                "name": "Run actions/upload-artifact@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 13
+              },
+              {
+                "name": "Run ./scripts/demo.sh stop",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 14
+              },
+              {
+                "name": "Post Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 27
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 28
+              },
+              {
+                "name": "Complete job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 29
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "backend": {
+      "passed": 1750,
+      "warnings": 11,
+      "seconds": 544.28
+    },
+    "browser": {
+      "passed": 567,
+      "per_engine": 189,
+      "minutes": 16.3,
+      "retries_observed": 0,
+      "failed": 0
+    }
+  },
+  "materials": {
+    "schema": "pilot-preparation-check.v1",
+    "passed": true,
+    "validation_kind": "offline_engineering_reference_integrity_only",
+    "reference_status": "engineering_draft_not_editor_validated",
+    "human_evaluation_status": "not_executed",
+    "human_evaluation_count": 0,
+    "counts": {
+      "independent_papers": 6,
+      "checkpoints": 42,
+      "sources": 21,
+      "verified_distinct_original_bytes": 13,
+      "tasks": {
+        "A": 27,
+        "B": 15
+      },
+      "splits": {
+        "development": 33,
+        "retained_for_followup": 9
+      },
+      "reference_categories": {
+        "bounded_fact": 20,
+        "qualified_fact": 7,
+        "located_change": 7,
+        "missing_material": 2,
+        "partial_implementation": 3,
+        "response_claim_unverified": 2,
+        "explained_no_change": 1
+      }
+    },
+    "errors": []
+  },
+  "review": {
+    "schema": "pivot-trial-review.v1",
+    "date": "2026-11-17",
+    "reviewed_source": "5c3d34e6738542ebd998e016a16d0a556189d8be",
+    "review_kind": "codex_read_only_not_professional_security_audit",
+    "findings": [
+      {
+        "code": "getpass_echo_fallback",
+        "status": "fixed",
+        "fixed_source": "243f747d4b678321ec77fcf8cb75c6a2b202cdb7",
+        "verification": "25 targeted tests and final 1750 backend / 567 browser full gate passed"
+      }
+    ],
+    "delegation": [
+      {
+        "task": "pilot_review",
+        "scope": "read-only; no code edits",
+        "completed": true,
+        "initial_research_seconds": 37,
+        "total_seconds": null,
+        "tokens": null,
+        "api_cost": null
+      },
+      {
+        "task": "trial_entry",
+        "scope": "two front-end files and one e2e file; main integrates",
+        "completed": true,
+        "total_seconds": null,
+        "tokens": null,
+        "api_cost": null,
+        "integration_rework": "Restored existing author root return; original assertion retained; final full gate passed"
+      }
+    ],
+    "real_application_model_calls": 0,
+    "external_application_model_api_cost": 0,
+    "human_editor_evaluations": 0,
+    "professional_engineer_reviews": 0,
+    "safety": {
+      "main_services_unchanged": true,
+      "vps_deployed": false,
+      "email_send_enabled": false,
+      "human_decisions_required": true
+    },
+    "final_source": "576fbb88c7c6e3017938a7cb0c36204b22c0abb9"
+  },
+  "health": {
+    "http": 200,
+    "database": "postgresql",
+    "model_provider": "mock",
+    "email_send_enabled": false,
+    "mailpit_messages": 0
+  },
+  "limitations": {
+    "human_editor_evaluations": 0,
+    "complete_author_response_letters": 0,
+    "professional_engineer_reviews": 0,
+    "real_model_calls_this_increment": 0,
+    "new_private_amd64_upgrade_restore_verified": false,
+    "vps_capacity_verified": false,
+    "merged": false,
+    "vps_deployed": false,
+    "critical_decisions_human_confirmed": true
+  },
+  "previous_runs": [
+    {
+      "source": "5c3d34e",
+      "exit_code": -15,
+      "reason": "Stopped for no-echo safety fix",
+      "seconds": 140.73
+    },
+    {
+      "source": "243f747",
+      "session_exit_code": 143,
+      "completion_receipt": false,
+      "reason": "Interrupted command; migration-head regression observed; not a pass"
+    },
+    {
+      "source": "22d3f90",
+      "exit_code": -15,
+      "seconds": 1159.69,
+      "reason": "Backend passed; original author return-path browser regression fixed without changing assertion"
+    }
+  ],
+  "evidence_directory": "artifacts/editorial-trial (gitignored)",
+  "later_documentation_ci": "Separate from verified application source; not inferred from this result"
+}

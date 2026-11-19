@@ -1,5 +1,7 @@
 # Pivot 私人体验版
 
+包含spec033的新版本支持负责人用 `trial-list`、`trial-create`、`trial-disable`、`trial-resume`、`trial-rotate-password` 管理少量独立编辑账号。密码无回显输入，无安全TTY则停止；停用保留数据且撤销所有会话。新功能尚未发布至既有安装包，命令与限制见[试用交付](../../docs/development/editorial-trial/README.md)。不共享私人state或operator账号给试用者。
+
 这是完整 Next.js＋FastAPI＋PostgreSQL 的预编译包，支持真实 DeepSeek 对话与受限文本层 PDF/Word 导入。仅用于少量用户、非保密的私人体验，不是生产投审稿服务。原静态展示站保持运行，原域名和浏览器 localStorage 不修改，也不会自动迁移为数据库资料。
 
 ## 安装

@@ -15,6 +15,8 @@ with httpx.Client(trust_env=False, timeout=10) as client:
         raise SystemExit("Verification target must be Mock; live service left unchanged.")
 CHECK_TARGET
 node scripts/check-browser-host.mjs
+.venv/bin/ruff check scripts/start-trial-live.py
+.venv/bin/ruff format --check scripts/start-trial-live.py
 .venv/bin/python scripts/check-source-syntax.py
 .venv/bin/python scripts/check-research-library.py
 .venv/bin/python scripts/check-boundaries.py

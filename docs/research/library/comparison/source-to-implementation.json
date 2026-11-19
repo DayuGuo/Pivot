@@ -139,59 +139,59 @@
       ],
       "source_binding": {
         "path": "apps/api/publishing/models.py",
-        "class_line": 71,
+        "class_line": 89,
         "fields": [
           {
             "name": "id",
-            "line": 79,
+            "line": 97,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(36), primary_key=True, default=uid)"
           },
           {
             "name": "journal_id",
-            "line": 80,
+            "line": 98,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(ForeignKey('journals.id'))"
           },
           {
             "name": "author_id",
-            "line": 81,
+            "line": 99,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(ForeignKey('users.id'))"
           },
           {
             "name": "editor_id",
-            "line": 82,
+            "line": 100,
             "annotation": "Mapped[str | None]",
             "declaration": "mapped_column(ForeignKey('users.id'))"
           },
           {
             "name": "workflow_kind",
-            "line": 83,
+            "line": 101,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(20), default='legacy', server_default='legacy')"
           },
           {
             "name": "title",
-            "line": 86,
+            "line": 104,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(500))"
           },
           {
             "name": "status",
-            "line": 87,
+            "line": 105,
             "annotation": "Mapped[str]",
             "declaration": "mapped_column(String(30), default='draft')"
           },
           {
             "name": "created_at",
-            "line": 88,
+            "line": 106,
             "annotation": "Mapped[datetime]",
             "declaration": "mapped_column(DateTime(timezone=True), default=now)"
           }
         ],
         "table_args": {
-          "line": 73,
+          "line": 91,
           "declaration": "(UniqueConstraint('id', 'journal_id', name='uq_manuscript_id_journal'), CheckConstraint(\"workflow_kind IN ('legacy','publishing')\", name='ck_manuscript_workflow_kind'))"
         }
       }

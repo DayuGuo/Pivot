@@ -6,7 +6,7 @@ import styles from './next-steps.module.css';
 type Hint = { id: string; label: string; prompt: string; reason: string };
 type Context = { objectId: string | null; versionId: string | null; revision: number | null; role: string };
 type Hints = { schema: string; object_id: string | null; version_id: string | null; revision: number | null; role: string; suggestions: Hint[] };
-type Props = Context & { url: string; disabled: boolean; onChoose: (prompt: string) => void };
+type Props = Context & { url: string; disabled: boolean; refreshToken?: string; onChoose: (prompt: string) => void };
 
 function matches(data: unknown, context: Context): data is Hints {
   if (!data || typeof data !== 'object') return false;
@@ -19,26 +19,30 @@ function matches(data: unknown, context: Context): data is Hints {
       && typeof h.prompt === 'string' && h.prompt.length > 0 && h.prompt.length <= 2000);
 }
 
-export default function NextSteps({ url, objectId, versionId, revision, role, disabled, onChoose }: Props) {
+export default function NextSteps({ url, objectId, versionId, revision, role, disabled, refreshToken, onChoose }: Props) {
   const [result, setResult] = useState<Hints | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const alive = useRef(true);
+  const requestSequence = useRef(0);
+  // Transcript refreshes keep the choice nodes stable during a pointer click.
   useEffect(() => {
     let ignore = false;
+    const generation = ++requestSequence.current;
     const control = new AbortController();
     alive.current = true;
     withRequestTimeout(15000, control.signal, signal => fetch(url, { credentials: 'same-origin', cache: 'no-store', signal })
       .then(r => { if (!r.ok) throw Error('建议未载入'); return r.json(); })
     )
-      .then(data => { if (!ignore && matches(data, { objectId, versionId, revision, role })) setResult(data); })
+      .then(data => { if (!ignore && generation === requestSequence.current && matches(data, { objectId, versionId, revision, role })) { setResult(data); setError(''); } })
       // Optional hints cannot block the authorized manuscript or its conversation.
       .catch(() => {});
     return () => { ignore = true; alive.current = false; control.abort(); };
-  }, [url, objectId, versionId, revision, role]);
+  }, [url, objectId, versionId, revision, role, refreshToken]);
 
   async function refresh() {
     if (busy) return;
+    const generation = ++requestSequence.current;
     setBusy(true); setError('');
     try {
       const data = await withRequestTimeout(15000, null, async signal => {
@@ -46,11 +50,11 @@ export default function NextSteps({ url, objectId, versionId, revision, role, di
         if (!response.ok) throw Error('建议暂不可用，请稍后重新载入。');
         return response.json();
       });
-      if (!alive.current) return;
+      if (!alive.current || generation !== requestSequence.current) return;
       if (!matches(data, { objectId, versionId, revision, role })) throw Error('稿件版本或身份已变化，请重新载入工作区。');
       setResult(data);
     } catch (e) {
-      if (alive.current) { setResult(null); setError((e as Error).message); }
+      if (alive.current && generation === requestSequence.current) { setResult(null); setError((e as Error).message); }
     } finally {
       if (alive.current) setBusy(false);
     }

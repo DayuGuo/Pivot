@@ -13,6 +13,7 @@ from pydantic import BaseModel, ConfigDict
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from .account_access import lock_account_access
 from .audit import record
 from .db import get_db
 from .domain.core import digest, lock_request
@@ -56,6 +57,7 @@ def switch_identity(
 ):
     request_id = str(body.request_id)
     lock_request(db, actor, request_id)
+    lock_account_access(db, actor.user.id)
     # Match the business gateway's request→session order, including reused UUIDs.
     # A short session lock serializes concurrent switches and final commits. No
     # provider, mailbox, or document work is performed while holding this lock.

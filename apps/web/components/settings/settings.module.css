@@ -48,3 +48,7 @@
   .dialog[data-theme="system"] { --settings-canvas: #202329; --settings-sidebar: #191b20; --settings-ink: #e7e9ef; --settings-muted: #afb5c3; --settings-line: #383d47; --settings-accent: #a6b2ff; --settings-selected: #2d354c; --settings-danger: #ffabb4; color-scheme: dark; }
   .dialog[data-theme="system"] :global(.mail-settings) { --ui-ink: #e7e9ef; --ui-secondary: #afb5c3; --ui-muted: #afb5c3; --ui-line: #383d47; --ui-white: #202329; --ui-sidebar: #191b20; --ui-accent: #a6b2ff; --ui-success: #8bd5b2; --ui-danger: #ffabb4; --ui-danger-soft: #3b252d; }
 }
+
+.preference { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.preference select { min-height: 44px; max-width: 100%; padding: 8px; border: 1px solid var(--settings-line); border-radius: 4px; color: var(--settings-ink); background: var(--settings-canvas); font: inherit; }
+.preference select:focus-visible { outline: 2px solid var(--settings-accent); outline-offset: 2px; }

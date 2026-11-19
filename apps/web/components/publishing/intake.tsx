@@ -20,7 +20,7 @@ export function PublishingHome() {
   const view = roleViews[session.user.role];
   if (selectedId && detail?.id !== selectedId) return <section className={styles.panel}><h1>稿件材料</h1><p role="status">{refreshing ? "正在载入…" : "暂时无法打开这篇稿件。请重新载入或返回工作列表。"}</p><button onClick={() => void refresh()} disabled={refreshing}>重新载入</button><button onClick={() => select(null)}>返回工作列表</button></section>;
   if (detail && selectedId) return <Manuscript key={detail.id} detail={detail} />;
-  return <section className={styles.panel}><header className={styles.panelHeader}><h1>{view?.title ?? "我的稿件"}</h1><button onClick={() => void refresh()} disabled={refreshing}>刷新</button></header>{workspace?.submissions.length ? <div className={styles.submissionList}>{workspace.submissions.map(item => <Link key={item.id} href={`/publishing?manuscript=${item.id}`} onClick={event => { event.preventDefault(); select(item.id); }}><div><span>{item.number}</span><span className={styles.status}>{item.stage_label}</span></div><strong>{item.title || "未命名投稿"}</strong>{item.is_legacy && <small>旧版原型记录 · 只读</small>}</Link>)}</div> : <p className={styles.empty}>{view?.empty ?? "还没有可查看的稿件。"}</p>}</section>;
+  return <section className={styles.panel}><header className={styles.panelHeader}><h1>{view?.title ?? "我的稿件"}</h1><button onClick={() => void refresh()} disabled={refreshing}>刷新</button></header>{workspace?.submissions.length ? <div className={styles.submissionList}>{workspace.submissions.map(item => <Link key={item.id} href={`/publishing?manuscript=${item.id}`} onClick={event => { event.preventDefault(); select(item.id); }}><div><span>{item.number}</span><span className={styles.status}>{item.stage_label}</span></div><strong>{item.title || "未命名投稿"}</strong>{item.is_legacy && <small>旧版原型记录 · 只读</small>}</Link>)}</div> : workspace ? <p className={styles.empty}>{view?.empty ?? "还没有可查看的稿件。"}</p> : refreshing ? <p className={styles.empty} role="status">正在载入稿件…</p> : null}</section>;
 }
 
 function Manuscript({ detail }: { detail: Detail }) {
@@ -44,7 +44,7 @@ function IntakeForm({ detail }: { detail: Detail }) {
   useEffect(() => { setUnsaved(unsaved); return () => setUnsaved(false); }, [unsaved, setUnsaved]);
   useEffect(() => { if (!unsaved) return; const warn = warnBeforeUnload; window.addEventListener("beforeunload", warn); return () => window.removeEventListener("beforeunload", warn); }, [unsaved]);
   if (!dirty && !busy && detail.revision !== baseRevision && detail.version) { setData(structuredClone(detail.version.data)); setBaseRevision(detail.revision); }
-  function update<K extends keyof IntakeData>(key: K, value: IntakeData[K]) { setData(previous => ({ ...previous, [key]: value })); setDirty(true); setPending(null); setNotice(""); }
+  function update<K extends keyof IntakeData>(key: K, value: IntakeData[K]) { setUnsaved(true); setData(previous => ({ ...previous, [key]: value })); setDirty(true); setPending(null); setNotice(""); }
   function author(index: number, patch: Partial<Author>) { update("authors", data.authors.map((item, position) => position === index ? { ...item, ...patch } : item)); }
   function declaration<K extends keyof IntakeData["declarations"]>(key: K, value: IntakeData["declarations"][K]) { update("declarations", { ...data.declarations, [key]: value }); }
   function fail(failure: unknown) { setError((failure as Error).message); if (failure instanceof APIError && failure.status === 409) setConflict(true); requestAnimationFrame(() => errorRef.current?.focus()); }

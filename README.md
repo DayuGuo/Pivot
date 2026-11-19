@@ -1,5 +1,27 @@
 # Pivot
 
+出版数据与职责核对（spec036）：[必要数据结构、角色权限与工作台清单](docs/planning/editorial-data-and-permissions-2026-11-18.md)。区分已有实现与后续需求；出版/合成工作台的主题选择收进设置，保留既有偏好。本轮分阶段通过1784后端＋588三浏览器与静态检查；首次完整脚本因旧测试入口停止，修正后浏览器全量重测通过，准确范围见 PROGRESS。
+
+
+资料交互精简（spec035）：[回顾与验收](docs/development/ui-interaction-review.md) · [草稿 PR #16](https://github.com/DayuGuo/Pivot/pull/16)。移动抽屉、输入法发送、历史阅读与文件取消恢复已验收；4fb6eae 完整 CI 通过1784后端＋582浏览器，静态CI通过。准确源码/边界见 PROGRESS；未合并或部署。
+
+首次编辑试用包与隔离真实模型验收入口（spec034）：[操作指南](docs/development/editorial-trial-kit/README.md) · [验收记录](docs/development/editorial-trial-kit/results.json) · [草稿PR #15](https://github.com/DayuGuo/Pivot/pull/15)。源码b013ea2的本机完整门禁与PR CI通过1779后端＋567浏览器；真实DeepSeek本轮仍待新安全凭据，尚无供应商调用。PR #14最终CI已核实全部通过，均未合并/部署。
+
+编辑部试用访问与入口（spec033，工程验收通过）：[首次试用任务与账号操作](docs/development/editorial-trial/README.md)。本分支新增独立编辑账号的受控开通、停用和恢复，以及私人登录直达资料区；源码576fbb8的本机完整验收与PR CI通过：1,750后端＋567浏览器；[结果与限制](docs/development/editorial-trial/results.json)。尚未发布本片VPS包，不自动更新现有安装。
+
+
+日常待办问答（spec032，工程验收通过）：在`/publishing`对话输入“我今天需要做什么？”、“本周到期任务”、“逾期待办”、“未设日期的待办”或“所有待办”；输入“继续查看待办”读取下一批。选中稿件时仅查询本稿，期刊主对话查询当前身份本人任务。事实回答显示“工作记录”，不调用模型；通用模型也有同源只读工具。日期范围、时区和本批读取时间明确，复合范围请分别提问。实际结果以PROGRESS为准；本轮不更新VPS、不启用邮件或扩大关键决定权限。
+
+验证源码`066d9b4`的本机完整脚本实际exit0、1814.03秒，**1,706后端＋552浏览器**通过（三引擎各184，0失败/跳过/浏览器重试）；PR/push完整与静态CI全部成功。[交付与限制](docs/development/deadline-questions.md) · [结构化结果](docs/development/deadline-questions-results.json) · [草稿PR #13](https://github.com/DayuGuo/Pivot/pull/13)。后续纯文档提交的CI状态独立记录，不自动合并或部署。
+
+本分支已完成[本人截止日期日历](specs/031-personal-deadline-calendar.md)，见[草稿 PR #12](https://github.com/DayuGuo/Pivot/pull/12)；PR #11 已合并 main。新日历未合并、未部署 VPS。以下各 spec 数字是历史验收快照，当前状态以[PROGRESS](PROGRESS.md)为准。
+
+## 本人截止日期日历
+
+在四个真实工作区左下角展开“日历”，按月份、日期或“逾期”查看当前身份实际获分派的稿件任务，点击进入稿件；没有日期明确未设，不猜测。逾期跨年显示完整年份，窄屏/触屏使用原生日期选择，中央对话和未保存保护保留。没有改期、提醒、外部同步或自动决定。
+
+验证源`1502d72`的PR/push完整CI各**1,666后端＋540浏览器**通过（三引擎各180，0失败/跳过/浏览器重试），静态CI均成功。本机同一应用后端/浏览器分次通过，不宣称本机完整脚本exit0。应用冻结`1d9610f`，其后的验证提交只改等待式测试断言；后续文档提交CI须单独查看。[交付与限制](docs/development/personal-calendar.md) · [结构化结果](docs/development/personal-calendar-results.json) · [独立Mock预览](http://127.0.0.1:13100/publishing)。原主服务/数据/模型配置与VPS未在本轮更新。
+
 ## 统一搜索
 
 侧栏品牌下的搜索框支持对话标题、正式／早期稿件题名及编号、本人内部资料题名的部分关键词匹配；搜索范围随当前授权，原“搜索对话”已合并。输入后点击结果或用方向键与Enter打开，Escape关闭结果。资料页原题名过滤同步保留；搜索不会调用模型或改变稿件。实际验收见[PROGRESS](PROGRESS.md)和[范围](specs/030-global-search.md)。本轮完整本机验收1,641后端＋501浏览器通过（各引擎167，0重试），源码`e6f716e`；独立[Mock预览](http://127.0.0.1:13100/)使用现有本地演示账号。同源码PR完整CI与PR／push静态CI也通过；push完整CI在本次记录时仍运行，未计为成功。主应用／VPS未在本轮更新。
@@ -19,7 +41,7 @@
 
 当前分支提供单刊辅助核对候选版：PDF/Word资料核对、带原文的问答、私人多版本修回核对和三层人工判断。使用说明见[操作指南](docs/development/spec027/operating-guide.md)，准确源码、测试、真实模型、升级恢复及限制见[交付记录](docs/development/spec027/review.md)和[PROGRESS](PROGRESS.md)。此段保留spec027历史快照：当时应用代码3307df6、CI修复源码6f76d7d；当前增量以本页顶部与PROGRESS为准。历史本机完整门禁1530＋399通过，本次本机会话143中断不计完整成功。此前本机更新保留原53表3560行/24原件，本轮不再改主服务或数据；工程通过不等于专家内容验收。
 
-草稿[PR #8](https://github.com/DayuGuo/Pivot/pull/8)叠加未合并#7/#6，本轮不自动合并或更新VPS。公开静态站、已安装preview.4与本分支候选包分开；同刊已授权多职务切换见spec029；日历、多期刊选择和正式公开出版仍按[路线图](ROADMAP.md)后续推进。真实编辑评价尚未执行，不能据工程测试宣称节时或科学准确率。
+草稿[PR #8](https://github.com/DayuGuo/Pivot/pull/8)叠加未合并#7/#6，本轮不自动合并或更新VPS。公开静态站、已安装preview.4与本分支候选包分开；同刊已授权多职务切换见spec029；多期刊选择和正式公开出版仍按[路线图](ROADMAP.md)后续推进。真实编辑评价尚未执行，不能据工程测试宣称节时或科学准确率。
 
 已发布的[完整应用私人体验包 v0.2.0-preview.4](https://github.com/DayuGuo/Pivot/releases/tag/v0.2.0-preview.4)可与静态站并存：预编译amd64镜像、私人账号、DeepSeek/PDF/Word、受限内存与备份恢复。它不包含本分支全部增量；候选仅提供CI artifact，不自动发布Release。[安装说明](infrastructure/vps/README.md) · [保留数据升级](docs/deployment/private-preview-upgrade.md)。已安装用户不重新init、不删除卷；用户已报告VPS装有旧版，本轮没有连接或更新服务器。
 
@@ -82,7 +104,7 @@ bash install.sh
 
 前提为Linux amd64与Docker；默认监听环回8080，可通过HTTPS代理访问。明确需要公网IP直接演示时用`PIVOT_BIND=0.0.0.0 PIVOT_PORT=8080 bash install.sh`并自行放行端口。本机构建：`./scripts/build-demo.sh --image && ./scripts/package-vps-demo.sh`，VPS无需编译、数据库或模型密钥。[五分钟演示与完整安装说明](docs/deployment/demo-racknerd.md) · [本阶段范围](specs/012-showcase-demo.md) · [实际验证记录](docs/development/demo-delivery.md)。源码与4个附件已公开发布，本地与远端完整CI均835 Pytest +48 Playwright通过，x86实际解包安装/11 E2E通过；发行报告见[公开发行验收](docs/development/pivot-release.md)。用户已自行部署[公网Demo](https://pivot.anotherdayu.com/)，线上11项浏览器验收通过；本轮仅检查公开网页，未通过SSH审查服务器配置。
 
-核心产品设计：[PRODUCT_DESIGN.md](PRODUCT_DESIGN.md)。日历/双层对话当前只在独立Demo展示；真实数据库中的跨刊聚合、多期刊选择、多刊邀请与邮箱/ORCID注册仍待实施；同刊已授权多职务切换见spec029，不能从展示截图推断部署。
+核心产品设计：[PRODUCT_DESIGN.md](PRODUCT_DESIGN.md)。本人只读日历与主/稿件对话已在真实工作区实现；真实数据库中的跨刊聚合、多期刊选择、多刊邀请与邮箱/ORCID注册仍待实施；同刊已授权多职务切换见spec029，不能从展示截图推断部署。
 
 Demo反馈后：[单人＋Codex单刊审阅第一阶段](specs/011-single-journal-review-pilot.md)。包含8周计划、约3万元现金准备及真实试点前的专业复核关口；资料包、文本层PDF/DOCX与只读版本证据问答已按切片本地实现；公开样本评测已按spec016完成一轮；更广泛格式覆盖、ORCID认证与专业复核尚待完成。展示Demo沿用现有电脑/Codex/已购VPS，不需要这笔真实试点预算或新增模型消费。
 

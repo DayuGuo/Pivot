@@ -14,7 +14,9 @@ import sys
 import time
 import urllib.error
 import urllib.request
+import warnings
 from pathlib import Path
+from uuid import UUID, uuid4
 
 BUNDLE = Path(__file__).resolve().parent
 
@@ -26,6 +28,19 @@ class PreviewError(Exception):
 def require(ok, message):
     if not ok:
         raise PreviewError(message)
+
+
+def secret_input(prompt):
+    # getpass otherwise falls back to potentially echoed stdin when /dev/tty
+    # cannot disable echo. Fail before reading any secret in that fallback.
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", getpass.GetPassWarning)
+            return getpass.getpass(prompt)
+    except (getpass.GetPassWarning, EOFError, OSError):
+        raise PreviewError(
+            "A terminal with secure no-echo input is required; no credential read"
+        ) from None
 
 
 def checked_run(args, **kwargs):
@@ -184,6 +199,55 @@ class Deployment:
 
     def raw(self, *args, **kwargs):
         return checked_run(["docker", *args], env=self.env, **kwargs)
+
+    def trial_accounts(self, payload):
+        # stdin only: no password in argv/environment/logs; capture stderr because
+        # older bundles may not implement the module. Never print child exceptions.
+        result = subprocess.run(
+            self.command
+            + [
+                "exec",
+                "-T",
+                "api",
+                "python",
+                "-m",
+                "apps.api.publishing.operations.trial_accounts",
+            ],
+            env=self.env,
+            cwd=BUNDLE,
+            input=json.dumps(payload),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        require(
+            result.returncode == 0,
+            "Trial command refused; verify profile, journal, account revision and credentials. Data retained.",
+        )
+        value = json.loads(result.stdout)
+        require(isinstance(value, dict), "Invalid trial response")
+        # Allowlist output so even a broken command cannot dump secret input.
+        fields = {
+            "user_id",
+            "journal_id",
+            "email",
+            "name",
+            "role",
+            "status",
+            "revision",
+            "revoked_sessions",
+        }
+        require(set(value) <= fields | {"accounts"}, "Unexpected trial response")
+        if "accounts" in value:
+            require(
+                isinstance(value["accounts"], list) and len(value["accounts"]) <= 10,
+                "Invalid trial roster",
+            )
+            require(
+                all(isinstance(row, dict) and set(row) <= fields for row in value["accounts"]),
+                "Invalid trial roster item",
+            )
+        print(json.dumps(value, ensure_ascii=False, indent=2))
 
     def existing(self):
         return bool(self.dc("ps", "-a", "-q", stdout=subprocess.PIPE, text=True).stdout.strip())
@@ -390,7 +454,21 @@ class Deployment:
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "command", choices=["init", "up", "status", "stop", "backup", "restore", "update"]
+        "command",
+        choices=[
+            "init",
+            "up",
+            "status",
+            "stop",
+            "backup",
+            "restore",
+            "update",
+            "trial-list",
+            "trial-create",
+            "trial-disable",
+            "trial-resume",
+            "trial-rotate-password",
+        ],
     )
     parser.add_argument("--state", required=True, type=Path)
     parser.add_argument("--project", default="pivot-app")
@@ -398,6 +476,10 @@ def main():
     parser.add_argument("--access", choices=["tunnel", "https"], default="tunnel")
     parser.add_argument("--backup", type=Path)
     parser.add_argument("--mock", action="store_true")
+    parser.add_argument("--journal", type=UUID)
+    parser.add_argument("--user", type=UUID)
+    parser.add_argument("--revision", type=int)
+    parser.add_argument("--request-id", type=UUID)
     args = parser.parse_args()
     os.umask(0o077)
     state = args.state.expanduser().absolute()
@@ -405,13 +487,13 @@ def main():
         manifest = release()
         if args.command == "init":
             email = input("Operator email (login only, never sends mail): ")
-            password = getpass.getpass("Private login password (16+ characters, no echo): ")
-            require(password == getpass.getpass("Confirm login password: "), "Passwords differ")
+            password = secret_input("Private login password (16+ characters, no echo): ")
+            require(password == secret_input("Confirm login password: "), "Passwords differ")
             key = (
                 ""
                 if args.mock
                 else os.getenv("DEEPSEEK_API_KEY", "")
-                or getpass.getpass("Fresh DeepSeek key (blank = explicit Mock, no echo): ")
+                or secret_input("Fresh DeepSeek key (blank = explicit Mock, no echo): ")
             )
             configure(
                 state,
@@ -428,7 +510,10 @@ def main():
         with (state / "operation.lock").open("a") as lock:
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
             deployment = Deployment(state, config, manifest)
-            if args.command == "up":
+            if args.command.startswith("trial-"):
+                payload = trial_request(args)
+                deployment.trial_accounts(payload)
+            elif args.command == "up":
                 deployment.up()
             elif args.command == "status":
                 deployment.dc("ps")
@@ -454,6 +539,50 @@ def main():
                 file=sys.stderr,
             )
         raise SystemExit(2) from None
+
+
+def trial_request(args):
+    action = args.command.removeprefix("trial-")
+    payload = {"action": action}
+    if action == "list":
+        return payload
+    require(args.journal is not None, "Copy --journal from trial-list")
+    payload.update(journal_id=str(args.journal), request_id=str(args.request_id or uuid4()))
+    print("Request ID (reuse this ID if outcome is unknown): " + payload["request_id"])
+    if action == "create":
+        require(
+            args.user is None and args.revision is None,
+            "Creation must not target an existing account",
+        )
+        payload.update(
+            email=input("Editor email (login only): ").strip(),
+            name=input("Editor display name: ").strip(),
+        )
+    else:
+        require(
+            args.user is not None and args.revision is not None and args.revision >= 1,
+            "Copy --user and --revision from trial-list",
+        )
+        payload.update(user_id=str(args.user), expected_revision=args.revision)
+    if action != "disable":
+        password = secret_input("New private password (16–256 characters, no echo): ")
+        require(16 <= len(password) <= 256, "Password must contain 16–256 characters")
+        require(password == secret_input("Confirm new password: "), "Passwords differ")
+        payload["password"] = password
+    payload["reason"] = {
+        "create": "pilot_enrollment",
+        "disable": "pilot_finished",
+        "resume": "access_recovery",
+        "rotate-password": "credential_rotation",
+    }[action]
+    target = payload.get("email") or payload.get("user_id")
+    require(
+        input(f"Confirm {action} for {target} in journal {args.journal}; type CONFIRM: ")
+        == "CONFIRM",
+        "Cancelled; no account changes",
+    )
+    payload["confirmed"] = True
+    return payload
 
 
 if __name__ == "__main__":

@@ -291,12 +291,13 @@ function recoveryGate() {
 }
 
 test("会话切换请求未完成时刷新仍恢复点击的目标会话", async ({ page }) => {
+  // Router/history events settle asynchronously; keep the exact query predicate.
   await login(page);
   const first = await createRecoveryConversation(page);
   const marker = await sendRecoveryCommand(page);
   const second = await createRecoveryConversation(page);
   await expect(page.getByLabel("对话记录")).not.toContainText(marker);
-  expect(new URL(page.url()).searchParams.get("conversation")).toBe(second);
+  await expect(page).toHaveURL(url => url.searchParams.get("conversation") === second);
 
   const requested = recoveryGate();
   const pending = recoveryGate();
@@ -315,12 +316,12 @@ test("会话切换请求未完成时刷新仍恢复点击的目标会话", async
     await page.locator(`[data-conversation-id="${first}"]`).click();
     await requested.promise;
     // The target must be persisted before the held response can commit UI state.
-    expect(new URL(page.url()).searchParams.get("conversation")).toBe(first);
+    await expect(page).toHaveURL(url => url.searchParams.get("conversation") === first);
     await expect(page.locator(`[data-conversation-id="${first}"]`)).toBeDisabled();
     await page.reload();
     await expect(page.locator(`[data-conversation-id="${first}"]`)).toHaveAttribute("aria-current", "true");
     await expect(page.getByLabel("对话记录")).toContainText(marker);
-    expect(new URL(page.url()).searchParams.get("conversation")).toBe(first);
+    await expect(page).toHaveURL(url => url.searchParams.get("conversation") === first);
     expect(requests).toBeGreaterThan(1);
   } finally {
     pending.release();
@@ -351,18 +352,18 @@ test("会话切换失败恢复原URL、消息和草稿，随后可成功重试",
   try {
     await page.locator(`[data-conversation-id="${first}"]`).click();
     await requested.promise;
-    expect(new URL(page.url()).searchParams.get("conversation")).toBe(first);
+    await expect(page).toHaveURL(url => url.searchParams.get("conversation") === first);
     failed.release();
     await expect(page.getByRole("alert").filter({ hasText: "合成会话切换故障" })).toBeVisible();
     await expect(page.locator(`[data-conversation-id="${first}"]`)).toBeEnabled();
-    expect(new URL(page.url()).searchParams.get("conversation")).toBe(second);
+    await expect(page).toHaveURL(url => url.searchParams.get("conversation") === second);
     await expect(page.locator(`[data-conversation-id="${second}"]`)).toHaveAttribute("aria-current", "true");
     await expect(page.getByLabel("对话记录")).toContainText(marker);
     await expect(page.getByLabel("对话指令", { exact: true })).toHaveValue(draft);
 
     await page.locator(`[data-conversation-id="${first}"]`).click();
     await expect(page.locator(`[data-conversation-id="${first}"]`)).toHaveAttribute("aria-current", "true");
-    expect(new URL(page.url()).searchParams.get("conversation")).toBe(first);
+    await expect(page).toHaveURL(url => url.searchParams.get("conversation") === first);
     await expect(page.getByLabel("对话记录")).not.toContainText(marker);
     await expect(page.getByLabel("对话指令", { exact: true })).toHaveValue("");
     await expect(page.getByRole("alert").filter({ hasText: "合成会话切换故障" })).toHaveCount(0);
