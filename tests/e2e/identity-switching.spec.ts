@@ -1,3 +1,4 @@
+import { selectTheme } from "./support/settings";
 import { expect, test, type Page } from "@playwright/test";
 import { randomUUID } from "node:crypto";
 
@@ -302,7 +303,8 @@ test("390px 深色身份菜单可读可点击，选择后关闭工作列表并�
   await login(page); await page.goto("/publishing");
   const posts = countIdentityPosts(page);
   await page.getByRole("button", { name: "打开工作列表", exact: true }).click();
-  await page.getByLabel("外观", { exact: true }).selectOption("dark");
+  await selectTheme(page, "dark");
+  await page.getByRole("button", { name: "打开工作列表", exact: true }).click();
   const list = await openIdentities(page);
   const target = list.getByRole("link", { name: "主编", exact: true });
   await expect(target).toBeInViewport();

@@ -1,22 +1,24 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode, type KeyboardEvent } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, useSyncExternalStore, type ReactNode, type KeyboardEvent } from "react";
 import Glyph from "../editorial/icons";
 import { roleLabels as roles } from "../publishing/types";
 import { withRequestTimeout, warnBeforeUnload } from "../browser";
 import MailSettings from "./mail-settings";
 import styles from "./settings.module.css";
 
-type Tab = "model" | "mail" | "account";
+type Tab = "model" | "mail" | "appearance" | "account";
+type Appearance = { value: string; onChange: (value: string) => void; subscribe?: (listener: () => void) => () => void; getSnapshot?: () => string };
+const noSubscription = () => () => {};
 type Session = {
   user: { id: string; name: string; email: string; role: string };
   journal: { id: string; name: string };
   csrf_token: string;
   model: { provider: string; model?: string | null; available: boolean; error_code?: string };
 };
-type Open = (tab: Tab) => void;
+type Open = (tab: Tab, appearance?: Appearance) => void;
 const SettingsContext = createContext<Open | null>(null);
-const labels = { model: "模型 API", mail: "邮箱", account: "账号" };
+const labels = { model: "模型 API", mail: "邮箱", appearance: "外观", account: "账号" };
 function validSession(value: unknown): value is Session {
   if (!value || typeof value !== "object") return false;
   const item = value as Partial<Session>;
@@ -29,27 +31,29 @@ class SettingsReadError extends Error { constructor(public status: number) { sup
 const scope = (session: Session) => [session.journal.id, session.user.id, session.user.role, session.csrf_token].join(":");
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
-  const [opened, setOpened] = useState<{ tab: Tab; theme: string } | null>(null);
+  const [opened, setOpened] = useState<{ tab: Tab; theme: string; appearance?: Appearance } | null>(null);
   const trigger = useRef<HTMLElement | null>(null);
-  const open = useCallback((tab: Tab) => {
+  const open = useCallback((tab: Tab, appearance?: Appearance) => {
     trigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    setOpened({ tab, theme: trigger.current?.closest("[data-theme]")?.getAttribute("data-theme") ?? "light" });
+    setOpened({ tab, appearance, theme: trigger.current?.closest("[data-theme]")?.getAttribute("data-theme") ?? "light" });
   }, []);
   function close() {
     setOpened(null);
     requestAnimationFrame(() => { if (trigger.current?.isConnected && trigger.current.getClientRects().length) trigger.current.focus(); else Array.from(document.querySelectorAll<HTMLButtonElement>('button[aria-label="打开资料列表"], button[aria-label="打开工作列表"], button[aria-label="展开工作导航"], button[aria-label="打开导航"]')).find(button => button.getClientRects().length)?.focus(); });
   }
-  return <SettingsContext.Provider value={open}>{children}{opened && <SettingsPanel initialTab={opened.tab} theme={opened.theme} close={close} />}</SettingsContext.Provider>;
+  return <SettingsContext.Provider value={open}>{children}{opened && <SettingsPanel initialTab={opened.tab} theme={opened.theme} appearance={opened.appearance} close={close} />}</SettingsContext.Provider>;
 }
 
-export function SettingsButton({ className, tab = "model", onOpen }: { className?: string; tab?: Tab; onOpen?: () => void }) {
+export function SettingsButton({ className, tab = "model", onOpen, appearance }: { className?: string; tab?: Tab; onOpen?: () => void; appearance?: Appearance }) {
   const open = useContext(SettingsContext);
-  return <button type="button" className={`${styles.launcher} ${className ?? ""}`} aria-haspopup="dialog" onClick={() => { onOpen?.(); open?.(tab); }}><Glyph name="settings" size={17} />设置</button>;
+  return <button type="button" className={`${styles.launcher} ${className ?? ""}`} aria-haspopup="dialog" onClick={() => { onOpen?.(); open?.(tab, appearance); }}><Glyph name="settings" size={17} />设置</button>;
 }
 
-function SettingsPanel({ initialTab, theme, close }: { initialTab: Tab; theme: string; close: () => void }) {
+function SettingsPanel({ initialTab, theme, appearance, close }: { initialTab: Tab; theme: string; appearance?: Appearance; close: () => void }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [tab, setTab] = useState(initialTab);
+  const [appearanceTheme, setAppearanceTheme] = useState(appearance?.value ?? theme);
+  const currentTheme = useSyncExternalStore(appearance?.subscribe ?? noSubscription, appearance?.getSnapshot ?? (() => appearanceTheme), () => theme);
   const [session, setSession] = useState<Session | null>(null);
   const [checking, setChecking] = useState(true);
   const [error, setError] = useState("");
@@ -98,24 +102,25 @@ function SettingsPanel({ initialTab, theme, close }: { initialTab: Tab; theme: s
   function canClose() { return (!dirty.current.dirty && !dirty.current.busy) || window.confirm(dirty.current.busy ? "邮箱操作尚未结束。关闭后请重新打开设置核对结果。仍要关闭？" : "邮箱配置尚未保存，关闭并放弃这些修改？"); }
   function requestClose() { if (canClose()) close(); }
   const canMail = session && ["editor", "chief_editor"].includes(session.user.role);
-  const selected = tab === "mail" && !canMail ? "model" : tab;
-  const tabs: Tab[] = canMail ? ["model", "mail", "account"] : ["model", "account"];
+  const selected = (tab === "mail" && !canMail) || (tab === "appearance" && !appearance) ? "model" : tab;
+  const tabs: Tab[] = ["model", ...(canMail ? ["mail" as const] : []), ...(appearance ? ["appearance" as const] : []), "account"];
   function select(next: Tab) { setTab(next); if (next === "mail") setVisitedMail(true); }
   function navigateTabs(event: KeyboardEvent<HTMLButtonElement>) {
     const index = tabs.indexOf(selected);
     const next = event.key === "Home" ? tabs[0] : event.key === "End" ? tabs.at(-1) : ["ArrowDown", "ArrowRight"].includes(event.key) ? tabs[(index + 1) % tabs.length] : ["ArrowUp", "ArrowLeft"].includes(event.key) ? tabs[(index + tabs.length - 1) % tabs.length] : null;
     if (next) { event.preventDefault(); select(next); document.getElementById(`settings-tab-${next}`)?.focus(); }
   }
-  return <dialog ref={dialog} className={styles.dialog} data-theme={theme} aria-labelledby="settings-title" onKeyDown={event => { event.stopPropagation(); if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") event.preventDefault(); }} onCancel={event => { event.preventDefault(); event.stopPropagation(); requestClose(); }}>
+  return <dialog ref={dialog} className={styles.dialog} data-theme={currentTheme} aria-labelledby="settings-title" onKeyDown={event => { event.stopPropagation(); if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") event.preventDefault(); }} onCancel={event => { event.preventDefault(); event.stopPropagation(); requestClose(); }}>
     <header className={styles.header}><h1 id="settings-title">设置</h1><button type="button" className={styles.close} aria-label="关闭设置" onClick={requestClose}><Glyph name="close" /></button></header>
     <div className={styles.layout}>
-      <div className={styles.navigation} role="tablist" aria-label="设置分类">{tabs.map(value => <button type="button" key={value} role="tab" id={`settings-tab-${value}`} aria-selected={selected === value} aria-controls={`settings-panel-${value}`} tabIndex={selected === value ? 0 : -1} onKeyDown={navigateTabs} onClick={() => select(value)}><Glyph name={value === "model" ? "spark" : value === "mail" ? "inbox" : "people"} size={16} />{labels[value]}</button>)}</div>
+      <div className={styles.navigation} role="tablist" aria-label="设置分类">{tabs.map(value => <button type="button" key={value} role="tab" id={`settings-tab-${value}`} aria-selected={selected === value} aria-controls={`settings-panel-${value}`} tabIndex={selected === value ? 0 : -1} onKeyDown={navigateTabs} onClick={() => select(value)}><Glyph name={value === "model" ? "spark" : value === "mail" ? "inbox" : value === "appearance" ? "theme" : "people"} size={16} />{labels[value]}</button>)}</div>
       <div className={styles.content}>
         {checking && <p role="status">正在读取设置…</p>}
         {error && <div role="alert" className={styles.error}>{error}<button type="button" onClick={() => void refresh()}>重新读取设置</button></div>}
         {session && <div hidden={checking || !!error}>
           <section role="tabpanel" id="settings-panel-model" aria-labelledby="settings-tab-model" hidden={selected !== "model"}><ModelSettings session={session} refresh={refresh} checking={checking} /></section>
           {canMail && visitedMail && <section role="tabpanel" id="settings-panel-mail" aria-labelledby="settings-tab-mail" hidden={selected !== "mail"}><MailSettings key={scope(session)} csrf={session.csrf_token} journalId={session.journal.id} onStateChange={updateMailState} /></section>}
+          {appearance && <section role="tabpanel" id="settings-panel-appearance" aria-labelledby="settings-tab-appearance" hidden={selected !== "appearance"}><h2>外观</h2><div className={styles.preference}><label htmlFor="settings-theme">界面主题</label><select id="settings-theme" name="theme" value={currentTheme} onChange={event => { const value = event.target.value; appearance.onChange(value); setAppearanceTheme(value); }}><option value="system">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option></select></div></section>}
           <section role="tabpanel" id="settings-panel-account" aria-labelledby="settings-tab-account" hidden={selected !== "account"}><h2>账号</h2><dl className={styles.facts}><dt>姓名</dt><dd>{session.user.name}</dd><dt>邮箱</dt><dd>{session.user.email}</dd><dt>当前身份</dt><dd>{roles[session.user.role] ?? session.user.role}</dd><dt>期刊</dt><dd>{session.journal.name}</dd></dl></section>
         </div>}
       </div>

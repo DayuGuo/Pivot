@@ -1,3 +1,4 @@
+import { selectTheme } from "./support/settings";
 import { test, expect, type Page } from '@playwright/test';
 
 async function login(page: Page, role = 'author') {
@@ -17,7 +18,7 @@ test('浏览器禁止本地存储时，出版对话仍可输入、发送和切�
   await page.goto('/publishing');
   const input = page.getByLabel('向出版助手发送消息', { exact: true });
   await input.fill('只读：我当前有哪些工作？');
-  await page.getByLabel('外观', { exact: true }).selectOption('dark');
+  await selectTheme(page, "dark");
   await expect(page.locator('[data-theme="dark"]')).toBeVisible();
   const sent = page.waitForResponse(r => r.url().endsWith('/api/publishing/chat') && r.request().method() === 'POST');
   await page.getByRole('button', { name: '发送消息', exact: true }).click();

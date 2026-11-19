@@ -1,3 +1,17 @@
+# 2026-11-18 正式出版工作台角色走查
+
+Computer Use 浏览器服务无法连接。使用本机隔离 Mock 栈，以合成作者、审稿人、编辑、主编和制作编辑通过真实登录表单走查。修复窄屏工作列表键盘焦点与日历跳转、取消离开时先创建空稿、同稿链接误触发离开、列表加载中显示无数据。等待创建回执时新增作者仍受离开保护。详见[角色走查记录](docs/development/role-walkthrough.md)。
+
+最终 30 项专项全部通过，Chromium、Firefox、WebKit 各 10 项。已查看 390px 抽屉截图，静态检查及 Web 生产构建通过。完整 `scripts/verify.sh` 退出 0，耗时 2,131.62 秒。1,784 项后端测试通过（713.83 秒，11 条提醒），618 项浏览器测试通过（23.2 分钟，三种引擎各 206 项，零失败、跳过或重试）。验证前后应用和测试源码摘要一致。隔离服务 HTTP 200，邮件禁用，Mailpit 0 封。证据保存在 `artifacts/role-walkthrough`。仅前端交互与测试变更，无数据迁移或角色权限变更。邮件保持禁用，关键决定由负责人确认。两位子代理仅源码复核，无共享环境写入，Token 与成本未记录。
+
+# spec036已交付：出版数据、角色与设置核对（分阶段验证）
+
+2026-11-18。已复读OJS/Janeway官方指南和固定源码映射，并对照实际模型/策略/工作区，形成[必要数据结构、角色权限与工作台清单](docs/planning/editorial-data-and-permissions-2026-11-18.md)。明确私人资料与正式投稿、阶段与标签、当前能力与计划能力；指出ORCID未认证、文本机构、单通讯作者、私人资料无协作待办等边界。不新增数据库表或权限。
+
+出版及合成工作台的主题选择已移入设置，沿用原存储键；补充正式工作台跨标签页主题订阅。首次专项暴露标签包裹select造成精确可访问名称不匹配，已改为独立label/for；失败/主动停止exit130保存在artifacts/data-permissions-review/first-targeted-failure。随后36项三浏览器专项全过1.2分钟（跨标签同步补充前），控制终端exit143但浏览器已完成；不冒称完整脚本exit0。静态lint/typecheck和前端生产构建通过。完整scripts/verify.sh已实际执行：1784后端通过721.97秒、11条提醒，静态/研究/迁移/构建通过；浏览器发现旧测试入口，主动停止exit130（965.91秒，101通过/1失败/1中断/485未执行）。已补齐3处旧定位器并共用测试helper，保留原权限/原文/本地存储断言。应用与后端源码未改，最终静态检查＋完整浏览器重测exit0（1296.28秒）：588项通过21.5分钟，Chromium/Firefox/WebKit各196，零失败/跳过/重试；源码清单前后相同。桌面深色和390px浅色最终截图已查看。上述为分阶段通过，不称完整scripts/verify.sh曾exit0。结果见[结构化记录](docs/development/data-settings-results.json)。
+
+最终独立Mock前端健康200、邮件false、Mailpit0。只在独立Mock验证栈操作；主库/原件/VPS不动，无真实供应商调用，EMAIL_SEND_ENABLED=false，关键决定继续人类确认。不合并、不推送、不部署。另一个只读Agent复核文档/设置并指出邮箱必填的私人/正式区别，已澄清；没有运行测试，Token/成本未知不记为0。
+
 # spec035工程验收通过：资料交互精简与恢复
 
 2026-11-17。已回顾产品/架构/安全/模块及主要工作区，改动集中在资料区；交付草稿 [PR #16](https://github.com/DayuGuo/Pivot/pull/16)，依赖未合并 #15。手机标题/输入区精简、空全文先导入、抽屉焦点和设置交接、IME/Enter、历史阅读保持，以及有效/无效文件取消恢复已完成。[项目回顾](docs/development/ui-interaction-review.md) · [结果](docs/development/ui-interaction-results.json) · [规格](specs/035-ui-interaction-refinement.md)。不是全仓逐行或外部专业安全审计。

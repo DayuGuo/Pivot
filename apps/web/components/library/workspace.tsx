@@ -1,5 +1,5 @@
 "use client";
-import { useLibraryDrawer } from "./use-drawer";
+import { useWorkspaceDrawer } from "../use-workspace-drawer";
 import IdentityControl from "../identity/control";
 import PersonalCalendar from "../calendar/personal-calendar";
 import GlobalSearch from "../search/global-search";
@@ -45,7 +45,7 @@ export default function LibraryWorkspace({ reviewVersionId, importId, evaluation
   const [uploadingDocument, setUploadingDocument] = useState(false);
   const [drawer, setDrawer] = useState(false);
   const closeDrawer = useCallback(() => setDrawer(false), []);
-  const navigation = useLibraryDrawer(drawer, closeDrawer);
+  const { panelRef, triggerRef, closeRef, onKeyDown: onDrawerKeyDown } = useWorkspaceDrawer(drawer, closeDrawer, "(max-width: 900px)");
   const composing = useRef(false);
   const transcript = useRef<HTMLDivElement>(null);
   const nearBottom = useRef(true);
@@ -328,8 +328,8 @@ export default function LibraryWorkspace({ reviewVersionId, importId, evaluation
   const historicalVersion = detail !== null && !detail.is_current;
   return <div className={styles.workspace} onClickCapture={guardLinks}>
     <a href="#library-main" className={styles.skip}>跳到对话</a>
-    <aside ref={navigation.panel} onKeyDown={navigation.onKeyDown} role={drawer ? "dialog" : undefined} aria-modal={drawer || undefined} className={`${styles.sidebar} ${drawer ? styles.drawerOpen : ""}`} aria-label="我的资料">
-      <div className={styles.brand}><Link href="/">Pivot</Link><button className={styles.mobileOnly} aria-label="关闭资料列表" onClick={() => setDrawer(false)}><Glyph name="close" /></button></div>
+    <aside ref={panelRef} onKeyDown={onDrawerKeyDown} role={drawer ? "dialog" : undefined} aria-modal={drawer || undefined} className={`${styles.sidebar} ${drawer ? styles.drawerOpen : ""}`} aria-label="我的资料">
+      <div className={styles.brand}><Link href="/">Pivot</Link><button ref={closeRef} className={styles.mobileOnly} aria-label="关闭资料列表" onClick={() => setDrawer(false)}><Glyph name="close" /></button></div>
       <GlobalSearch scope={`${session.journal.id}:${session.user.id}:${session.user.role}:${session.csrf_token}`} onQueryChange={value => { setQuery(value); queryRef.current = value; ++pageRequest.current; setItems([]); setListCursor(null); setPaging("list"); setPageError(""); setPageRetry(null); }} />
       <div className={styles.sideHeading}><h2>我的资料</h2><button type="button" onClick={startNew}>新建资料</button></div>
       <nav className={styles.list} aria-busy={paging === "list"}>
@@ -343,7 +343,7 @@ export default function LibraryWorkspace({ reviewVersionId, importId, evaluation
     </aside>
     {drawer && <button type="button" tabIndex={-1} className={styles.drawerBackdrop} aria-label="关闭资料导航遮罩" onClick={closeDrawer} />}
     <div className={styles.main} inert={drawer || undefined}>
-      <header className={styles.toolbar}><button ref={navigation.trigger} className={styles.mobileOnly} aria-label="打开资料列表" aria-expanded={drawer} onClick={() => setDrawer(true)}><Glyph name="inbox" /></button><div className={styles.toolbarTitle}><h1>内部资料</h1><span>不构成正式投稿</span></div><Link href="/publishing">出版工作区</Link></header>
+      <header className={styles.toolbar}><button ref={triggerRef} className={styles.mobileOnly} aria-label="打开资料列表" aria-expanded={drawer} onClick={() => setDrawer(true)}><Glyph name="inbox" /></button><div className={styles.toolbarTitle}><h1>内部资料</h1><span>不构成正式投稿</span></div><Link href="/publishing">出版工作区</Link></header>
       {error && <div className={styles.alert} role="alert">{error} {retry ? <button disabled={!!busy} onClick={() => void retry()}>{retryLabel}</button> : <button disabled={!!busy} onClick={() => { if (leaveAllowed()) void load(); }}>重新载入</button>}</div>}
       {pageError && <div className={styles.alert} role="alert">{pageError} {pageRetry && <button disabled={!!paging} onClick={() => void pageRetry()}>重试加载</button>}</div>}
       {notice && <p className={styles.notice} role="status">{notice}</p>}

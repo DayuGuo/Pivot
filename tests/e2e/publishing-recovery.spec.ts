@@ -1,3 +1,4 @@
+import { selectTheme } from "./support/settings";
 import { test, expect, type Page } from "@playwright/test";
 import type { ChatMessage, Detail, Proposal, PublishingSession } from "../../apps/web/components/publishing/types";
 
@@ -41,7 +42,7 @@ test("UI fixture: 修回后续批次只填草稿，原件页码受控定位，�
  const composer=page.getByLabel('向出版助手发送消息',{exact:true});await composer.fill('保留已有问题');
  await panel.getByRole('button',{name:'继续核对剩余意见（2）',exact:true}).click();
  await expect(composer).toHaveValue(/^保留已有问题\n\n请从第9项开始/);expect(posts).toBe(0);
- await page.getByLabel('外观',{exact:true}).selectOption('dark');await panel.scrollIntoViewIfNeeded();await page.screenshot({path:test.info().outputPath('revision-original-dark.png')});
+ await selectTheme(page, "dark");await panel.scrollIntoViewIfNeeded();await page.screenshot({path:test.info().outputPath('revision-original-dark.png')});
  await page.route(`**/api/publishing/manuscripts/${MID}`,route=>route.fulfill({json:{...detail,revision:2}}));
  await page.reload();await expect(panel.getByText('历史对照：',{exact:false})).toBeVisible();await expect(panel.getByRole('button',{name:'继续核对剩余意见（2）',exact:true})).toHaveCount(0);
 });

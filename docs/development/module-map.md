@@ -1,6 +1,8 @@
 # 资料区模块维护地图
 
-spec035增量：library/use-drawer.ts 只负责移动资料侧栏焦点、Escape和视口恢复；不读取业务/模型/存储。editor.tsx 同时清空 React 文件候选和原生 input，错误文件取消不丢元数据。workspace 仍负责版本、请求隔离和组合；未改后端接口。
+角色走查增量：`components/use-workspace-drawer.ts` 为资料区和正式工作台提供移动侧栏焦点、Escape 和视口恢复。
+
+spec035增量：editor.tsx 同时清空 React 文件候选和原生 input，错误文件取消不丢元数据。workspace 仍负责版本、请求隔离和组合；未改后端接口。
 
 spec033增量：account_access.py仅认证状态与账号锁；operations/trial_accounts.py为服务器运维Action Gateway，不被HTTP或模型模块导入；TrialAccount在models.py、增量迁移33a1b9c7d204保存停用与revision。infrastructure/vps/manage.py负责安全TTY输入和stdin管道；账号/权限逻辑不复制到部署管理器。登录落点仅导航提示，资料访问继续走dossier_access。
 
@@ -82,3 +84,7 @@ spec027前端：`library/revision-check.tsx`维护材料包、三层人工草稿
 check-boundaries为上述SQL构造模块禁止传输、路由和执行/写入调用；原Action Gateway与审批边界不变。
 
 同稿同版本的NextSteps随消息变化通过refreshToken重读数据，保持按钮节点；身份/版本上下文仍重建绑定。请求序号丢弃迟到自动/手动刷新。浏览器URL恢复使用原精确谓词的web-first断言，避免把异步history观察当同步状态。
+
+## spec036：设置中的工作区偏好
+
+`components/settings/panel.tsx` 通过可选 appearance 接口调用现有页面主题更新；正式出版页提供外部存储订阅与快照，设置打开期间也跟随跨标签页主题变更；合成工作台仍由原页面state持有并按原用户键保存。无数据库、权限或模型依赖，不把全局设置作为业务状态存储。阅读字号与稿件任务保持原位置。数据/角色清单见docs/planning/editorial-data-and-permissions-2026-11-18.md。

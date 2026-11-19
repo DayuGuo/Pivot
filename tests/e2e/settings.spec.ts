@@ -184,8 +184,11 @@ test("设置：Ctrl/Cmd+K 不得切换底层稿件阅读页面", async ({ page }
 
 test("设置：深色面板沿用当前主题，邮件状态保持可读", async ({ page }) => {
   await login(page); await page.goto("/publishing");
-  await page.getByLabel("外观", { exact: true }).selectOption("dark");
+  await expect(page.getByLabel("界面主题", { exact: true })).toHaveCount(0);
   const panel = await open(page);
+  await panel.getByRole("tab", { name: "外观", exact: true }).click();
+  await panel.getByLabel("界面主题", { exact: true }).selectOption("dark");
+  await panel.getByRole("tab", { name: "模型 API", exact: true }).click();
   await expect(panel).toHaveAttribute("data-theme", "dark");
   await page.screenshot({ path: `artifacts/settings-${test.info().project.name}-dark-model.png`, fullPage: true });
   await panel.getByRole("tab", { name: "邮箱", exact: true }).click();
@@ -206,3 +209,43 @@ test("设置：深色面板沿用当前主题，邮件状态保持可读", async
   expect(ratios.every(ratio => ratio >= 4.5)).toBe(true);
   await page.screenshot({ path: `artifacts/settings-${test.info().project.name}-dark-mail.png`, fullPage: true });
 });
+
+for (const path of ["/publishing", "/workbench"]) {
+  test(`设置：${path} 外观即时生效、保留草稿并在刷新后恢复`, async ({ page }) => {
+    await login(page); await page.goto(path);
+    const input = page.getByRole("textbox", { name: path === "/publishing" ? "向出版助手发送消息" : "对话消息", exact: true });
+    await expect(input).toBeEnabled();
+    await input.fill("保留未发送的问题");
+    const posts: string[] = [];
+    page.on("request", request => { if (request.method() === "POST") posts.push(request.url()); });
+    const panel = await open(page);
+    await panel.getByRole("tab", { name: "外观", exact: true }).click();
+    await panel.getByLabel("界面主题", { exact: true }).selectOption("dark");
+    await expect(panel).toHaveAttribute("data-theme", "dark");
+    await panel.getByRole("button", { name: "关闭设置", exact: true }).click();
+    await expect(input).toHaveValue("保留未发送的问题");
+    await expect(page.locator("[data-theme]").first()).toHaveAttribute("data-theme", "dark");
+    await expect(page.getByLabel("界面主题", { exact: true })).toHaveCount(0);
+    expect(posts).toEqual([]);
+    await page.reload();
+    await expect(page.locator("[data-theme]").first()).toHaveAttribute("data-theme", "dark");
+    const reopened = await open(page);
+    await reopened.getByRole("tab", { name: "外观", exact: true }).click();
+    await expect(reopened.getByLabel("界面主题", { exact: true })).toHaveValue("dark");
+    if (path === "/publishing") {
+      const other = await page.context().newPage();
+      try {
+        await other.goto("/publishing");
+        const otherSettings = await open(other);
+        await otherSettings.getByRole("tab", { name: "外观", exact: true }).click();
+        await otherSettings.getByLabel("界面主题", { exact: true }).selectOption("light");
+        await expect(reopened.getByLabel("界面主题", { exact: true })).toHaveValue("light");
+        await expect(reopened).toHaveAttribute("data-theme", "light");
+        await expect(page.locator("[data-theme]").first()).toHaveAttribute("data-theme", "light");
+      } finally { await other.close(); }
+    }
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.screenshot({ path: `artifacts/settings-appearance-${path.slice(1)}-${test.info().project.name}.png` });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+}

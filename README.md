@@ -1,5 +1,8 @@
 # Pivot
 
+出版数据与职责核对（spec036）：[必要数据结构、角色权限与工作台清单](docs/planning/editorial-data-and-permissions-2026-11-18.md)。区分已有实现与后续需求；出版/合成工作台的主题选择收进设置，保留既有偏好。本轮分阶段通过1784后端＋588三浏览器与静态检查；首次完整脚本因旧测试入口停止，修正后浏览器全量重测通过，准确范围见 PROGRESS。
+
+
 资料交互精简（spec035）：[回顾与验收](docs/development/ui-interaction-review.md) · [草稿 PR #16](https://github.com/DayuGuo/Pivot/pull/16)。移动抽屉、输入法发送、历史阅读与文件取消恢复已验收；4fb6eae 完整 CI 通过1784后端＋582浏览器，静态CI通过。准确源码/边界见 PROGRESS；未合并或部署。
 
 首次编辑试用包与隔离真实模型验收入口（spec034）：[操作指南](docs/development/editorial-trial-kit/README.md) · [验收记录](docs/development/editorial-trial-kit/results.json) · [草稿PR #15](https://github.com/DayuGuo/Pivot/pull/15)。源码b013ea2的本机完整门禁与PR CI通过1779后端＋567浏览器；真实DeepSeek本轮仍待新安全凭据，尚无供应商调用。PR #14最终CI已核实全部通过，均未合并/部署。
