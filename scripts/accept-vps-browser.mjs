@@ -25,7 +25,8 @@ try {
   await page.getByLabel("邮箱", { exact: true }).fill(config.email);
   await page.getByLabel("密码", { exact: true }).fill(config.password);
   await page.getByRole("button", { name: "进入工作台", exact: true }).click();
-  await expect(page.getByRole("button", { name: "内部审阅资料", exact: true })).toBeVisible();
+  await expect(page).toHaveURL(url => url.origin === origin && url.pathname === "/library");
+  await expect(page.getByRole("heading", { name: "内部资料", exact: true })).toBeVisible();
   for (const item of accepted.cases) {
     await page.goto(`${origin}/library?dossier=${item.dossier_id}`);
     await expect(page.getByLabel("询问当前资料")).toBeVisible();
