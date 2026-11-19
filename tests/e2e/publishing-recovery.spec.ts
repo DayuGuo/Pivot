@@ -368,3 +368,52 @@ test("UI fixture：历史载入发生在建议按钮按下与松开之间，点�
     await expect(composer).toHaveValue("保留用户草稿\n\n逐条比对本次修回（合成UI夹具）");expect(posts).toBe(0);
   } finally {history.release();}
 });
+
+test("UI fixture: 审稿人与编辑视图明确区分过期邀请和待回应邀请", async ({ page }) => {
+  await fixtures(page);
+  const round = { id: "fixture-round", round_no: 1, version_id: "fixture-version", status: "open", required_reports: 1, submitted_reports: 0, accepted_count: 0, pending_count: 2 };
+  const invitation = {
+    id: "fixture-expired", status: "pending", response_window_expired: true, attempt_no: 1, round_no: 1,
+    title: "合成匿名稿件", abstract: "合成摘要。", instructions: "合成邀请说明。",
+    response_due_at: "2026-11-05T00:00:00Z", report_due_at: "2026-11-20T00:00:00Z",
+    notes: "", conflict_status: "unanswered", response_notes: "",
+  };
+  const form = { key: "fixture", version: 1, questions: [] };
+  const base = { ...detail, stage: "peer_review", stage_label: "同行评审", production: null };
+  let role: "reviewer" | "editor" = "reviewer";
+  await page.route("**/api/publishing/session", route => route.fulfill({
+    json: { ...session, user: { ...session.user, role } },
+  }));
+  await page.route(`**/api/publishing/manuscripts/${MID}`, route => route.fulfill({ json: role === "reviewer" ? {
+    ...base, review: { mode: "reviewer", round, invitation, report: null, materials: [], form, can_respond: false, can_edit_report: false },
+  } : {
+    ...base, allowed_actions: [{ action: "cancel_review_invitation", label: "准备取消邀请", requires_human: true }],
+    review: { mode: "staff", round, form, eligible_reviewers: [], reports: [], materials: [], invitations: [
+      { ...invitation, reviewer_id: "first", reviewer_name: "超期审稿人", reviewer_email: "expired@publishing.test" },
+      {
+        ...invitation, id: "fixture-current", reviewer_id: "second", reviewer_name: "待回应审稿人",
+        reviewer_email: "pending@publishing.test", response_window_expired: false,
+        response_due_at: "2026-11-26T00:00:00Z", report_due_at: "2026-12-09T00:00:00Z",
+      },
+    ] },
+  } }));
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`/publishing?manuscript=${MID}`);
+  const material = page.getByRole("main", { name: "稿件材料" });
+  await expect(material.getByText("第 1 轮 · 回应期限已过", { exact: true })).toBeVisible();
+  await expect(material.getByText(/等待回应/)).toHaveCount(0);
+  await expect(material.getByLabel("本次邀请回应", { exact: true })).toHaveCount(0);
+  await page.screenshot({ path: test.info().outputPath("reviewer-expired-390.png") });
+
+  role = "editor";
+  await page.setViewportSize({ width: 1280, height: 850 });
+  await page.reload();
+  const review = material.getByRole("region", { name: "站内同行评审" });
+  await expect(review.getByText(/待回应 1 · 超期 1/)).toBeVisible();
+  const expired = review.getByRole("listitem").filter({ hasText: "超期审稿人" });
+  const pending = review.getByRole("listitem").filter({ hasText: "待回应审稿人" });
+  await expect(expired.getByText(/^回应期限已过/)).toBeVisible();
+  await expect(pending.getByText(/^等待回应/)).toBeVisible();
+  await expect(review.getByLabel("要取消的邀请").locator('option[value="fixture-expired"]')).toHaveText(/回应期限已过/);
+  await page.screenshot({ path: test.info().outputPath("editor-expired-1280.png") });
+});
