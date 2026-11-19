@@ -1,5 +1,7 @@
 """One peer-review policy/projection boundary for API, UI, files and model context."""
 
+from datetime import datetime
+
 from fastapi import HTTPException
 from sqlalchemy import and_, exists, select
 
@@ -212,6 +214,11 @@ def eligible_reviewers(db, manuscript, round=None):
     ]
 
 
+def _response_window_expired(invitation: ReviewInvitation, as_of: datetime) -> bool:
+    # A pending record can still be closed or declined through the existing human workflow.
+    return invitation.status == "pending" and invitation.response_due_at <= as_of
+
+
 def staff_projection(db, actor, manuscript, flow):
     if not core.capabilities(db, actor, manuscript) & {
         "handling_editor",
@@ -244,6 +251,7 @@ def staff_projection(db, actor, manuscript, flow):
             reports.append(
                 {**report_data(report), "reviewer_name": db.get(User, inv.reviewer_id).name}
             )
+    as_of = now()
     return {
         "mode": "staff",
         "round": round_summary(db, round) if round else None,
@@ -257,6 +265,7 @@ def staff_projection(db, actor, manuscript, flow):
                 "reviewer_name": db.get(User, i.reviewer_id).name,
                 "reviewer_email": db.get(User, i.reviewer_id).email,
                 "status": i.status,
+                "response_window_expired": _response_window_expired(i, as_of),
                 "attempt_no": i.attempt_no,
                 "round_no": round.round_no,
                 "response_due_at": i.response_due_at.isoformat(),
@@ -315,7 +324,8 @@ def reviewer_projection(db, actor, manuscript, flow, *, detail=True):
         .order_by(WorkItem.created_at)
     ).all()
     actions = []
-    can_respond = round.status == "open" and inv.status == "pending" and inv.response_due_at > now()
+    response_window_expired = _response_window_expired(inv, now())
+    can_respond = round.status == "open" and inv.status == "pending" and not response_window_expired
     can_edit = (
         accessible and inv.status == "accepted" and report is not None and report.status == "draft"
     )
@@ -402,6 +412,7 @@ def reviewer_projection(db, actor, manuscript, flow, *, detail=True):
                 "invitation": {
                     "id": inv.id,
                     "status": inv.status,
+                    "response_window_expired": response_window_expired,
                     "attempt_no": inv.attempt_no,
                     "title": inv.invitation_snapshot["title"],
                     "abstract": inv.invitation_snapshot["abstract"],

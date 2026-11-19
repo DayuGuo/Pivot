@@ -1,10 +1,13 @@
 """Real in-app peer review: fixed material, explicit response and immutable report."""
 
+from datetime import datetime, timedelta
+
 import pytest
 from sqlalchemy import func, select
 
-from apps.api.publishing.domain.models import Assignment
-from apps.api.publishing.domain.review_models import ReviewReport, ReviewRound
+from apps.api.publishing.domain import review_access, reviews
+from apps.api.publishing.domain.models import Assignment, HumanConfirmation
+from apps.api.publishing.domain.review_models import ReviewInvitation, ReviewReport, ReviewRound
 from tests.api.test_publishing_intake import URL, detail, request_id
 from tests.api.test_publishing_screening import (
     check_payload,
@@ -122,6 +125,88 @@ def save_report(client, mid, values=None):
     )
     assert response.status_code == 200, response.text
     return detail(client, mid)
+
+
+def test_invitation_response_deadline_is_projected_without_mutating_pending_invitation(
+    client, login, db, world, monkeypatch
+):
+    mid = reviewer_selection(client, login, world)
+    staff_before = open_round(client, mid, world)
+    original = staff_before["review"]["invitations"][0]
+    material_url = staff_before["review"]["materials"][0]["download_url"]
+    deadline = datetime.fromisoformat(original["response_due_at"])
+    stamp = deadline - timedelta(microseconds=1)
+    monkeypatch.setattr(review_access, "now", lambda: stamp)
+    monkeypatch.setattr(reviews, "now", lambda: stamp)
+
+    login("reviewer")
+    pending = detail(client, mid)
+    assert pending["review"]["can_respond"] is True
+    response = {
+        "invitation_id": original["id"],
+        "outcome": "accept",
+        "conflict_status": "none",
+        "notes": "",
+    }
+    before, accept_proposal = propose(client, mid, "respond_review_invitation", response)
+
+    stamp = deadline
+    expired = detail(client, mid)
+    assert expired["revision"] == before["revision"]
+    assert expired["review"]["can_respond"] is False
+    assert expired["review"]["invitation"]["status"] == "pending"
+    assert expired["review"]["invitation"]["response_window_expired"] is True
+    assert pending["review"]["invitation"]["response_window_expired"] is False
+    assert original["response_window_expired"] is False
+    assert expired["review"]["materials"] == [] and expired["review"]["report"] is None
+    assert expired["version"] is None
+    assert world.users["author"].email not in str(expired)
+    assert client.get(material_url).status_code == 404
+
+    login("editor")
+    staff_after = detail(client, mid)
+    assert staff_after["review"]["invitations"][0] == original | {"response_window_expired": True}
+    assert staff_after["review"]["round"]["pending_count"] == 1
+    assert "cancel_review_invitation" in [a["action"] for a in staff_after["allowed_actions"]]
+
+    login("reviewer")
+    invitation = db.get(ReviewInvitation, original["id"], populate_existing=True)
+    assert (
+        invitation.status == "pending"
+        and invitation.responded_at is None
+        and invitation.response_confirmation_id is None
+        and invitation.terminal_confirmation_id is None
+    )
+    late_accept = client.post(
+        f"{URL}/proposals/{accept_proposal['proposal_id']}/confirmations",
+        json={
+            "request_id": request_id(),
+            "expected_revision": before["revision"],
+            "digest": accept_proposal["digest"],
+            "acknowledged": True,
+        },
+    )
+    assert late_accept.status_code == 409
+    assert "超过响应期限" in late_accept.json()["detail"]
+    assert (
+        db.scalar(
+            select(HumanConfirmation.id).where(
+                HumanConfirmation.proposal_id == accept_proposal["proposal_id"]
+            )
+        )
+        is None
+    )
+
+    before_decline, decline_proposal = propose(
+        client, mid, "respond_review_invitation", response | {"outcome": "decline"}
+    )
+    assert db.get(ReviewInvitation, original["id"], populate_existing=True).status == "pending"
+    confirm(client, before_decline, decline_proposal)
+    declined = detail(client, mid)
+    assert declined["stage"] == "reviewer_selection"
+    assert declined["review"]["invitation"]["status"] == "declined"
+    assert declined["review"]["invitation"]["response_window_expired"] is False
+    assert declined["review"]["materials"] == [] and declined["review"]["report"] is None
 
 
 def test_real_round_invitation_accept_report_and_editor_close_are_distinct_human_operations(
